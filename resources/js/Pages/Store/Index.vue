@@ -16,6 +16,12 @@ const props = defineProps({
 let per_page = ref(10);
 let search = ref(props.filters.search);
 const createModal = ref(false);
+const editModal = ref(false);
+const deleteModal = ref(false);
+const deleteAllSelectedModal = ref(false);
+
+let storeIds = ref([]);
+let selectAllCheckbox = ref(false);
 
 const createForm = useForm({
 	name: '',
@@ -24,6 +30,50 @@ const createForm = useForm({
 	address: '',
 	logo: '',
 });
+
+const editForm = useForm({
+    id: '',
+	name: '',
+	email: '',
+	contact: '',
+	address: '',
+	initialLogo: '',
+    logo: '',
+});
+
+const deleteForm = useForm({
+	id: '',
+});
+
+const editModalForm = (store_id, store) => {
+	editForm.clearErrors()
+	editForm.id = store_id;
+	editForm.name = store.name;
+	editForm.email = store.email;
+	editForm.contact = store.contact;
+	editForm.address = store.address;
+    editForm.initialLogo = store.initialLogo;
+	editModal.value = true;
+};
+
+
+const deleteStoreForm = (store_id) => {
+	deleteModal.value = true;
+	deleteForm.id = store_id
+}
+
+const closeModal = () => {
+    createForm.clearErrors()
+	deleteForm.clearErrors()
+	editForm.clearErrors()
+    createModal.value = false;
+    deleteModal.value = false;
+    editModal.value = false;
+    deleteAllSelectedModal.value = false;
+    createForm.reset();
+    deleteForm.reset();
+    editForm.reset();
+};
 
 const submitCreateForm = () => {
 	createForm.post('/stores',{
@@ -40,10 +90,67 @@ const submitCreateForm = () => {
 	})
 }
 
-const closeModal = () => {
-    createModal.value = false;
-    createForm.reset();
-};
+const submitUpdateForm = () => {
+	editForm.post(route('store.update'),
+	{
+		replace: true,
+		preserveScroll: true,
+  		onSuccess: () => {
+            closeModal();
+			useToast().success(`Store has been updated successfully!`, {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+		},
+	})
+}
+
+const submitDeleteForm = () => {
+	deleteForm.delete(`/stores/${deleteForm.id}`,{
+		replace: true,
+		preserveScroll: true,
+  		onSuccess: () => {
+			closeModal();
+			useToast().success('Store has been deleted successfully!', {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+		},
+	})
+}
+
+const submitBulkDeleteForm = () => {
+    router.post(route('store.bulkDelete'), 
+    {
+        store_id: storeIds.value
+    },
+    {
+        forceFormData: true,
+        replace: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            storeIds.value = [];
+            closeModal();
+            useToast().success('Multiple stores has been deleted successfully!', {
+                position: 'top-right',
+                duration: 3000,
+                dismissible: true
+            });
+        },
+    })
+}
+
+const selectAll = () => {
+	if (selectAllCheckbox.value) {
+        // If "Select All" checkbox is checked, select all users
+        storeIds.value = props.stores.data.map(store => store.id);
+      } else {
+        // If "Select All" checkbox is unchecked, deselect all users
+        storeIds.value = [];
+      }
+}
 
 watch(per_page, value => {
 	router.get('/stores', 
@@ -94,7 +201,7 @@ watch(search, debounce(function (value) {
                         </div>
                     </div>
                     <PrimaryButton class="btn btn-sm"  @click="createModal = true">Add new</PrimaryButton>
-                    <!-- <button class="btn btn-sm">Settings</button> -->
+                    <DangerButton v-show="storeIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
             </div>
         </div>
@@ -103,7 +210,7 @@ watch(search, debounce(function (value) {
                 <thead>
                     <tr>
                         <th>
-                            <input type="checkbox" class="checkbox">
+                            <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
                         </th>
                         <th >
                             <div class="font-bold">Name</div>
@@ -122,7 +229,7 @@ watch(search, debounce(function (value) {
                 <tbody>
                     <tr v-for="store in stores.data" :key="store.id">
                         <td class="w-0">
-                            <input type="checkbox" class="checkbox">
+                            <input :value="store.id" v-model="storeIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
                         <td class="w-5">
                             <div class="flex items-center gap-2">
@@ -150,12 +257,12 @@ watch(search, debounce(function (value) {
                             <div class="flex items-center space-x-2">
                                 <button class=" hover:text-green-500" 
                                     @click="editModalForm(store.id, 
-                                        { name: store.name, email: store.email,contact: store.contact,address: store.address})">
+                                        { name: store.name, email: store.email,contact: store.contact, address: store.address,initialLogo: store.logo})">
                                     <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
                                     </svg>
                                 </button>
-                                <button class="text-orange-900 hover:text-orange-600" type="button" @click="deleteTenantForm(store.id)">
+                                <button @click="deleteStoreForm(store.id)" class="text-orange-900 hover:text-orange-600" type="button">
                                     <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M13.7535 2.47502H11.5879V1.9969C11.5879 1.15315 10.9129 0.478149 10.0691 0.478149H7.90352C7.05977 0.478149 6.38477 1.15315 6.38477 1.9969V2.47502H4.21914C3.40352 2.47502 2.72852 3.15002 2.72852 3.96565V4.8094C2.72852 5.42815 3.09414 5.9344 3.62852 6.1594L4.07852 15.4688C4.13477 16.6219 5.09102 17.5219 6.24414 17.5219H11.7004C12.8535 17.5219 13.8098 16.6219 13.866 15.4688L14.3441 6.13127C14.8785 5.90627 15.2441 5.3719 15.2441 4.78127V3.93752C15.2441 3.15002 14.5691 2.47502 13.7535 2.47502ZM7.67852 1.9969C7.67852 1.85627 7.79102 1.74377 7.93164 1.74377H10.0973C10.2379 1.74377 10.3504 1.85627 10.3504 1.9969V2.47502H7.70664V1.9969H7.67852ZM4.02227 3.96565C4.02227 3.85315 4.10664 3.74065 4.24727 3.74065H13.7535C13.866 3.74065 13.9785 3.82502 13.9785 3.96565V4.8094C13.9785 4.9219 13.8941 5.0344 13.7535 5.0344H4.24727C4.13477 5.0344 4.02227 4.95002 4.02227 4.8094V3.96565ZM11.7285 16.2563H6.27227C5.79414 16.2563 5.40039 15.8906 5.37227 15.3844L4.95039 6.2719H13.0785L12.6566 15.3844C12.6004 15.8625 12.2066 16.2563 11.7285 16.2563Z" fill=""></path>
                                         <path d="M9.00039 9.11255C8.66289 9.11255 8.35352 9.3938 8.35352 9.75942V13.3313C8.35352 13.6688 8.63477 13.9782 9.00039 13.9782C9.33789 13.9782 9.64727 13.6969 9.64727 13.3313V9.75942C9.64727 9.3938 9.33789 9.11255 9.00039 9.11255Z" fill=""></path>
@@ -187,6 +294,7 @@ watch(search, debounce(function (value) {
         <Paginator :links="stores.links" />
     </div>
 
+    <!-- create modal -->
     <Modal :show="createModal" @close="closeModal">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
@@ -248,8 +356,127 @@ watch(search, debounce(function (value) {
                         :class="{ 'opacity-25': createForm.processing }"
                         :disabled="createForm.processing"
                     >
+                        <span v-if="deleteForm.processing" class="loading loading-spinner"></span>
                         Create
                     </PrimaryButton>
+                </div>
+            </form>
+        </div>
+    </Modal>
+    <!-- edit modal -->
+    <Modal :show="editModal" @close="closeModal">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Edit store
+            </h1>
+
+            <form method="dialog" class="w-full" @submit.prevent="submitUpdateForm">
+                <div class="mb-3">
+                    <InputLabel for="name" value="Store name" />
+                    <TextInput
+                        type="text"
+                        class="block w-full"
+                        v-model="editForm.name"
+                        
+                        placeholder="store name"
+                    />
+                    <InputError class="mt-2" :message="editForm.errors.name" />
+                </div>
+                <div class="mb-3">
+                    <InputLabel value="Email Address" />
+                    <TextInput
+                        type="email"
+                        class="block w-full"
+                        v-model="editForm.email"
+                        required
+                        placeholder="email address"
+                    />
+                    <InputError class="mt-2" :message="editForm.errors.email" />
+                </div>
+                <div class="mb-3">
+                    <InputLabel value="Contact No" />
+                    <TextInput
+                        type="text"
+                        class="block w-full"
+                        v-model="editForm.contact"
+                        placeholder="phone number"
+                    />
+                    <InputError class="mt-2" :message="editForm.errors.contact" />
+                </div>
+                <div class="mb-3">
+                    <InputLabel value="Address" />
+                    <textarea v-model="editForm.address" class="textarea w-full textarea-bordered" placeholder="Address"></textarea>
+                    <InputError class="mt-2" :message="editForm.errors.address" />
+                </div>
+                <div class="mb-3">
+                    <div class="relative rounded-full" v-if="editForm.initialLogo">
+                        <img width="60" class="rounded-md" :src="editForm.initialLogo" alt="Product">
+                    </div>
+                    <InputLabel value="Store logo" />
+                    <input accept="image/*" @input="editForm.logo = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
+                    <progress v-if="editForm.progress" :value="editForm.progress.percentage" class="progress" max="100">
+                        {{ editForm.progress.percentage }}%
+                    </progress>
+                    <InputError class="mt-2" :message="editForm.errors.logo" />
+                </div>
+            
+
+                <div class="mt-6 flex justify-end">
+                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
+                    <SuccessButton
+                        class="ms-3"
+                        :class="{ 'opacity-25': editForm.processing }"
+                        :disabled="editForm.processing"
+                    >
+                        <span v-if="editForm.processing" class="loading loading-spinner"></span>
+                        Update
+                    </SuccessButton>
+                </div>
+            </form>
+        </div>
+    </Modal>
+    <!-- delete modal -->
+    <Modal :show="deleteModal" @close="closeModal">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Delete store
+            </h1>
+            <p>Are you sure you want to delete this data? This action cannot be undone.</p>
+            <form method="dialog" class="w-full" @submit.prevent="submitDeleteForm">
+    
+                <div class="mt-6 flex justify-end">
+                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
+                    <DangerButton
+                        class="ms-3"
+                        :class="{ 'opacity-25': deleteForm.processing }"
+                        :disabled="deleteForm.processing"
+                    >
+                        <span v-if="deleteForm.processing" class="loading loading-spinner"></span>
+                        Delete
+                    </DangerButton>
+                </div>
+            </form>
+        </div>
+    </Modal>
+    <!-- delete all selected modal -->
+    <Modal :show="deleteAllSelectedModal" @close="closeModal">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Delete {{ storeIds.length }} store
+            </h1>
+            <p>Are you sure you want to delete this data? This action cannot be undone.</p>
+            <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">
+    
+                <div class="mt-6 flex justify-end">
+                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
+                    <DangerButton
+                        class="ms-3"
+                        :class="{ 'opacity-25': submitBulkDeleteForm.processing }"
+                        :disabled="submitBulkDeleteForm.processing"
+                    >
+                        <span v-if="submitBulkDeleteForm.processing" class="loading loading-spinner"></span>
+                        Delete
+                    </DangerButton>
                 </div>
             </form>
         </div>

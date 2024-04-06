@@ -13,6 +13,8 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import DangerButton from '@/Components/DangerButton.vue';
+import SuccessButton from '@/Components/SuccessButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import NavLink from '@/Components/NavLink.vue';
 import Paginator from '@/Components/Paginator.vue';
@@ -35,6 +37,8 @@ createInertiaApp({
             .component('InputError', InputError)
             .component('PrimaryButton', PrimaryButton)
             .component('SecondaryButton', SecondaryButton)
+            .component('SuccessButton', SuccessButton)
+            .component('DangerButton', DangerButton)
             .component('TextInput', TextInput)
             .component('InputLabel', InputLabel)
             .component('NavLink', NavLink)

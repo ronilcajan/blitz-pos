@@ -15,7 +15,7 @@ class Store extends Model
 
     protected $guarded = [];
 
-    protected $cascadeDeletes = ['users'];
+    // protected $cascadeDeletes = ['users'];
 
     public function users()
     {

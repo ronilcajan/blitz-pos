@@ -52,7 +52,7 @@ class User extends Authenticatable
     }
 
     public function scopeFilter($query, array $filter){
-        if($filter['search']){
+        if(!empty($filter['search'])){
             $search = $filter['search'];
 
             $query->whereAny([

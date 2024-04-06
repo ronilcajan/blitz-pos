@@ -36,7 +36,9 @@ class UserController extends Controller
 
         return inertia('Users/Index', [
             'title' => 'User',
-            'users' => $users
+            'users' => $users,
+            'filters' => $request->only(['search']),
+            'per_page' => $request->only(['per_page'])
         ]);
     }
 

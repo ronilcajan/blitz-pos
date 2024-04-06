@@ -65,28 +65,40 @@ class StoreController extends Controller
     {
         //
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Store $store)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Store $store)
+    public function update(StoreFormRequest $request)
     {
-        //
+        $store = Store::find($request->id);
+        // $this->authorize('update', $store);
+
+        $validate = $request->validated();
+        
+        if($request->hasFile('logo')){
+            $logo = $request->file('logo')->store('stores','public');
+            $validate['logo'] = asset('storage/'.$logo);
+        }
+        
+        $store->update($validate);
+        return redirect()->back();
     }
 
     /**
      * Remove the specified resource from storage.
      */
+    public function bulkDelete(Request $request)
+    {
+        // $this->authorize('bulk_delete', Supplier::class);
+
+        Store::whereIn('id',$request->store_id)->delete();
+        return redirect()->back();
+    }
+
     public function destroy(Store $store)
     {
-        //
+        // $this->authorize('delete', $store);
+        $store->delete();
+        return redirect()->back();
     }
 }

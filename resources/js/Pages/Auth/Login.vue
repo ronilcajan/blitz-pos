@@ -87,6 +87,7 @@ const submit = () => {
 
             <div class="flex items-end py-4 mt-5">
                 <PrimaryButton class="grow" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                    <span v-if="form.processing" class="loading loading-spinner"></span>
                     Log in
                 </PrimaryButton>
             </div>
