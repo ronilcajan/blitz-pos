@@ -32,25 +32,16 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            // 'auth' =>  $request->user() ? [
-            //     'user' => [
-            //         'name' => $request->user()->name,
-            //         'email' => $request->user()->email,
-            //         'avatar' => $request->user()->profile_photo_url,
-            //         'store_id' => $request->user()->store->id ?? '',
-            //         // 'isSuperAdmin' =>  $request->user()->roles[0]->name === 'super-admin',
-            //         // 'isStaff' => $request->user()->roles[0]->name === 'staff',
-            //         'impersonate' => session()->get('impersonate') ?? null
-            //     ]
-            // ] : null,
             'auth' => [
                     'user' => $request->user() ? [
-                        'name' => $request->user()->name,
+                    'name' => $request->user()->name,
                     'email' => $request->user()->email,
                     'avatar' => $request->user()->profile_photo_url,
                     'store_id' => $request->user()->store->id ?? '',
-                    // 'isSuperAdmin' =>  $request->user()->roles[0]->name === 'super-admin',
-                    // 'isStaff' => $request->user()->roles[0]->name === 'staff',
+                    'isSuperAdmin' =>  $request->user()->roles[0]->name === 'super-admin',
+                    'isOwner' => $request->user()->roles[0]->name === 'owner',
+                    'isAdmin' => $request->user()->roles[0]->name === 'admin',
+                    'isStaff' => $request->user()->roles[0]->name === 'staff',
                     'impersonate' => session()->get('impersonate') ?? null
                     ] : null,
             ]

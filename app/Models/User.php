@@ -3,12 +3,16 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Scopes\UserScope;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laratrust\Traits\HasRolesAndPermissions;
 
+#[ScopedBy([UserScope::class])]
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes, HasRolesAndPermissions;
@@ -22,10 +26,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'address',
+        'phone',
         'gauth_id',
         'gauth_type',
         'profile_photo_url',
-        'stores_id'
+        'store_id',
     ];
 
     /**
@@ -49,6 +55,16 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function store():BelongsTo
+    {
+        return $this->belongsTo(Store::class);
+    } 
+
+    public function getRoleAttribute()
+    {
+        return $this->roles()->first(['id', 'name']);
     }
 
     public function scopeFilter($query, array $filter){

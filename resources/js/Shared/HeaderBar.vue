@@ -13,6 +13,7 @@ watch(darkMode, () => {
 </script>
 
 <template>
+	
     <!-- header -->
     <header class="col-span-12 flex items-center gap-2 lg:gap-4">
 		<label for="my-drawer" class="btn btn-square btn-ghost drawer-button lg:hidden">

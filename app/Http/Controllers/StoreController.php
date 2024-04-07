@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFormRequest;
 use App\Models\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class StoreController extends Controller
 {
@@ -13,7 +14,7 @@ class StoreController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Store::class);
+        Gate::authorize('viewAny', Store::class);
 
         $transformedStore = Store::query()
             ->orderBy('id', 'DESC')
@@ -44,7 +45,7 @@ class StoreController extends Controller
      */
     public function store(StoreFormRequest $request)
     {
-        // $this->authorize('create', Store::class);
+        Gate::authorize('create', Store::class);
        
         $validate = $request->validated();
 
@@ -71,7 +72,8 @@ class StoreController extends Controller
     public function update(StoreFormRequest $request)
     {
         $store = Store::find($request->id);
-        // $this->authorize('update', $store);
+
+        Gate::authorize('create', $store);
 
         $validate = $request->validated();
         
@@ -89,7 +91,7 @@ class StoreController extends Controller
      */
     public function bulkDelete(Request $request)
     {
-        // $this->authorize('bulk_delete', Supplier::class);
+        Gate::authorize('bulk_delete',  Store::class);
 
         Store::whereIn('id',$request->store_id)->delete();
         return redirect()->back();
@@ -97,7 +99,7 @@ class StoreController extends Controller
 
     public function destroy(Store $store)
     {
-        // $this->authorize('delete', $store);
+        Gate::authorize('delete', $store);
         $store->delete();
         return redirect()->back();
     }

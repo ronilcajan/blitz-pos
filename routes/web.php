@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
@@ -36,6 +37,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/stores/bulk/delete', [StoreController::class, 'bulkDelete'])->name('store.bulkDelete');
 
     Route::resource('users', UserController::class);
+    Route::post('users/update', [UserController::class, 'update']);
+    Route::post('users/reset', [UserController::class, 'reset']);
+    Route::post('/users/bulk/delete', [UserController::class, 'bulkDelete'])->name('user.bulkDelete');
+    Route::get('/users/impersonate/{user}', [ImpersonateController::class, 'impersonate'])->name('user.impersonate');
+    Route::get('/users/leave/impersonation', [ImpersonateController::class, 'leave'])->name('user.leave');
 
 });
 
