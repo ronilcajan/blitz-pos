@@ -79,6 +79,7 @@ const submitBulkDeleteForm = () => {
                 duration: 3000,
                 dismissible: true
             });
+            selectAllCheckbox.value = []
         },
     })
 }

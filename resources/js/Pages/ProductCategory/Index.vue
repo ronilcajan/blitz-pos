@@ -9,7 +9,7 @@ defineOptions({ layout: AuthenticatedLayout })
 
 const props = defineProps({  
     title: String,
-    expenses_categories: Object,
+    product_categories: Object,
     stores: Object,
 	filters: Object
 });
@@ -27,9 +27,9 @@ const page = usePage();
 let categoryIds = ref([]);
 let selectAllCheckbox = ref(false);
 
-const createForm = useForm({name: ''});
+const createForm = useForm({name: '',description: ''});
 
-const editForm = useForm({id: '', name: ''});
+const editForm = useForm({id: '', name: '',description: ''});
 
 const deleteForm = useForm({id: ''});
 
@@ -37,6 +37,7 @@ const editModalForm = (category_id, category) => {
 	editForm.clearErrors()
 	editForm.id = category_id;
     editForm.name = category.category;
+    editForm.description = category.description;
 	editModal.value = true;
 };
 
@@ -60,7 +61,7 @@ const closeModal = () => {
 };
 
 const submitCreateForm = () => {
-	createForm.post('/expenses_categories',{
+	createForm.post('/product_categories',{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
@@ -75,13 +76,13 @@ const submitCreateForm = () => {
 }
 
 const submitUpdateForm = () => {
-	editForm.post('expenses_categories/update',
+	editForm.post('product_categories/update',
 	{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
             closeModal();
-			useToast().success(`Expenses category has been updated successfully!`, {
+			useToast().success(`Product category has been updated successfully!`, {
 				position: 'top-right',
 				duration: 3000,
 				dismissible: true
@@ -91,12 +92,12 @@ const submitUpdateForm = () => {
 }
 
 const submitDeleteForm = () => {
-	deleteForm.delete(`/expenses_categories/${deleteForm.id}`,{
+	deleteForm.delete(`/product_categories/${deleteForm.id}`,{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
 			closeModal();
-			useToast().success('Expenses category has been deleted successfully!', {
+			useToast().success('Product category has been deleted successfully!', {
 				position: 'top-right',
 				duration: 3000,
 				dismissible: true
@@ -106,7 +107,7 @@ const submitDeleteForm = () => {
 }
 
 const submitBulkDeleteForm = () => {
-    router.post(route('expenses_categories.bulkDelete'), 
+    router.post(route('product_categories.bulkDelete'), 
     {
         categories_id: categoryIds.value
     },
@@ -130,7 +131,7 @@ const submitBulkDeleteForm = () => {
 const selectAll = () => {
 	if (selectAllCheckbox.value) {
         // If "Select All" checkbox is checked, select all users
-        categoryIds.value = props.expenses_categories.data.map(expenses_category => expenses_category.id);
+        categoryIds.value = props.product_categories.data.map(product_category => product_category.id);
       } else {
         // If "Select All" checkbox is unchecked, deselect all users
         categoryIds.value = [];
@@ -142,19 +143,19 @@ const isSuperAdmin = computed(() =>
 )
 
 watch(per_page, value => {
-	router.get('/expenses_categories', 
+	router.get('/product_categories', 
 	{ per_page: value },
 	{ preserveState: true, replace:true })
 })
 
 watch(search, debounce(function (value) {
-	router.get('/expenses_categories',
+	router.get('/product_categories',
 	{ search: value },
 	{ preserveState: true, replace:true })
 }, 500)) ;
 
 watch(store, value => {
-	router.get('/expenses_categories', 
+	router.get('/product_categories', 
 	{ store: value },
 	{ preserveState: true, replace:true })
 })
@@ -217,6 +218,9 @@ watch(store, value => {
                         <th>
                             <div class="font-bold">Name</div>
                         </th>
+                        <th class="hidden sm:table-cell">
+                            <div class="font-bold">Description</div>
+                        </th>
                         <th class="hidden sm:table-cell" v-if="isSuperAdmin">
                             <div class="font-bold">Store</div>
                         </th>
@@ -226,7 +230,7 @@ watch(store, value => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="category in expenses_categories.data" :key="category.id">
+                    <tr v-for="category in product_categories.data" :key="category.id">
                         <td class="w-0">
                             <input :value="category.id" v-model="categoryIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
@@ -235,19 +239,21 @@ watch(store, value => {
                                 <div>
                                     <div class="text-sm font-bold">{{ category.name }}</div>
                                     <div class="sm:hidden">
+                                        <div class="text-xs opacity-50">{{ category.description }}</div>
                                         <div v-if="isSuperAdmin" class="text-xs opacity-50">{{ category.store }}</div>
                                         <div class="text-xs opacity-50">{{ category.created_at }}</div>
                                     </div>
                                 </div>
                             </div>
                         </td>
-                        <td class="hidden sm:table-cell" v-if="isSuperAdmin">{{ category.store }}</td>
+                        <td class="hidden sm:table-cell">{{ category.description }}</td>
+                        <td v-if="isSuperAdmin" class="hidden sm:table-cell">{{ category.store }}</td>
                         <td class="hidden sm:table-cell">{{ category.created_at }}</td>
                         <td>
                             <div class="flex items-center space-x-2">
                                 <button class=" hover:text-green-500" 
                                     @click="editModalForm(category.id, 
-                                        { category: category.name })">
+                                        { category: category.name,description: category.description })">
                                     <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
                                     </svg>
@@ -264,7 +270,7 @@ watch(store, value => {
                         </td>
 
                     </tr>
-                    <tr v-if="expenses_categories.data.length  <= 0">
+                    <tr v-if="product_categories.data.length  <= 0">
                         <td colspan="5" class="text-center">
                             No data found
                         </td>
@@ -278,10 +284,10 @@ watch(store, value => {
     <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
         <div class="text-center mb-4">
             <small>
-                Showing {{ expenses_categories.from }} to  {{ expenses_categories.to }} of  {{ expenses_categories.total }} results
+                Showing {{ product_categories.from }} to  {{ product_categories.to }} of  {{ product_categories.total }} results
             </small>
         </div>
-        <Paginator :links="expenses_categories.links" />
+        <Paginator :links="product_categories.links" />
     </div>
 
     <!-- create modal -->
@@ -302,6 +308,11 @@ watch(store, value => {
                         placeholder="category name"
                     />
                     <InputError class="mt-2" :message="createForm.errors.name" />
+                </div>
+                <div class="mb-3">
+                    <InputLabel value="Description" />
+                    <textarea v-model="createForm.description" class="textarea w-full textarea-bordered" placeholder="Description"></textarea>
+                    <InputError class="mt-2" :message="createForm.errors.description" />
                 </div>
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
@@ -336,7 +347,11 @@ watch(store, value => {
                     />
                     <InputError class="mt-2" :message="editForm.errors.name" />
                 </div>
-               
+                <div class="mb-3">
+                    <InputLabel value="Description" />
+                    <textarea v-model="editForm.description" class="textarea w-full textarea-bordered" placeholder="Description"></textarea>
+                    <InputError class="mt-2" :message="editForm.errors.description" />
+                </div>
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <SuccessButton

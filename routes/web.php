@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ImpersonateController;
+use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SupplierController;
@@ -37,13 +38,17 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::resource('/product_categories', ProductCategoryController::class);
+    Route::post('/product_categories/update', [ProductCategoryController::class, 'update']);
+    Route::post('/product_categories/bulk/delete', [ProductCategoryController::class, 'bulkDelete'])->name('product_categories.bulkDelete');
+
     Route::resource('/expenses', ExpensesController::class);
     Route::post('/expenses/update', [ExpensesController::class, 'update']);
     Route::post('/expenses/bulk/delete', [ExpensesController::class, 'bulkDelete'])->name('expenses.bulkDelete');
 
     Route::resource('/expenses_categories', ExpensesCategoryController::class);
     Route::post('/expenses_categories/update', [ExpensesCategoryController::class, 'update']);
-    Route::post('/expenses_categories/bulk/delete', [ExpensesCategoryController::class, 'bulkDelete'])->name('expenses.bulkDelete');
+    Route::post('/expenses_categories/bulk/delete', [ExpensesCategoryController::class, 'bulkDelete'])->name('expenses_categories.bulkDelete');
 
     Route::resource('/customers', CustomerController::class);
     Route::post('/customers/update', [CustomerController::class, 'update']);

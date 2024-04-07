@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ExpensesCategory;
+use App\Models\ProductCategory;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
-class ExpensesCategoryController extends Controller
+class ProductCategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        Gate::authorize('viewAny', ExpensesCategory::class);
+        Gate::authorize('viewAny', ProductCategory::class);
 
-        $expenses_categories = ExpensesCategory::query()
+        $product_categories = ProductCategory::query()
             ->with(['store'])
             ->orderBy('id', 'DESC')
             ->filter(request(['search','store']))
@@ -26,14 +26,15 @@ class ExpensesCategoryController extends Controller
                 return [
                     'id' => $category->id,
                     'name' => $category->name,
+                    'description' => $category->description,
                     'store' => $category->store->name,
                     'created_at' => $category->created_at->format('M d, Y h:i: A'),
                 ];
         });
 
-        return inertia('ExpensesCategory/Index', [
-            'title' => 'Expenses Category',
-            'expenses_categories' => $expenses_categories,
+        return inertia('ProductCategory/Index', [
+            'title' => 'Products Category',
+            'product_categories' => $product_categories,
             'stores' => Store::select('id', 'name')->get(),
             'filters' => $request->only(['search']),
             'per_page' => $request->only(['per_page'])
@@ -41,19 +42,20 @@ class ExpensesCategoryController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        Gate::authorize('create', ExpensesCategory::class);
+        Gate::authorize('create', ProductCategory::class);
 
         $data = $request->validate([
-            'name' => 'required'
+            'name' => 'required',
+            'description' => ''
         ]);
 
         $data['store_id'] = auth()->user()->store_id ?? 1;
 
-        ExpensesCategory::create($data);
+        ProductCategory::create($data);
 
         return redirect()->back();
     }
@@ -61,21 +63,21 @@ class ExpensesCategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ExpensesCategory $expensesCategory)
+    public function show(ProductCategory $productCategory)
     {
         //
     }
-
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request)
     {
-        $category = ExpensesCategory::find($request->id);
+        $category = ProductCategory::find($request->id);
         Gate::authorize('create', $category);
 
         $data = $request->validate([
-            'name' => 'required'
+            'name' => 'required',
+            'description' => ''
         ]);
 
         $category->update($data);
@@ -87,16 +89,16 @@ class ExpensesCategoryController extends Controller
      */
     public function bulkDelete(Request $request)
     {
-        Gate::authorize('bulk_delete', ExpensesCategory::class);
+        Gate::authorize('bulk_delete', ProductCategory::class);
 
-        ExpensesCategory::whereIn('id',$request->categories_id)->delete();
+        ProductCategory::whereIn('id',$request->categories_id)->delete();
         return redirect()->back();
     }
 
-    public function destroy(ExpensesCategory $expenses_category)
+    public function destroy(ProductCategory $product_category)
     {
-        Gate::authorize('delete', $expenses_category);
-        ExpensesCategory::find($expenses_category->id)->delete();
+        Gate::authorize('delete', $product_category);
+        ProductCategory::find($product_category->id)->delete();
         return redirect()->back();
     }
 }
