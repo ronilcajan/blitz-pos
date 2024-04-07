@@ -132,7 +132,7 @@ watch(store, value => {
 
     <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm">
         <div class="card-body grow-0">
-            <div class="flex justify-between gap-2">
+            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                 <div>
                     <select v-model="per_page" class="select select-sm max-w-xs">
                         <option class="text-body">10</option>
@@ -142,7 +142,7 @@ watch(store, value => {
                         <option class="text-body">All</option>
                     </select>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex gap-2 flex-col sm:flex-row">
 
                     <div class="w-full" v-show="$page.props.auth.user.isSuperAdmin">
                         <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">

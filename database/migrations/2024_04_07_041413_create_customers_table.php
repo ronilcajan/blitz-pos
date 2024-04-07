@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('logo')->nullable();
             $table->foreignIdFor(Store::class)->constrained()->cascadeOnDelete();
+            $table->softDeletes(); // <-- This will add a deleted_at field
             $table->timestamps();
         });
     }

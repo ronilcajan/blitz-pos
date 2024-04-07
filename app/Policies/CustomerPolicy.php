@@ -21,7 +21,8 @@ class CustomerPolicy
      */
     public function view(User $user, Customer $customer): bool
     {
-        return $user->hasRole('owner|admin|staff');
+        return $user->hasRole('owner|admin|staff') && 
+        $user->store_id === $customer->store_id;
     }
 
     /**
@@ -38,7 +39,7 @@ class CustomerPolicy
     public function update(User $user, Customer $customer): bool
     {
         return $user->hasRole('owner|admin')
-        && $user->store_id === $customer->store_id;;
+        && $user->store_id === $customer->store_id;
     }
 
     /**

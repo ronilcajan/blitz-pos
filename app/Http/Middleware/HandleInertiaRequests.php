@@ -42,6 +42,7 @@ class HandleInertiaRequests extends Middleware
                     'isOwner' => $request->user()->roles[0]->name === 'owner',
                     'isAdmin' => $request->user()->roles[0]->name === 'admin',
                     'isStaff' => $request->user()->roles[0]->name === 'staff',
+                    'canDelete' => $request->user()->roles[0]->name === 'staff' ? false : true,
                     'impersonate' => session()->get('impersonate') ?? null
                     ] : null,
             ]
