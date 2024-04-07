@@ -1,7 +1,7 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { useForm, router } from '@inertiajs/vue3'
+import { useForm, router, usePage } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
 
@@ -10,56 +10,40 @@ defineOptions({ layout: AuthenticatedLayout })
 const props = defineProps({  
     title: String,
     expenses_categories: Object,
+    stores: Object,
 	filters: Object
 });
 
 let per_page = ref(10);
 let search = ref(props.filters.search);
+let store = ref('');
+
 const createModal = ref(false);
 const editModal = ref(false);
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
+const page = usePage();
 
 let storeIds = ref([]);
 let selectAllCheckbox = ref(false);
 
-const createForm = useForm({
-	name: '',
-	email: '',
-	contact: '',
-	address: '',
-	logo: '',
-});
+const createForm = useForm({name: ''});
 
-const editForm = useForm({
-    id: '',
-	name: '',
-	email: '',
-	contact: '',
-	address: '',
-	initialLogo: '',
-    logo: '',
-});
+const editForm = useForm({id: '', name: ''});
 
-const deleteForm = useForm({
-	id: '',
-});
+const deleteForm = useForm({id: ''});
 
-const editModalForm = (store_id, store) => {
+const editModalForm = (category_id, category) => {
 	editForm.clearErrors()
-	editForm.id = store_id;
-	editForm.name = store.name;
-	editForm.email = store.email;
-	editForm.contact = store.contact;
-	editForm.address = store.address;
-    editForm.initialLogo = store.initialLogo;
+	editForm.id = category_id;
+    editForm.name = category.category;
 	editModal.value = true;
 };
 
 
-const deleteStoreForm = (store_id) => {
+const deleteCatForm = (category_id) => {
 	deleteModal.value = true;
-	deleteForm.id = store_id
+	deleteForm.id = category_id
 }
 
 const closeModal = () => {
@@ -76,12 +60,12 @@ const closeModal = () => {
 };
 
 const submitCreateForm = () => {
-	createForm.post('/stores',{
+	createForm.post('/expenses_categories',{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
             closeModal();
-			useToast().success(`${createForm.name} store has been created successfully!`, {
+			useToast().success(`Expenses category has been created successfully!`, {
 				position: 'top-right',
 				duration: 3000,
 				dismissible: true
@@ -91,13 +75,13 @@ const submitCreateForm = () => {
 }
 
 const submitUpdateForm = () => {
-	editForm.post(route('store.update'),
+	editForm.post('expenses_categories/update',
 	{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
             closeModal();
-			useToast().success(`Store has been updated successfully!`, {
+			useToast().success(`Expenses category has been updated successfully!`, {
 				position: 'top-right',
 				duration: 3000,
 				dismissible: true
@@ -107,7 +91,7 @@ const submitUpdateForm = () => {
 }
 
 const submitDeleteForm = () => {
-	deleteForm.delete(`/stores/${deleteForm.id}`,{
+	deleteForm.delete(`/expenses_categories/${deleteForm.id}`,{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
@@ -152,17 +136,27 @@ const selectAll = () => {
       }
 }
 
+const isSuperAdmin = computed(() => 
+    page.props.auth.user.isSuperAdmin ? true : false
+)
+
 watch(per_page, value => {
-	router.get('/stores', 
+	router.get('/expenses_categories', 
 	{ per_page: value },
 	{ preserveState: true, replace:true })
 })
 
 watch(search, debounce(function (value) {
-	router.get('/stores',
+	router.get('/expenses_categories',
 	{ search: value },
 	{ preserveState: true, replace:true })
 }, 500)) ;
+
+watch(store, value => {
+	router.get('/expenses_categories', 
+	{ store: value },
+	{ preserveState: true, replace:true })
+})
 
 </script>
 
@@ -182,7 +176,14 @@ watch(search, debounce(function (value) {
                     </select>
                 </div>
                 <div class="flex gap-2 flex-col sm:flex-row">
-
+                    <div class="w-full" v-show="$page.props.auth.user.isSuperAdmin">
+                        <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
+                            <option selected value="">Filter by store</option>
+                            <option v-for="store in stores" :value="store.name" :key="store.id">
+                                {{ store.name }}
+                            </option>
+                        </select>
+                    </div>
                     <div class="w-full">
                         <label for="simple-search" class="sr-only">Search</label>
                         <div class="relative sm:w-60 w-full">
@@ -215,6 +216,9 @@ watch(search, debounce(function (value) {
                         <th>
                             <div class="font-bold">Name</div>
                         </th>
+                        <th v-if="isSuperAdmin">
+                            <div class="font-bold">Store</div>
+                        </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Created on</div>
                         </th>
@@ -235,6 +239,7 @@ watch(search, debounce(function (value) {
                                 </div>
                             </div>
                         </td>
+                        <td v-if="isSuperAdmin" class="hidden sm:table-cell">{{ category.store }}</td>
                         <td class="hidden sm:table-cell">{{ category.created_at }}</td>
                         <td>
                             <div class="flex items-center space-x-2">
@@ -281,57 +286,21 @@ watch(search, debounce(function (value) {
     <Modal :show="createModal" @close="closeModal">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
-                Add new store
+                Create new category
             </h1>
 
             <form method="dialog" class="w-full" @submit.prevent="submitCreateForm">
                 <div class="mb-3">
-                    <InputLabel for="name" value="Store name" />
+                    <InputLabel for="name" value="Category name" />
                     <TextInput
                         type="text"
                         class="block w-full"
                         v-model="createForm.name"
                         required
-                        placeholder="store name"
+                        placeholder="category name"
                     />
                     <InputError class="mt-2" :message="createForm.errors.name" />
                 </div>
-                <div class="mb-3">
-                    <InputLabel value="Email Address" />
-                    <TextInput
-                        type="email"
-                        class="block w-full"
-                        v-model="createForm.email"
-                        required
-                        placeholder="email address"
-                    />
-                    <InputError class="mt-2" :message="createForm.errors.email" />
-                </div>
-                <div class="mb-3">
-                    <InputLabel value="Contact No" />
-                    <TextInput
-                        type="text"
-                        class="block w-full"
-                        v-model="createForm.contact"
-                        placeholder="phone number"
-                    />
-                    <InputError class="mt-2" :message="createForm.errors.contact" />
-                </div>
-                <div class="mb-3">
-                    <InputLabel value="Address" />
-                    <textarea v-model="createForm.address" class="textarea w-full textarea-bordered" placeholder="Address"></textarea>
-                    <InputError class="mt-2" :message="createForm.errors.address" />
-                </div>
-                <div class="mb-3">
-                    <InputLabel value="Store logo" />
-                    <input accept="image/*" @input="createForm.logo = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
-                    <progress v-if="createForm.progress" :value="createForm.progress.percentage" class="progress" max="100">
-                        {{ createForm.progress.percentage }}%
-                    </progress>
-                    <InputError class="mt-2" :message="createForm.errors.logo" />
-                </div>
-            
-
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <PrimaryButton
@@ -339,7 +308,7 @@ watch(search, debounce(function (value) {
                         :class="{ 'opacity-25': createForm.processing }"
                         :disabled="createForm.processing"
                     >
-                        <span v-if="deleteForm.processing" class="loading loading-spinner"></span>
+                        <span v-if="createForm.processing" class="loading loading-spinner"></span>
                         Create
                     </PrimaryButton>
                 </div>
@@ -355,55 +324,17 @@ watch(search, debounce(function (value) {
 
             <form method="dialog" class="w-full" @submit.prevent="submitUpdateForm">
                 <div class="mb-3">
-                    <InputLabel for="name" value="Store name" />
+                    <InputLabel for="name" value="Category name" />
                     <TextInput
                         type="text"
                         class="block w-full"
                         v-model="editForm.name"
-                        
-                        placeholder="store name"
+                        required
+                        placeholder="category name"
                     />
                     <InputError class="mt-2" :message="editForm.errors.name" />
                 </div>
-                <div class="mb-3">
-                    <InputLabel value="Email Address" />
-                    <TextInput
-                        type="email"
-                        class="block w-full"
-                        v-model="editForm.email"
-                        required
-                        placeholder="email address"
-                    />
-                    <InputError class="mt-2" :message="editForm.errors.email" />
-                </div>
-                <div class="mb-3">
-                    <InputLabel value="Contact No" />
-                    <TextInput
-                        type="text"
-                        class="block w-full"
-                        v-model="editForm.contact"
-                        placeholder="phone number"
-                    />
-                    <InputError class="mt-2" :message="editForm.errors.contact" />
-                </div>
-                <div class="mb-3">
-                    <InputLabel value="Address" />
-                    <textarea v-model="editForm.address" class="textarea w-full textarea-bordered" placeholder="Address"></textarea>
-                    <InputError class="mt-2" :message="editForm.errors.address" />
-                </div>
-                <div class="mb-3">
-                    <div class="relative rounded-full" v-if="editForm.initialLogo">
-                        <img width="60" class="rounded-md" :src="editForm.initialLogo" alt="Product">
-                    </div>
-                    <InputLabel value="Store logo" />
-                    <input accept="image/*" @input="editForm.logo = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
-                    <progress v-if="editForm.progress" :value="editForm.progress.percentage" class="progress" max="100">
-                        {{ editForm.progress.percentage }}%
-                    </progress>
-                    <InputError class="mt-2" :message="editForm.errors.logo" />
-                </div>
-            
-
+               
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <SuccessButton

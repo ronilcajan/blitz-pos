@@ -10,6 +10,7 @@ defineOptions({ layout: AuthenticatedLayout })
 const props = defineProps({  
     title: String,
 	expenses: Object,
+    categories: Object,
     stores: Object,
 	filter: Object
 });
@@ -17,6 +18,7 @@ const props = defineProps({
 let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
+let category = ref('');
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -102,6 +104,12 @@ watch(store, value => {
 	{ store: value },
 	{ preserveState: true, replace:true })
 })
+
+watch(category, value => {
+	router.get('/expenses', 
+	{ category: value },
+	{ preserveState: true, replace:true })
+})
 </script>
 
 <template>
@@ -122,9 +130,17 @@ watch(store, value => {
                 <div class="flex gap-2 flex-col sm:flex-row">
                     <div class="w-full" v-show="$page.props.auth.user.isSuperAdmin">
                         <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
-                            <option selected value="">Filter by</option>
+                            <option selected value="">Filter by store</option>
                             <option v-for="store in stores" :value="store.name" :key="store.id">
                                 {{ store.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="w-full">
+                        <select v-model="category" class="select select-bordered select-sm w-full max-w-xs">
+                            <option selected value="">Filter by categories</option>
+                            <option v-for="category in categories" :value="category.name" :key="category.id">
+                                {{ category.name }}
                             </option>
                         </select>
                     </div>
@@ -222,7 +238,7 @@ watch(store, value => {
                         <td class="hidden sm:table-cell">{{ expense.store }}</td>
 
                         <td class="hidden sm:table-cell">{{ expense.user }}</td>
-                        <td class="hidden sm:table-cell">{{ expense.created_at }}</td>
+                        <td class="hidden sm:table-cell">{{ expense.expenses_date }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">
                                 <Link :href="`/expenses/${expense.id}/edit`" class=" hover:text-green-500">

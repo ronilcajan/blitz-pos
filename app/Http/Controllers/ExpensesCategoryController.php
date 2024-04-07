@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ExpensesCategory;
+use App\Models\Store;
 use Illuminate\Http\Request;
 
 class ExpensesCategoryController extends Controller
@@ -13,14 +14,16 @@ class ExpensesCategoryController extends Controller
     public function index(Request $request)
     {
         $expenses_categories = ExpensesCategory::query()
+            ->with(['store'])
             ->orderBy('id', 'DESC')
-            ->filter(request(['search']))
+            ->filter(request(['search','store']))
             ->paginate($request->per_page ? ($request->per_page == 'All' ? ExpensesCategory::count() : $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($category) {
                 return [
                     'id' => $category->id,
                     'name' => $category->name,
+                    'store' => $category->store->name,
                     'created_at' => $category->created_at->format('M d, Y h:i: A'),
                 ];
         });
@@ -28,6 +31,7 @@ class ExpensesCategoryController extends Controller
         return inertia('ExpensesCategory/Index', [
             'title' => 'Expenses Category',
             'expenses_categories' => $expenses_categories,
+            'stores' => Store::select('id', 'name')->get(),
             'filters' => $request->only(['search']),
             'per_page' => $request->only(['per_page'])
         ]);
@@ -58,26 +62,37 @@ class ExpensesCategoryController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ExpensesCategory $expensesCategory)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ExpensesCategory $expensesCategory)
+    public function update(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name' => 'required'
+        ]);
+
+        $category = ExpensesCategory::find($request->id);
+
+        // Gate::authorize('create', $store);
+
+        $category->update($data);
+        return redirect()->back();
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ExpensesCategory $expensesCategory)
+    public function bulkDelete(Request $request)
     {
-        //
+        // Gate::authorize('bulk_delete', Expenses::class);
+
+        ExpensesCategory::whereIn('id',$request->expenses_id)->delete();
+        return redirect()->back();
+    }
+
+    public function destroy(ExpensesCategory $expenses_category)
+    {
+        ExpensesCategory::find($expenses_category->id)->delete();
+        // Gate::authorize('delete', $expense);
+        return redirect()->back();
     }
 }

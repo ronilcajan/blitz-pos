@@ -42,6 +42,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/expenses/bulk/delete', [ExpensesController::class, 'bulkDelete'])->name('expenses.bulkDelete');
 
     Route::resource('/expenses_categories', ExpensesCategoryController::class);
+    Route::post('/expenses_categories/update', [ExpensesCategoryController::class, 'update']);
+    Route::post('/expenses_categories/bulk/delete', [ExpensesCategoryController::class, 'bulkDelete'])->name('expenses.bulkDelete');
 
     Route::resource('/customers', CustomerController::class);
     Route::post('/customers/update', [CustomerController::class, 'update']);

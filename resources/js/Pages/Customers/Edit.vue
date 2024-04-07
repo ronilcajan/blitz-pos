@@ -118,14 +118,14 @@ const submitUpdateForm  = () => {
 
                 <div class="mt-6 flex justify-end">
                     <NavLink href="/customers" class="btn">Cancel</NavLink>
-                    <PrimaryButton
+                    <SuccessButton
                         class="ms-3"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
                     >
                         <span v-if="form.processing" class="loading loading-spinner"></span>
-                        Create
-                    </PrimaryButton>
+                        Save changes
+                    </SuccessButton>
                 </div>
 
             </form>

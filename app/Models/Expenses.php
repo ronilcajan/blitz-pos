@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\ExpensesScope;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+#[ScopedBy([ExpensesScope::class])]
 class Expenses extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
@@ -54,11 +57,19 @@ class Expenses extends Model
             });
         }
 
-        if(!empty($filter['store'])){
-            $category = $filter['store'];
+        if(!empty($filter['category'])){
+            $category = $filter['category'];
 
-            $query->whereHas('store', function($q) use ($category){
+            $query->whereHas('category', function($q) use ($category){
                 $q->where('name', $category);
+            });
+        }
+
+        if(!empty($filter['store'])){
+            $store = $filter['store'];
+
+            $query->whereHas('store', function($q) use ($store){
+                $q->where('name', $store);
             });
         }
     }

@@ -7,6 +7,7 @@ use App\Models\Expenses;
 use App\Models\ExpensesCategory;
 use App\Models\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ExpensesController extends Controller
 {
@@ -15,18 +16,18 @@ class ExpensesController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Expenses::class);
+        Gate::authorize('viewAny', Expenses::class);
 
         $expenses = Expenses::query()
             ->with(['category','user','store'])
             ->orderBy('id', 'DESC')
-            ->filter(request(['search','store']))
+            ->filter(request(['search','store','category']))
             ->paginate($request->per_page ? ($request->per_page == 'All' ? Expenses::count()->get() : $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($expense) {
                 return [
                     'id' => $expense->id,
-                    'expenses_date' => $expense->expenses_date,
+                    'expenses_date' => date('M d, Y', strtotime($expense->expenses_date)),
                     'description' => $expense->description,
                     'amount' => number_format($expense->amount,2),
                     'notes' => $expense->notes,
@@ -34,7 +35,6 @@ class ExpensesController extends Controller
                     'category' => $expense->category->name,
                     'store' => $expense->store->name,
                     'user' => $expense->user->name,
-                    'created_at' => $expense->created_at->format('M d, Y h:i: A'),
                 ];
         });
 
@@ -43,7 +43,7 @@ class ExpensesController extends Controller
             'expenses' => $expenses,
             'stores' => Store::select('id', 'name')->get(),
             'categories' => ExpensesCategory::select('id', 'name')->get(),
-            'filter' => $request->only(['search','store','per_page']),
+            'filter' => $request->only(['search','store','per_page','category']),
         ]);
     }
 
@@ -52,7 +52,7 @@ class ExpensesController extends Controller
      */
     public function create()
     {
-        // $this->authorize('create', Expenses::class);
+        Gate::authorize('create', Expenses::class);
 
         return inertia('Expenses/Create', [
             'title' => "Add New Expenses",
@@ -66,7 +66,7 @@ class ExpensesController extends Controller
      */
     public function store(ExpensesRequestForm $request)
     {
-        // $this->authorize('create', Expenses::class);
+        Gate::authorize('create', Expenses::class);
 
         $data = $request->validated();
         
@@ -95,7 +95,7 @@ class ExpensesController extends Controller
      */
     public function edit(Expenses $expense)
     {
-        // $this->authorize('update', $expense);
+        Gate::authorize('update', $expense);
 
         $data = [
             'id' => $expense->id,
@@ -105,8 +105,7 @@ class ExpensesController extends Controller
             'notes' => $expense->notes,
             'attachments' => $expense->attachments,
             'expenses_category_id' => $expense->expenses_category_id,
-            'stores_id' => $expense->store->id ,
-            'users_id' => $expense->users_id,
+            'store_id' => $expense->store->id,
         ];
 
         return inertia('Expenses/Edit', [
@@ -120,9 +119,21 @@ class ExpensesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Expenses $expenses)
+    public function update(ExpensesRequestForm $request)
     {
-        //
+        $expense = Expenses::find($request->id);
+        Gate::authorize('update', $expense);
+
+        $validate = $request->validated();
+
+        if($request->hasFile('attachments')){
+            $attachments = $request->file('attachments')->store('expenses','public');
+            $validate['attachments'] = asset('storage/'. $attachments);
+        }
+        
+        $expense->update($validate);
+
+        return redirect()->back();
     }
 
     /**
@@ -130,7 +141,7 @@ class ExpensesController extends Controller
      */
     public function bulkDelete(Request $request)
     {
-        // $this->authorize('bulk_delete', Expenses::class);
+        Gate::authorize('bulk_delete', Expenses::class);
 
         Expenses::whereIn('id',$request->expenses_id)->delete();
         return redirect()->back();
@@ -138,8 +149,8 @@ class ExpensesController extends Controller
 
     public function destroy(Expenses $expense)
     {
-        // $this->authorize('delete', $expense);
-        
+        Gate::authorize('delete', $expense);
+
         $expense->delete();
         return redirect()->back();
     }

@@ -2,20 +2,29 @@
 
 namespace App\Models;
 
+use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class ExpensesCategory extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, CascadeSoftDeletes;
 
     protected $table = 'expenses_categories';
 
-    protected $guarded = [];
+    protected $guarded = []; 
+
+    protected $cascadeDeletes = ['expenses'];
+
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Store::class);
+    } 
 
     public function store(): BelongsTo
     {

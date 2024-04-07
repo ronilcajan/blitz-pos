@@ -136,7 +136,7 @@ const submitUpdateForm  = () => {
                         :disabled="form.processing"
                     >
                         <span v-if="form.processing" class="loading loading-spinner"></span>
-                        Update
+                        Save changes
                     </SuccessButton>
                 </div>
 
