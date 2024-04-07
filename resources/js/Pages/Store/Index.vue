@@ -244,7 +244,6 @@ watch(search, debounce(function (value) {
                                     <div class="sm:hidden">
                                         <div class="text-xs opacity-50">{{ store.contact }}</div>
                                         <div class="text-xs opacity-50">{{ store.address }}</div>
-                                        <!-- <div class="text-xs opacity-50">{{ store.created_at }}</div> -->
                                     </div>
                                 </div>
                             </div>
