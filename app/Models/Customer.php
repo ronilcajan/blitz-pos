@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
-use App\Models\Scopes\SupplierScope;
+use App\Models\Scopes\CustomerScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\Pivot;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[ScopedBy([SupplierScope::class])]
-class Supplier extends Pivot
+#[ScopedBy([CustomerScope::class])]
+class Customer extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
-    protected $table = 'supplier';
+    protected $table = 'customers';
 
     protected $guarded = [];
 
@@ -29,11 +28,10 @@ class Supplier extends Pivot
 
             $query->whereAny([
                 'name',
-                'contact_person',
                 'email',
-                'phone', 
+                'phone',
                 'address',
-            ], 'LIKE', "%{$search}%")
+                ], 'LIKE', "%{$search}%")
             ->orWhereHas('store', function($q) use ($search){
                 $q->where('name', $search);
             });
@@ -45,6 +43,8 @@ class Supplier extends Pivot
             $query->whereHas('store', function($q) use ($store){
                 $q->where('name', $store);
             });
+
         }
     }
+
 }

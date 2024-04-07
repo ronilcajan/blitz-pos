@@ -6,6 +6,7 @@ use App\Http\Requests\SupplierRequestForm;
 use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class SupplierController extends Controller
 {
@@ -14,7 +15,7 @@ class SupplierController extends Controller
      */
     public function index(Request $request)
     {
-        // $this->authorize('viewAny', Supplier::class);
+        Gate::authorize('viewAny', Supplier::class);
 
         $suppliers = Supplier::query()
             ->with('store')
@@ -49,7 +50,7 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        // $this->authorize('create', Supplier::class);
+        Gate::authorize('create', Supplier::class);
 
         return inertia('Suppliers/Create', [
             'title' => "Add New Supplier",
@@ -62,7 +63,7 @@ class SupplierController extends Controller
      */
     public function store(SupplierRequestForm $request)
     {
-        // Gate::authorize('create',  User::class);
+        Gate::authorize('create', Supplier::class);
 
         $validate = $request->validated();
 
@@ -89,7 +90,7 @@ class SupplierController extends Controller
      */
     public function edit(Supplier $supplier)
     {
-        // $this->authorize('update', $supplier);
+        Gate::authorize('update',  $supplier);
 
         $data = [
             'id' => $supplier->id,
@@ -115,8 +116,7 @@ class SupplierController extends Controller
     public function update(SupplierRequestForm $request)
     {
         $supplier = Supplier::find($request->id);
-
-        // $this->authorize('update', $supplier);
+        Gate::authorize('update', $supplier);
 
         $validate = $request->validated();
 
@@ -135,7 +135,7 @@ class SupplierController extends Controller
      */
     public function bulkDelete(Request $request)
     {
-        // Gate::authorize('bulk_delete', User::class);
+        Gate::authorize('bulk_delete', Supplier::class);
 
         Supplier::whereIn('id',$request->suppliers_id)->delete();
         return redirect()->back();
@@ -143,7 +143,7 @@ class SupplierController extends Controller
 
     public function destroy(Supplier $supplier)
     {
-        // Gate::authorize('delete', $supplier);
+        Gate::authorize('delete', $supplier);
 
         $supplier->delete();
         return redirect()->back();
