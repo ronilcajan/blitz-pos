@@ -6,6 +6,7 @@ use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\ProductUnitController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SupplierController;
@@ -41,6 +42,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('/product_categories', ProductCategoryController::class);
     Route::post('/product_categories/update', [ProductCategoryController::class, 'update']);
     Route::post('/product_categories/bulk/delete', [ProductCategoryController::class, 'bulkDelete'])->name('product_categories.bulkDelete');
+
+    Route::resource('/product_units', ProductUnitController::class);
+    Route::post('/product_units/update', [ProductUnitController::class, 'update']);
+    Route::post('/product_units/bulk/delete', [ProductUnitController::class, 'bulkDelete'])->name('product_unit.bulkDelete');
 
     Route::resource('/expenses', ExpensesController::class);
     Route::post('/expenses/update', [ExpensesController::class, 'update']);

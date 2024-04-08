@@ -46,9 +46,13 @@ const isUserIsStaff = computed(() => {
 								<NavLink href="/products" :active="$page.component.startsWith('Products/')">
 									Products</NavLink>
 							</li>
-							<li>
+							<li class="mb-2">
 								<NavLink href="/product_categories" :active="$page.component.startsWith('ProductCategory/')">
 									Category</NavLink>	
+							</li>
+							<li>
+								<NavLink href="/product_units" :active="$page.component.startsWith('ProductUnit/')">
+									Units</NavLink>	
 							</li>
 						</ul>
 					</details>

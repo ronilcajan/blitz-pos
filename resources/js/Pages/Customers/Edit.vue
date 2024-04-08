@@ -101,7 +101,7 @@ const submitUpdateForm  = () => {
                     <div class="relative rounded-full" v-if="props.customer.logo">
                         <img width="60" class="rounded-md" :src="props.customer.logo" alt="logo">
                     </div>
-                    <InputLabel value="Customer logo" />
+                    <InputLabel value="Customer avatar" />
                     <input accept="image/*" @input="form.logo = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
                     <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
                         {{ form.progress.percentage }}%

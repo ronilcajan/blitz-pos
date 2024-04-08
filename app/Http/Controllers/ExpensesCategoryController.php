@@ -59,14 +59,6 @@ class ExpensesCategoryController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(ExpensesCategory $expensesCategory)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request)
