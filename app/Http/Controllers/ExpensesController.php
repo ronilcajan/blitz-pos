@@ -41,8 +41,8 @@ class ExpensesController extends Controller
         return inertia('Expenses/Index', [
             'title' => "Expenses",
             'expenses' => $expenses,
-            'stores' => Store::select('id', 'name')->get(),
-            'categories' => ExpensesCategory::select('id', 'name')->get(),
+            'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
+            'categories' => ExpensesCategory::select('id', 'name')->orderBy('id', 'DESC')->get(),
             'filter' => $request->only(['search','store','per_page','category']),
         ]);
     }
@@ -56,8 +56,8 @@ class ExpensesController extends Controller
 
         return inertia('Expenses/Create', [
             'title' => "Add New Expenses",
-            'stores' => Store::select('id', 'name')->get(),
-            'categories' => ExpensesCategory::select('id', 'name')->get(),
+            'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
+            'categories' => ExpensesCategory::select('id', 'name')->orderBy('id', 'DESC')->get(),
         ]);
     }
 
@@ -111,8 +111,8 @@ class ExpensesController extends Controller
         return inertia('Expenses/Edit', [
             'title' => "Edit Expenses",
             'expense' => $data,
-            'stores' => Store::select('id', 'name')->get(),
-            'categories' => ExpensesCategory::select('id', 'name')->get(),
+            'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
+            'categories' => ExpensesCategory::select('id', 'name')->orderBy('id', 'DESC')->get(),
         ]);
     }
 

@@ -48,7 +48,8 @@ watch(darkMode, () => {
 					<span class="badge indicator-item badge-error badge-xs"></span>
 					<svg data-src="https://unpkg.com/heroicons/20/solid/bell.svg" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon" data-id="svg-loader_2">
 					<path fill-rule="evenodd" d="M10 2a6 6 0 0 0-6 6c0 1.887-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.91 32.91 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.903 32.903 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.448 11.448 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.54 33.54 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z" clip-rule="evenodd"></path>
-					</svg>							</div>
+					</svg>							
+				</div>
 			</div>
 			<ul
 				tabindex="0"
@@ -114,11 +115,20 @@ watch(darkMode, () => {
 					<!-- /dropdown -->
 					<!-- dropdown -->
 		<div class="dropdown-end dropdown z-10">
-			<div tabindex="0" class="avatar btn btn-circle btn-ghost">
-				<div class="w-10 rounded-full">
-					<img src="https://picsum.photos/80/80?5" />
+
+			<div tabindex="0" class="avatar placeholder btn btn-circle btn-ghost online" v-show="!$page.props.auth.user.avatar">
+				<div class="w-10 bg-neutral text-neutral-content rounded-full">
+					<span class="text-xl">{{ $page.props.auth.user.name[0] }}</span>
 				</div>
 			</div>
+
+            <div tabindex="0" class="avatar btn btn-circle btn-ghost online" v-show="$page.props.auth.user.avatar">
+				<div class="w-10 rounded-full">
+					<img :src="$page.props.auth.user.avatar" />
+				</div>
+			</div>
+
+			
 			<ul
 				tabindex="0"
 				class="menu dropdown-content mt-3 w-52 rounded-box bg-base-100 p-2 shadow-2xl">

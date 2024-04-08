@@ -1,10 +1,7 @@
 <script setup>
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { useToast } from 'vue-toast-notification';
 
 const passwordInput = ref(null);
 const currentPasswordInput = ref(null);
@@ -18,7 +15,14 @@ const form = useForm({
 const updatePassword = () => {
     form.put(route('password.update'), {
         preserveScroll: true,
-        onSuccess: () => form.reset(),
+        onSuccess: () =>  {
+			useToast().success('User password has been updated successfully!', {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+            form.reset()
+        },
         onError: () => {
             if (form.errors.password) {
                 form.reset('password', 'password_confirmation');
@@ -89,16 +93,10 @@ const updatePassword = () => {
             </div>
 
             <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">Save</PrimaryButton>
+                <PrimaryButton :disabled="form.processing">
+                    <span v-if="form.processing" class="loading loading-spinner"></span>
 
-                <Transition
-                    enter-active-class="transition ease-in-out"
-                    enter-from-class="opacity-0"
-                    leave-active-class="transition ease-in-out"
-                    leave-to-class="opacity-0"
-                >
-                    <p v-if="form.recentlySuccessful" class="text-sm text-gray-600 dark:text-gray-400">Saved.</p>
-                </Transition>
+                    Save</PrimaryButton>
             </div>
         </form>
     </section>

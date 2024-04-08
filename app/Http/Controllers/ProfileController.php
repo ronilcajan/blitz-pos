@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class ProfileController extends Controller
     public function edit(Request $request): Response
     {
         return Inertia::render('Profile/Edit', [
+            'title' => 'Profile',
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
         ]);
@@ -37,7 +39,20 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit');
+        return redirect()->back();
+    }
+
+    public function update_avatar(Request $request)
+    {
+        $user = User::find(auth()->id());
+
+        $avatar = $request->file('profile_photo_url')->store('avatar','public');
+
+        $user->profile_photo_url = asset('storage/'.$avatar);
+
+        $user->save();
+
+        return redirect()->back();
     }
 
     /**

@@ -119,7 +119,7 @@ const submitUpdateForm = () => {
                     <div class="relative rounded-full" v-if="props.employee.profile_photo_url">
                         <img width="60" class="rounded-md" :src="props.employee.profile_photo_url" alt="User profile">
                     </div>
-                    <InputLabel value="Profile pciture" />
+                    <InputLabel value="Profile picture" />
                     <input accept="image/*" @input="form.profile_photo_url = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
                     <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
                         {{ form.progress.percentage }}%

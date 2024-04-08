@@ -1,7 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, usePage } from '@inertiajs/vue3'
-import { computed } from 'vue';
 import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
@@ -40,7 +39,6 @@ const submitCreateForm = () => {
 
 <template>
     <Head :title="title" />
-
     <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm">
         <div class="card-body grow-0">
             <div class="flex justify-between gap-2">

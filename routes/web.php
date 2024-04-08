@@ -6,6 +6,7 @@ use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductUnitController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StoreController;
@@ -38,6 +39,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/update-avatar', [ProfileController::class, 'update_avatar'])->name('profile.update_avatar');
+
+    Route::resource('/products', ProductController::class);
+    Route::post('/products/update', [ProductController::class, 'update']);
+    Route::post('/products/bulk/delete', [ProductController::class, 'bulkDelete'])->name('product_categories.bulkDelete');
 
     Route::resource('/product_categories', ProductCategoryController::class);
     Route::post('/product_categories/update', [ProductCategoryController::class, 'update']);

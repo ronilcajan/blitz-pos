@@ -240,7 +240,6 @@ watch(store, value => {
                                     <div class="text-sm font-bold">{{ category.name }}</div>
                                     <div class="sm:hidden">
                                         <div class="text-xs opacity-50">{{ category.description }}</div>
-                                        <div v-if="isSuperAdmin" class="text-xs opacity-50">{{ category.store }}</div>
                                         <div class="text-xs opacity-50">{{ category.created_at }}</div>
                                     </div>
                                 </div>

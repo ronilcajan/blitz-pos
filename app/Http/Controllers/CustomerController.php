@@ -53,7 +53,7 @@ class CustomerController extends Controller
 
         return inertia('Customers/Create', [
             'title' => "Add New Customer",
-            'stores' => Store::select('id', 'name')->get(),
+            'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
         ]);
     }
 
@@ -104,7 +104,7 @@ class CustomerController extends Controller
         return inertia('Customers/Edit', [
             'title' => "Edit Customers",
             'customer' => $data,
-            'stores' => Store::select('id', 'name')->get(),
+            'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
         ]);
     }
 

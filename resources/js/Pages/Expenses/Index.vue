@@ -219,7 +219,6 @@ watch(category, value => {
                                             </a>    
                                         </div>
                                         <div class="text-xs opacity-50">{{ expense.notes }}</div>
-                                        <div class="text-xs opacity-50">{{ expense.store }}</div>
                                         <div class="text-xs opacity-50">{{ expense.created_at }}</div>
                                     </div>
                                 </div>

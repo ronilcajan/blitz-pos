@@ -52,7 +52,6 @@ class ExpensesCategory extends Model
             $query->whereHas('store', function($q) use ($store){
                 $q->where('name', $store);
             });
-
         }
     }
 

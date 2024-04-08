@@ -139,7 +139,6 @@ const submitUpdateForm  = () => {
                         Save changes
                     </SuccessButton>
                 </div>
-
             </form>
         </div>
     </section>

@@ -200,7 +200,6 @@ watch(store, value => {
                                         <div class="text-xs opacity-50">{{ supplier.contact_person }}</div>
                                         <div class="text-xs opacity-50">{{ supplier.phone }}</div>
                                         <div class="text-xs opacity-50">{{ supplier.address }}</div>
-                                        <div class="text-xs opacity-50">{{ supplier.store }}</div>
                                     </div>
                                 </div>
                             </div>

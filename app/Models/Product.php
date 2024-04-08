@@ -2,34 +2,34 @@
 
 namespace App\Models;
 
-use App\Models\Scopes\SupplierScope;
+use App\Models\Scopes\ProductScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-#[ScopedBy([SupplierScope::class])]
-class Supplier extends Model
+#[ScopedBy([ProductScope::class])]
+class Product extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
-    protected $table = 'suppliers';
+    protected $table = 'products';
 
     protected $guarded = [];
 
-    public function store():BelongsTo
+    public function store(): BelongsTo
     {
         return $this->belongsTo(Store::class);
-    }
-
-    public function products():BelongsToMany
-    {
-        return $this->belongsToMany(ProductSupplier::class);
     } 
+
+    public function stocks(): HasMany
+    {
+        return $this->hasMany(ProductSupplier::class);
+    }
 
     public function scopeFilter($query, array $filter){
         if(!empty($filter['search'])){
@@ -37,11 +37,7 @@ class Supplier extends Model
 
             $query->whereAny([
                 'name',
-                'contact_person',
-                'email',
-                'phone', 
-                'address',
-            ], 'LIKE', "%{$search}%")
+                ], 'LIKE', "%{$search}%")
             ->orWhereHas('store', function($q) use ($search){
                 $q->where('name', $search);
             });
@@ -59,7 +55,7 @@ class Supplier extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('Supplier')
+            ->useLogName('Product')
             ->logOnly(['name'])
             ->logOnlyDirty()
             ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");    

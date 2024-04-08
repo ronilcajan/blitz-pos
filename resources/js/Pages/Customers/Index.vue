@@ -19,7 +19,6 @@ let search = ref(props.filter.search);
 let store = ref('');
 
 const deleteModal = ref(false);
-const resetModal = ref(false);
 const deleteAllSelectedModal = ref(false);
 
 let customerIds = ref([]);
@@ -183,6 +182,11 @@ watch(store, value => {
                         </td>
                         <td class="w-5 table-cell">
                             <div class="flex items-center gap-2">
+                                <div class="avatar placeholder" v-show="!customer.logo">
+                                    <div class="w-10 bg-neutral text-neutral-content rounded-full">
+                                        <span class="text-xl">{{ customer.name[0] }}</span>
+                                    </div>
+                                </div>
                                 <div class="avatar" v-show="customer.logo">
                                     <div class="mask mask-squircle h-10 w-10">
                                         <img :src="customer.logo" alt="logo">
@@ -191,13 +195,12 @@ watch(store, value => {
                                 <div>
                                     
                                     <div class="flex text-sm font-bold gap-2">{{ customer.name }} 
-                                    </div>
+                                </div>
 
                                     <div class="text-xs opacity-50">{{ customer.email }}</div>
                                     <div class="sm:hidden">
                                         <div class="text-xs opacity-50">{{ customer.phone }}</div>
                                         <div class="text-xs opacity-50">{{ customer.address }}</div>
-                                        <div class="text-xs opacity-50">{{ customer.store }}</div>
                                     </div>
                                 </div>
                             </div>
