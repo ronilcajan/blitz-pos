@@ -189,6 +189,12 @@ watch(category, value => {
                             <div class="font-bold">Store</div>
                         </th>
                         <th class="hidden sm:table-cell">
+                            <div class="font-bold">Category</div>
+                        </th>
+                        <th class="hidden sm:table-cell">
+                            <div class="font-bold">Status</div>
+                        </th>
+                        <th class="hidden sm:table-cell">
                             <div class="font-bold">User</div>
                         </th>
                         <th class="hidden sm:table-cell">
@@ -235,7 +241,8 @@ watch(category, value => {
                         </td>
                         <td class="hidden sm:table-cell">{{ expense.notes }}</td>
                         <td class="hidden sm:table-cell">{{ expense.store }}</td>
-
+                        <td class="hidden sm:table-cell">{{ expense.category }}</td>
+                        <td class="hidden sm:table-cell">{{ expense.status }}</td>
                         <td class="hidden sm:table-cell">{{ expense.user }}</td>
                         <td class="hidden sm:table-cell">{{ expense.expenses_date }}</td>
                         <td>

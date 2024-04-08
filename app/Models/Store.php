@@ -24,7 +24,7 @@ class Store extends Model
         'customer',
         'expenses_category',
         'expenses',
-        'expenses_categories',
+        'product',
     ];
 
     public function users():HasMany
@@ -42,10 +42,15 @@ class Store extends Model
         return $this->hasMany(Customer::class);
     }
 
-    // public function expenses_categories():HasMany
-    // {
-    //     return $this->hasMany(ExpensesCategory::class);
-    // }
+    public function product():HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function expenses_categories():HasMany
+    {
+        return $this->hasMany(ExpensesCategory::class);
+    }
     
     public function expenses():HasMany
     {

@@ -43,7 +43,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/products', ProductController::class);
     Route::post('/products/update', [ProductController::class, 'update']);
-    Route::post('/products/bulk/delete', [ProductController::class, 'bulkDelete'])->name('product_categories.bulkDelete');
+    Route::post('/products/bulk/delete', [ProductController::class, 'bulkDelete'])->name('products.bulkDelete');
 
     Route::resource('/product_categories', ProductCategoryController::class);
     Route::post('/product_categories/update', [ProductCategoryController::class, 'update']);

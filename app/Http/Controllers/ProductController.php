@@ -15,10 +15,9 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         // Gate::authorize('viewAny', ProductCategory::class);
-        
         $products = Product::query()
-            ->with(['store', 'stocks'])
-            ->orderBy('name', 'ASC')
+            ->with(['store', 'stocks','category'])
+            ->orderBy('id', 'ASC')
             ->filter(request(['search','store']))
             ->paginate($request->per_page ? ($request->per_page == 'All' ? Product::count() : $request->per_page) : 10)
             ->withQueryString()
@@ -37,6 +36,7 @@ class ProductController extends Controller
                     'description' => $product->description,
                     'image' => $product->image,
                     'store' => $product->store->name,
+                    'category' => $product->category->name,
                     'unit_price' => $product->stocks->max('unit_price'),
                     'mark_up_price' => $product->stocks->max('mark_up_price'),
                     'sell_price' => $product->stocks->max('sell_price'),
@@ -45,7 +45,6 @@ class ProductController extends Controller
                     'in_warehouse' =>  $product->stocks->sum('in_warehouse'),
                 ];
         });
-
         return inertia('Product/Index', [
             'title' => 'Products',
             'products' => $products,
@@ -91,16 +90,18 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product)
+    public function bulkDelete(Request $request)
     {
-        //
+        // Gate::authorize('bulk_delete', ProductCategory::class);
+
+        Product::whereIn('id',$request->products_id)->delete();
+        return redirect()->back();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Product $product)
     {
-        //
+        // Gate::authorize('delete', $product_category);
+        Product::find($product->id)->delete();
+        return redirect()->back();
     }
 }

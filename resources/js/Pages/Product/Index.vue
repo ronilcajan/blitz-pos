@@ -1,7 +1,7 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { useForm, router } from '@inertiajs/vue3'
+import { useForm, router, usePage } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
 
@@ -15,6 +15,7 @@ const props = defineProps({
 	filter: Object
 });
 
+const page = usePage();
 let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
@@ -27,9 +28,9 @@ let selectAllCheckbox = ref(false);
 
 const deleteForm = useForm({id: ''});
 
-const deleteCustomerForm = (user_id) => {
+const deleteProductForm = (product_id) => {
 	deleteModal.value = true;
-	deleteForm.id = user_id
+	deleteForm.id = product_id
 }
 
 const closeModal = () => {
@@ -40,12 +41,12 @@ const closeModal = () => {
 };
 
 const submitDeleteForm = () => {
-	deleteForm.delete(`/customers/${deleteForm.id}`,{
+	deleteForm.delete(`/products/${deleteForm.id}`,{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
 			closeModal();
-			useToast().success('Customer has been deleted successfully!', {
+			useToast().success('Product has been deleted successfully!', {
 				position: 'top-right',
 				duration: 3000,
 				dismissible: true
@@ -55,9 +56,9 @@ const submitDeleteForm = () => {
 }
 
 const submitBulkDeleteForm = () => {
-    router.post(route('suppliers.bulkDelete'), 
+    router.post(route('products.bulkDelete'), 
     {
-        suppliers_id: productIds.value
+        products_id: productIds.value
     },
     {
         forceFormData: true,
@@ -66,7 +67,7 @@ const submitBulkDeleteForm = () => {
         onSuccess: () => {
             productIds.value = [];
             closeModal();
-            useToast().success('Multiple customers has been deleted successfully!', {
+            useToast().success('Multiple products has been deleted successfully!', {
                 position: 'top-right',
                 duration: 3000,
                 dismissible: true
@@ -79,7 +80,7 @@ const submitBulkDeleteForm = () => {
 const selectAll = () => {
 	if (selectAllCheckbox.value) {
         // If "Select All" checkbox is checked, select all users
-        productIds.value = props.customers.data.map(customer => customer.id);
+        productIds.value = props.products.data.map(product => product.id);
       } else {
         // If "Select All" checkbox is unchecked, deselect all users
         productIds.value = [];
@@ -87,22 +88,26 @@ const selectAll = () => {
 }
 
 watch(per_page, value => {
-	router.get('/customers', 
+	router.get('/products', 
 	{ per_page: value },
 	{ preserveState: true, replace:true })
 })
 
 watch(search, debounce(function (value) {
-	router.get('/customers',
+	router.get('/products',
 	{ search: value },
 	{ preserveState: true, replace:true })
 }, 500)) ;
 
 watch(store, value => {
-	router.get('/customers', 
+	router.get('/products', 
 	{ store: value },
 	{ preserveState: true, replace:true })
 })
+
+const isSuperAdmin = page.props.auth.user.isSuperAdmin
+const canDelete = page.props.auth.user.canDelete
+
 </script>
 
 <template>
@@ -122,7 +127,7 @@ watch(store, value => {
                 </div>
                 <div class="flex gap-2 flex-col sm:flex-row">
 
-                    <div class="w-full" v-show="$page.props.auth.user.isSuperAdmin">
+                    <div class="w-full" v-show="isSuperAdmin">
                         <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
                             <option selected value="">Filter by</option>
                             <option v-for="store in stores" :value="store.name" :key="store.id">
@@ -148,7 +153,7 @@ watch(store, value => {
                         </div>
                     </div>
                     <NavLink href="/customers/create" class="btn btn-sm btn-primary">Add new</NavLink>
-                    <DangerButton v-if="$page.props.auth.user.canDelete" v-show="productIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
+                    <DangerButton v-if="canDelete" v-show="productIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
             </div>
         </div>
@@ -156,7 +161,7 @@ watch(store, value => {
             <table class="table table-zebra">
                 <thead>
                     <tr>
-                        <th v-if="$page.props.auth.user.canDelete">
+                        <th v-if="canDelete">
                             <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
                         </th>
                         <th>
@@ -169,7 +174,7 @@ watch(store, value => {
                             <div class="font-bold">Size</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Brand</div>
+                            <div class="font-bold">Category</div>
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Product Type</div>
@@ -186,14 +191,14 @@ watch(store, value => {
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">In Warehouse</div>
                         </th>
-                        <th class="hidden sm:table-cell">
+                        <th class="hidden sm:table-cell" v-show="isSuperAdmin">
                             <div class="font-bold">Store</div>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="product in products.data" :key="product.id">
-                        <td class="w-0" v-if="$page.props.auth.user.canDelete">
+                        <td class="w-0" v-if="canDelete">
                             <input :value="product.id" v-model="productIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
                         <td class="w-5 table-cell">
@@ -218,7 +223,6 @@ watch(store, value => {
                                     <div class="sm:hidden">
                                         <div class="text-xs opacity-50">{{ product.phone }}</div>
                                         <div class="text-xs opacity-50">{{ product.address }}</div>
-                                        <div class="text-xs opacity-50">{{ product.store }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -229,7 +233,7 @@ watch(store, value => {
                         <td class="hidden sm:table-cell">
                             {{ product.size }}</td>
                         <td class="hidden sm:table-cell">
-                            {{ product.brand }}</td>
+                            {{ product.category }}</td>
                         <td class="hidden sm:table-cell">
                             {{ product.product_type }}</td>
                         <td class="hidden sm:table-cell">
@@ -240,7 +244,7 @@ watch(store, value => {
                             {{ product.in_store }}</td>
                         <td class="hidden sm:table-cell">
                             {{ product.in_warehouse }}</td>
-                        <td class="hidden sm:table-cell">
+                        <td class="hidden sm:table-cell" v-show="isSuperAdmin">
                             {{ product.store }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">
@@ -249,7 +253,7 @@ watch(store, value => {
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
                                     </svg>
                                 </Link>
-                                <button v-if="$page.props.auth.user.canDelete" @click="deleteProductForm(product.id)" class="text-orange-900 hover:text-orange-600">
+                                <button v-if="canDelete" @click="deleteProductForm(product.id)" class="text-orange-900 hover:text-orange-600">
                                     <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M13.7535 2.47502H11.5879V1.9969C11.5879 1.15315 10.9129 0.478149 10.0691 0.478149H7.90352C7.05977 0.478149 6.38477 1.15315 6.38477 1.9969V2.47502H4.21914C3.40352 2.47502 2.72852 3.15002 2.72852 3.96565V4.8094C2.72852 5.42815 3.09414 5.9344 3.62852 6.1594L4.07852 15.4688C4.13477 16.6219 5.09102 17.5219 6.24414 17.5219H11.7004C12.8535 17.5219 13.8098 16.6219 13.866 15.4688L14.3441 6.13127C14.8785 5.90627 15.2441 5.3719 15.2441 4.78127V3.93752C15.2441 3.15002 14.5691 2.47502 13.7535 2.47502ZM7.67852 1.9969C7.67852 1.85627 7.79102 1.74377 7.93164 1.74377H10.0973C10.2379 1.74377 10.3504 1.85627 10.3504 1.9969V2.47502H7.70664V1.9969H7.67852ZM4.02227 3.96565C4.02227 3.85315 4.10664 3.74065 4.24727 3.74065H13.7535C13.866 3.74065 13.9785 3.82502 13.9785 3.96565V4.8094C13.9785 4.9219 13.8941 5.0344 13.7535 5.0344H4.24727C4.13477 5.0344 4.02227 4.95002 4.02227 4.8094V3.96565ZM11.7285 16.2563H6.27227C5.79414 16.2563 5.40039 15.8906 5.37227 15.3844L4.95039 6.2719H13.0785L12.6566 15.3844C12.6004 15.8625 12.2066 16.2563 11.7285 16.2563Z" fill=""></path>
                                         <path d="M9.00039 9.11255C8.66289 9.11255 8.35352 9.3938 8.35352 9.75942V13.3313C8.35352 13.6688 8.63477 13.9782 9.00039 13.9782C9.33789 13.9782 9.64727 13.6969 9.64727 13.3313V9.75942C9.64727 9.3938 9.33789 9.11255 9.00039 9.11255Z" fill=""></path>

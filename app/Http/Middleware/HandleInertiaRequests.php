@@ -30,21 +30,24 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $user_role = $user->roles[0]->name ?? '';
+
         return [
             ...parent::share($request),
             'auth' => [
-                    'user' => $request->user() ? [
-                    'name' => $request->user()->name,
-                    'email' => $request->user()->email,
-                    'phone' => $request->user()->phone,
-                    'address' => $request->user()->address,
-                    'avatar' => $request->user()->profile_photo_url,
-                    'store_id' => $request->user()->store->id ?? '',
-                    'isSuperAdmin' =>  $request->user()->roles[0]->name === 'super-admin',
-                    'isOwner' => $request->user()->roles[0]->name === 'owner',
-                    'isAdmin' => $request->user()->roles[0]->name === 'admin',
-                    'isStaff' => $request->user()->roles[0]->name === 'staff',
-                    'canDelete' => $request->user()->roles[0]->name === 'staff' ? false : true,
+                    'user' => $user ? [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'address' => $user->address,
+                    'avatar' => $user->profile_photo_url,
+                    'store_id' => $user->store->id ?? '',
+                    'isSuperAdmin' =>  $user_role === 'super-admin',
+                    'isOwner' => $user_role === 'owner',
+                    'isAdmin' => $user_role === 'admin',
+                    'isStaff' => $user_role === 'staff',
+                    'canDelete' => $user_role === 'staff' ? false : true,
                     'impersonate' => session()->get('impersonate') ?? null
                     ] : null,
             ]

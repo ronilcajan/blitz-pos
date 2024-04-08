@@ -1,16 +1,10 @@
 <script setup>
 import { usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
 
 const page = usePage();
 
-const isUserIsSuperAdmin = computed(() => {
-	page.props.auth.user.isSuperAdmin ? true : false
-})
-
-const isUserIsStaff = computed(() => {
-	page.props.auth.user.isStaff ? true : false
-})
+const isUserIsSuperAdmin = page.props.auth.user.isSuperAdmin
+const isUserIsStaff = page.props.auth.user.isStaff
 </script>
 <template>
     <aside class="drawer-side z-10" >
@@ -35,7 +29,7 @@ const isUserIsStaff = computed(() => {
 				<li >
 					<details :open="$page.component.startsWith('Product')">
 						<summary >
-							<svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+							<svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
 							<path fill-rule="evenodd" d="M4.857 3A1.857 1.857 0 0 0 3 4.857v4.286C3 10.169 3.831 11 4.857 11h4.286A1.857 1.857 0 0 0 11 9.143V4.857A1.857 1.857 0 0 0 9.143 3H4.857Zm10 0A1.857 1.857 0 0 0 13 4.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 9.143V4.857A1.857 1.857 0 0 0 19.143 3h-4.286Zm-10 10A1.857 1.857 0 0 0 3 14.857v4.286C3 20.169 3.831 21 4.857 21h4.286A1.857 1.857 0 0 0 11 19.143v-4.286A1.857 1.857 0 0 0 9.143 13H4.857Zm10 0A1.857 1.857 0 0 0 13 14.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 19.143v-4.286A1.857 1.857 0 0 0 19.143 13h-4.286Z" clip-rule="evenodd"/>
 							</svg>
 
@@ -43,7 +37,7 @@ const isUserIsStaff = computed(() => {
 						</summary>
 						<ul class="mt-2">
 							<li class="mb-2">
-								<NavLink href="/products" :active="$page.component.startsWith('Products/')">
+								<NavLink href="/products" :active="$page.component.startsWith('Product/')">
 									Products</NavLink>
 							</li>
 							<li class="mb-2">

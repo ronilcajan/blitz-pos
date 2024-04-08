@@ -27,12 +27,12 @@ class Expenses extends Model
 
     public function user():BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withoutGlobalScopes();
     } 
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(ExpensesCategory::class, 'expenses_category_id');
+        return $this->belongsTo(ExpensesCategory::class, 'expenses_category_id')->withoutGlobalScopes();
     }
 
     public function scopeFilter($query, array $filter){
