@@ -21,7 +21,7 @@ class ProductSupplierFactory extends Factory
         return [
             'unit_price' => 100,
             'mark_up_price' => 50,
-            'sell_price' => 150,
+            'retail_price' => 150,
             'min_quantity' => 5,
             'in_store' => 100,
             'in_warehouse' => 100,

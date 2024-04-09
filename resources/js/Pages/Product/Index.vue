@@ -152,7 +152,7 @@ const canDelete = page.props.auth.user.canDelete
                             </button>
                         </div>
                     </div>
-                    <NavLink href="/customers/create" class="btn btn-sm btn-primary">Add new</NavLink>
+                    <NavLink href="/products/create" class="btn btn-sm btn-primary">Add new</NavLink>
                     <DangerButton v-if="canDelete" v-show="productIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
             </div>
@@ -183,13 +183,14 @@ const canDelete = page.props.auth.user.canDelete
                             <div class="font-bold">Unit</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Price</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
                             <div class="font-bold">In Store</div>
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">In Warehouse</div>
+                        </th>
+                     
+                        <th class="hidden sm:table-cell">
+                            <div class="font-bold">Price</div>
                         </th>
                         <th class="hidden sm:table-cell" v-show="isSuperAdmin">
                             <div class="font-bold">Store</div>
@@ -239,11 +240,11 @@ const canDelete = page.props.auth.user.canDelete
                         <td class="hidden sm:table-cell">
                             {{ product.unit }}</td>
                         <td class="hidden sm:table-cell">
-                            P {{ product.sell_price }}</td>
-                        <td class="hidden sm:table-cell">
                             {{ product.in_store }}</td>
                         <td class="hidden sm:table-cell">
                             {{ product.in_warehouse }}</td>
+                        <td class="hidden sm:table-cell">
+                            {{ product.retail_price }}</td>
                         <td class="hidden sm:table-cell" v-show="isSuperAdmin">
                             {{ product.store }}</td>
                         <td>

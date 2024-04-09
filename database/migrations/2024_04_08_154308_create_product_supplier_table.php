@@ -15,12 +15,13 @@ return new class extends Migration
     {
         Schema::create('product_supplier', function (Blueprint $table) {
             $table->id();
-            $table->decimal('unit_price', total: 8, places: 2);
-            $table->decimal('mark_up_price', total: 8, places: 2);
-            $table->decimal('sell_price', total: 8, places: 2);
-            $table->integer('min_quantity');
-            $table->decimal('in_store', total: 8, places: 2);
-            $table->decimal('in_warehouse', total: 8, places: 2);
+            $table->decimal('unit_price', total: 8, places: 2)->nullable();
+            $table->decimal('mark_up_price', total: 8, places: 2)->nullable();
+            $table->decimal('retail_price', total: 8, places: 2)->nullable();
+            $table->string('manual_percentage')->default('manual');
+            $table->integer('min_quantity')->nullable();
+            $table->decimal('in_store', total: 8, places: 2)->nullable();
+            $table->decimal('in_warehouse', total: 8, places: 2)->nullable();
             $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Supplier::class)->constrained()->cascadeOnDelete();
             $table->softDeletes(); // <-- This will add a deleted_at field

@@ -71,7 +71,8 @@ class SupplierController extends Controller
             $logo = $request->file('logo')->store('suppliers','public');
             $validate['logo'] = asset('storage/'. $logo);
         }
-        
+        $validate['store_id'] = $request->store_id ?? auth()->id();
+         
         Supplier::create($validate);
 
         return redirect()->back();
@@ -99,7 +100,7 @@ class SupplierController extends Controller
             'email' => $supplier->email,
             'phone' => $supplier->phone,
             'address' => $supplier->address,
-            'store_id' => $supplier->store->id ?? '',
+            'store_id' => $supplier->store->id ?? auth()->id(),
             'logo' => $supplier->logo,
         ];
 

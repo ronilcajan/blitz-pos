@@ -86,7 +86,6 @@ const submitCreateForm = () => {
                 </div>
 
                 <div class="mb-3" v-show="$page.props.auth.user.isSuperAdmin">
-                    <InputLabel for="name" value="Contact person" />
                     <InputLabel for="phone" value="Store" />
                     <select v-model="form.store_id" class="select select-bordered w-full">
                         <option disabled selected value="">Select a store</option>

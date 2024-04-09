@@ -21,7 +21,7 @@ class ProductFactory extends Factory
     {
         return [
             'name' => fake()->name,
-            'bracode' => fake()->ean13(),
+            'barcode' => fake()->ean13(),
             'sku' => 'KS '.fake()->ean13(),
             'unit'=> function () {
                 return ProductUnit::inRandomOrder()->first()->name;
