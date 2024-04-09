@@ -33,8 +33,8 @@ class UserController extends Controller
                     'email' => $user->email,
                     'phone' => $user->phone,
                     'address' => $user->address,
-                    'store' => $user->store->name ?? '',
-                    'role' => $user->roles[0]->name ?? '',
+                    'store' => $user->store?->name,
+                    'role' => $user->roles[0]?->name,
                     'avatar' => $user->profile_photo_url,
                     'created_at' => $user->created_at->format('M d, Y h:i: A'),
                 ];

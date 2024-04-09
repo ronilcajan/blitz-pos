@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ImpersonateController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductUnitController;
@@ -40,6 +41,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/update-avatar', [ProfileController::class, 'update_avatar'])->name('profile.update_avatar');
+
+    Route::resource('/inventory', InventoryController::class);
 
     Route::resource('/products', ProductController::class);
     Route::post('/products/update', [ProductController::class, 'update']);

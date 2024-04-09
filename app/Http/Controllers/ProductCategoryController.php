@@ -20,7 +20,7 @@ class ProductCategoryController extends Controller
             ->with(['store'])
             ->orderBy('id', 'DESC')
             ->filter(request(['search','store']))
-            ->paginate($request->per_page ? ($request->per_page == 'All' ? ExpensesCategory::count() : $request->per_page) : 10)
+            ->paginate($request->per_page ? ($request->per_page == 'All' ? ProductCategory::count() : $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($category) {
                 return [

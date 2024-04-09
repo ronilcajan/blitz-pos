@@ -10,6 +10,8 @@ use App\Models\ProductUnit;
 use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -18,11 +20,11 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        // Gate::authorize('viewAny', ProductCategory::class);
+        Gate::authorize('viewAny', Product::class);
         $products = Product::query()
             ->with(['store', 'stocks','category'])
             ->orderBy('name', 'ASC')
-            ->filter(request(['search','store']))
+            ->filter(request(['search','store','category']))
             ->paginate($request->per_page ? ($request->per_page == 'All' ?  Product::count() : $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($product) {
@@ -63,7 +65,7 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
+    public function create()
     {
         // Gate::authorize('create', Customer::class);
 
@@ -85,7 +87,7 @@ class ProductController extends Controller
      */
     public function store(ProductFormRequest $request)
     {
-        // Gate::authorize('create', Supplier::class);
+        Gate::authorize('create', Product::class);
 
         $validate = $request->validated();
 
@@ -141,7 +143,66 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        //
+        Gate::authorize('update', $product);
+        $data = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'barcode' => $product->barcode,
+            'sku' => $product->sku,
+            'size' => $product->size,
+            'dimension' => $product->dimension,
+            'unit' => $product->unit,
+            'product_type' => $product->product_type,
+            'brand' => $product->brand,
+            'manufacturer' => $product->manufacturer,
+            'description' => $product->description,
+            'product_category_id' => $product->product_category_id,
+            'store_id' => $product->store_id,
+        ];
+
+        return inertia('Product/Edit', [
+            'title' => "Edit Product",
+            'product' => $data,
+            'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
+            'units' => ProductUnit::select('id','name')->orderBy('id', 'DESC')
+            ->get(),
+            'categories' => ProductCategory::select('id','name')->orderBy('id', 'DESC')
+            ->get(),
+            'suppliers' => Supplier::select('id','name')->orderBy('id', 'DESC')
+            ->get(),
+        ]);
+    }
+
+       /**
+     * Update the specified resource in storage.
+     */
+    public function update(ProductFormRequest $request)
+    {
+        $product = Product::find($request->id);
+        Gate::authorize('update', $product);
+
+        $validate = $request->validated([
+            'name' => 'required',
+            'barcode' => ['required',Rule::unique('products', 'barcode')->ignore($request->id)],
+            'sku' => '',
+            'size' => '',
+            'dimension' => '',
+            'unit' => '',
+            'product_type' => '',
+            'brand' => '',
+            'manufacturer' => '',
+            'description' => '',
+            'product_category_id' => 'required',
+        ]);
+
+        if($request->hasFile('image')){
+            $image = $request->file('image')->store('products','public');
+            $validate['image'] = asset('storage/'. $image);
+        }
+        
+        $product->update($validate);
+
+        return redirect()->back();
     }
 
     /**
@@ -149,7 +210,7 @@ class ProductController extends Controller
      */
     public function bulkDelete(Request $request)
     {
-        // Gate::authorize('bulk_delete', ProductCategory::class);
+        Gate::authorize('bulk_delete', Product::class);
 
         Product::whereIn('id',$request->products_id)->delete();
         return redirect()->back();
@@ -157,7 +218,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        // Gate::authorize('delete', $product_category);
+        Gate::authorize('delete', $product);
         Product::find($product->id)->delete();
         return redirect()->back();
     }

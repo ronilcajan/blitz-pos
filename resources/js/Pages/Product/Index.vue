@@ -19,6 +19,7 @@ const page = usePage();
 let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
+let category = ref('');
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -104,7 +105,11 @@ watch(store, value => {
 	{ store: value },
 	{ preserveState: true, replace:true })
 })
-
+watch(category, value => {
+	router.get('/products', 
+	{ category: value },
+	{ preserveState: true, replace:true })
+})
 const isSuperAdmin = page.props.auth.user.isSuperAdmin
 const canDelete = page.props.auth.user.canDelete
 
@@ -127,6 +132,14 @@ const canDelete = page.props.auth.user.canDelete
                 </div>
                 <div class="flex gap-2 flex-col sm:flex-row">
 
+                    <div class="w-full">
+                        <select v-model="category" class="select select-bordered select-sm w-full max-w-xs">
+                            <option selected value="">Filter by category</option>
+                            <option v-for="category in product_categories" :value="category.name" :key="category.id">
+                                {{ category.name }}
+                            </option>
+                        </select>
+                    </div>
                     <div class="w-full" v-show="isSuperAdmin">
                         <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
                             <option selected value="">Filter by</option>
@@ -234,9 +247,13 @@ const canDelete = page.props.auth.user.canDelete
                         <td class="hidden sm:table-cell">
                             {{ product.size }}</td>
                         <td class="hidden sm:table-cell">
-                            {{ product.category }}</td>
+                            <div class="badge badge-primary">
+                                {{ product.category }}</div>
+                        </td>
                         <td class="hidden sm:table-cell">
-                            {{ product.product_type }}</td>
+                            <div class="badge" :class="product.product_type === 'saleable' ? 'badge-primary' : 'badge'">
+                                {{ product.product_type }}</div>
+                        </td>
                         <td class="hidden sm:table-cell">
                             {{ product.unit }}</td>
                         <td class="hidden sm:table-cell">

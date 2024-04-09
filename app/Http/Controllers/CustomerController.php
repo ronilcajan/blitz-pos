@@ -97,7 +97,7 @@ class CustomerController extends Controller
             'email' => $customer->email,
             'phone' => $customer->phone,
             'address' => $customer->address,
-            'store_id' => $customer->store->id ?? '',
+            'store_id' => $customer->store?->id,
             'logo' => $customer->logo,
         ];
 

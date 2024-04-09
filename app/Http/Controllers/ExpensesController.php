@@ -32,9 +32,9 @@ class ExpensesController extends Controller
                     'amount' => number_format($expense->amount,2),
                     'notes' => $expense->notes,
                     'attachments' => $expense->attachments,
-                    'category' => $expense->category->name ?? 'none',
+                    'category' => $expense->category?->name,
                     'store' => $expense->store->name,
-                    'user' => $expense->user->name ?? 'none',
+                    'user' => $expense->user?->name ,
                 ];
         });
 
