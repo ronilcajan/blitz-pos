@@ -32,7 +32,7 @@ class ProductUnitController extends Controller
         return inertia('ProductUnit/Index', [
             'title' => 'Product Units',
             'units' => $units,
-            'stores' => Store::select('id', 'name')->get(),
+            'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
             'filters' => $request->only(['search']),
             'per_page' => $request->only(['per_page'])
         ]);

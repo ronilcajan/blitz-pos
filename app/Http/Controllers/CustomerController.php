@@ -39,7 +39,7 @@ class CustomerController extends Controller
         return inertia('Customers/Index', [
             'title' => "Customers",
             'customers' => $customers,
-            'stores' => Store::select('id', 'name')->get(),
+            'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
             'filter' => $request->only(['search','store','per_page']),
         ]);
     }

@@ -43,8 +43,8 @@ class UserController extends Controller
         return inertia('Users/Index', [
             'title' => 'Users',
             'users' => $users,
-            'stores' => Store::select('id', 'name')->get(),
-            'roles' => Role::select('id','name')->get(),
+            'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
+            'roles' => Role::select('id','name')->orderBy('name','ASC')->get(),
             'filter' => $request->only(['search','store','per_page']),
         ]);
     }

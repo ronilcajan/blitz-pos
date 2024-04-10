@@ -40,7 +40,7 @@ class SupplierController extends Controller
         return inertia('Suppliers/Index', [
             'title' => "Suppliers",
             'suppliers' => $suppliers,
-            'stores' => Store::select('id', 'name')->get(),
+            'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
             'filter' => $request->only(['search','store','per_page']),
         ]);
     }

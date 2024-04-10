@@ -10,6 +10,7 @@ use App\Models\ProductUnit;
 use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class InventoryController extends Controller
@@ -19,7 +20,8 @@ class InventoryController extends Controller
      */
     public function index(Request $request)
     {
-        // Gate::authorize('viewAny', Product::class);
+        Gate::authorize('viewAny', Product::class);
+
         $products = ProductSupplier::query()
         ->select('product_supplier.id as product_supplier_id', 'products.*', 'product_supplier.*') // Select product_supplier ID
         ->leftJoin('products', 'products.id', '=', 'product_supplier.product_id')
@@ -80,7 +82,8 @@ class InventoryController extends Controller
      */
     public function edit(ProductSupplier $inventory)
     {
-         // Gate::authorize('update', $product);
+        $product = Product::find($inventory->product_id);
+        Gate::authorize('update', $product);
 
          $data = [
             'id' => $inventory->id,
@@ -128,7 +131,7 @@ class InventoryController extends Controller
     public function update(ProductFormRequest $request)
     {
         $product = Product::find($request->id);
-        // Gate::authorize('update', $product);
+        Gate::authorize('update', $product);
 
         $product_data = [
             'name' => $request->name,
@@ -168,13 +171,5 @@ class InventoryController extends Controller
         $product_supplier->update($product_supplier_data);
 
         return redirect()->back();
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

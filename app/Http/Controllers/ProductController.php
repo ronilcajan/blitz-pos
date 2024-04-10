@@ -49,8 +49,8 @@ class ProductController extends Controller
         return inertia('Product/Index', [
             'title' => 'Products',
             'products' => $products,
-            'stores' => Store::select('id', 'name')->get(),
-            'product_categories' => ProductCategory::select('id', 'name')
+            'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
+            'product_categories' => ProductCategory::select('id', 'name')->orderBy('name','ASC')
                 ->get(),
             'filter' => $request->only(['search']),
             'per_page' => $request->only(['per_page'])

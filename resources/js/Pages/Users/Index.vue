@@ -191,7 +191,7 @@ watch(store, value => {
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Address</div>
                         </th>
-                        <th class="hidden sm:table-cell">
+                        <th class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">
                             <div class="font-bold">Store</div>
                         </th>
                         <th class="hidden sm:table-cell">
@@ -238,7 +238,7 @@ watch(store, value => {
                         <!-- These columns will be hidden on small screens -->
                         <td class="hidden sm:table-cell">{{ user.phone }}</td>
                         <td class="hidden sm:table-cell">{{ user.address }}</td>
-                        <td class="hidden sm:table-cell">{{ user.store }}</td>
+                        <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ user.store }}</td>
                         <td class="hidden sm:table-cell">{{ user.role }}</td>
                         <td class="hidden sm:table-cell">{{ user.created_at }}</td>
                         <td>

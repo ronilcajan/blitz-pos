@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductSupplier extends Model
@@ -32,6 +31,12 @@ class ProductSupplier extends Model
 
             $query->whereAny([
                 'unit_price',
+                'mark_up_price',
+                'retail_price',
+                'manual_percentage',
+                'min_quantity',
+                'in_store',
+                'in_warehouse',
                 ], 'LIKE', "%{$search}%")
             ->orWhereHas('product', function($q) use ($search){
                 $q->where('name', $search);

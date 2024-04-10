@@ -34,7 +34,7 @@ class ExpensesCategoryController extends Controller
         return inertia('ExpensesCategory/Index', [
             'title' => 'Expenses Category',
             'expenses_categories' => $expenses_categories,
-            'stores' => Store::select('id', 'name')->get(),
+            'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
             'filters' => $request->only(['search']),
             'per_page' => $request->only(['per_page'])
         ]);

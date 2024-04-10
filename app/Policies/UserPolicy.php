@@ -12,7 +12,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('super-admin|owner|admin');
+        return $user->hasRole('owner|admin');
     }
 
     /**
@@ -20,7 +20,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('super-admin|owner|admin');
+        return $user->hasRole('owner|admin');
     }
 
     /**
@@ -29,13 +29,13 @@ class UserPolicy
     public function update(User $user, User $model): bool
     {
         return $user->hasRole('owner|admin') 
-        && $user->stores_id === $model->store_id;
+        && $user->store_id === $model->store_id;
     }
 
     public function reset(User $user, User $model): bool
     {
         return $user->hasRole('owner|admin') 
-        && $user->stores_id === $model->store_id;
+        && $user->store_id === $model->store_id;
     }
 
     /**
@@ -44,7 +44,7 @@ class UserPolicy
     public function delete(User $user, User $model): bool
     {
         return $user->hasRole('owner|admin') 
-                && $user->stores_id === $model->store_id;
+                && $user->store_id === $model->store_id;
     }
 
     public function bulk_delete(User $user): bool

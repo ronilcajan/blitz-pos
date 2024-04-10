@@ -2,62 +2,67 @@
 
 namespace App\Models;
 
-use App\Models\Scopes\ProductScope;
+use App\Models\Scopes\OrderScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-#[ScopedBy([ProductScope::class])]
-class Product extends Model
+#[ScopedBy([OrderScope::class])]
+class Order extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
-    protected $table = 'products';
-
-    protected $guarded = [];
-
-    public function store(): BelongsTo
+    public function store():BelongsTo
     {
         return $this->belongsTo(Store::class);
     } 
 
-    public function category(): BelongsTo
+    public function user():BelongsTo
     {
-        return $this->belongsTo(ProductCategory::class,'product_category_id');
+        return $this->belongsTo(User::class);
     } 
 
-    public function stock(): HasOne
+    public function supplier():BelongsTo
     {
-        return $this->hasOne(ProductSupplier::class);
-    }
-    public function stocks(): HasMany
-    {
-        return $this->hasMany(ProductSupplier::class);
-    }
+        return $this->belongsTo(Supplier::class);
+    } 
 
     public function scopeFilter($query, array $filter){
         if(!empty($filter['search'])){
+            
             $search = $filter['search'];
 
             $query->whereAny([
-                'name',
-                'barcode ',
-                'sku',
-                'size',
-                'dimension',
-                'brand',
-                'product_type',
-                'manufacturer',
+                'expenses_date',
+                'amount',
                 'description',
-                ], 'LIKE', "%{$search}%")
+                'notes',
+            ], 'LIKE', "%{$search}%")
+            ->orWhereHas('category', function($q) use ($search){
+                $q->where('name', $search);
+            })
+            ->orWhereHas('user', function($q) use ($search){
+                $q->where('name', $search);
+            }) 
             ->orWhereHas('store', function($q) use ($search){
                 $q->where('name', $search);
+            });
+        }
+
+        if(!empty($filter['status'])){
+            $status = $filter['status'];
+            $query->where('status', $status === 'Approved' ? 1 : 0);
+        }
+
+        if(!empty($filter['category'])){
+            $category = $filter['category'];
+
+            $query->whereHas('category', function($q) use ($category){
+                $q->where('name', $category);
             });
         }
 
@@ -68,25 +73,12 @@ class Product extends Model
                 $q->where('name', $store);
             });
         }
-
-        if(!empty($filter['type'])){
-            $type = $filter['type'];
-            $query->where('product_type', $type);
-        }
-
-        if(!empty($filter['category'])){
-            $category = $filter['category'];
-
-            $query->whereHas('category', function($q) use ($category){
-                $q->where('name', $category);
-            });
-        }
     }
-
+    
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('Product')
+            ->useLogName('Order')
             ->logOnly(['name'])
             ->logOnlyDirty()
             ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");    
