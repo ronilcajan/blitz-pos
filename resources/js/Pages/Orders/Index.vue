@@ -154,21 +154,24 @@ watch(store, value => {
         <div class="overflow-x-auto">
             <table class="table table-zebra">
                 <thead>
-                    <tr>
+                    <tr class="uppercase">
                         <th v-if="$page.props.auth.user.canDelete">
                             <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
                         </th>
                         <th>
-                            <div class="font-bold">Order No</div>
+                            <div class="font-bold">ORDER ID</div>
+                        </th>
+                        <th>
+                            <div class="font-bold">ORDER Date</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Qty</div>
+                            <div class="font-bold">QTY</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Discount</div>
+                            <div class="font-bold uppercase">Discount</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Amount</div>
+                            <div class="font-bold ">Amount</div>
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Supplier</div>
@@ -179,9 +182,6 @@ watch(store, value => {
                         <th class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">
                             <div class="font-bold">Store</div>
                         </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Created on</div>
-                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -189,34 +189,31 @@ watch(store, value => {
                         <td class="w-0" v-if="$page.props.auth.user.canDelete">
                             <input :value="order.id" v-model="orderIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
-                        <td class="w-5 table-cell">
+                        <td class="w-10">
                             <div class="flex items-center gap-2">
                                 <div>
                                     <div class="flex text-sm font-bold gap-2">
                                         {{ order.order_no }} 
                                     </div>
-                                    <div class="text-xs opacity-50">
-                                        {{ order.email }}
-                                    </div>
                                     <div class="sm:hidden">
                                         <div class="text-xs opacity-50">
-                                            {{ order.phone }}
+                                            {{ order.created_at }}
                                         </div>
                                         <div class="text-xs opacity-50">
-                                                {{ order.address }}
+                                            {{ order.address }}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </td>
                         <!-- These columns will be hidden on small screens -->
+                        <td class="hidden sm:table-cell">{{ order.created_at }}</td>
                         <td class="hidden sm:table-cell">{{ order.quantity }}</td>
                         <td class="hidden sm:table-cell">{{ order.discount }}</td>
                         <td class="hidden sm:table-cell">{{ order.amount }}</td>
                         <td class="hidden sm:table-cell">{{ order.supplier }}</td>
                         <td class="hidden sm:table-cell">{{ order.user }}</td>
                         <td class="hidden sm:table-cell">{{ order.store }}</td>
-                        <td class="hidden sm:table-cell">{{ order.created_at }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">
                                 <Link :href="`/customers/${order.id}/edit`" class=" hover:text-green-500">
