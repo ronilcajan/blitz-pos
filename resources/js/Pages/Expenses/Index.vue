@@ -1,7 +1,7 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { useForm, router } from '@inertiajs/vue3'
+import { useForm, router, usePage } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
 
@@ -15,10 +15,12 @@ const props = defineProps({
 	filter: Object
 });
 
+const page = usePage();
 let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
 let category = ref('');
+let status = ref('');
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -87,6 +89,22 @@ const selectAll = () => {
       }
 }
 
+const changeStatus = (id,status) => {
+    console.log(status);
+	router.post('/expenses/change-status', {
+            id: id,
+            status: status,
+        },
+	    { preserveState: true, replace:true,
+            onSuccess: () => {
+            useToast().success('Expenses has been updated successfully!', {
+                position: 'top-right',
+                duration: 3000,
+                dismissible: true
+            });
+        }, })
+}
+
 watch(per_page, value => {
 	router.get('/expenses', 
 	{ per_page: value },
@@ -110,6 +128,20 @@ watch(category, value => {
 	{ category: value },
 	{ preserveState: true, replace:true })
 })
+
+watch(status, value => {
+	router.get('/expenses', 
+	{ status: value },
+	{ preserveState: true, replace:true })
+})
+
+const isSuperAdmin = page.props.auth.user.isSuperAdmin
+const canDelete = page.props.auth.user.canDelete
+
+const showRefresh = computed(() => {
+    return store.value !== '' || category.value !== '' || status.value !== ''
+})
+
 </script>
 
 <template>
@@ -128,12 +160,24 @@ watch(category, value => {
                     </select>
                 </div>
                 <div class="flex gap-2 flex-col sm:flex-row">
+                    <NavLink href="/expenses" class="mt-1 mr-2 tooltip" v-show="showRefresh" data-tip="refresh">
+                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
+                        </svg>
+                    </NavLink>
                     <div class="w-full" v-show="$page.props.auth.user.isSuperAdmin">
                         <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
                             <option selected value="">Filter by store</option>
                             <option v-for="store in stores" :value="store.name" :key="store.id">
                                 {{ store.name }}
                             </option>
+                        </select>
+                    </div>
+                    <div class="w-full">
+                        <select v-model="status" class="select select-bordered select-sm w-full max-w-xs">
+                            <option selected value="">Filter by status</option>
+                           <option>Approved</option>
+                           <option>Pending</option>
                         </select>
                     </div>
                     <div class="w-full">
@@ -189,6 +233,9 @@ watch(category, value => {
                             <div class="font-bold">Category</div>
                         </th>
                         <th class="hidden sm:table-cell">
+                            <div class="font-bold">Status</div>
+                        </th>
+                        <th class="hidden sm:table-cell">
                             <div class="font-bold">User</div>
                         </th>
                         <th class="hidden sm:table-cell"  v-show="$page.props.auth.user.isSuperAdmin">
@@ -211,18 +258,22 @@ watch(category, value => {
                                         {{ expense.description }} 
                                     </div>
 
-                                    <div class="text-xs opacity-50">{{ expense.status }}</div>
                                     <div class="flex flex-col gap-2 sm:hidden ">
                                         <div class="text-xs opacity-50">P {{ expense.amount }}</div>
                                         <div class="text-xs opacity-50">
                                             <a v-if="expense.attachments" :href="expense.attachments" target="_blank" download>
-                                                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4"/>
+                                                <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Z"/>
+                                                <path fill-rule="evenodd" d="M11 7V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Zm4.707 5.707a1 1 0 0 0-1.414-1.414L11 14.586l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
                                                 </svg>
+
                                             </a>    
                                         </div>
                                         <div class="text-xs opacity-50">{{ expense.notes }}</div>
-                                        <div class="text-xs opacity-50">{{ expense.created_at }}</div>
+                                        <div class="text-xs opacity-50">{{ expense.notes }}</div>
+                                        <div class="text-xs opacity-50 ">
+                                            <input type="checkbox" @change="changeStatus(expense.id,expense.status)" class="toggle toggle-xs toggle-success tooltip" :data-tip="expense.status === 1 ? 'approved' : 'pending'" :checked="expense.status === 1" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -230,10 +281,12 @@ watch(category, value => {
                         <!-- These columns will be hidden on small screens -->
                         <td class="hidden sm:table-cell">{{ expense.amount }}</td>
                         <td class="hidden sm:table-cell">
-                            <a v-if="expense.attachments" :href="expense.attachments" target="_blank" download>
-                                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4"/>
-                                </svg>
+                            <a v-if="expense.attachments" :href="expense.attachments" target="_blank" download class="tooltip" data-tip="Supporting documents">
+                                <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Z"/>
+                                                <path fill-rule="evenodd" d="M11 7V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Zm4.707 5.707a1 1 0 0 0-1.414-1.414L11 14.586l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
+                                                </svg>
+
                             </a>
                         </td>
                         <td class="hidden sm:table-cell">{{ expense.notes }}</td>
@@ -241,6 +294,9 @@ watch(category, value => {
                             <div class="badge badge-primary">
                                 {{ expense.category }}
                             </div>
+                        </td>
+                        <td class="hidden sm:table-cell">
+                            <input type="checkbox" @change="changeStatus(expense.id,expense.status)" class="toggle toggle-xs toggle-success tooltip" :data-tip="expense.status === 1 ? 'approved' : 'pending'" :checked="expense.status === 1" />
                         </td>
                         <td class="hidden sm:table-cell">{{ expense.user }}</td>
                         <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ expense.store }}</td>

@@ -57,6 +57,11 @@ class Expenses extends Model
             });
         }
 
+        if(!empty($filter['status'])){
+            $status = $filter['status'];
+            $query->where('status', $status === 'Approved' ? 1 : 0);
+        }
+
         if(!empty($filter['category'])){
             $category = $filter['category'];
 

@@ -21,7 +21,7 @@ class ExpensesController extends Controller
         $expenses = Expenses::query()
             ->with(['category','user','store'])
             ->orderBy('id', 'DESC')
-            ->filter(request(['search','store','category']))
+            ->filter(request(['search','store','category','status']))
             ->paginate($request->per_page ? ($request->per_page == 'All' ? Expenses::count()->get() : $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($expense) {
@@ -33,6 +33,7 @@ class ExpensesController extends Controller
                     'notes' => $expense->notes,
                     'attachments' => $expense->attachments,
                     'category' => $expense->category?->name,
+                    'status' => $expense->status,
                     'store' => $expense->store->name,
                     'user' => $expense->user?->name ,
                 ];
@@ -132,6 +133,19 @@ class ExpensesController extends Controller
         }
         
         $expense->update($validate);
+
+        return redirect()->back();
+    }
+
+    public function change_status(Request $request)
+    {
+        $expense = Expenses::find($request->id);
+
+        Gate::authorize('update', $expense);
+        
+        $status = $request->status === 0 ? 1 : 0;
+       
+        $expense->update(['status' => $status]);
 
         return redirect()->back();
     }

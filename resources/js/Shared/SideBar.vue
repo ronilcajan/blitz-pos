@@ -27,7 +27,7 @@ const isUserIsStaff = page.props.auth.user.isStaff
 					</NavLink>
 				</li>
 				<li >
-					<details :open="$page.component.startsWith('Product')">
+					<details :open="$page.component.startsWith('Product') || $page.component.startsWith('Inventory')">
 						<summary >
 							<svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
 							<path fill-rule="evenodd" d="M4.857 3A1.857 1.857 0 0 0 3 4.857v4.286C3 10.169 3.831 11 4.857 11h4.286A1.857 1.857 0 0 0 11 9.143V4.857A1.857 1.857 0 0 0 9.143 3H4.857Zm10 0A1.857 1.857 0 0 0 13 4.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 9.143V4.857A1.857 1.857 0 0 0 19.143 3h-4.286Zm-10 10A1.857 1.857 0 0 0 3 14.857v4.286C3 20.169 3.831 21 4.857 21h4.286A1.857 1.857 0 0 0 11 19.143v-4.286A1.857 1.857 0 0 0 9.143 13H4.857Zm10 0A1.857 1.857 0 0 0 13 14.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 19.143v-4.286A1.857 1.857 0 0 0 19.143 13h-4.286Z" clip-rule="evenodd"/>
@@ -39,6 +39,10 @@ const isUserIsStaff = page.props.auth.user.isStaff
 							<li class="mb-2">
 								<NavLink href="/products" :active="$page.component.startsWith('Product/')">
 									Products</NavLink>
+							</li>
+							<li class="mb-2">
+								<NavLink href="/inventory" :active="$page.component.startsWith('Inventory/')">
+									Inventory</NavLink>
 							</li>
 							<li class="mb-2">
 								<NavLink href="/product_categories" :active="$page.component.startsWith('ProductCategory/')">
@@ -72,14 +76,6 @@ const isUserIsStaff = page.props.auth.user.isStaff
 							</li>
 						</ul>
 					</details>
-				</li>
-				<li>
-					<NavLink :active="$page.component.startsWith('Inventory')" href="/inventory">
-						<svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-						<path fill-rule="evenodd" d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-6 8a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z" clip-rule="evenodd"/>
-						</svg>
-						Inventory
-					</NavLink>
 				</li>
 				<li>
 					<NavLink :active="$page.component.startsWith('Customers')" href="/customers">

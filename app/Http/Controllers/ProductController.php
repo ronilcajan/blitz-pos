@@ -24,7 +24,7 @@ class ProductController extends Controller
         $products = Product::query()
             ->with(['store', 'stocks','category'])
             ->orderBy('name', 'ASC')
-            ->filter(request(['search','store','category']))
+            ->filter(request(['search','store','category','type']))
             ->paginate($request->per_page ? ($request->per_page == 'All' ?  Product::count() : $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($product) {
@@ -43,12 +43,7 @@ class ProductController extends Controller
                     'image' => $product->image,
                     'store' => $product->store->name,
                     'category' => $product->category->name,
-                    'unit_price' => $product->stocks->max('unit_price'),
-                    'mark_up_price' => $product->stocks->max('mark_up_price'),
                     'retail_price' => $product->stocks->max('retail_price') ? "P ".$product->stocks->max('retail_price') : 0,
-                    'min_quantity' => $product->stocks->max('min_quantity'),
-                    'in_store' => $product->stocks->sum('in_store'),
-                    'in_warehouse' =>  $product->stocks->sum('in_warehouse'),
                 ];
         });
         return inertia('Product/Index', [
@@ -144,6 +139,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         Gate::authorize('update', $product);
+
         $data = [
             'id' => $product->id,
             'name' => $product->name,
@@ -157,6 +153,7 @@ class ProductController extends Controller
             'manufacturer' => $product->manufacturer,
             'description' => $product->description,
             'product_category_id' => $product->product_category_id,
+            'image' => $product->image,
             'store_id' => $product->store_id,
         ];
 
@@ -176,12 +173,12 @@ class ProductController extends Controller
        /**
      * Update the specified resource in storage.
      */
-    public function update(ProductFormRequest $request)
+    public function update(Request $request)
     {
         $product = Product::find($request->id);
         Gate::authorize('update', $product);
 
-        $validate = $request->validated([
+        $validate = $request->validate([
             'name' => 'required',
             'barcode' => ['required',Rule::unique('products', 'barcode')->ignore($request->id)],
             'sku' => '',

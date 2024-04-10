@@ -20,6 +20,7 @@ let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
 let category = ref('');
+let type = ref('');
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -110,8 +111,18 @@ watch(category, value => {
 	{ category: value },
 	{ preserveState: true, replace:true })
 })
+watch(type, value => {
+	router.get('/products', 
+	{ type: value },
+	{ preserveState: true, replace:true })
+})
+
 const isSuperAdmin = page.props.auth.user.isSuperAdmin
 const canDelete = page.props.auth.user.canDelete
+
+const showRefresh = computed(() => {
+    return store.value !== '' || category.value !== '' || type.value !== '';
+})
 
 </script>
 
@@ -131,7 +142,11 @@ const canDelete = page.props.auth.user.canDelete
                     </select>
                 </div>
                 <div class="flex gap-2 flex-col sm:flex-row">
-
+                    <NavLink href="/products" class="mt-1 mr-2" v-show="showRefresh">
+                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
+                        </svg>
+                    </NavLink>
                     <div class="w-full">
                         <select v-model="category" class="select select-bordered select-sm w-full max-w-xs">
                             <option selected value="">Filter by category</option>
@@ -140,9 +155,20 @@ const canDelete = page.props.auth.user.canDelete
                             </option>
                         </select>
                     </div>
+                    <div class="w-full">
+                        <select v-model="type" class="select select-bordered select-sm w-full max-w-xs">
+                            <option selected value="">Filter by type</option>
+                            <option>
+                                sellable
+                            </option>
+                            <option>
+                                consumable
+                            </option>
+                        </select>
+                    </div>
                     <div class="w-full" v-show="isSuperAdmin">
                         <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
-                            <option selected value="">Filter by</option>
+                            <option selected value="">Filter by store</option>
                             <option v-for="store in stores" :value="store.name" :key="store.id">
                                 {{ store.name }}
                             </option>
@@ -187,6 +213,12 @@ const canDelete = page.props.auth.user.canDelete
                             <div class="font-bold">Size</div>
                         </th>
                         <th class="hidden sm:table-cell">
+                            <div class="font-bold">Dimension</div>
+                        </th>
+                        <th class="hidden sm:table-cell">
+                            <div class="font-bold">Brand</div>
+                        </th>
+                        <th class="hidden sm:table-cell">
                             <div class="font-bold">Category</div>
                         </th>
                         <th class="hidden sm:table-cell">
@@ -195,13 +227,6 @@ const canDelete = page.props.auth.user.canDelete
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Unit</div>
                         </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">In Store</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">In Warehouse</div>
-                        </th>
-                     
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Price</div>
                         </th>
@@ -246,6 +271,10 @@ const canDelete = page.props.auth.user.canDelete
                             {{ product.sku }}</td>
                         <td class="hidden sm:table-cell">
                             {{ product.size }}</td>
+                            <td class="hidden sm:table-cell">
+                            {{ product.dimension }}</td>
+                            <td class="hidden sm:table-cell">
+                            {{ product.brand }}</td>
                         <td class="hidden sm:table-cell">
                             <div class="badge badge-primary">
                                 {{ product.category }}</div>
@@ -256,10 +285,6 @@ const canDelete = page.props.auth.user.canDelete
                         </td>
                         <td class="hidden sm:table-cell">
                             {{ product.unit }}</td>
-                        <td class="hidden sm:table-cell">
-                            {{ product.in_store }}</td>
-                        <td class="hidden sm:table-cell">
-                            {{ product.in_warehouse }}</td>
                         <td class="hidden sm:table-cell">
                             {{ product.retail_price }}</td>
                         <td class="hidden sm:table-cell" v-show="isSuperAdmin">

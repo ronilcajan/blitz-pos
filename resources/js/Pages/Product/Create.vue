@@ -238,7 +238,7 @@ const submitCreateForm = () => {
                         <select v-model="form.product_type" class="select select-bordered w-full">
                             <option disabled value="">Select a product type</option>
                             <option>
-                                saleable
+                                sellable
                             </option>
                             <option>
                                 consumable
