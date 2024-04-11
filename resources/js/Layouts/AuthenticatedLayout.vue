@@ -38,7 +38,8 @@ const impersonating = computed(() =>
             
                 <HeaderBar />
             
-            <slot />
+                <slot />
+                
             </div>
 		</main>
         

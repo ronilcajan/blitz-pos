@@ -9,7 +9,7 @@
 				<h1 class="text-xl">POSblend</h1>
 			</div>
 
-			<ul class="menu gap-2 uppercase">
+			<ul class="menu gap-2">
 				<li>
 					<NavLink :active="$page.component.startsWith('Dashboard')" :href="route('dashboard')">
 						<svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
@@ -25,7 +25,7 @@
 						<path d="M18 4a1 1 0 1 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0V8h2a1 1 0 1 0 0-2h-2V4Z"/>
 						</svg>
 
-						Purchase Order
+						Orders
 					</NavLink>
 				</li>
 				<li >

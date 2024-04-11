@@ -1,9 +1,10 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { useForm, usePage } from '@inertiajs/vue3'
+import { router, useForm, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
 import { ref, watch } from 'vue';
 import { values } from 'lodash';
+import axios from 'axios'
 
 defineOptions({ layout: AuthenticatedLayout })
 const page = usePage()
@@ -13,12 +14,15 @@ const props = defineProps({
     stores: Object,
     units: Object,
     categories: Object,
-    suppliers: Object
+    suppliers: Object,
+    barcode: Object,
 });
 
 const createUnitModal = ref(false);
 const createCategoryModal = ref(false);
 const createSupplierModal = ref(false);
+const searchBarcodeModal = ref(false);
+const barcode = ref('');
 
 const form = useForm({
 	name: '',
@@ -57,6 +61,7 @@ const supplierForm = useForm({
     store_id : page?.props?.auth?.user.store_id,
 });
 
+console.log(props.barcode);
 
 const retailPriceCalculate = () => {
     if(form.manual_percentage === 'manual'){
@@ -68,7 +73,11 @@ const retailPriceCalculate = () => {
     }
 }
 
-watch(form.unit_price, values)
+watch(barcode, value => {
+    router.get('/products/create', 
+        { barcode: value },
+        { preserveState: true, replace:true })
+})
 
 const closeModal = () => {
     unitForm.clearErrors()
@@ -94,6 +103,7 @@ const submitUnitForm = () => {
 				dismissible: true
 			});
 		},
+        only: ['units'],
 	})
 }
 
@@ -109,6 +119,7 @@ const submitCategoryForm = () => {
 				dismissible: true
 			});
 		},
+        only: ['categories'],
 	})
 }
 
@@ -125,6 +136,7 @@ const submitSupplierForm = () => {
 				dismissible: true
 			});
 		},
+        only: ['suppliers'],
 	})
 }
 
@@ -146,13 +158,18 @@ const submitCreateForm = () => {
 
 <template>
     <Head :title="title" />
-
+    
     <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm">
         <div class="card-body grow-0">
             <div class="flex justify-between gap-2">
                 <h2 class="card-title grow text-sm">
                     <a class="link-hover link">Products Details</a>
                 </h2>
+
+                <div>
+                    <button @click="searchBarcodeModal = true" class="btn btn-primary tooltip tooltip-left" data-tip="Add products using barcode">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg></button>
+                </div>
             </div>
             <form @submit.prevent="submitCreateForm">
                 <div class="grid grid-cols-1 gap-2 mb-3 lg:grid-cols-2">
@@ -203,8 +220,8 @@ const submitCreateForm = () => {
                             <InputError class="mt-2" :message="form.errors.product_category_id" /> 
                         </div>
                         <div>
-                            <button @click="createCategoryModal = true" type="button" class="btn btn-primary tooltip  tooltip-left" data-tip="Create new category">
-                                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <button @click="createCategoryModal = true" type="button" class="btn btn-link tooltip tooltip-left m-0" data-tip="Create new category">
+                                <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                                 </svg>
                             </button>
@@ -226,8 +243,8 @@ const submitCreateForm = () => {
 
                         </div>
                         <div>
-                            <button @click="createUnitModal = true" type="button" class="btn btn-primary tooltip  tooltip-left" data-tip="Create new unit">
-                                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <button @click="createUnitModal = true" type="button" class="btn btn-link tooltip tooltip-left" data-tip="Create new unit">
+                                <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                                 </svg>
                             </button>
@@ -327,8 +344,8 @@ const submitCreateForm = () => {
                             <InputError class="mt-2" :message="form.errors.supplier_id" />
                         </div>
                         <div>
-                            <button @click="createSupplierModal = true" type="button" class="btn btn-primary tooltip  tooltip-left" data-tip="Create new supplier">
-                                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <button @click="createSupplierModal = true" type="button" class="btn btn-link tooltip tooltip-left" data-tip="Create new supplier">
+                                <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                                 </svg>
                             </button>
@@ -462,6 +479,31 @@ const submitCreateForm = () => {
             </form>
         </div>
     </section>
+
+    <Modal maxWidth="sm" :show="searchBarcodeModal" @close="searchBarcodeModal = false">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Search Barcode
+            </h1>
+            <div class="flex justify-center">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="150"  height="150"  viewBox="0 0 24 24"  fill="none"  stroke="#9e9e9e"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
+            </div>
+            <div class="mb-3">
+                <!-- <InputLabel for="name" value="Scan or enter barcode" /> -->
+                <TextInput
+                    type="text"
+                    class="block w-full"
+                    v-model="barcode"
+                    required
+                    placeholder="Enter barcode"
+                />
+                <InputError class="mt-2" :message="unitForm.errors.name" />
+            </div>
+            <div class="mt-6 flex justify-end">
+                <SecondaryButton class="btn" @click="searchBarcodeModal = false">Close</SecondaryButton>
+            </div>
+        </div>
+    </Modal>
 
     <Modal :show="createUnitModal" @close="closeModal">
         <div class="p-6">

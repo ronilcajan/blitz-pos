@@ -11,6 +11,7 @@ use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
@@ -46,6 +47,7 @@ class ProductController extends Controller
                     'retail_price' => $product->stocks->max('retail_price') ? "P ".$product->stocks->max('retail_price') : 0,
                 ];
         });
+
         return inertia('Product/Index', [
             'title' => 'Products',
             'products' => $products,
@@ -60,12 +62,25 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         // Gate::authorize('create', Customer::class);
 
+
+        $data = '';
+        if($request->barcode){
+          
+            $data = Http::get('https://api.upcitemdb.com/prod/trial/lookup', [
+                'upc' => $request->barcode
+            ])->json();
+
+            // dd($data);
+        }
+
+
         return inertia('Product/Create', [
             'title' => "Add New Product",
+            'barcode' =>  $data,
             'stores' => Store::select('id', 'name')
                 ->orderBy('id', 'DESC')->get(),
             'units' => ProductUnit::select('id','name')->orderBy('id', 'DESC')
@@ -128,9 +143,30 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function barcode_api(String $barcode)
     {
-        //
+        try {
+            $response = Http::get('https://api.upcitemdb.com/prod/trial/lookup', [
+                'upc' => $barcode
+            ]);
+
+            return inertia('Product/Create', [
+                'title' => "Add New Product",
+                'stores' => Store::select('id', 'name')
+                    ->orderBy('id', 'DESC')->get(),
+                'barcode' => $response,
+                'units' => ProductUnit::select('id','name')->orderBy('id', 'DESC')
+                ->get(),
+                'categories' => ProductCategory::select('id','name')->orderBy('id', 'DESC')
+                ->get(),
+                'suppliers' => Supplier::select('id','name')->orderBy('id', 'DESC')
+                ->get(),
+            ]);
+            
+        } catch (\Exception $e) {
+            // Handle exceptions, log errors, etc.
+            return response()->json(['error' => 'An error occurred while fetching data.'], 500);
+        }
     }
 
     /**

@@ -12,8 +12,6 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <script>
         document.documentElement.setAttribute("data-theme", localStorage.getItem("theme"))
-
-        console.log(localStorage.getItem("theme"));
     </script>
     <!-- Scripts -->
     @routes

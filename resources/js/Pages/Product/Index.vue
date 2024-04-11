@@ -54,6 +54,7 @@ const submitDeleteForm = () => {
 				dismissible: true
 			});
 		},
+        only: ['products'],
 	})
 }
 
@@ -92,7 +93,7 @@ const selectAll = () => {
 watch(per_page, value => {
 	router.get('/products', 
 	{ per_page: value },
-	{ preserveState: true, replace:true })
+	{ preserveState: true, replace:true, only: ['products'], })
 })
 
 watch(search, debounce(function (value) {
@@ -104,7 +105,7 @@ watch(search, debounce(function (value) {
 watch(store, value => {
 	router.get('/products', 
 	{ store: value },
-	{ preserveState: true, replace:true })
+	{ preserveState: true, replace:true, only: ['products'], })
 })
 watch(category, value => {
 	router.get('/products', 
@@ -198,7 +199,7 @@ const showRefresh = computed(() => {
         </div>
         <div class="overflow-x-auto">
             <table class="table table-zebra">
-                <thead>
+                <thead class="uppercase">
                     <tr>
                         <th v-if="canDelete">
                             <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">

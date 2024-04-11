@@ -208,7 +208,7 @@ watch(search, debounce(function (value) {
         </div>
         <div class="overflow-x-auto">
             <table class="table table-zebra">
-                <thead>
+                <thead class="uppercase">
                     <tr>
                         <th>
                             <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">

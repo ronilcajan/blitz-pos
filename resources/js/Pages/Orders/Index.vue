@@ -153,8 +153,8 @@ watch(store, value => {
         </div>
         <div class="overflow-x-auto">
             <table class="table table-zebra">
-                <thead>
-                    <tr class="uppercase">
+                <thead class="uppercase">
+                    <tr>
                         <th v-if="$page.props.auth.user.canDelete">
                             <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
                         </th>

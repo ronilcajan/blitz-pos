@@ -58,6 +58,7 @@ const updatePassword = () => {
                     type="password"
                     class="mt-1 block w-full"
                     autocomplete="current-password"
+                    placeholder="Enter your current password"
                 />
 
                 <InputError :message="form.errors.current_password" class="mt-2" />
@@ -73,6 +74,8 @@ const updatePassword = () => {
                     type="password"
                     class="mt-1 block w-full"
                     autocomplete="new-password"
+                    placeholder="Enter your new password"
+
                 />
 
                 <InputError :message="form.errors.password" class="mt-2" />
@@ -87,6 +90,7 @@ const updatePassword = () => {
                     type="password"
                     class="mt-1 block w-full"
                     autocomplete="new-password"
+                    placeholder="Re-type your new password"
                 />
 
                 <InputError :message="form.errors.password_confirmation" class="mt-2" />
