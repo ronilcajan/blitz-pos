@@ -18,26 +18,23 @@ defineProps({
 
 <template>
     <Head title="Profile" />
-
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm">
-        <div class="card-body grow-0">
-            <UpdateProfileInformationForm
-                :must-verify-email="mustVerifyEmail"
-                :status="status"
-                class="max-w-xl"
-            />
-        </div>
-    </section>
-
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm">
-        <div class="card-body grow-0">
-            <UpdatePasswordForm class="max-w-xl" />
-        </div>
-    </section>
-
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm">
-        <div class="card-body grow-0">
-            <DeleteUserForm class="max-w-xl" />
-        </div>
-    </section>
+    <div class="w-full flex gap-3 justify-center">
+        <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm">
+            <div class="card-body grow-0">
+                <UpdateProfileInformationForm
+                    :must-verify-email="mustVerifyEmail"
+                    :status="status"
+                    class="max-w-xl"
+                />
+            </div>
+        </section>
+        <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm">
+            <div class="card-body grow-0">
+                <UpdatePasswordForm class="max-w-xl" />
+            </div>
+            <div class="card-body grow-0">
+                <DeleteUserForm class="max-w-xl" />
+            </div>
+        </section>
+    </div>
 </template>

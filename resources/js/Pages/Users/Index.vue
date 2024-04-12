@@ -84,21 +84,6 @@ const submitBulkDeleteForm = () => {
     })
 }
 
-const submitResetPasswordForm = () => {
-	resetPasswordForm.post('/users/reset',{
-		replace: true,
-		preserveScroll: true,
-  		onSuccess: () => {
-			closeModal();
-			useToast().success('User password has been reset successfully!', {
-				position: 'top-right',
-				duration: 3000,
-				dismissible: true
-			});
-		},
-	})
-}
-
 const selectAll = () => {
 	if (selectAllCheckbox.value) {
         // If "Select All" checkbox is checked, select all users
@@ -107,6 +92,22 @@ const selectAll = () => {
         // If "Select All" checkbox is unchecked, deselect all users
         userIds.value = [];
       }
+}
+
+const statusChange = (userId, selectedStatus) => {
+    router.post(route('user.update.status'), { id: userId, status: selectedStatus },
+	{ 
+        preserveState: true, 
+        replace:true,
+        onSuccess: () => {
+			closeModal();
+			useToast().success('User status been updated successfully!', {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+		},
+        only: ['users'], })
 }
 
 watch(per_page, value => {
@@ -198,6 +199,9 @@ watch(store, value => {
                             <div class="font-bold">Role</div>
                         </th>
                         <th class="hidden sm:table-cell">
+                            <div class="font-bold">Status</div>
+                        </th>
+                        <th class="hidden sm:table-cell">
                             <div class="font-bold">Created on</div>
                         </th>
                     </tr>
@@ -239,7 +243,18 @@ watch(store, value => {
                         <td class="hidden sm:table-cell">{{ user.phone }}</td>
                         <td class="hidden sm:table-cell">{{ user.address }}</td>
                         <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ user.store }}</td>
-                        <td class="hidden sm:table-cell">{{ user.role }}</td>
+                        <td class="hidden sm:table-cell">
+                            <div class="badge badge-info gap-2">
+                            {{ user.role }}
+                            </div>
+                        </td>
+                        <td class="hidden sm:table-cell">
+                            <select @change="statusChange(user.id, $event.target.value)" class="select select-xs" :class="user.statusColor">
+                                <option :selected="user.status === 'active'">active</option>
+                                <option :selected="user.status === 'inactive'">inactive</option>
+                                <option :selected="user.status === 'blocked'">blocked</option>
+                            </select>
+                        </td>
                         <td class="hidden sm:table-cell">{{ user.created_at }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">
@@ -248,11 +263,6 @@ watch(store, value => {
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
                                     </svg>
                                 </Link>
-                                <button @click="resetPassword(user.id)" class="hover:text-green-500">
-                                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10 14v3m4-6V7a3 3 0 1 1 6 0v4M5 11h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Z"/>
-                                    </svg>
-                                </button>
                                 <button @click="deleteUserForm(user.id)" class="text-orange-900 hover:text-orange-600">
                                     <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M13.7535 2.47502H11.5879V1.9969C11.5879 1.15315 10.9129 0.478149 10.0691 0.478149H7.90352C7.05977 0.478149 6.38477 1.15315 6.38477 1.9969V2.47502H4.21914C3.40352 2.47502 2.72852 3.15002 2.72852 3.96565V4.8094C2.72852 5.42815 3.09414 5.9344 3.62852 6.1594L4.07852 15.4688C4.13477 16.6219 5.09102 17.5219 6.24414 17.5219H11.7004C12.8535 17.5219 13.8098 16.6219 13.866 15.4688L14.3441 6.13127C14.8785 5.90627 15.2441 5.3719 15.2441 4.78127V3.93752C15.2441 3.15002 14.5691 2.47502 13.7535 2.47502ZM7.67852 1.9969C7.67852 1.85627 7.79102 1.74377 7.93164 1.74377H10.0973C10.2379 1.74377 10.3504 1.85627 10.3504 1.9969V2.47502H7.70664V1.9969H7.67852ZM4.02227 3.96565C4.02227 3.85315 4.10664 3.74065 4.24727 3.74065H13.7535C13.866 3.74065 13.9785 3.82502 13.9785 3.96565V4.8094C13.9785 4.9219 13.8941 5.0344 13.7535 5.0344H4.24727C4.13477 5.0344 4.02227 4.95002 4.02227 4.8094V3.96565ZM11.7285 16.2563H6.27227C5.79414 16.2563 5.40039 15.8906 5.37227 15.3844L4.95039 6.2719H13.0785L12.6566 15.3844C12.6004 15.8625 12.2066 16.2563 11.7285 16.2563Z" fill=""></path>
@@ -303,30 +313,6 @@ watch(store, value => {
                         <span v-if="deleteForm.processing" class="loading loading-spinner"></span>
                         Delete
                     </DangerButton>
-                </div>
-            </form>
-        </div>
-    </Modal>
-     <!-- reset user modal -->
-     <Modal :show="resetModal" @close="closeModal">
-        <div class="p-6">
-            <h1 class="text-xl mb-4 font-medium">
-                Reset users
-            </h1>
-            <p>Are you sure you want to reset this user password?</p>
-            <small class="italic">Note: User email will be the default password.</small>
-            <form method="dialog" class="w-full" @submit.prevent="submitResetPasswordForm">
-    
-                <div class="mt-6 flex justify-end">
-                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
-                    <SuccessButton
-                        class="ms-3"
-                        :class="{ 'opacity-25': resetPasswordForm.processing }"
-                        :disabled="resetPasswordForm.processing"
-                    >
-                        <span v-if="resetPasswordForm.processing" class="loading loading-spinner"></span>
-                        Reset now
-                    </SuccessButton>
                 </div>
             </form>
         </div>

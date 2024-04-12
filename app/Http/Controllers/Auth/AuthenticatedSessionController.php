@@ -30,10 +30,19 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        if (Auth::user()->status->getLabelText() === 'active') {
+            return redirect()->intended(route('dashboard', absolute: false));
+        } else {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            // Redirect to a different route or show an error message
+            return redirect('login')->withErrors([
+                'email' => 'You are authorized to login.',
+            ])->onlyInput('email');
+        }
     }
 
     /**

@@ -3,7 +3,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
 import { ref, watch } from 'vue';
-import { values } from 'lodash';
 import axios from 'axios'
 
 defineOptions({ layout: AuthenticatedLayout })
@@ -74,9 +73,22 @@ const retailPriceCalculate = () => {
 }
 
 watch(barcode, value => {
-    router.get('/products/create', 
-        { barcode: value },
-        { preserveState: true, replace:true })
+    console.log(value);
+    axios.get(`https://api.upcitemdb.com/prod/trial/lookup`,{
+         params: {
+                upc: value
+            }
+        })
+        .then(response => {
+        // Extract product title from the response
+            console.log( response.data.items[0].title); // Assuming there's only one item in the response
+      })
+      .catch(error => {
+        console.error('Error fetching product data:', error);
+      });
+    // router.get('/products/create', 
+    //     { barcode: value },
+    //     { preserveState: true, replace:true })
 })
 
 const closeModal = () => {
@@ -165,7 +177,6 @@ const submitCreateForm = () => {
                 <h2 class="card-title grow text-sm">
                     <a class="link-hover link">Products Details</a>
                 </h2>
-
                 <div>
                     <button @click="searchBarcodeModal = true" class="btn btn-primary tooltip tooltip-left" data-tip="Add products using barcode">
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg></button>

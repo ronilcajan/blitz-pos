@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/update-avatar', [ProfileController::class, 'update_avatar'])->name('profile.update_avatar');
+    Route::get('/profile/show', [ProfileController::class, 'show'])->name('profile.show');
 
     Route::resource('/orders', OrderController::class);
     Route::post('/orders/update', [OrderController::class, 'update']);
@@ -85,6 +86,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/users', UserController::class);
     Route::post('/users/update', [UserController::class, 'update']);
+    Route::post('/users/update/status', [UserController::class, 'updateStatus'])->name('user.update.status');
     Route::post('/users/reset', [UserController::class, 'reset']);
     Route::post('/users/bulk/delete', [UserController::class, 'bulkDelete'])->name('user.bulkDelete');
     Route::get('/users/impersonate/{user}', [ImpersonateController::class, 'impersonate'])->name('user.impersonate');

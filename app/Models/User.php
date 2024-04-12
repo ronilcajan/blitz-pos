@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enum\UserStatus;
 use App\Models\Scopes\UserScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,6 +36,7 @@ class User extends Authenticatable
         'gauth_type',
         'profile_photo_url',
         'store_id',
+        'status'
     ];
 
     /**
@@ -56,6 +59,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'status' => UserStatus::class
         ];
     }
 
@@ -76,6 +80,8 @@ class User extends Authenticatable
             $query->whereAny([
                 'name',
                 'email',
+                'phone',
+                'status',
             ], 'LIKE', "%{$search}%")
             ->orWhereHas('store', function($q) use ($search){
                 $q->where('name', $search);

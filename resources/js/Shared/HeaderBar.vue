@@ -131,19 +131,24 @@ console.log(darkMode.value);
 			</div>
 
 			
-			<ul
-				tabindex="0"
+			<ul tabindex="0"
 				class="menu dropdown-content mt-3 w-52 rounded-box bg-base-100 p-2 shadow-2xl">
 				<li>
-					<Link :href="route('profile.edit')">Profile</Link>
+					<span class="">
+						{{ $page.props.auth.user.name }}
+						{{ $page.props.auth.user.email }}
+					</span>
 				</li>
 				<li>
-					<a>
-						Inbox
-						<span class="badge badge-success">12</span>
-					</a>
+					<Link :href="route('profile.show')">
+						Profile
+					</Link>
 				</li>
-				<li><a>Settings</a></li>
+				<li>
+					<Link :href="route('profile.edit')">
+						Edit Profile
+					</Link>
+				</li>
 				<li><Link :href="route('logout')" method="post" as="button">Logout</Link></li>
 			</ul>
 		</div>

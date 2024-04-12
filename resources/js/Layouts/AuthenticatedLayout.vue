@@ -34,13 +34,18 @@ const impersonating = computed(() =>
                         </p>
                     </div>
                 </div>
-           
-            
                 <HeaderBar />
-            
-                <slot />
-                
             </div>
+            <div class="p-4 lg:gap-x-12 lg:p-10 min-h-screen">
+                <slot />
+
+                <footer class="footer footer-center mt-20 p-4 w-full">
+                    <aside>
+                        <p class="text-center">Copyright © 2024 - All rights reserved by ACME Industries Ltd</p>
+                    </aside>
+                </footer>
+            </div>
+           
 		</main>
         
 		<!-- /content -->
@@ -48,4 +53,5 @@ const impersonating = computed(() =>
       
     </div>
 		
+        
 </template>

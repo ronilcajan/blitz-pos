@@ -35,6 +35,8 @@ class UserController extends Controller
                     'address' => $user->address,
                     'store' => $user->store?->name,
                     'role' => $user->roles[0]?->name,
+                    'status' => $user->status->getLabelText(),
+                    'statusColor' => $user->status->getLabelColor(),
                     'avatar' => $user->profile_photo_url,
                     'created_at' => $user->created_at->format('M d, Y h:i: A'),
                 ];
@@ -140,6 +142,16 @@ class UserController extends Controller
 
         return redirect()->back();
     }
+
+    public function updateStatus(Request $request)
+    {
+        $user = User::find($request->id);
+        Gate::authorize('update', $user);
+        $user->update(['status' => $request->status]);
+        return redirect()->back();
+    }
+
+    
 
     public function reset(Request $request)
     {   

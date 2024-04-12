@@ -20,7 +20,7 @@ class ProfileController extends Controller
     public function edit(Request $request): Response
     {
         return Inertia::render('Profile/Edit', [
-            'title' => 'Profile',
+            'title' => 'Edit Profle',
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
         ]);
@@ -53,6 +53,13 @@ class ProfileController extends Controller
         $user->save();
 
         return redirect()->back();
+    }
+
+    public function show(): Response
+    {
+        return Inertia::render('Profile/Show', [
+            'title' => 'Profle',
+        ]);
     }
 
     /**
