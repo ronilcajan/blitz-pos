@@ -50,7 +50,10 @@ class HandleInertiaRequests extends Middleware
                     'canDelete' => $user_role === 'staff' ? false : true,
                     'impersonate' => session()->get('impersonate') ?? null
                     ] : null,
-            ]
+                ],
+            'flash' => [
+                'message' => fn () => $request->session()->get('message')
+            ],
         ];
     }
 }

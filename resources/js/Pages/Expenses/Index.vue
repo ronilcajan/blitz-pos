@@ -147,7 +147,7 @@ const showRefresh = computed(() => {
 <template>
     <Head :title="title" />
 
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm">
+    <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
         <div class="card-body grow-0">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                 <div>

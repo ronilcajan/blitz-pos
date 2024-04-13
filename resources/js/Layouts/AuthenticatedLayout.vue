@@ -17,7 +17,7 @@ const impersonating = computed(() =>
 		<!-- content -->
         
 		<main class="drawer-content">
-            <div class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
+            <div class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10 lg:pb-5">
                 
                 <div v-if="impersonating" tabindex="-1" class="fixed bg-primary top-0 start-0 z-50 flex justify-between w-full p-2">
                     <div class="flex items-center mx-auto text-white">
@@ -36,7 +36,7 @@ const impersonating = computed(() =>
                 </div>
                 <HeaderBar />
             </div>
-            <div class="p-4 lg:gap-x-12 lg:p-10 min-h-screen">
+            <div class="p-4 lg:gap-x-12 lg:p-10 lg:pt-2 min-h-screen">
                 <slot />
 
                 <footer class="footer footer-center mt-20 p-4 w-full">
