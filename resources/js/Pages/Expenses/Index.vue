@@ -89,8 +89,7 @@ const selectAll = () => {
       }
 }
 
-const changeStatus = (id,status) => {
-    console.log(status);
+const statusChange = (id,status) => {
 	router.post('/expenses/change-status', {
             id: id,
             status: status,
@@ -102,7 +101,7 @@ const changeStatus = (id,status) => {
                 duration: 3000,
                 dismissible: true
             });
-        }, })
+        },  only: ['expenses'], })
 }
 
 watch(per_page, value => {
@@ -135,9 +134,6 @@ watch(status, value => {
 	{ preserveState: true, replace:true })
 })
 
-const isSuperAdmin = page.props.auth.user.isSuperAdmin
-const canDelete = page.props.auth.user.canDelete
-
 const showRefresh = computed(() => {
     return store.value !== '' || category.value !== '' || status.value !== ''
 })
@@ -148,7 +144,7 @@ const showRefresh = computed(() => {
     <Head :title="title" />
 
     <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
-        <div class="card-body grow-0">
+        <div class="p-4 grow-0">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                 <div>
                     <select v-model="per_page" class="select select-sm max-w-xs">
@@ -171,13 +167,6 @@ const showRefresh = computed(() => {
                             <option v-for="store in stores" :value="store.name" :key="store.id">
                                 {{ store.name }}
                             </option>
-                        </select>
-                    </div>
-                    <div class="w-full">
-                        <select v-model="status" class="select select-bordered select-sm w-full max-w-xs">
-                            <option selected value="">Filter by status</option>
-                           <option>Approved</option>
-                           <option>Pending</option>
                         </select>
                     </div>
                     <div class="w-full">
@@ -208,6 +197,14 @@ const showRefresh = computed(() => {
                     <NavLink href="/expenses/create" class="btn btn-sm btn-primary">Add new</NavLink>
                     <DangerButton v-if="$page.props.auth.user.canDelete" v-show="expenseIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
+            </div>
+        </div>
+        <div class="w-1/5">
+            <div role="tablist" class="tabs tabs-bordered">
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="All" value="all"  :checked="status === 'all' || status === ''"/>
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Pending" value="pending" :checked="status === 'pending'" />
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Approved" value="approved" :checked="status === 'approved'" />
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Rejected" value="rejected" :checked="status === 'rejected'" />
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -296,7 +293,11 @@ const showRefresh = computed(() => {
                             </div>
                         </td>
                         <td class="hidden sm:table-cell">
-                            <input type="checkbox" @change="changeStatus(expense.id,expense.status)" class="toggle toggle-xs toggle-success tooltip" :data-tip="expense.status === 1 ? 'approved' : 'pending'" :checked="expense.status === 1" />
+                            <select @change="statusChange(expense.id, $event.target.value)" class="select select-xs" :class="expense.statusColor">
+                                <option :selected="expense.status === 'pending'">pending</option>
+                                <option :selected="expense.status === 'approved'">approved</option>
+                                <option :selected="expense.status === 'rejected'">rejected</option>
+                            </select>
                         </td>
                         <td class="hidden sm:table-cell">{{ expense.user }}</td>
                         <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ expense.store }}</td>

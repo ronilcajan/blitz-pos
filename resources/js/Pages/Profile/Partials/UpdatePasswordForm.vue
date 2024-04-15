@@ -100,7 +100,7 @@ const updatePassword = () => {
                 <PrimaryButton :disabled="form.processing">
                     <span v-if="form.processing" class="loading loading-spinner"></span>
 
-                    Save</PrimaryButton>
+                    Save changes</PrimaryButton>
             </div>
         </form>
     </section>

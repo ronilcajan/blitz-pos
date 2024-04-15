@@ -33,7 +33,8 @@ class ExpensesController extends Controller
                     'notes' => $expense->notes,
                     'attachments' => $expense->attachments,
                     'category' => $expense->category?->name,
-                    'status' => $expense->status,
+                    'status' => $expense->status->getLabelText(),
+                    'statusColor' => $expense->status->getLabelColor(),
                     'store' => $expense->store->name,
                     'user' => $expense->user?->name ,
                 ];
@@ -142,10 +143,8 @@ class ExpensesController extends Controller
         $expense = Expenses::find($request->id);
 
         Gate::authorize('update', $expense);
-        
-        $status = $request->status === 0 ? 1 : 0;
        
-        $expense->update(['status' => $status]);
+        $expense->update(['status' =>  $request->status]);
 
         return redirect()->back();
     }

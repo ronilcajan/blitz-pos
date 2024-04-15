@@ -18,7 +18,7 @@ defineProps({
 
 <template>
     <Head title="Profile" />
-    <div class="w-full flex gap-3 justify-center ">
+    <div class="w-full flex gap-3 justify-center flex-col sm:flex-row">
         <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
             <div class="card-body grow-0">
                 <UpdateProfileInformationForm

@@ -142,7 +142,7 @@ const submitProfileChanges = () => {
                 <PrimaryButton :disabled="form.processing">
                     <span v-if="form.processing" class="loading loading-spinner"></span>
 
-                    Save</PrimaryButton>
+                    Save changes</PrimaryButton>
 
                 <Transition
                     enter-active-class="transition ease-in-out"

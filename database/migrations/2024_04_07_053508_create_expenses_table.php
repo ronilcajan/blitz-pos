@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('amount',10,2);
             $table->string('notes')->nullable();
             $table->string('attachments')->nullable();
-            $table->boolean('status')->default(false);
+            $table->string('status',20)->default('pending');
             $table->foreignIdFor(ExpensesCategory::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Store::class)->constrained()->cascadeOnDelete();

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
+use App\Models\Purchase;
 use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 
-class OrderController extends Controller
+class PurchaseController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,11 +16,11 @@ class OrderController extends Controller
     {
         // Gate::authorize('viewAny', Customer::class);
 
-        $orders = Order::query()
+        $orders = Purchase::query()
             ->with(['store','supplier','store'])
             ->orderBy('id', 'DESC')
             ->filter(request(['search','store']))
-            ->paginate($request->per_page ? ($request->per_page == 'All' ? Customer::count()->get() : $request->per_page) : 10)
+            ->paginate($request->per_page ? ($request->per_page == 'All' ? Purchase::count()->get() : $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($order) {
                 return [
@@ -37,7 +37,7 @@ class OrderController extends Controller
                 ];
         });
 
-        return inertia('Orders/Index', [
+        return inertia('Purchase/Index', [
             'title' => "Purchase Orders",
             'orders' => $orders,
             'supplier' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
@@ -65,7 +65,7 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Order $order)
+    public function show(Purchase $order)
     {
         //
     }
@@ -73,7 +73,7 @@ class OrderController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Order $order)
+    public function edit(Purchase $order)
     {
         //
     }
@@ -81,7 +81,7 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Order $order)
+    public function update(Request $request, Purchase $order)
     {
         //
     }
@@ -89,7 +89,7 @@ class OrderController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Order $order)
+    public function destroy(Purchase $order)
     {
         //
     }

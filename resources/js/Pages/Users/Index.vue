@@ -17,25 +17,19 @@ const props = defineProps({
 let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
+let status = ref('');
 
 const deleteModal = ref(false);
-const resetModal = ref(false);
 const deleteAllSelectedModal = ref(false);
 
 let userIds = ref([]);
 let selectAllCheckbox = ref(false);
 
 const deleteForm = useForm({id: ''});
-const resetPasswordForm = useForm({id: ''});
 
 const deleteUserForm = (user_id) => {
 	deleteModal.value = true;
 	deleteForm.id = user_id
-}
-
-const resetPassword = (user_id) => {
-	resetModal.value = true;
-	resetPasswordForm.id = user_id
 }
 
 const closeModal = () => {
@@ -43,8 +37,6 @@ const closeModal = () => {
     deleteModal.value = false;
     deleteAllSelectedModal.value = false;
     deleteForm.reset();
-    resetModal.value = false;
-    resetPasswordForm.reset();
 };
 
 const submitDeleteForm = () => {
@@ -115,16 +107,19 @@ watch(per_page, value => {
 	{ per_page: value },
 	{ preserveState: true, replace:true })
 })
-
 watch(search, debounce(function (value) {
 	router.get('/users',
 	{ search: value },
 	{ preserveState: true, replace:true })
-}, 500)) ;
-
+}, 500));
 watch(store, value => {
 	router.get('/users', 
 	{ store: value },
+	{ preserveState: true, replace:true })
+})
+watch(status, value => {
+	router.get('/users', 
+	{ status: value },
 	{ preserveState: true, replace:true })
 })
 </script>
@@ -133,7 +128,7 @@ watch(store, value => {
     <Head :title="title" />
 
     <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
-        <div class="card-body grow-0 ">
+        <div class="p-4 grow-0 ">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                 <div>
                     <select v-model="per_page" class="select select-sm max-w-xs">
@@ -174,6 +169,14 @@ watch(store, value => {
                     <NavLink href="/users/create" class="btn btn-sm btn-primary">Add new</NavLink>
                     <DangerButton v-show="userIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
+            </div>
+        </div>
+        <div class="w-1/5">
+            <div role="tablist" class="tabs tabs-bordered">
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="All" value="all"  :checked="status === 'all' || status === ''"/>
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Active" value="active" :checked="status === 'active'" />
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Inactive" value="inactive" :checked="status === 'inactive'" />
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Blocked" value="blocked" :checked="status === 'blocked'" />
             </div>
         </div>
         <div class="overflow-x-auto">

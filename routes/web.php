@@ -6,7 +6,7 @@ use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductUnitController;
@@ -44,8 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/update-avatar', [ProfileController::class, 'update_avatar'])->name('profile.update_avatar');
     Route::get('/profile/show', [ProfileController::class, 'show'])->name('profile.show');
 
-    Route::resource('/orders', OrderController::class);
-    Route::post('/orders/update', [OrderController::class, 'update']);
+    Route::resource('/purchase', PurchaseController::class);
+    Route::post('/purchase/update', [PurchaseController::class, 'update']);
 
     Route::resource('/inventory', InventoryController::class);
     Route::post('/inventory/update', [InventoryController::class, 'update']);

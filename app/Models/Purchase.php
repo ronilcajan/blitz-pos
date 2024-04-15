@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Scopes\OrderScope;
+use App\Models\Scopes\PurchaseScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,10 +11,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-#[ScopedBy([OrderScope::class])]
-class Order extends Model
+#[ScopedBy([PurchaseScope::class])]
+class Purchase extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
+
+    protected $table = 'purchase';
+
+    protected $guarded = [];  
 
     public function store():BelongsTo
     {
@@ -78,7 +82,7 @@ class Order extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('Order')
+            ->useLogName('Purchase')
             ->logOnly(['name'])
             ->logOnlyDirty()
             ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");    

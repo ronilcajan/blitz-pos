@@ -21,12 +21,11 @@ class UserController extends Controller
         $users = User::query()
             ->with('store','roles')
             ->orderBy('id', 'DESC')
-            ->filter(request(['search', 'store']))
+            ->filter(request(['search', 'store','status']))
             ->whereNot('id', auth()->id()) //prevent current user to display
             ->paginate($request->per_page ? ($request->per_page == 'All' ? User::count() : $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($user) {
-                // dd($user);
                 return [
                     'id' => $user->id,
                     'name' => $user->name,

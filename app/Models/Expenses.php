@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enum\ExpensesStatus;
 use App\Models\Scopes\ExpensesScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,10 @@ class Expenses extends Model
     protected $table = 'expenses';
 
     protected $guarded = [];
+
+    protected $casts = [
+        'status' => ExpensesStatus::class
+    ];
 
     public function store(): BelongsTo
     {
@@ -59,7 +64,7 @@ class Expenses extends Model
 
         if(!empty($filter['status'])){
             $status = $filter['status'];
-            $query->where('status', $status === 'Approved' ? 1 : 0);
+            $query->where('status', $status);
         }
 
         if(!empty($filter['category'])){

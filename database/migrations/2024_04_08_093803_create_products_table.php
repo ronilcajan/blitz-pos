@@ -19,12 +19,14 @@ return new class extends Migration
             $table->string('barcode')->unique();
             $table->string('sku')->nullable();
             $table->string('size')->nullable();
+            $table->string('color')->nullable();
             $table->string('dimension')->nullable();
             $table->string('unit')->nullable();
             $table->string('product_type')->nullable();
             $table->string('brand')->nullable();
             $table->string('manufacturer')->nullable();
             $table->string('description')->nullable();
+            $table->boolean('isEnabled')->default(true);
             $table->string('image')->nullable();
             $table->foreignIdFor(ProductCategory::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Store::class)->constrained()->cascadeOnDelete();
@@ -32,7 +34,6 @@ return new class extends Migration
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */

@@ -86,15 +86,21 @@ class User extends Authenticatable
             ->orWhereHas('store', function($q) use ($search){
                 $q->where('name', $search);
             });
-            
         }
 
         if(!empty($filter['store'])){
             $store = $filter['store'];
-
             $query->whereHas('store', function($q) use ($store){
                 $q->where('name', $store);
             });
+        }
+
+        if(!empty($filter['status'])){
+            $status = $filter['status'];
+            if($status != 'all'){
+                $query->where('status', $status);
+            }
+           
         }
     }
 
