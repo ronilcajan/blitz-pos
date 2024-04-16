@@ -90,8 +90,7 @@ const selectAll = () => {
 }
 
 const statusChange = (id,status) => {
-	router.post('/expenses/change-status', {
-            id: id,
+	router.post(`/expenses/change-status/${id}`, {
             status: status,
         },
 	    { preserveState: true, replace:true,
@@ -269,7 +268,11 @@ const showRefresh = computed(() => {
                                         <div class="text-xs opacity-50">{{ expense.notes }}</div>
                                         <div class="text-xs opacity-50">{{ expense.notes }}</div>
                                         <div class="text-xs opacity-50 ">
-                                            <input type="checkbox" @change="changeStatus(expense.id,expense.status)" class="toggle toggle-xs toggle-success tooltip" :data-tip="expense.status === 1 ? 'approved' : 'pending'" :checked="expense.status === 1" />
+                                            <select @change="statusChange(expense.id, $event.target.value)" class="select select-xs" :class="expense.statusColor">
+                                                <option :selected="expense.status === 'pending'">pending</option>
+                                                <option :selected="expense.status === 'approved'">approved</option>
+                                                <option :selected="expense.status === 'rejected'">rejected</option>
+                                            </select>                                        
                                         </div>
                                     </div>
                                 </div>
@@ -280,17 +283,14 @@ const showRefresh = computed(() => {
                         <td class="hidden sm:table-cell">
                             <a v-if="expense.attachments" :href="expense.attachments" target="_blank" download class="tooltip" data-tip="Supporting documents">
                                 <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Z"/>
-                                                <path fill-rule="evenodd" d="M11 7V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Zm4.707 5.707a1 1 0 0 0-1.414-1.414L11 14.586l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                                                </svg>
-
+                                    <path d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Z"/>
+                                    <path fill-rule="evenodd" d="M11 7V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Zm4.707 5.707a1 1 0 0 0-1.414-1.414L11 14.586l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
+                                </svg>
                             </a>
                         </td>
                         <td class="hidden sm:table-cell">{{ expense.notes }}</td>
                         <td class="hidden sm:table-cell">
-                            <div class="badge badge-primary">
                                 {{ expense.category }}
-                            </div>
                         </td>
                         <td class="hidden sm:table-cell">
                             <select @change="statusChange(expense.id, $event.target.value)" class="select select-xs" :class="expense.statusColor">

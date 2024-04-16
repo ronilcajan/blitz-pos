@@ -277,11 +277,10 @@ const showRefresh = computed(() => {
                             <td class="hidden sm:table-cell">
                             {{ product.brand }}</td>
                         <td class="hidden sm:table-cell">
-                            <div class="badge badge-primary">
-                                {{ product.category }}</div>
+                                {{ product.category }}
                         </td>
                         <td class="hidden sm:table-cell">
-                            <div class="badge" :class="product.product_type === 'saleable' ? 'badge-primary' : 'badge'">
+                            <div class="badge" :class="product.product_type === 'sellable' ? 'badge-primary' : 'badge-neutral'">
                                 {{ product.product_type }}</div>
                         </td>
                         <td class="hidden sm:table-cell">

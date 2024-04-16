@@ -138,14 +138,10 @@ class ExpensesController extends Controller
         return redirect()->back();
     }
 
-    public function change_status(Request $request)
+    public function change_status(Expenses $expense, Request $request)
     {
-        $expense = Expenses::find($request->id);
-
         Gate::authorize('update', $expense);
-       
         $expense->update(['status' =>  $request->status]);
-
         return redirect()->back();
     }
 

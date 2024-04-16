@@ -195,9 +195,6 @@ const canDelete = page.props.auth.user.canDelete
                             <div class="font-bold">Unit</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Min. Stock</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
                             <div class="font-bold">Unit Price</div>
                         </th>
                         <th class="hidden sm:table-cell">
@@ -254,9 +251,6 @@ const canDelete = page.props.auth.user.canDelete
                             {{ product.supplier }}</td>
                         <td class="hidden sm:table-cell">
                             {{ product.unit }}</td>
-                       
-                        <td class="hidden sm:table-cell">
-                            {{ product.min_quantity }}</td>
                         <td class="hidden sm:table-cell">
                                 {{ product.unit_price }}
                         </td>

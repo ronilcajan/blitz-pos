@@ -99,7 +99,7 @@ const submitProfileChanges = () => {
 
             </div>
         </div>
-    <section class="max-w-xl">
+    <section class="w-full">
         <form @submit.prevent="submitProfileChanges" class="mt-6 space-y-6">    
             <div>
                 <InputLabel for="name" value="Name" />
@@ -139,42 +139,44 @@ const submitProfileChanges = () => {
                     <InputError class="mt-2" :message="form.errors.phone" />
                 </div>
             </div>
-            <div>
-                <InputLabel for="birthdate" value="Birthdate" />
-                <TextInput
-                    id="birthdate"
-                    type="date"
-                    class="mt-1 block w-full"
-                    v-model="form.birthdate"
-                />
-                <InputError class="mt-2" :message="form.errors.birthdate" />
-            </div>
-            <div>
-                <InputLabel for="education" value="Education" />
-                <TextInput
-                    id="education"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.education"
-                    placeholder="Enter your latest education"
-                />
-                <InputError class="mt-2" :message="form.errors.name" />
-            </div>
-
-            <div>
-                <InputLabel for="position" value="Position" />
-                <TextInput
-                    id="position"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.position"
-                    placeholder="Enter your position in the company"
-                />
-                <InputError class="mt-2" :message="form.errors.position" />
+            <div class="grid grid-cols-1 gap-2 mb-3 lg:grid-cols-2">
+                <div class="form-control">
+                    <InputLabel for="birthdate" value="Birthdate" />
+                    <TextInput
+                        id="birthdate"
+                        type="date"
+                        class="mt-1 block w-full"
+                        v-model="form.birthdate"
+                    />
+                    <InputError class="mt-2" :message="form.errors.birthdate" />
+                </div>
+                <div class="form-control">
+                    <InputLabel for="education" value="Education" />
+                    <TextInput
+                        id="education"
+                        type="text"
+                        class="mt-1 block w-full"
+                        v-model="form.education"
+                        placeholder="Enter your latest education"
+                    />
+                    <InputError class="mt-2" :message="form.errors.name" />
+                </div>
             </div>
 
-            <div>
-                <InputLabel for="join_date" value="Join date" />
+            <div class="grid grid-cols-1 gap-2 mb-3 lg:grid-cols-2">
+                <div class="form-control">
+                    <InputLabel for="position" value="Position" />
+                    <TextInput
+                        id="position"
+                        type="text"
+                        class="mt-1 block w-full"
+                        v-model="form.position"
+                        placeholder="Enter your position in the company"
+                    />
+                    <InputError class="mt-2" :message="form.errors.position" />
+                </div>
+                <div class="form-control">
+                    <InputLabel for="join_date" value="Join date" />
                 <TextInput
                     id="join_date"
                     type="date"
@@ -182,6 +184,7 @@ const submitProfileChanges = () => {
                     v-model="form.join_date"
                 />
                 <InputError class="mt-2" :message="form.errors.join_date" />
+                </div>
             </div>
 
             <div>

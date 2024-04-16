@@ -64,7 +64,9 @@ class Expenses extends Model
 
         if(!empty($filter['status'])){
             $status = $filter['status'];
-            $query->where('status', $status);
+            if($status != 'all'){
+                $query->where('status', $status);
+            }
         }
 
         if(!empty($filter['category'])){

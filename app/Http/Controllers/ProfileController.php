@@ -80,6 +80,7 @@ class ProfileController extends Controller
         return Inertia::render('Profile/Show', [
             'title' => 'Profile',
             'profile' => auth()->user(),
+            'user_details' => auth()->user()->details,
         ]);
     }
 

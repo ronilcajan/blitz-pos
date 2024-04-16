@@ -4,12 +4,13 @@ defineOptions({ layout: AuthenticatedLayout })
 
 defineProps({
     profile: Object,
+    user_details: Object
 });
 </script>
 
 <template>
     <Head title="Profile" />
-    <div class="grid grid-rows-3 gap-4 md:grid-cols-3">
+    <div class="grid grid-rows-2 gap-4 md:grid-cols-3">
         <div class="col-span-2 md:col-span-1">
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-body">
@@ -32,30 +33,59 @@ defineProps({
                     </span>
                     
                     <div class="mt-2">
-                        <small>Email Address</small>
+                        <small class="text-content font-bold">Email Address</small>
                         <p>{{ profile.email }}</p>
                     </div>
                     <div class="mt-2">
-                        <small class="text-content">Contact Number</small>
+                        <small class="text-content font-bold">Contact Number</small>
                         <p>{{ profile.phone }}</p>
                     </div>
                     <div class="mt-2">
-                        <small class="primary-content">Address</small>
+                        <small class="primary-content font-bold">Address</small>
                         <p>{{ profile.address }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-base-100 shadow-xl mt-5">
+                <div class="card-body">
+                    <h2 class="card-title font-bold">Skills</h2>
+                    <div class="mt-2">
+                        <div v-for="(skill, index) in user_details.skills.split(',')" :key="index" class="badge badge-neutral mr-2">{{ skill }}</div>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="card bg-base-100 shadow-xl mt-5">
+                <div class="card-body">
+                    <h2 class="card-title font-bold">Hobbies</h2>
+                    <div class="mt-2">
+                        <div v-for="(hobby, index) in user_details.hobbies.split(',')" :key="index" class="badge badge-primary mr-2">{{ hobby }}</div>
+                        
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-span-2">
-            
             <div class="card bg-base-100 shadow-xl">
-                
-            <div class="card-body">
-                <h2 class="card-title font-bold">General information</h2>
-                <h4 class="font-bold">About me</h4>
-                <p>{{ profile.bio }}</p>
+                <div class="card-body">
+                    <h2 class="card-title font-bold">General information</h2>
+                    <h4 class="font-bold">About me</h4>
+                    <p>{{ user_details.bio }}</p>
+                    <div class="mt-2">
+                        <small class="primary-content font-bold">Education</small>
+                        <p>{{ user_details.education }}</p>
+                    </div>
+                    <div class="mt-2">
+                        <small class="primary-content font-bold">Position</small>
+                        <p>{{ user_details.position }}</p>
+                    </div>
+                    <div class="mt-2">
+                        <small class="primary-content font-bold">Join Date</small>
+                        <p>{{ user_details.join_date }}</p>
+                    </div>
+                </div>
             </div>
-        </div>
         </div>
     </div>
 </template>

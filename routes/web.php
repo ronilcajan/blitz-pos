@@ -65,7 +65,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/expenses', ExpensesController::class);
     Route::post('/expenses/update', [ExpensesController::class, 'update']);
-    Route::post('/expenses/change-status', [ExpensesController::class, 'change_status']);
+    Route::post('/expenses/change-status/{expense}', [ExpensesController::class, 'change_status']);
     Route::post('/expenses/bulk/delete', [ExpensesController::class, 'bulkDelete'])->name('expenses.bulkDelete');
 
     Route::resource('/expenses_categories', ExpensesCategoryController::class);
