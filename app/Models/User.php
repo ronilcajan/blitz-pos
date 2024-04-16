@@ -9,6 +9,7 @@ use App\Models\Scopes\UserScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -26,18 +27,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'address',
-        'phone',
-        'gauth_id',
-        'gauth_type',
-        'profile_photo_url',
-        'store_id',
-        'status'
-    ];
+    protected $guarded = [];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -66,6 +56,11 @@ class User extends Authenticatable
     public function store():BelongsTo
     {
         return $this->belongsTo(Store::class);
+    } 
+
+    public function details(): HasOne
+    {
+        return $this->hasOne(UserDetail::class);
     } 
 
     public function getRoleAttribute()

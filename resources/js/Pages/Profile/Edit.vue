@@ -10,6 +10,7 @@ defineProps({
     mustVerifyEmail: {
         type: Boolean,
     },
+    user_details: Object,
     status: {
         type: String,
     },
@@ -22,7 +23,7 @@ defineProps({
         <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
             <div class="card-body grow-0">
                 <UpdateProfileInformationForm
-                    :must-verify-email="mustVerifyEmail"
+                    :must-verify-email="mustVerifyEmail" :user_details="user_details"
                     :status="status"
                     class="max-w-xl"
                 />

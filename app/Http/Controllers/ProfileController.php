@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\User;
+use App\Models\UserDetail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,7 @@ class ProfileController extends Controller
     {
         return Inertia::render('Profile/Edit', [
             'title' => 'Profile Settings',
+            'user_details' => auth()->user()->details,
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
         ]);
@@ -31,6 +33,7 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        $user = auth()->user();
         $request->user()->fill($request->validated());
 
         if ($request->user()->isDirty('email')) {
@@ -38,6 +41,23 @@ class ProfileController extends Controller
         }
 
         $request->user()->save();
+
+        $details = [
+            'birthdate' => $request->birthdate,
+            'bio' => $request->bio,
+            'education' => $request->education,
+            'position' => $request->position,
+            'join_date' => $request->join_date,
+            'hobbies' => $request->hobbies,
+            'skills' => $request->skills,
+        ];
+
+        if($user->details){
+            $user->details->update($details);
+        }else{
+            $details['user_id'] = $user->id;
+            UserDetail::create($details);
+        }
 
         return redirect()->back();
     }
@@ -58,7 +78,8 @@ class ProfileController extends Controller
     public function show(): Response
     {
         return Inertia::render('Profile/Show', [
-            'title' => 'Profle',
+            'title' => 'Profile',
+            'profile' => auth()->user(),
         ]);
     }
 

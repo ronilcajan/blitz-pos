@@ -6,6 +6,7 @@ use App\Http\Requests\UserFormRequest;
 use App\Models\Role;
 use App\Models\Store;
 use App\Models\User;
+use App\Models\UserDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -71,7 +72,15 @@ class UserController extends Controller
     {
         Gate::authorize('create',  User::class);
 
-        $validate = $request->validated();
+        $request->validated();
+
+        $validate = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'store_id' => $request->store_id,
+        ];
 
         if($request->hasFile('profile_photo_url')){
             $avatar = $request->file('profile_photo_url')->store('users','public');
@@ -81,6 +90,8 @@ class UserController extends Controller
         $validate['password'] = bcrypt($request->email); // default password
         
         $user = User::create($validate);
+
+        UserDetail::create(['user_id' =>  $user->id]);
 
         $user->addRole($request->role_id); // parameter can be a Role object, BackedEnum, array, id or the role string name
 
