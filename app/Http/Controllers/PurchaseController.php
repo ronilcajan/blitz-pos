@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Store;
 use App\Models\Supplier;
@@ -51,7 +52,20 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-        //
+        // Gate::authorize('create', Expenses::class);
+
+            $products = Product::query()
+            ->with(['store', 'stock'])
+            ->orderBy('name', 'ASC')
+            ->where('barcode',request()->search)
+            ->first();
+
+        return inertia('Purchase/Create', [
+            'title' => "New Purchase",
+            'products' =>  $products ,
+            'filter' =>  request()->only(['search']) ,
+            'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
+        ]);
     }
 
     /**

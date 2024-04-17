@@ -20,9 +20,9 @@ defineProps({
 <template>
     <Head title="Profile" />
 
-    <div class="grid grid-rows-2 gap-4 md:grid-cols-2">
+    <div class="grid gap-4 md:grid-cols-2">
         <div class="col-span-1">
-            <div class="card bg-base-100 shadow-xl">
+            <div class="card bg-base-100 shadow-sm">
                 <div class="card-body grow-0">
                     <UpdateProfileInformationForm
                         :must-verify-email="mustVerifyEmail" :user_details="user_details"
@@ -33,12 +33,12 @@ defineProps({
             </div>
         </div>
         <div class="col-span-1">
-            <div class="card bg-base-100 shadow-xl">
+            <div class="card bg-base-100 shadow-sm">
                 <div class="card-body grow-0">
                     <UpdatePasswordForm class="max-w-xl" />
                 </div>
             </div>
-            <div class="card bg-base-100 shadow-xl mt-4">
+            <div class="card bg-base-100 shadow-sm mt-4">
                 <div class="card-body grow-0">
                     <DeleteUserForm class="max-w-xl" />
                 </div>

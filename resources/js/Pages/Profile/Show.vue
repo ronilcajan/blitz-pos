@@ -10,9 +10,9 @@ defineProps({
 
 <template>
     <Head title="Profile" />
-    <div class="grid grid-rows-2 gap-4 md:grid-cols-3">
+    <div class="grid gap-4 md:grid-cols-3">
         <div class="col-span-2 md:col-span-1">
-            <div class="card bg-base-100 shadow-xl">
+            <div class="card bg-base-100 shadow-sm">
                 <div class="card-body">
                     <div class="avatar placeholder" v-show="!profile.profile_photo_url">
                         <div class="bg-neutral text-neutral-content rounded w-24">
@@ -47,7 +47,7 @@ defineProps({
                 </div>
             </div>
 
-            <div class="card bg-base-100 shadow-xl mt-5">
+            <div class="card bg-base-100 shadow-sm mt-5">
                 <div class="card-body">
                     <h2 class="card-title font-bold">Skills</h2>
                     <div class="mt-2">
@@ -56,7 +56,7 @@ defineProps({
                     </div>
                 </div>
             </div>
-            <div class="card bg-base-100 shadow-xl mt-5">
+            <div class="card bg-base-100 shadow-sm mt-5">
                 <div class="card-body">
                     <h2 class="card-title font-bold">Hobbies</h2>
                     <div class="mt-2">
@@ -67,7 +67,7 @@ defineProps({
             </div>
         </div>
         <div class="col-span-2">
-            <div class="card bg-base-100 shadow-xl">
+            <div class="card bg-base-100 shadow-sm">
                 <div class="card-body">
                     <h2 class="card-title font-bold">General information</h2>
                     <h4 class="font-bold">About me</h4>

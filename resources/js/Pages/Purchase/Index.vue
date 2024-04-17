@@ -146,7 +146,7 @@ watch(store, value => {
                             </button>
                         </div>
                     </div>
-                    <NavLink href="/customers/create" class="btn btn-sm btn-primary">Add new</NavLink>
+                    <NavLink href="/purchase/create" class="btn btn-sm btn-primary">Add new</NavLink>
                     <DangerButton v-if="$page.props.auth.user.canDelete" v-show="orderIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
             </div>

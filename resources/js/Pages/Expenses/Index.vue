@@ -136,7 +136,38 @@ watch(status, value => {
 const showRefresh = computed(() => {
     return store.value !== '' || category.value !== '' || status.value !== ''
 })
+const expensesData = props.expenses.data;
+const allExpensesCount = computed(() => {
+  return expensesData.length // Initialize count to 0
+});
 
+const PendingExpensesCount = computed(() => {
+  return expensesData.reduce((count, expense) => {
+    if (expense.status === 'pending') {
+      return count + 1;
+    } else {
+      return count;
+    }
+  }, 0); // Initialize count to 0
+});
+const ApprovedExpensesCount = computed(() => {
+  return expensesData.reduce((count, expense) => {
+    if (expense.status === 'approved') {
+      return count + 1;
+    } else {
+      return count;
+    }
+  }, 0); // Initialize count to 0
+});
+const RejectedExpensesCount = computed(() => {
+  return expensesData.reduce((count, expense) => {
+    if (expense.status === 'rejected') {
+      return count + 1;
+    } else {
+      return count;
+    }
+  }, 0); // Initialize count to 0
+});
 </script>
 
 <template>
@@ -198,12 +229,12 @@ const showRefresh = computed(() => {
                 </div>
             </div>
         </div>
-        <div class="w-1/5">
+        <div class="w-auto md:w-1/5">
             <div role="tablist" class="tabs tabs-bordered">
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="All" value="all"  :checked="status === 'all' || status === ''"/>
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Pending" value="pending" :checked="status === 'pending'" />
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Approved" value="approved" :checked="status === 'approved'" />
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Rejected" value="rejected" :checked="status === 'rejected'" />
+                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`All(${allExpensesCount})`" value="all"  :checked="status === 'all' || status === ''"/>
+                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Pending(${PendingExpensesCount})`" value="pending" :checked="status === 'pending'" />
+                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Approved(${ApprovedExpensesCount})`" value="approved" :checked="status === 'approved'" />
+                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Rejected(${RejectedExpensesCount})`" value="rejected" :checked="status === 'rejected'" />
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -230,9 +261,6 @@ const showRefresh = computed(() => {
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Status</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">User</div>
                         </th>
                         <th class="hidden sm:table-cell"  v-show="$page.props.auth.user.isSuperAdmin">
                             <div class="font-bold">Store</div>
@@ -265,15 +293,20 @@ const showRefresh = computed(() => {
 
                                             </a>    
                                         </div>
-                                        <div class="text-xs opacity-50">{{ expense.notes }}</div>
-                                        <div class="text-xs opacity-50">{{ expense.notes }}</div>
+                                        <div class="text-xs opacity-50">
+                                            {{ expense.notes }}
+                                        </div>
+                                        <div class="text-xs opacity-50">
+                                            {{ expense.notes }}
+                                        </div>
                                         <div class="text-xs opacity-50 ">
                                             <select @change="statusChange(expense.id, $event.target.value)" class="select select-xs" :class="expense.statusColor">
                                                 <option :selected="expense.status === 'pending'">pending</option>
                                                 <option :selected="expense.status === 'approved'">approved</option>
                                                 <option :selected="expense.status === 'rejected'">rejected</option>
-                                            </select>                                        
+                                            </select>        
                                         </div>
+                                        <div class="text-xs opacity-50">{{ expense.expenses_date }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -299,8 +332,8 @@ const showRefresh = computed(() => {
                                 <option :selected="expense.status === 'rejected'">rejected</option>
                             </select>
                         </td>
-                        <td class="hidden sm:table-cell">{{ expense.user }}</td>
-                        <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ expense.store }}</td>
+                        <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ expense.store }}
+                        </td>
                         <td class="hidden sm:table-cell">{{ expense.expenses_date }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">

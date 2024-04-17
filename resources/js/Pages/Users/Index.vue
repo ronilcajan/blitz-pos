@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
@@ -122,6 +122,39 @@ watch(status, value => {
 	{ status: value },
 	{ preserveState: true, replace:true })
 })
+
+const usersData = props.users.data;
+const allUserCount = computed(() => {
+  return usersData.length // Initialize count to 0
+});
+
+const ActiveUserCount = computed(() => {
+  return usersData.reduce((count, user) => {
+    if (user.status === 'active') {
+      return count + 1;
+    } else {
+      return count;
+    }
+  }, 0); // Initialize count to 0
+});
+const InactiveUserCount = computed(() => {
+  return usersData.reduce((count, user) => {
+    if (user.status === 'inactive') {
+      return count + 1;
+    } else {
+      return count;
+    }
+  }, 0); // Initialize count to 0
+});
+const blockedUserCount = computed(() => {
+  return usersData.reduce((count, user) => {
+    if (user.status === 'blocked') {
+      return count + 1;
+    } else {
+      return count;
+    }
+  }, 0); // Initialize count to 0
+});
 </script>
 
 <template>
@@ -173,10 +206,12 @@ watch(status, value => {
         </div>
         <div class="w-1/5">
             <div role="tablist" class="tabs tabs-bordered">
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="All" value="all"  :checked="status === 'all' || status === ''"/>
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Active" value="active" :checked="status === 'active'" />
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Inactive" value="inactive" :checked="status === 'inactive'" />
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Blocked" value="blocked" :checked="status === 'blocked'" />
+                <input type="radio" v-model="status" role="tab" class="tab" 
+                :aria-label="`All(${allUserCount})`" value="all"  :checked="status === 'all' || status === ''"/>
+                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Active(${ActiveUserCount})`" value="active" :checked="status === 'active'" />
+                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Inactive(${InactiveUserCount})`"
+                value="inactive" :checked="status === 'inactive'" />
+                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Blocked(${blockedUserCount})`" value="blocked" :checked="status === 'blocked'" />
             </div>
         </div>
         <div class="overflow-x-auto">
