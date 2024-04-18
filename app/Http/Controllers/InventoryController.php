@@ -23,39 +23,39 @@ class InventoryController extends Controller
         Gate::authorize('viewAny', Product::class);
 
         $products = ProductSupplier::query()
-        ->select('product_supplier.id as product_supplier_id', 'products.*', 'product_supplier.*') // Select product_supplier ID
-        ->leftJoin('products', 'products.id', '=', 'product_supplier.product_id')
-        ->with(['product.store', 'product.category','supplier']) // Load productSuppliers relationship
-        ->filter(request(['search', 'store', 'category', 'supplier']))
-        ->orderBy('products.name', 'ASC')
-            ->paginate($request->per_page ? ($request->per_page == 'All' ?  ProductSupplier::count() : $request->per_page) : 10)
-            ->withQueryString()
-            ->through(function ($supplier_product) {
+            ->select('product_supplier.id as product_supplier_id', 'products.*', 'product_supplier.*') // Select product_supplier ID
+            ->leftJoin('products', 'products.id', '=', 'product_supplier.product_id')
+            ->with(['product.store', 'product.category','supplier']) // Load productSuppliers relationship
+            ->filter(request(['search', 'store', 'category', 'supplier']))
+            ->orderBy('products.name', 'ASC')
+                ->paginate($request->per_page ? ($request->per_page == 'All' ?  ProductSupplier::count() : $request->per_page) : 10)
+                ->withQueryString()
+                ->through(function ($supplier_product) {
 
-                return [
-                    'id' => $supplier_product->product_supplier_id,
-                    'name' => $supplier_product->product->name,
-                    'barcode' => $supplier_product->product->barcode,
-                    'sku' => $supplier_product->product->sku,
-                    'size' => $supplier_product->product->size,
-                    'dimension' => $supplier_product->product->dimension,
-                    'unit' => $supplier_product->product->unit,
-                    'product_type' => $supplier_product->product->product_type,
-                    'brand' => $supplier_product->product->brand,
-                    'manufacturer' => $supplier_product->product->manufacturer,
-                    'description' => $supplier_product->product->description,
-                    'image' => $supplier_product->product->image,
-                    'store' => $supplier_product->product->store->name,
-                    'category' => $supplier_product->product->category->name,
-                    'supplier' => $supplier_product->supplier->name,
-                    'unit_price' => $supplier_product->unit_price,
-                    'mark_up_price' => $supplier_product->mark_up_price,
-                    'retail_price' => $supplier_product->retail_price,
-                    'min_quantity' => $supplier_product->min_quantity,
-                    'in_store' => $supplier_product->in_store,
-                    'in_warehouse' => $supplier_product->in_warehouse,
-                ];
-        });
+                    return [
+                        'id' => $supplier_product->product_supplier_id,
+                        'name' => $supplier_product->product->name,
+                        'barcode' => $supplier_product->product->barcode,
+                        'sku' => $supplier_product->product->sku,
+                        'size' => $supplier_product->product->size,
+                        'dimension' => $supplier_product->product->dimension,
+                        'unit' => $supplier_product->product->unit,
+                        'product_type' => $supplier_product->product->product_type,
+                        'brand' => $supplier_product->product->brand,
+                        'manufacturer' => $supplier_product->product->manufacturer,
+                        'description' => $supplier_product->product->description,
+                        'image' => $supplier_product->product->image,
+                        'store' => $supplier_product->product->store->name,
+                        'category' => $supplier_product->product->category->name,
+                        'supplier' => $supplier_product->supplier->name,
+                        'unit_price' => $supplier_product->unit_price,
+                        'mark_up_price' => $supplier_product->mark_up_price,
+                        'retail_price' => $supplier_product->retail_price,
+                        'min_quantity' => $supplier_product->min_quantity,
+                        'in_store' => $supplier_product->in_store,
+                        'in_warehouse' => $supplier_product->in_warehouse,
+                    ];
+            });
 
         return inertia('Inventory/Index', [
             'title' => 'Inventory',

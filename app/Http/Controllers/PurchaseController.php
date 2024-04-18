@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductSupplier;
 use App\Models\Purchase;
 use App\Models\Store;
 use App\Models\Supplier;
@@ -54,17 +55,39 @@ class PurchaseController extends Controller
     {
         // Gate::authorize('create', Expenses::class);
 
-            $products = Product::query()
+        $products = ProductSupplier::query()
+            ->select('product_supplier.id as product_supplier_id', 'products.*', 'product_supplier.*') // Select product_supplier ID
+            ->leftJoin('products', 'products.id', '=', 'product_supplier.product_id')
+            ->with(['product']) // Load productSuppliers relationship
+            ->filter(request(['search']))
+            ->orderBy('product_supplier.in_store', 'DESC')
+            ->paginate(15)
+            ->withQueryString()
+            ->through(function ($supplier_product) {
+                return [
+                    'id' => $supplier_product->product_supplier_id,
+                    'name' => $supplier_product->name,
+                    'barcode' => $supplier_product->barcode,
+                    'size' => $supplier_product->size,
+                    'color' => $supplier_product->color,
+                    'unit' => $supplier_product->unit,
+                    'image' => $supplier_product->image,
+                    'unit_price' => $supplier_product->unit_price,
+                    'stocks' => $supplier_product->in_store + $supplier_product->in_warehouse,
+                ];
+            });
+
+        $search_products = Product::query()
             ->with(['store', 'stock'])
             ->orderBy('name', 'ASC')
-            ->where('barcode',request()->search)
+            ->where('barcode',request()->barcode)
             ->first();
 
         return inertia('Purchase/Create', [
             'title' => "New Purchase",
             'products' =>  $products ,
-            'filter' =>  request()->only(['search']) ,
-            'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
+            'search_products' =>  $search_products,
+            'filter' =>  request()->only(['search','barcode','per_page']) ,
         ]);
     }
 

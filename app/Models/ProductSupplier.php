@@ -39,7 +39,10 @@ class ProductSupplier extends Model
                 'in_warehouse',
                 ], 'LIKE', "%{$search}%")
             ->orWhereHas('product', function($q) use ($search){
-                $q->where('name', $search);
+                $q->whereAny([
+                    'name',
+                    'barcode',
+                    ], 'LIKE', "%{$search}%");
             });
         }
 
