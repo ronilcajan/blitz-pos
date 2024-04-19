@@ -31,6 +31,10 @@ class ProductFactory extends Factory
             'manufacturer' => fake()->company(),
             'description' => fake()->text(),
             'image' => fake()->imageUrl(),
+            'price' => fake()->numberBetween(100, 1000),
+            'min_quantity' => 5,
+            'in_store' => 100,
+            'in_warehouse' => 100,
             'product_category_id' => function () {
                 return ProductCategory::inRandomOrder()->first()->id;
             },

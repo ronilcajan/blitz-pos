@@ -25,11 +25,18 @@ return new class extends Migration
             $table->string('product_type')->nullable();
             $table->string('brand')->nullable();
             $table->string('manufacturer')->nullable();
-            $table->string('description')->nullable();
-            $table->boolean('isEnabled')->default(true);
             $table->string('image')->nullable();
-            $table->foreignIdFor(ProductCategory::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Store::class)->constrained()->cascadeOnDelete();
+            $table->boolean('isVisible')->default(true);
+            $table->timestamp('expiration_date')->nullable();
+            $table->string('description')->nullable();
+            $table->integer('min_quantity')->nullable();
+            $table->decimal('in_store', total: 8, places: 2)->nullable();
+            $table->decimal('in_warehouse', total: 8, places: 2)->nullable();
+            $table->decimal('price', total: 10, places: 2);
+            $table->foreignIdFor(ProductCategory::class)
+                ->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Store::class)
+                ->constrained()->cascadeOnDelete();
             $table->softDeletes(); // <-- This will add a deleted_at field
             $table->timestamps();
         });

@@ -64,23 +64,18 @@ class ProductController extends Controller
      */
     public function create(Request $request)
     {
-        // Gate::authorize('create', Customer::class);
+        Gate::authorize('create', Product::class);
 
-
-        $data = '';
-        if($request->barcode){
-          
-            $data = Http::get('https://api.upcitemdb.com/prod/trial/lookup', [
-                'upc' => $request->barcode
-            ])->json();
-
-            // dd($data);
-        }
-
+        // $data = '';
+        // if($request->barcode){
+        //     $data = Http::get('https://api.upcitemdb.com/prod/trial/lookup', [
+        //         'upc' => $request->barcode
+        //     ])->json();
+        // }
 
         return inertia('Product/Create', [
             'title' => "Add New Product",
-            'barcode' =>  $data,
+            // 'barcode' =>  $data,
             'stores' => Store::select('id', 'name')
                 ->orderBy('id', 'DESC')->get(),
             'units' => ProductUnit::select('id','name')->orderBy('id', 'DESC')

@@ -22,7 +22,7 @@ class ProductPolicy
     public function view(User $user, Product $product): bool
     {
         return $user->hasRole('owner|admin|staff') && 
-        $user->store_id === $product->store_id;
+        $product->store->is($user);
     }
 
     /**
