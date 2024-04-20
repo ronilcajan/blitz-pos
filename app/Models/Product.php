@@ -25,17 +25,23 @@ class Product extends Model
     public function store(): BelongsTo
     {
         return $this->belongsTo(Store::class);
-    } 
+    }
 
     public function category(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class,'product_category_id');
-    } 
+    }
 
     public function stock(): HasOne
     {
-        return $this->hasOne(ProductSupplier::class);
+        return $this->hasOne(ProductStock::class);
     }
+
+    public function price(): HasOne
+    {
+        return $this->hasOne(ProductPrice::class);
+    }
+
     public function stocks(): HasMany
     {
         return $this->hasMany(ProductSupplier::class);
@@ -47,7 +53,7 @@ class Product extends Model
 
             $query->whereAny([
                 'name',
-                'barcode ',
+                'barcode',
                 'sku',
                 'size',
                 'dimension',
@@ -89,6 +95,6 @@ class Product extends Model
             ->useLogName('Product')
             ->logOnly(['name'])
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");    
+            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
     }
 }

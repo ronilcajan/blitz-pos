@@ -7,6 +7,8 @@ use App\Models\Expenses;
 use App\Models\ExpensesCategory;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductPrice;
+use App\Models\ProductStock;
 use App\Models\ProductSupplier;
 use App\Models\ProductUnit;
 use App\Models\Store;
@@ -33,7 +35,7 @@ class DatabaseSeeder extends Seeder
         ProductUnit::factory(20)->create();
         ProductCategory::factory(20)->create();
         Product::factory(100)->create();
-        ProductSupplier::factory(100)->create();
-
+        ProductPrice::factory(100)->create();
+        ProductStock::factory(100)->create();
     }
 }

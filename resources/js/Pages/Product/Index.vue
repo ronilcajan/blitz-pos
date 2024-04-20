@@ -7,7 +7,7 @@ import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
 
-const props = defineProps({  
+const props = defineProps({
     title: String,
 	products: Object,
     stores: Object,
@@ -59,7 +59,7 @@ const submitDeleteForm = () => {
 }
 
 const submitBulkDeleteForm = () => {
-    router.post(route('products.bulkDelete'), 
+    router.post(route('products.bulkDelete'),
     {
         products_id: productIds.value
     },
@@ -91,7 +91,7 @@ const selectAll = () => {
 }
 
 watch(per_page, value => {
-	router.get('/products', 
+	router.get('/products',
 	{ per_page: value },
 	{ preserveState: true, replace:true, only: ['products'], })
 })
@@ -103,17 +103,17 @@ watch(search, debounce(function (value) {
 }, 500)) ;
 
 watch(store, value => {
-	router.get('/products', 
+	router.get('/products',
 	{ store: value },
 	{ preserveState: true, replace:true, only: ['products'], })
 })
 watch(category, value => {
-	router.get('/products', 
+	router.get('/products',
 	{ category: value },
 	{ preserveState: true, replace:true })
 })
 watch(type, value => {
-	router.get('/products', 
+	router.get('/products',
 	{ type: value },
 	{ preserveState: true, replace:true })
 })
@@ -130,7 +130,7 @@ const showRefresh = computed(() => {
 <template>
     <Head :title="title" />
 
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
+    <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                 <div>
@@ -197,7 +197,6 @@ const showRefresh = computed(() => {
                 </div>
             </div>
         </div>
-       
         <div class="overflow-x-auto">
             <table class="table table-zebra">
                 <thead class="uppercase">
@@ -209,13 +208,7 @@ const showRefresh = computed(() => {
                             <div class="font-bold">Name</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">SKU</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
                             <div class="font-bold">Size</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Dimension</div>
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Brand</div>
@@ -231,6 +224,9 @@ const showRefresh = computed(() => {
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Price</div>
+                        </th>
+                        <th class="hidden sm:table-cell">
+                            <div class="font-bold">Status</div>
                         </th>
                         <th class="hidden sm:table-cell" v-show="isSuperAdmin">
                             <div class="font-bold">Store</div>
@@ -256,7 +252,7 @@ const showRefresh = computed(() => {
                                 </div>
                                 <div>
                                     <div class="flex text-sm font-bold gap-2">
-                                        {{ product.name }} 
+                                        {{ product.name }}
                                     </div>
                                     <div class="text-xs opacity-50">
                                         {{ product.barcode }}
@@ -268,14 +264,9 @@ const showRefresh = computed(() => {
                                 </div>
                             </div>
                         </td>
-                        <!-- These columns will be hidden on small screens -->
-                        <td class="hidden sm:table-cell">
-                            {{ product.sku }}</td>
                         <td class="hidden sm:table-cell">
                             {{ product.size }}</td>
-                            <td class="hidden sm:table-cell">
-                            {{ product.dimension }}</td>
-                            <td class="hidden sm:table-cell">
+                        <td class="hidden sm:table-cell">
                             {{ product.brand }}</td>
                         <td class="hidden sm:table-cell">
                                 {{ product.category }}
@@ -287,7 +278,10 @@ const showRefresh = computed(() => {
                         <td class="hidden sm:table-cell">
                             {{ product.unit }}</td>
                         <td class="hidden sm:table-cell">
-                            {{ product.retail_price }}</td>
+                            {{ product.price }}</td>
+                        <td class="hidden sm:table-cell">
+                            <input type="checkbox" class="toggle toggle-sm toggle-success" :checked="product.visible" />
+                        </td>
                         <td class="hidden sm:table-cell" v-show="isSuperAdmin">
                             {{ product.store }}</td>
                         <td>
@@ -305,19 +299,17 @@ const showRefresh = computed(() => {
                                         <path d="M6.72245 9.67504C6.38495 9.70317 6.1037 10.0125 6.13182 10.35L6.3287 12.825C6.35683 13.1625 6.63808 13.4157 6.94745 13.4157C6.97558 13.4157 6.97558 13.4157 7.0037 13.4157C7.3412 13.3875 7.62245 13.0782 7.59433 12.7407L7.39745 10.2657C7.39745 9.90004 7.08808 9.64692 6.72245 9.67504Z" fill=""></path>
                                     </svg>
                                 </button>
-                            </div>    
+                            </div>
                         </td>
-
                     </tr>
                     <tr v-if="products.data.length  <= 0">
                         <td colspan="12" class="text-center">
                             No data found
                         </td>
-
                     </tr>
                 </tbody>
             </table>
-            
+
         </div>
     </section>
     <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
@@ -336,7 +328,7 @@ const showRefresh = computed(() => {
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitDeleteForm">
-    
+
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton
@@ -359,7 +351,7 @@ const showRefresh = computed(() => {
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">
-    
+
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton

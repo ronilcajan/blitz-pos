@@ -5,14 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductFormRequest;
 use App\Models\Product;
 use App\Models\ProductCategory;
-use App\Models\ProductSupplier;
 use App\Models\ProductUnit;
 use App\Models\Store;
 use App\Models\Supplier;
+use Illuminate\Support\Number;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -23,7 +22,7 @@ class ProductController extends Controller
     {
         Gate::authorize('viewAny', Product::class);
         $products = Product::query()
-            ->with(['store', 'stocks','category'])
+            ->with(['store', 'stock','category'])
             ->orderBy('name', 'ASC')
             ->filter(request(['search','store','category','type']))
             ->paginate($request->per_page ? ($request->per_page == 'All' ?  Product::count() : $request->per_page) : 10)
@@ -42,16 +41,18 @@ class ProductController extends Controller
                     'manufacturer' => $product->manufacturer,
                     'description' => $product->description,
                     'image' => $product->image,
+                    'visible' => $product->visible === 'published',
                     'store' => $product->store->name,
                     'category' => $product->category->name,
-                    'retail_price' => $product->stocks->max('retail_price') ? "P ".$product->stocks->max('retail_price') : 0,
+                    'price' =>  Number::currency($product->price->discount_price, in: 'PHP'),
                 ];
         });
 
         return inertia('Product/Index', [
             'title' => 'Products',
             'products' => $products,
-            'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
+            'stores' => Store::select('id', 'name')
+                ->orderBy('name','ASC')->get(),
             'product_categories' => ProductCategory::select('id', 'name')->orderBy('name','ASC')
                 ->get(),
             'filter' => $request->only(['search']),
@@ -94,13 +95,13 @@ class ProductController extends Controller
     {
         Gate::authorize('create', Product::class);
 
-        $validate = $request->validated();
+        $request->validated();
 
-        $product_data = [
+        $productAttributes = [
             'name' => $request->name,
             'barcode' => $request->barcode,
-            'sku' => $request->sku,
             'size' => $request->size,
+            'color' => $request->color,
             'dimension' => $request->dimension,
             'unit' => $request->unit,
             'product_type' => $request->product_type,
@@ -108,29 +109,37 @@ class ProductController extends Controller
             'manufacturer' => $request->manufacturer,
             'description' => $request->description,
             'product_category_id' => $request->product_category_id,
-            'store_id' => $request->store_id ?? auth()->id(),
+            'store_id' => $request->store_id ?? auth()->user()->store_id,
         ];
 
         if($request->hasFile('image')){
             $image = $request->file('image')->store('products','public');
-            $validate['image'] = asset('storage/'. $image);
+            $productAttributes['image'] = asset('storage/'. $image);
         }
-         
-        $product = Product::create($product_data);
+        $product = Product::create($productAttributes);
 
-        $product_supplier_data = [
-            'unit_price' => $request->unit_price,
-            'mark_up_price' => $request->mark_up_price,
-            'retail_price' => $request->retail_price,
-            'min_quantity' => $request->min_quantity,
+        $productPriceAttributes = [
+            'base_price' => $request->base_price,
+            'markup_price' => $request->markup_price,
+            'sale_price' => $request->sale_price,
+            'discount' => $request->discount,
             'manual_percentage' => $request->manual_percentage,
-            'in_store' => $request->in_store,
-            'in_warehouse' => $request->in_warehouse,
-            'product_id' => $product->id,
-            'supplier_id' => $request->supplier_id,
+            'discount_price' => $request->discount_price,
+            'product_id' => $product->id
         ];
 
-        ProductSupplier::create($product_supplier_data);
+        $productStocksAttributes = [
+            'sku' => $request->sku,
+            'min_quantity' => $request->min_quantity,
+            'in_store' => $request->in_store,
+            'in_warehouse' => $request->in_warehouse,
+            'product_id' => $product->id
+        ];
+
+        // Update or create price attributes
+        $product->price()->updateOrCreate([], $productPriceAttributes);
+        // Update or create stock attributes
+        $product->stock()->updateOrCreate([], $productStocksAttributes);
 
         return redirect()->back();
     }
@@ -157,7 +166,7 @@ class ProductController extends Controller
                 'suppliers' => Supplier::select('id','name')->orderBy('id', 'DESC')
                 ->get(),
             ]);
-            
+
         } catch (\Exception $e) {
             // Handle exceptions, log errors, etc.
             return response()->json(['error' => 'An error occurred while fetching data.'], 500);
@@ -169,34 +178,18 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        Gate::authorize('update', $product);
+        $product = Product::with(['price','stock'])
+            ->findOrFail($product->id);
 
-        $data = [
-            'id' => $product->id,
-            'name' => $product->name,
-            'barcode' => $product->barcode,
-            'sku' => $product->sku,
-            'size' => $product->size,
-            'dimension' => $product->dimension,
-            'unit' => $product->unit,
-            'product_type' => $product->product_type,
-            'brand' => $product->brand,
-            'manufacturer' => $product->manufacturer,
-            'description' => $product->description,
-            'product_category_id' => $product->product_category_id,
-            'image' => $product->image,
-            'store_id' => $product->store_id,
-        ];
+        Gate::authorize('update', $product);
 
         return inertia('Product/Edit', [
             'title' => "Edit Product",
-            'product' => $data,
+            'product' => $product,
             'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
             'units' => ProductUnit::select('id','name')->orderBy('id', 'DESC')
             ->get(),
             'categories' => ProductCategory::select('id','name')->orderBy('id', 'DESC')
-            ->get(),
-            'suppliers' => Supplier::select('id','name')->orderBy('id', 'DESC')
             ->get(),
         ]);
     }
@@ -204,31 +197,58 @@ class ProductController extends Controller
        /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(ProductFormRequest $request)
     {
-        $product = Product::find($request->id);
+        $product = Product::findOrFail($request->id);
+
         Gate::authorize('update', $product);
 
-        $validate = $request->validate([
-            'name' => 'required',
-            'barcode' => ['required',Rule::unique('products', 'barcode')->ignore($request->id)],
-            'sku' => '',
-            'size' => '',
-            'dimension' => '',
-            'unit' => '',
-            'product_type' => '',
-            'brand' => '',
-            'manufacturer' => '',
-            'description' => '',
-            'product_category_id' => 'required',
-        ]);
+        $request->validated();
+
+        $productAttributes = [
+            'name' => $request->name,
+            'barcode' => $request->barcode,
+            'size' => $request->size,
+            'color' => $request->color,
+            'dimension' => $request->dimension,
+            'unit' => $request->unit,
+            'product_type' => $request->product_type,
+            'brand' => $request->brand,
+            'manufacturer' => $request->manufacturer,
+            'description' => $request->description,
+            'product_category_id' => $request->product_category_id,
+            'store_id' => $request->store_id ?? auth()->user()->store_id,
+        ];
 
         if($request->hasFile('image')){
             $image = $request->file('image')->store('products','public');
-            $validate['image'] = asset('storage/'. $image);
+            $productAttributes['image'] = asset('storage/'. $image);
         }
-        
-        $product->update($validate);
+        $product->update($productAttributes);
+
+        $productPriceAttributes = [
+            'base_price' => $request->base_price,
+            'markup_price' => $request->markup_price,
+            'sale_price' => $request->sale_price,
+            'discount' => $request->discount,
+            'manual_percentage' => $request->manual_percentage,
+            'discount_price' => $request->discount_price,
+            'product_id' => $product->id
+        ];
+
+        $productStocksAttributes = [
+            'sku' => $request->sku,
+            'min_quantity' => $request->min_quantity,
+            'in_store' => $request->in_store,
+            'in_warehouse' => $request->in_warehouse,
+            'product_id' => $product->id
+        ];
+
+       // Update or create price attributes
+        $product->price()->updateOrCreate([], $productPriceAttributes);
+        // Update or create stock attributes
+        $product->stock()->updateOrCreate([], $productStocksAttributes);
+
 
         return redirect()->back();
     }

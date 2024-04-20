@@ -17,22 +17,17 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('barcode')->unique();
-            $table->string('sku')->nullable();
             $table->string('size')->nullable();
             $table->string('color')->nullable();
             $table->string('dimension')->nullable();
             $table->string('unit')->nullable();
-            $table->string('product_type')->nullable();
+            $table->string('product_type')->default('sellable');
             $table->string('brand')->nullable();
             $table->string('manufacturer')->nullable();
             $table->string('image')->nullable();
-            $table->boolean('isVisible')->default(true);
+            $table->string('visible')->default('published');
             $table->timestamp('expiration_date')->nullable();
             $table->string('description')->nullable();
-            $table->integer('min_quantity')->nullable();
-            $table->decimal('in_store', total: 8, places: 2)->nullable();
-            $table->decimal('in_warehouse', total: 8, places: 2)->nullable();
-            $table->decimal('price', total: 10, places: 2);
             $table->foreignIdFor(ProductCategory::class)
                 ->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Store::class)

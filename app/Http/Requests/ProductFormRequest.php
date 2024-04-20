@@ -26,22 +26,13 @@ class ProductFormRequest extends FormRequest
         return [
             'name' => 'required',
             'barcode' => ['required',Rule::unique('products', 'barcode')->ignore($productId)],
-            'sku' => '',
-            'size' => '',
-            'dimension' => '',
-            'unit' => '',
-            'product_type' => '',
-            'brand' => '',
-            'manufacturer' => '',
-            'description' => '',
+            'unit' => 'required',
             'product_category_id' => 'required',
-            'unit_price' => '',
-            'mark_up_price' => '',
-            'retail_price' => '',
-            'min_quantity' => '',
-            'in_store' => '',
-            'in_warehouse' => '',
-            'supplier_id' => 'required',
+            'base_price' => 'required',
+            'markup_price' => 'required',
+            'sale_price' => 'required',
+            'discount_price' => 'required',
+            'in_store' => 'required',
         ];
     }
 }

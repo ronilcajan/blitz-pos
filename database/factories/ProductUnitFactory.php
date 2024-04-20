@@ -18,7 +18,7 @@ class ProductUnitFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'name' => fake()->userName(),
             'store_id' => function () {
                 return Store::inRandomOrder()->first()->id;
             },

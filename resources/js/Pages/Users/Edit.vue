@@ -7,7 +7,7 @@ import { useToast } from 'vue-toast-notification';
 defineOptions({ layout: AuthenticatedLayout })
 const page = usePage()
 
-const props = defineProps({  
+const props = defineProps({
     title: String,
     stores: Object,
     roles: Object,
@@ -85,7 +85,7 @@ const submitUpdateForm = () => {
                             type="text"
                             class="block w-full"
                             v-model="form.phone"
-                            
+
                             placeholder="Enter phone number"
                         />
                         <InputError class="mt-2" :message="form.errors.phone" />
@@ -132,7 +132,7 @@ const submitUpdateForm = () => {
                     <textarea v-model="form.address" class="textarea w-full textarea-bordered" placeholder="Address"></textarea>
                     <InputError class="mt-2" :message="form.errors.address" />
                 </div>
-                
+
 
                 <div class="mt-6 flex justify-end">
                     <NavLink href="/users" class="btn">Cancel</NavLink>

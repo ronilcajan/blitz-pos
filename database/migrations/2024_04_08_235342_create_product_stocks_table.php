@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Product;
 use App\Models\Store;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,7 +15,11 @@ return new class extends Migration
     {
         Schema::create('product_stocks', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Store::class)->constrained()->cascadeOnDelete();
+            $table->string('sku')->nullable();
+            $table->integer('min_quantity')->nullable();
+            $table->decimal('in_store', total: 8, places: 2)->nullable();
+            $table->decimal('in_warehouse', total: 8, places: 2)->nullable();
+            $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
             $table->softDeletes(); // <-- This will add a deleted_at field
             $table->timestamps();
         });

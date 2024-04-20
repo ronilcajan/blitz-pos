@@ -22,19 +22,16 @@ class ProductFactory extends Factory
         return [
             'name' => fake()->name,
             'barcode' => fake()->ean13(),
-            'sku' => 'KS '.fake()->ean13(),
+            'size' => '1x2',
+            'color' => fake()->colorName(),
+            'brand' => fake()->company(),
             'unit'=> function () {
                 return ProductUnit::inRandomOrder()->first()->name;
             },
-            'product_type' => 'sellable',
             'brand' => fake()->company(),
             'manufacturer' => fake()->company(),
             'description' => fake()->text(),
             'image' => fake()->imageUrl(),
-            'price' => fake()->numberBetween(100, 1000),
-            'min_quantity' => 5,
-            'in_store' => 100,
-            'in_warehouse' => 100,
             'product_category_id' => function () {
                 return ProductCategory::inRandomOrder()->first()->id;
             },
