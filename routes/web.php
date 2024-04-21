@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('/products', ProductController::class);
     Route::get('/products/api/fetch/{barcode}', [ProductController::class, 'barcode_api'])->name('products.barcode.api');
     Route::post('/products/update', [ProductController::class, 'update']);
+    Route::patch('/products/update/{product}/status', [ProductController::class, 'change_status'])->name('products.change_status');
     Route::post('/products/bulk/delete', [ProductController::class, 'bulkDelete'])->name('products.bulkDelete');
 
     Route::resource('/product_categories', ProductCategoryController::class);

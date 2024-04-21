@@ -90,6 +90,20 @@ const selectAll = () => {
       }
 }
 
+const isVisible = (id,event) => {
+	router.patch(route('products.change_status',id), {
+            status: event.checked,
+        },
+	    { preserveState: true, replace:true,
+            onSuccess: () => {
+            useToast().success('Product visibility has been changed successfully!', {
+                position: 'top-right',
+                duration: 3000,
+                dismissible: true
+            });
+        },  only: ['products'], })
+}
+
 watch(per_page, value => {
 	router.get('/products',
 	{ per_page: value },
@@ -226,7 +240,7 @@ const showRefresh = computed(() => {
                             <div class="font-bold">Price</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Status</div>
+                            <div class="font-bold">Visible</div>
                         </th>
                         <th class="hidden sm:table-cell" v-show="isSuperAdmin">
                             <div class="font-bold">Store</div>
@@ -280,7 +294,7 @@ const showRefresh = computed(() => {
                         <td class="hidden sm:table-cell">
                             {{ product.price }}</td>
                         <td class="hidden sm:table-cell">
-                            <input type="checkbox" class="toggle toggle-sm toggle-success" :checked="product.visible" />
+                            <input @change="isVisible(product.id, $event.target)" type="checkbox" class="toggle toggle-sm toggle-success" :checked="product.visible" />
                         </td>
                         <td class="hidden sm:table-cell" v-show="isSuperAdmin">
                             {{ product.store }}</td>

@@ -20,7 +20,7 @@ const createUnitModal = ref(false);
 const createCategoryModal = ref(false);
 const searchBarcodeModal = ref(false);
 const barcode = ref({});
-const isHide = ref(false);
+const isHide = ref('published');
 
 const form = useForm({
 	name: '',
@@ -35,6 +35,8 @@ const form = useForm({
 	dimension : '',
     expiration_date: '',
     description: '',
+    visible : 'published',
+    image: '',
 
     base_price : 0.00,
     markup_price : 0.00,
@@ -48,8 +50,6 @@ const form = useForm({
 	in_store : 0,
     in_warehouse: 0,
 
-    image: '',
-    visible : 'published',
     store_id : page?.props?.auth?.user.store_id ?? 1,
 });
 
@@ -84,15 +84,9 @@ const calculateDiscount = () => {
     }
 }
 
-watch(form.sale_price, value => {
-    alert(3)
-})
-
 watch(isHide, value => {
-    form.product_status = value ? 'hide' : 'published';
+    form.visible = value ? 'hide' : 'published';
 })
-
-isHide.value = form.product_status === 'hide';
 
 watch(barcode, value => {
     axios.get(`https://api.upcitemdb.com/prod/trial/lookup`,{
@@ -605,10 +599,10 @@ const submitCreateForm = () => {
                     <div>
                         <InputLabel for="phone" value="Product Visibility" />
                         <div class="text-sm px-4 py-3 my-2 border w-full rounded-lg">
-                                {{ form.product_status }}
+                                {{ form.visible }}
                             </div>
                         <div class="form-control mt-3 flex flex-row gap-3 items-center">
-                            <input type="checkbox" id="hide"  v-model="isHide" class="checkbox checkbox-sm" />
+                            <input type="checkbox" id="hide" v-model="isHide" class="checkbox checkbox-sm" />
                             <label for="hide">Hide this product</label>
                         </div>
                         <InputError class="mt-2" :message="form.errors.phone" />

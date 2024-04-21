@@ -22,7 +22,7 @@ class ProductController extends Controller
     {
         Gate::authorize('viewAny', Product::class);
         $products = Product::query()
-            ->with(['store', 'stock','category'])
+            ->with(['store', 'price', 'stock','category'])
             ->orderBy('name', 'ASC')
             ->filter(request(['search','store','category','type']))
             ->paginate($request->per_page ? ($request->per_page == 'All' ?  Product::count() : $request->per_page) : 10)
@@ -44,7 +44,7 @@ class ProductController extends Controller
                     'visible' => $product->visible === 'published',
                     'store' => $product->store->name,
                     'category' => $product->category->name,
-                    'price' =>  Number::currency($product->price->discount_price, in: 'PHP'),
+                    'price' =>  $product->price?->discount_price ? Number::currency($product->price->discount_price, in: 'PHP') : null,
                 ];
         });
 
@@ -214,6 +214,7 @@ class ProductController extends Controller
             'unit' => $request->unit,
             'product_type' => $request->product_type,
             'brand' => $request->brand,
+            'visible' => $request->visible,
             'manufacturer' => $request->manufacturer,
             'description' => $request->description,
             'product_category_id' => $request->product_category_id,
@@ -250,6 +251,13 @@ class ProductController extends Controller
         $product->stock()->updateOrCreate([], $productStocksAttributes);
 
 
+        return redirect()->back();
+    }
+
+    public function change_status(Product $product, Request $request)
+    {
+        Gate::authorize('update', $product);
+        $product->update(['visible' => $request->status ? 'published' : 'hide']);
         return redirect()->back();
     }
 

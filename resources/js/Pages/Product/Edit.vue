@@ -1,12 +1,11 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { router, useForm, usePage } from '@inertiajs/vue3'
+import { useForm } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import axios from 'axios'
 
 defineOptions({ layout: AuthenticatedLayout })
-const page = usePage()
 
 const props = defineProps({
     title: String,
@@ -21,7 +20,7 @@ const createUnitModal = ref(false);
 const createCategoryModal = ref(false);
 const searchBarcodeModal = ref(false);
 const barcode = ref({});
-const isHide = ref(props.product.isVisible);
+const isHide = ref(props.product.visible);
 
 const form = useForm({
     id: props.product.id,
@@ -36,6 +35,7 @@ const form = useForm({
 	color :  props.product.color,
 	dimension :  props.product.dimension,
     expiration_date:  props.product.expiration_date,
+    visible :  props.product.visible,
     description:  props.product.description,
 
     base_price :props.product.price?.base_price,
@@ -54,6 +54,8 @@ const form = useForm({
     product_status : props.product.product_status,
     store_id : props.product.store_id,
 });
+
+console.log(isHide.value);
 
 const unitForm = useForm({name: ''});
 const categoryForm = useForm({name: '',description: ''});
@@ -78,15 +80,13 @@ const calculateDiscount = () => {
     }
 }
 
-watch(form.sale_price, value => {
-    alert(3)
-})
-
 watch(isHide, value => {
-    form.product_status = value ? 'hide' : 'published';
+    form.visible = value ? 'hide' : 'published';
 })
 
-isHide.value = form.product_status === 'hide';
+const changeProductVisibility = computed(() => {
+    isHide.value = props.product.visible === 'hide';
+})
 
 watch(barcode, value => {
     axios.get(`https://api.upcitemdb.com/prod/trial/lookup`,{
@@ -173,10 +173,10 @@ const submitUpdateForm = () => {
                             <span class="uppercase">General Information</span>
                         </h2>
                         <div class="flex justify-between gap-3 flex-col md:flex-row">
-                            <SecondaryButton @click="searchBarcodeModal = true" class="btn tooltip tooltip-left btn-sm flex" data-tip="Scan products using barcode">
+                            <!-- <SecondaryButton @click="searchBarcodeModal = true" class="btn tooltip tooltip-left btn-sm flex" data-tip="Scan products using barcode">
                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
                             Scan Barcode
-                            </SecondaryButton>
+                            </SecondaryButton> -->
                             <NavLink href="/products" class="btn btn-sm">
                                 <svg class="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
@@ -550,9 +550,8 @@ const submitUpdateForm = () => {
                             <InputLabel for="name" value="In Store" />
                             <NumberInput
                                 type="number"
-
-        step="0.01"
-        min="0"
+                                step="0.01"
+                                min="0"
                                 class="block w-full"
                                 v-model="form.in_store"
                                 placeholder="Enter quantity"
@@ -597,10 +596,13 @@ const submitUpdateForm = () => {
                     <div>
                         <InputLabel for="phone" value="Product Visibility" />
                         <div class="text-sm px-4 py-3 my-2 border w-full rounded-lg">
-                                {{ form.product_status }}
+                                {{ form.visible }}
                             </div>
                         <div class="form-control mt-3 flex flex-row gap-3 items-center">
-                            <input type="checkbox" id="hide"  v-model="isHide" class="checkbox checkbox-sm" />
+                            <input type="checkbox" id="hide"
+                            v-model="isHide"
+                            :checked="changeProductVisibility"
+                            class="checkbox checkbox-sm"/>
                             <label for="hide">Hide this product</label>
                         </div>
                         <InputError class="mt-2" :message="form.errors.phone" />
@@ -614,303 +616,6 @@ const submitUpdateForm = () => {
 
      </div>
     </form>
-    <!-- <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
-        <div class="card-body grow-0">
-            <div class="flex justify-between gap-2">
-                <h2 class="card-title grow text-sm">
-                    <span class="uppercase">Products Details</span>
-                </h2>
-                <div>
-                    <button @click="searchBarcodeModal = true" class="btn btn-primary tooltip tooltip-left" data-tip="Add products using barcode">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg></button>
-                </div>
-            </div>
-            <form @submit.prevent="submitCreateForm">
-                <div class="grid grid-cols-1 gap-2 mb-3 lg:grid-cols-2">
-                    <div class="form-control">
-                        <InputLabel for="name" value="Barcode" />
-                        <TextInput
-                            type="text"
-                            class="block w-full"
-                            v-model="form.barcode"
-                            required
-                            placeholder="Enter barcode"
-                        />
-                        <InputError class="mt-2" :message="form.errors.barcode" />
-                    </div>
-                    <div class="form-control">
-                        <InputLabel for="phone" value="SKU (optional)" />
-                        <TextInput
-                            type="text"
-                            class="block w-full"
-                            v-model="form.sku"
-                            placeholder="Enter SKU"
-                        />
-                        <InputError class="mt-2" :message="form.errors.sku" />
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 gap-2 mb-3 lg:grid-cols-2">
-                    <div class="form-control">
-                        <InputLabel for="name" value="Product name" />
-                        <TextInput
-                            type="text"
-                            class="block w-full"
-                            v-model="form.name"
-                            required
-                            placeholder="Enter product name"
-                        />
-                        <InputError class="mt-2" :message="form.errors.name" />
-                    </div>
-                    <div class="flex items-end gap-2">
-                        <div class="w-full">
-                            <InputLabel for="name" value="Category" />
-                            <select v-model="form.product_category_id " class="select select-bordered w-full">
-                                <option disabled selected value="">Select a product category</option>
-                                <option v-for="category in categories" :value="category.id" :key="category.id">
-                                    {{ category.name }}
-                                </option>
-                            </select>
-                            <InputError class="mt-2" :message="form.errors.product_category_id" />
-                        </div>
-                        <div>
-                            <button @click="createCategoryModal = true" type="button" class="btn btn-link tooltip tooltip-left m-0" data-tip="Create new category">
-                                <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                </svg>
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 gap-2 mb-3 lg:grid-cols-2">
-                    <div class="flex items-end gap-2">
-                        <div class="w-full">
-                            <InputLabel for="name" value="Unit" />
-                            <select v-model="form.unit" class="select select-bordered w-full">
-                                <option disabled selected value="">Select a product unit</option>
-                                <option v-for="unit in units" :value="unit.name" :key="unit.id">
-                                    {{ unit.name }}
-                                </option>
-                            </select>
-                            <InputError class="mt-2" :message="form.errors.unit" />
-
-                        </div>
-                        <div>
-                            <button @click="createUnitModal = true" type="button" class="btn btn-link tooltip tooltip-left" data-tip="Create new unit">
-                                <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="form-control">
-                        <InputLabel for="phone" value="Product type" />
-                        <select v-model="form.product_type" class="select select-bordered w-full">
-                            <option disabled value="">Select a product type</option>
-                            <option>
-                                sellable
-                            </option>
-                            <option>
-                                consumable
-                            </option>
-                        </select>
-                        <InputError class="mt-2" :message="form.errors.phone" />
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 gap-2 mb-3 lg:grid-cols-2">
-                    <div class="form-control">
-                        <InputLabel for="name" value="Size or weight (optional)" />
-                        <TextInput
-                            type="text"
-                            class="block w-full"
-                            v-model="form.size"
-                            placeholder="Enter size or weight"
-                        />
-                        <InputError class="mt-2" :message="form.errors.size" />
-                    </div>
-                    <div class="form-control">
-                        <InputLabel for="phone" value="Dimension (optional)" />
-                        <TextInput
-                            type="text"
-                            class="block w-full"
-                            v-model="form.dimension"
-
-                            placeholder="Enter dimension (length,height,width)"
-                        />
-                        <InputError class="mt-2" :message="form.errors.dimension" />
-                    </div>
-                </div>
-
-
-                <div class="grid grid-cols-1 gap-2 mb-3 lg:grid-cols-2">
-                    <div class="form-control">
-                        <InputLabel for="name" value="Brand (optional)" />
-                        <TextInput
-                            type="text"
-                            class="block w-full"
-                            v-model="form.brand"
-                            placeholder="Enter product brand"
-                        />
-                        <InputError class="mt-2" :message="form.errors.brand" />
-                    </div>
-                    <div class="form-control">
-                        <InputLabel for="phone" value="Manufacturer (optional)" />
-                        <TextInput
-                            type="text"
-                            class="block w-full"
-                            v-model="form.manufacturer"
-                            placeholder="Enter product manufacturer"
-                        />
-                        <InputError class="mt-2" :message="form.errors.manufacturer" />
-                    </div>
-                </div>
-
-
-                <div class="mb-3" v-show="$page.props.auth.user.isSuperAdmin">
-                    <InputLabel for="phone" value="Store" />
-                    <select v-model="form.store_id" class="select select-bordered w-full">
-                        <option disabled selected value="">Select a store</option>
-                        <option v-for="store in stores" :value="store.id" :key="store.id">
-                            {{ store.name }}
-                        </option>
-                    </select>
-                    <InputError class="mt-2" :message="form.errors.store_id" />
-                </div>
-
-                <div class="flex justify-between gap-2 mt-10">
-                    <h2 class="card-title grow text-sm">
-                        <a class="link-hover link">Stocks Details</a>
-                    </h2>
-                </div>
-
-                <div class="grid grid-cols-1 gap-2 mb-3 lg:grid-cols-2">
-                    <div class="form-control">
-                        <InputLabel for="name" value="In Store (stocks display in store)" />
-                        <TextInput
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            class="block w-full"
-                            v-model="form.in_store"
-                            placeholder="Enter quantity"
-                        />
-                        <InputError class="mt-2" :message="form.errors.in_store" />
-                    </div>
-                    <div class="form-control">
-                        <InputLabel for="phone" value="In Warehouse" />
-                        <TextInput
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            class="block w-full"
-                            v-model="form.in_warehouse"
-
-                            placeholder="Enter quantity"
-                        />
-                        <InputError class="mt-2" :message="form.errors.in_warehouse" />
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 gap-2 mb-3 lg:grid-cols-2">
-                    <div class="form-control">
-                        <InputLabel for="name" value="Min. stocks (alert level)" />
-                        <TextInput
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            class="block w-full"
-                            v-model="form.min_quantity"
-                            placeholder="Enter quantity"
-                        />
-                        <InputError class="mt-2" :message="form.errors.min_quantity" />
-                    </div>
-                    <div class="form-control">
-                        <InputLabel for="phone" value="Unit Price" />
-                        <TextInput
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            class="block w-full"
-                            v-model="form.unit_price"
-                            @change="retailPriceCalculate"
-                            placeholder="Enter price from supplier"
-                        />
-                        <InputError class="mt-2" :message="form.errors.unit_price" />
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 gap-2 mb-3 lg:grid-cols-2">
-                    <div class="form-control">
-                        <div class="flex gap-3">
-                            <InputLabel for="name" value="Mark-up" />
-
-                            <div class="flex items-center gap-2">
-                                <input type="radio" @change="retailPriceCalculate"  id="manual" value="manual" v-model="form.manual_percentage" checked>
-                                <label for="manual">manual</label>
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <input type="radio" @change="retailPriceCalculate" id="percentage" value="percentage" v-model="form.manual_percentage   ">
-                                <label for="percentage">percentage</label>
-                            </div>
-                        </div>
-
-                        <TextInput
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            class="block w-full"
-                            v-model="form.mark_up_price"
-                            @change="retailPriceCalculate"
-                            placeholder="Enter profit margin"
-                        />
-                        <InputError class="mt-2" :message="form.errors.mark_up_price" />
-                    </div>
-                    <div class="form-control">
-                        <InputLabel for="phone" value="Retail Price (unit price * mark-up price)" />
-                        <TextInput
-                        type="number"
-                            step="0.01"
-                            min="0"
-                            class="block w-full"
-                            v-model="form.retail_price"
-                            placeholder="Price to be sold to consumer"
-                        />
-                        <InputError class="mt-2" :message="form.errors.retail_price" />
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <InputLabel value="Product image" />
-                    <input accept="image/*" @input="form.image = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
-                    <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
-                        {{ form.progress.percentage }}%
-                    </progress>
-                    <InputError class="mt-2" :message="form.errors.image" />
-                </div>
-
-                <div class="mb-3">
-                    <InputLabel value="Description" />
-                    <textarea v-model="form.description" class="textarea w-full textarea-bordered" placeholder="Enter product description"></textarea>
-                    <InputError class="mt-2" :message="form.errors.description" />
-                </div>
-
-                <div class="mt-6 flex justify-end">
-                    <NavLink href="/products" class="btn">Cancel</NavLink>
-                    <PrimaryButton
-                        class="ms-3"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                    >
-                        <span v-if="form.processing" class="loading loading-spinner"></span>
-                        Create
-                    </PrimaryButton>
-                </div>
-
-            </form>
-        </div>
-    </section> -->
-
     <Modal maxWidth="sm" :show="searchBarcodeModal" @close="searchBarcodeModal = false">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
