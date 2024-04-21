@@ -13,7 +13,6 @@ const props = defineProps({
     stores: Object,
     units: Object,
     categories: Object,
-    // barcode: Object,
 });
 
 const createUnitModal = ref(false);
@@ -88,20 +87,20 @@ watch(isHide, value => {
     form.visible = value ? 'hide' : 'published';
 })
 
-watch(barcode, value => {
-    axios.get(`https://api.upcitemdb.com/prod/trial/lookup`,{
-         params: {
-                upc: value
-            }
-        })
-        .then(response => {
-        // Extract product title from the response
-            console.log( response.data.items[0].title); // Assuming there's only one item in the response
-      })
-      .catch(error => {
-        console.error('Error fetching product data:', error);
-      });
-})
+// watch(barcode, value => {
+//     axios.get(`https://api.upcitemdb.com/prod/trial/lookup`,{
+//          params: {
+//                 upc: value
+//             }
+//         })
+//         .then(response => {
+//         // Extract product title from the response
+//             console.log( response.data.items[0].title); // Assuming there's only one item in the response
+//       })
+//       .catch(error => {
+//         console.error('Error fetching product data:', error);
+//       });
+// })
 
 const closeModal = () => {
     unitForm.clearErrors()
@@ -176,10 +175,10 @@ const submitCreateForm = () => {
                             <span class="uppercase">General Information</span>
                         </h2>
                         <div class="flex justify-between gap-3 flex-col md:flex-row">
-                            <SecondaryButton @click="searchBarcodeModal = true" class="btn tooltip tooltip-left btn-sm flex" data-tip="Scan products using barcode">
+                            <!-- <SecondaryButton @click="searchBarcodeModal = true" class="btn tooltip tooltip-left btn-sm flex" data-tip="Scan products using barcode">
                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
                             Scan Barcode
-                            </SecondaryButton>
+                            </SecondaryButton> -->
                             <NavLink href="/products" class="btn btn-sm">
                                 <svg class="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
