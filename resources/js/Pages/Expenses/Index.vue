@@ -1,19 +1,57 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, reactive } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js'
+import { Line } from 'vue-chartjs'
+import * as chartConfig from './chartConfig.js'
 
 defineOptions({ layout: AuthenticatedLayout })
 
-const props = defineProps({  
+const props = defineProps({
     title: String,
 	expenses: Object,
     categories: Object,
     stores: Object,
 	filter: Object
 });
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+)
+
+const data = {
+  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+  datasets: [
+    {
+      label: 'Data One',
+      backgroundColor: '#2B49FF',
+      data: [40, 39, 10, 40, 39, 80, 40]
+    }
+  ]
+}
+
+const options = {
+  responsive: true,
+  maintainAspectRatio: false
+}
 
 const page = usePage();
 let per_page = ref(10);
@@ -58,7 +96,7 @@ const submitDeleteForm = () => {
 }
 
 const submitBulkDeleteForm = () => {
-    router.post(route('expenses.bulkDelete'), 
+    router.post(route('expenses.bulkDelete'),
     {
         expenses_id: expenseIds.value
     },
@@ -104,7 +142,7 @@ const statusChange = (id,status) => {
 }
 
 watch(per_page, value => {
-	router.get('/expenses', 
+	router.get('/expenses',
 	{ per_page: value },
 	{ preserveState: true, replace:true })
 })
@@ -116,19 +154,19 @@ watch(search, debounce(function (value) {
 }, 500)) ;
 
 watch(store, value => {
-	router.get('/expenses', 
+	router.get('/expenses',
 	{ store: value },
 	{ preserveState: true, replace:true })
 })
 
 watch(category, value => {
-	router.get('/expenses', 
+	router.get('/expenses',
 	{ category: value },
 	{ preserveState: true, replace:true })
 })
 
 watch(status, value => {
-	router.get('/expenses', 
+	router.get('/expenses',
 	{ status: value },
 	{ preserveState: true, replace:true })
 })
@@ -136,44 +174,44 @@ watch(status, value => {
 const showRefresh = computed(() => {
     return store.value !== '' || category.value !== '' || status.value !== ''
 })
-const expensesData = props.expenses.data;
-const allExpensesCount = computed(() => {
-  return expensesData.length // Initialize count to 0
-});
-
-const PendingExpensesCount = computed(() => {
-  return expensesData.reduce((count, expense) => {
-    if (expense.status === 'pending') {
-      return count + 1;
-    } else {
-      return count;
-    }
-  }, 0); // Initialize count to 0
-});
-const ApprovedExpensesCount = computed(() => {
-  return expensesData.reduce((count, expense) => {
-    if (expense.status === 'approved') {
-      return count + 1;
-    } else {
-      return count;
-    }
-  }, 0); // Initialize count to 0
-});
-const RejectedExpensesCount = computed(() => {
-  return expensesData.reduce((count, expense) => {
-    if (expense.status === 'rejected') {
-      return count + 1;
-    } else {
-      return count;
-    }
-  }, 0); // Initialize count to 0
-});
 </script>
 
 <template>
     <Head :title="title" />
 
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
+<div class="flex gap-5 mb-5 flex-col-reverse md:flex-row">
+    <div class="w-full md:w-1/2">
+        <div class="w-full stats shadow mb-5">
+            <div class="stat">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="stat-value">P 89,400</div>
+                    <small>15 up vs last month</small>
+                </div>
+                <div class="stat-desc">Total spend this month</div>
+            </div>
+        </div>
+        <div class="w-full stats shadow">
+            <div class="stat">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="stat-value">P 89,400</div>
+                    <small>1 pending expenses</small>
+                </div>
+
+                <div class="stat-desc">Payment due this month</div>
+            </div>
+        </div>
+    </div>
+    <div class="w-ful md:w-1/2">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title">Ex</div>
+              
+            </div>
+            <Line :data="data" :options="options" />
+        </div>
+    </div>
+</div>
+    <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="p-4 grow-0">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                 <div>
@@ -224,17 +262,17 @@ const RejectedExpensesCount = computed(() => {
                             </button>
                         </div>
                     </div>
-                    <NavLink href="/expenses/create" class="btn btn-sm btn-primary">Add new</NavLink>
+                    <NavLink href="/expenses/create" class="btn btn-sm btn-primary">New expenses</NavLink>
                     <DangerButton v-if="$page.props.auth.user.canDelete" v-show="expenseIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
             </div>
         </div>
         <div class="w-auto md:w-1/5">
             <div role="tablist" class="tabs tabs-bordered">
-                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`All(${allExpensesCount})`" value="all"  :checked="status === 'all' || status === ''"/>
-                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Pending(${PendingExpensesCount})`" value="pending" :checked="status === 'pending'" />
-                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Approved(${ApprovedExpensesCount})`" value="approved" :checked="status === 'approved'" />
-                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Rejected(${RejectedExpensesCount})`" value="rejected" :checked="status === 'rejected'" />
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="All" value="all"  :checked="status === 'all' || status === ''"/>
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Pending" value="pending" :checked="status === 'pending'" />
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Approved" value="approved" :checked="status === 'approved'" />
+                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Rejected" value="rejected" :checked="status === 'rejected'" />
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -244,20 +282,21 @@ const RejectedExpensesCount = computed(() => {
                         <th v-if="$page.props.auth.user.canDelete">
                             <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
                         </th>
+                        <th class="hidden sm:table-cell">
+                            <div class="font-bold">Date</div>
+                        </th>
                         <th>
                             <div class="font-bold">Description</div>
                         </th>
+
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Amount</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Attachments</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Notes</div>
+                            <div class="font-bold">Documents</div>
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Category</div>
+                        </th>
+                        <th class="hidden sm:table-cell">
+                            <div class="font-bold">Amount</div>
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Status</div>
@@ -265,9 +304,7 @@ const RejectedExpensesCount = computed(() => {
                         <th class="hidden sm:table-cell"  v-show="$page.props.auth.user.isSuperAdmin">
                             <div class="font-bold">Store</div>
                         </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Created on</div>
-                        </th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -275,11 +312,13 @@ const RejectedExpensesCount = computed(() => {
                         <td class="w-0" v-if="$page.props.auth.user.canDelete">
                             <input :value="expense.id" v-model="expenseIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
+                        <td class="table-cell">{{ expense.expenses_date }}</td>
+
                         <td class="table-cell">
                             <div class="flex items-center gap-2">
                                 <div>
                                     <div class="flex text-sm font-bold gap-2">
-                                        {{ expense.description }} 
+                                        {{ expense.description }}
                                     </div>
 
                                     <div class="flex flex-col gap-2 sm:hidden ">
@@ -291,7 +330,7 @@ const RejectedExpensesCount = computed(() => {
                                                 <path fill-rule="evenodd" d="M11 7V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Zm4.707 5.707a1 1 0 0 0-1.414-1.414L11 14.586l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
                                                 </svg>
 
-                                            </a>    
+                                            </a>
                                         </div>
                                         <div class="text-xs opacity-50">
                                             {{ expense.notes }}
@@ -304,7 +343,7 @@ const RejectedExpensesCount = computed(() => {
                                                 <option :selected="expense.status === 'pending'">pending</option>
                                                 <option :selected="expense.status === 'approved'">approved</option>
                                                 <option :selected="expense.status === 'rejected'">rejected</option>
-                                            </select>        
+                                            </select>
                                         </div>
                                         <div class="text-xs opacity-50">{{ expense.expenses_date }}</div>
                                     </div>
@@ -312,19 +351,16 @@ const RejectedExpensesCount = computed(() => {
                             </div>
                         </td>
                         <!-- These columns will be hidden on small screens -->
-                        <td class="hidden sm:table-cell">{{ expense.amount }}</td>
                         <td class="hidden sm:table-cell">
-                            <a v-if="expense.attachments" :href="expense.attachments" target="_blank" download class="tooltip" data-tip="Supporting documents">
-                                <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Z"/>
-                                    <path fill-rule="evenodd" d="M11 7V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Zm4.707 5.707a1 1 0 0 0-1.414-1.414L11 14.586l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                                </svg>
+                            <a v-if="expense.attachments" :href="expense.attachments" target="_blank" download class="tooltip" data-tip="view documents">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-files"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 3v4a1 1 0 0 0 1 1h4" /><path d="M18 17h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h4l5 5v7a2 2 0 0 1 -2 2z" /><path d="M16 17v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2" /></svg>
                             </a>
                         </td>
-                        <td class="hidden sm:table-cell">{{ expense.notes }}</td>
                         <td class="hidden sm:table-cell">
                                 {{ expense.category }}
                         </td>
+                        <td class="hidden sm:table-cell">{{ expense.amount }}</td>
+
                         <td class="hidden sm:table-cell">
                             <select @change="statusChange(expense.id, $event.target.value)" class="select select-xs" :class="expense.statusColor">
                                 <option :selected="expense.status === 'pending'">pending</option>
@@ -332,9 +368,9 @@ const RejectedExpensesCount = computed(() => {
                                 <option :selected="expense.status === 'rejected'">rejected</option>
                             </select>
                         </td>
+
                         <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ expense.store }}
                         </td>
-                        <td class="hidden sm:table-cell">{{ expense.expenses_date }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">
                                 <Link :href="`/expenses/${expense.id}/edit`" class=" hover:text-green-500">
@@ -350,7 +386,7 @@ const RejectedExpensesCount = computed(() => {
                                         <path d="M6.72245 9.67504C6.38495 9.70317 6.1037 10.0125 6.13182 10.35L6.3287 12.825C6.35683 13.1625 6.63808 13.4157 6.94745 13.4157C6.97558 13.4157 6.97558 13.4157 7.0037 13.4157C7.3412 13.3875 7.62245 13.0782 7.59433 12.7407L7.39745 10.2657C7.39745 9.90004 7.08808 9.64692 6.72245 9.67504Z" fill=""></path>
                                     </svg>
                                 </button>
-                            </div>    
+                            </div>
                         </td>
 
                     </tr>
@@ -362,7 +398,7 @@ const RejectedExpensesCount = computed(() => {
                     </tr>
                 </tbody>
             </table>
-            
+
         </div>
     </section>
     <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
@@ -381,7 +417,7 @@ const RejectedExpensesCount = computed(() => {
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitDeleteForm">
-    
+
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton
@@ -404,7 +440,7 @@ const RejectedExpensesCount = computed(() => {
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">
-    
+
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton

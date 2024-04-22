@@ -17,11 +17,15 @@ class SupplierController extends Controller
     {
         Gate::authorize('viewAny', Supplier::class);
 
+        $perPage = $request->per_page
+        ? ($request->per_page == 'All' ? Store::count() : $request->per_page)
+        : 10;
+
         $suppliers = Supplier::query()
             ->with('store')
             ->orderBy('id', 'DESC')
             ->filter(request(['search','store']))
-            ->paginate($request->per_page ? ($request->per_page == 'All' ? Supplier::count()->get() : $request->per_page) : 10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function ($supplier) {
                 return [
@@ -72,7 +76,7 @@ class SupplierController extends Controller
             $validate['logo'] = asset('storage/'. $logo);
         }
         $validate['store_id'] = $request->store_id ?? auth()->id();
-         
+
         Supplier::create($validate);
 
         return redirect()->back();
@@ -100,7 +104,7 @@ class SupplierController extends Controller
             'email' => $supplier->email,
             'phone' => $supplier->phone,
             'address' => $supplier->address,
-            'store_id' => $supplier->store->id ?? auth()->id(),
+            'store_id' => $supplier->store_id ?? auth()->id(),
             'logo' => $supplier->logo,
         ];
 
@@ -125,7 +129,7 @@ class SupplierController extends Controller
             $logo = $request->file('logo')->store('suppliers','public');
             $validate['logo'] = asset('storage/'. $logo);
         }
-        
+
         $supplier->update($validate);
 
         return redirect()->back();

@@ -16,10 +16,14 @@ class StoreController extends Controller
     {
         Gate::authorize('viewAny', Store::class);
 
+        $perPage = $request->per_page
+        ? ($request->per_page == 'All' ? Store::count() : $request->per_page)
+        : 10;
+
         $transformedStore = Store::query()
             ->orderBy('id', 'DESC')
             ->filter(request(['search']))
-            ->paginate($request->per_page ? ($request->per_page == 'All' ? Store::count() : $request->per_page) : 10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function ($store) {
                 return [
@@ -46,14 +50,14 @@ class StoreController extends Controller
     public function store(StoreFormRequest $request)
     {
         Gate::authorize('create', Store::class);
-       
+
         $validate = $request->validated();
 
         if($request->hasFile('logo')){
             $logo = $request->file('logo')->store('store','public');
             $validate['logo'] = asset('storage/'. $logo);
         }
-        
+
         Store::create($validate);
 
         return redirect()->back();
@@ -76,12 +80,12 @@ class StoreController extends Controller
         Gate::authorize('create', $store);
 
         $validate = $request->validated();
-        
+
         if($request->hasFile('logo')){
             $logo = $request->file('logo')->store('stores','public');
             $validate['logo'] = asset('storage/'.$logo);
         }
-        
+
         $store->update($validate);
         return redirect()->back();
     }

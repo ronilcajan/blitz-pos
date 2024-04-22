@@ -35,9 +35,9 @@ enum UserStatus: string
     public function getLabelColor(): string
     {
         return match ($this) {
-            self::ACTIVE => 'select-secondary',
-            self::INACTIVE => 'select-warning',
-            self::BLOCKED => 'select-error'
+            self::ACTIVE => 'select-primary',
+            self::INACTIVE => 'select-bordered',
+            self::BLOCKED => 'select-bordered'
         };
     }
 

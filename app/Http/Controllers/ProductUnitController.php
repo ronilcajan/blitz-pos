@@ -14,11 +14,16 @@ class ProductUnitController extends Controller
     public function index(Request $request)
     {
         // Gate::authorize('viewAny', Expenses::class);
+
+        $perPage = $request->per_page
+        ? ($request->per_page == 'All' ? ProductUnit::count() : $request->per_page)
+        : 10;
+
         $units = ProductUnit::query()
             ->with(['store'])
             ->orderBy('id', 'DESC')
             ->filter(request(['search','store']))
-            ->paginate($request->per_page ? ($request->per_page == 'All' ? ProductUnit::count() : $request->per_page) : 10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function ($unit) {
                 return [

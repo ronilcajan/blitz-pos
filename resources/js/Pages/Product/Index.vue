@@ -206,7 +206,7 @@ const showRefresh = computed(() => {
                             </button>
                         </div>
                     </div>
-                    <NavLink href="/products/create" class="btn btn-sm btn-primary">Add new</NavLink>
+                    <NavLink href="/products/create" class="btn btn-sm btn-primary">New product</NavLink>
                     <DangerButton v-if="canDelete" v-show="productIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
             </div>
@@ -252,7 +252,7 @@ const showRefresh = computed(() => {
                         <td class="w-0" v-if="canDelete">
                             <input :value="product.id" v-model="productIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
-                        <td class="w-5 table-cell">
+                        <td>
                             <div class="flex items-center gap-2">
                                 <div class="avatar placeholder" v-show="!product.image">
                                     <div class="w-10 bg-neutral text-neutral-content rounded-full">

@@ -16,11 +16,15 @@ class ExpensesCategoryController extends Controller
     {
         Gate::authorize('viewAny', ExpensesCategory::class);
 
+        $perPage = $request->per_page
+        ? ($request->per_page == 'All' ? ExpensesCategory::count() : $request->per_page)
+        : 10;
+
         $expenses_categories = ExpensesCategory::query()
             ->with(['store'])
             ->orderBy('id', 'DESC')
             ->filter(request(['search','store']))
-            ->paginate($request->per_page ? ($request->per_page == 'All' ? ExpensesCategory::count() : $request->per_page) : 10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function ($category) {
                 return [

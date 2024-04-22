@@ -8,6 +8,8 @@ use App\Models\ExpensesCategory;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Number;
+use Illuminate\Support\Str;
 
 class ExpensesController extends Controller
 {
@@ -18,19 +20,22 @@ class ExpensesController extends Controller
     {
         Gate::authorize('viewAny', Expenses::class);
 
+        $perPage = $request->per_page
+        ? ($request->per_page == 'All' ? Expenses::count() : $request->per_page)
+        : 10;
+
         $expenses = Expenses::query()
             ->with(['category','user','store'])
             ->orderBy('id', 'DESC')
             ->filter(request(['search','store','category','status']))
-            ->paginate($request->per_page ? ($request->per_page == 'All' ? Expenses::count()->get() : $request->per_page) : 10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function ($expense) {
                 return [
                     'id' => $expense->id,
                     'expenses_date' => date('M d, Y', strtotime($expense->expenses_date)),
-                    'description' => $expense->description,
-                    'amount' => number_format($expense->amount,2),
-                    'notes' => $expense->notes,
+                    'description' => Str::of($expense->description)->take(30).'...',
+                    'amount' => Number::currency($expense->amount, in: 'PHP'),
                     'attachments' => $expense->attachments,
                     'category' => $expense->category?->name,
                     'status' => $expense->status->getLabelText(),
@@ -71,7 +76,7 @@ class ExpensesController extends Controller
         Gate::authorize('create', Expenses::class);
 
         $data = $request->validated();
-        
+
         if($request->hasFile('attachments')){
             $attachments = $request->file('attachments')->store('expenses','public');
             $data['attachments'] = asset('storage/'. $attachments);
@@ -80,7 +85,7 @@ class ExpensesController extends Controller
         $data['user_id'] = auth()->user()->id;
 
         Expenses::create($data);
-        
+
         return redirect()->back();
     }
 
@@ -132,7 +137,7 @@ class ExpensesController extends Controller
             $attachments = $request->file('attachments')->store('expenses','public');
             $validate['attachments'] = asset('storage/'. $attachments);
         }
-        
+
         $expense->update($validate);
 
         return redirect()->back();
@@ -141,7 +146,7 @@ class ExpensesController extends Controller
     public function change_status(Expenses $expense, Request $request)
     {
         Gate::authorize('update', $expense);
-        $expense->update(['status' =>  $request->status]);
+        $expense->update($request->all());
         return redirect()->back();
     }
 

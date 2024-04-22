@@ -7,7 +7,7 @@ import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
 
-const props = defineProps({  
+const props = defineProps({
     title: String,
 	customers: Object,
     stores: Object,
@@ -54,7 +54,7 @@ const submitDeleteForm = () => {
 }
 
 const submitBulkDeleteForm = () => {
-    router.post(route('suppliers.bulkDelete'), 
+    router.post(route('suppliers.bulkDelete'),
     {
         suppliers_id: customerIds.value
     },
@@ -86,7 +86,7 @@ const selectAll = () => {
 }
 
 watch(per_page, value => {
-	router.get('/customers', 
+	router.get('/customers',
 	{ per_page: value },
 	{ preserveState: true, replace:true })
 })
@@ -98,7 +98,7 @@ watch(search, debounce(function (value) {
 }, 500)) ;
 
 watch(store, value => {
-	router.get('/customers', 
+	router.get('/customers',
 	{ store: value },
 	{ preserveState: true, replace:true })
 })
@@ -107,7 +107,7 @@ watch(store, value => {
 <template>
     <Head :title="title" />
 
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
+    <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                 <div>
@@ -146,7 +146,7 @@ watch(store, value => {
                             </button>
                         </div>
                     </div>
-                    <NavLink href="/customers/create" class="btn btn-sm btn-primary">Add new</NavLink>
+                    <NavLink href="/customers/create" class="btn btn-sm btn-primary">New customer</NavLink>
                     <DangerButton v-if="$page.props.auth.user.canDelete" v-show="customerIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
             </div>
@@ -193,8 +193,8 @@ watch(store, value => {
                                     </div>
                                 </div>
                                 <div>
-                                    
-                                    <div class="flex text-sm font-bold gap-2">{{ customer.name }} 
+
+                                    <div class="flex text-sm font-bold gap-2">{{ customer.name }}
                                 </div>
 
                                     <div class="text-xs opacity-50">
@@ -228,7 +228,7 @@ watch(store, value => {
                                         <path d="M6.72245 9.67504C6.38495 9.70317 6.1037 10.0125 6.13182 10.35L6.3287 12.825C6.35683 13.1625 6.63808 13.4157 6.94745 13.4157C6.97558 13.4157 6.97558 13.4157 7.0037 13.4157C7.3412 13.3875 7.62245 13.0782 7.59433 12.7407L7.39745 10.2657C7.39745 9.90004 7.08808 9.64692 6.72245 9.67504Z" fill=""></path>
                                     </svg>
                                 </button>
-                            </div>    
+                            </div>
                         </td>
 
                     </tr>
@@ -240,7 +240,7 @@ watch(store, value => {
                     </tr>
                 </tbody>
             </table>
-            
+
         </div>
     </section>
     <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
@@ -259,7 +259,7 @@ watch(store, value => {
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitDeleteForm">
-    
+
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton
@@ -282,7 +282,7 @@ watch(store, value => {
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">
-    
+
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton

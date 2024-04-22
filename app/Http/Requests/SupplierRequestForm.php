@@ -29,6 +29,7 @@ class SupplierRequestForm extends FormRequest
             'contact_person' => 'required',
             'email' => ['required',Rule::unique('suppliers', 'email')->ignore($supplierId)],
             'phone' => '',
+            'store_id' => '',
             'address' => '',
         ];
     }

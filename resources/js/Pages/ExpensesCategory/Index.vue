@@ -7,7 +7,7 @@ import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
 
-const props = defineProps({  
+const props = defineProps({
     title: String,
     expenses_categories: Object,
     stores: Object,
@@ -106,7 +106,7 @@ const submitDeleteForm = () => {
 }
 
 const submitBulkDeleteForm = () => {
-    router.post(route('expenses_categories.bulkDelete'), 
+    router.post(route('expenses_categories.bulkDelete'),
     {
         categories_id: categoryIds.value
     },
@@ -137,12 +137,12 @@ const selectAll = () => {
       }
 }
 
-const isSuperAdmin = computed(() => 
+const isSuperAdmin = computed(() =>
     page.props.auth.user.isSuperAdmin ? true : false
 )
 
 watch(per_page, value => {
-	router.get('/expenses_categories', 
+	router.get('/expenses_categories',
 	{ per_page: value },
 	{ preserveState: true, replace:true })
 })
@@ -154,7 +154,7 @@ watch(search, debounce(function (value) {
 }, 500)) ;
 
 watch(store, value => {
-	router.get('/expenses_categories', 
+	router.get('/expenses_categories',
 	{ store: value },
 	{ preserveState: true, replace:true })
 })
@@ -202,7 +202,7 @@ watch(store, value => {
                             </button>
                         </div>
                     </div>
-                    <PrimaryButton class="btn btn-sm"  @click="createModal = true">Add new</PrimaryButton>
+                    <PrimaryButton class="btn btn-sm"  @click="createModal = true">New category</PrimaryButton>
                     <DangerButton v-show="categoryIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
             </div>
@@ -244,8 +244,8 @@ watch(store, value => {
                         <td class="hidden sm:table-cell">{{ category.created_at }}</td>
                         <td>
                             <div class="flex items-center space-x-2">
-                                <button class=" hover:text-green-500" 
-                                    @click="editModalForm(category.id, 
+                                <button class=" hover:text-green-500"
+                                    @click="editModalForm(category.id,
                                         { category: category.name })">
                                     <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
@@ -259,7 +259,7 @@ watch(store, value => {
                                         <path d="M6.72245 9.67504C6.38495 9.70317 6.1037 10.0125 6.13182 10.35L6.3287 12.825C6.35683 13.1625 6.63808 13.4157 6.94745 13.4157C6.97558 13.4157 6.97558 13.4157 7.0037 13.4157C7.3412 13.3875 7.62245 13.0782 7.59433 12.7407L7.39745 10.2657C7.39745 9.90004 7.08808 9.64692 6.72245 9.67504Z" fill=""></path>
                                     </svg>
                                 </button>
-                            </div>    
+                            </div>
                         </td>
 
                     </tr>
@@ -271,7 +271,7 @@ watch(store, value => {
                     </tr>
                 </tbody>
             </table>
-            
+
         </div>
     </section>
     <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
@@ -335,7 +335,7 @@ watch(store, value => {
                     />
                     <InputError class="mt-2" :message="editForm.errors.name" />
                 </div>
-               
+
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <SuccessButton
@@ -358,7 +358,7 @@ watch(store, value => {
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitDeleteForm">
-    
+
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton
@@ -381,7 +381,7 @@ watch(store, value => {
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">
-    
+
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton

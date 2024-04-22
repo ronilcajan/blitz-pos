@@ -21,11 +21,16 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         Gate::authorize('viewAny', Product::class);
+
+        $perPage = $request->per_page
+        ? ($request->per_page == 'All' ? Product::count() : $request->per_page)
+        : 10;
+
         $products = Product::query()
             ->with(['store', 'price', 'stock','category'])
             ->orderBy('name', 'ASC')
             ->filter(request(['search','store','category','type']))
-            ->paginate($request->per_page ? ($request->per_page == 'All' ?  Product::count() : $request->per_page) : 10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function ($product) {
                 return [
@@ -52,8 +57,9 @@ class ProductController extends Controller
             'title' => 'Products',
             'products' => $products,
             'stores' => Store::select('id', 'name')
-                ->orderBy('name','ASC')->get(),
-            'product_categories' => ProductCategory::select('id', 'name')->orderBy('name','ASC')
+                ->orderBy('name','DESC')->get(),
+            'product_categories' => ProductCategory::select('id', 'name')
+                ->orderBy('name','DESC')
                 ->get(),
             'filter' => $request->only(['search']),
             'per_page' => $request->only(['per_page'])
@@ -63,28 +69,19 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
+    public function create()
     {
         Gate::authorize('create', Product::class);
-
-        // $data = '';
-        // if($request->barcode){
-        //     $data = Http::get('https://api.upcitemdb.com/prod/trial/lookup', [
-        //         'upc' => $request->barcode
-        //     ])->json();
-        // }
 
         return inertia('Product/Create', [
             'title' => "Add New Product",
             // 'barcode' =>  $data,
             'stores' => Store::select('id', 'name')
-                ->orderBy('id', 'DESC')->get(),
-            'units' => ProductUnit::select('id','name')->orderBy('id', 'DESC')
-            ->get(),
-            'categories' => ProductCategory::select('id','name')->orderBy('id', 'DESC')
-            ->get(),
-            'suppliers' => Supplier::select('id','name')->orderBy('id', 'DESC')
-            ->get(),
+                ->orderBy('name', 'ASC')->get(),
+            'units' => ProductUnit::select('id','name')
+                ->orderBy('name', 'ASC')->get(),
+            'categories' => ProductCategory::select('id','name')
+                ->orderBy('name', 'ASC')->get(),
         ]);
     }
 
@@ -186,10 +183,12 @@ class ProductController extends Controller
         return inertia('Product/Edit', [
             'title' => "Edit Product",
             'product' => $product,
-            'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
-            'units' => ProductUnit::select('id','name')->orderBy('id', 'DESC')
-            ->get(),
-            'categories' => ProductCategory::select('id','name')->orderBy('id', 'DESC')
+            'stores' => Store::select('id', 'name')
+                ->orderBy('name', 'DESC')->get(),
+            'units' => ProductUnit::select('id','name')
+                ->orderBy('name', 'DESC')->get(),
+            'categories' => ProductCategory::select('id','name')
+                ->orderBy('name', 'DESC')
             ->get(),
         ]);
     }

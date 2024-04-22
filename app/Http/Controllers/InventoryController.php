@@ -11,6 +11,7 @@ use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Number;
 use Illuminate\Validation\Rule;
 
 class InventoryController extends Controller
@@ -22,40 +23,32 @@ class InventoryController extends Controller
     {
         Gate::authorize('viewAny', Product::class);
 
-        $products = ProductSupplier::query()
-            ->select('product_supplier.id as product_supplier_id', 'products.*', 'product_supplier.*') // Select product_supplier ID
-            ->leftJoin('products', 'products.id', '=', 'product_supplier.product_id')
-            ->with(['product.store', 'product.category','supplier']) // Load productSuppliers relationship
-            ->filter(request(['search', 'store', 'category', 'supplier']))
-            ->orderBy('products.name', 'ASC')
-                ->paginate($request->per_page ? ($request->per_page == 'All' ?  ProductSupplier::count() : $request->per_page) : 10)
-                ->withQueryString()
-                ->through(function ($supplier_product) {
+        $perPage = $request->per_page
+        ? ($request->per_page == 'All' ? Product::count() : $request->per_page)
+        : 10;
 
-                    return [
-                        'id' => $supplier_product->product_supplier_id,
-                        'name' => $supplier_product->product->name,
-                        'barcode' => $supplier_product->product->barcode,
-                        'sku' => $supplier_product->product->sku,
-                        'size' => $supplier_product->product->size,
-                        'dimension' => $supplier_product->product->dimension,
-                        'unit' => $supplier_product->product->unit,
-                        'product_type' => $supplier_product->product->product_type,
-                        'brand' => $supplier_product->product->brand,
-                        'manufacturer' => $supplier_product->product->manufacturer,
-                        'description' => $supplier_product->product->description,
-                        'image' => $supplier_product->product->image,
-                        'store' => $supplier_product->product->store->name,
-                        'category' => $supplier_product->product->category->name,
-                        'supplier' => $supplier_product->supplier->name,
-                        'unit_price' => $supplier_product->unit_price,
-                        'mark_up_price' => $supplier_product->mark_up_price,
-                        'retail_price' => $supplier_product->retail_price,
-                        'min_quantity' => $supplier_product->min_quantity,
-                        'in_store' => $supplier_product->in_store,
-                        'in_warehouse' => $supplier_product->in_warehouse,
-                    ];
-            });
+        $products = Product::query()
+        ->with(['store', 'price', 'stock','category'])
+        ->orderBy('name', 'ASC')
+        ->filter(request(['search','store','category','type']))
+        ->paginate($perPage)
+        ->withQueryString()
+        ->through(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'size' => $product->size,
+                'unit' => $product->unit,
+                'barcode' => $product->barcode,
+                'sku' => $product->stock?->sku,
+                'min_quantity' => $product->stock?->min_quantity,
+                'in_store' => $product->stock?->in_store ? Number::format($product->stock->in_store, precision: 2) : null,
+                'in_warehouse' => $product->stock?->in_warehouse ? Number::format($product->stock->in_warehouse, precision: 2) : null,
+                'image' => $product->image,
+                'store' => $product->store->name,
+                'price' =>  $product->price?->discount_price ? Number::currency($product->price->discount_price, in: 'PHP') : null,
+            ];
+    });
 
         return inertia('Inventory/Index', [
             'title' => 'Inventory',
@@ -74,7 +67,7 @@ class InventoryController extends Controller
      */
     public function show(ProductSupplier $inventory)
     {
-       
+
     }
 
     /**
@@ -98,8 +91,8 @@ class InventoryController extends Controller
             'manufacturer' => $inventory->product->manufacturer,
             'description' => $inventory->product->description,
             'product_category_id' => $inventory->product->product_category_id,
-            'store_id' => $inventory->product->store_id, 
-            'image' => $inventory->product->image, 
+            'store_id' => $inventory->product->store_id,
+            'image' => $inventory->product->image,
 
             'product_id' =>  $inventory->product_id,
             'unit_price' =>  $inventory->unit_price,
@@ -152,7 +145,7 @@ class InventoryController extends Controller
             $image = $request->file('image')->store('products','public');
             $product_data['image'] = asset('storage/'. $image);
         }
-        
+
         $product->update($product_data);
 
         $product_supplier = ProductSupplier::find($request->product_supplier_id);

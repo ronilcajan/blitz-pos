@@ -193,8 +193,6 @@ const submitUpdateForm = () => {
                         </div>
 
                     </div>
-
-
                     <div>
                         <InputLabel for="name" value="Product Name" />
                         <TextInput
@@ -205,6 +203,16 @@ const submitUpdateForm = () => {
                             placeholder="Enter product name"
                         />
                         <InputError class="mt-2" :message="form.errors.name" />
+                    </div>
+                    <div class="form-control">
+                        <InputLabel for="name" value="Size or Weight (optional)" />
+                        <TextInput
+                            type="text"
+                            class="block w-full"
+                            v-model="form.size"
+                            placeholder="Enter size or weight"
+                        />
+                        <InputError class="mt-2" :message="form.errors.size" />
                     </div>
                     <div class="flex gap-5 flex-col md:flex-row">
                         <div class="w-full md:w-1/2">
@@ -514,28 +522,40 @@ const submitUpdateForm = () => {
                             <span class="uppercase">Manage Stocks</span>
                         </h2>
                     <div>
-                        <InputLabel for="phone" value="Stock Keeping Unit (optional)" />
+                        <InputLabel for="name" value="Barcode" />
                         <TextInput
                             type="text"
                             class="block w-full"
-                            v-model="form.sku"
-                            placeholder="Enter SKU"
+                            v-model="form.barcode"
+                            required
+                            placeholder="Enter barcode"
                         />
-                        <InputError class="mt-2" :message="form.errors.sku" />
-                    </div>
-                    <div class="form-control mb-4">
-                        <InputLabel for="name" value="Minimum Stocks (alert level)" />
-                        <select v-model="form.min_quantity" class="select select-bordered w-full">
-                            <option>5</option>
-                            <option>10</option>
-                            <option>20</option>
-                            <option>50</option>
-                            <option>100</option>
-                        </select>
-                        <InputError class="mt-2" :message="form.errors.min_quantity" />
+                        <InputError class="mt-2" :message="form.errors.barcode" />
                     </div>
                     <div class="flex gap-5 flex-col md:flex-row">
-
+                        <div class="w-full md:w-1/2">
+                            <InputLabel for="phone" value="Stock Keeping Unit (optional)" />
+                            <TextInput
+                                type="text"
+                                class="block w-full"
+                                v-model="form.sku"
+                                placeholder="Enter SKU"
+                            />
+                            <InputError class="mt-2" :message="form.errors.sku" />
+                        </div>
+                        <div class="w-full md:w-1/2">
+                            <InputLabel for="name" value="Minimum Stocks (alert level)" />
+                                <select v-model="form.min_quantity" class="select select-bordered w-full">
+                                    <option>5</option>
+                                    <option>10</option>
+                                    <option>20</option>
+                                    <option>50</option>
+                                    <option>100</option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.min_quantity" />
+                        </div>
+                    </div>
+                    <div class="flex gap-5 flex-col md:flex-row">
                         <div class="w-full md:w-1/2">
                             <InputLabel for="phone" value="In Warehouse" />
                             <NumberInput
@@ -581,9 +601,9 @@ const submitUpdateForm = () => {
                     <input accept="image/*" @input="form.image = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full" />
 
                     <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
-                                {{ form.progress.percentage }}%
-                            </progress>
-                            <InputError class="mt-2" :message="form.errors.image" />
+                        {{ form.progress.percentage }}%
+                    </progress>
+                    <InputError class="mt-2" :message="form.errors.image" />
                 </div>
             </div>
 

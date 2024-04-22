@@ -7,7 +7,7 @@ import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
 
-const props = defineProps({  
+const props = defineProps({
     title: String,
 	users: Object,
     stores: Object,
@@ -55,7 +55,7 @@ const submitDeleteForm = () => {
 }
 
 const submitBulkDeleteForm = () => {
-    router.post(route('user.bulkDelete'), 
+    router.post(route('user.bulkDelete'),
     {
         users_id: userIds.value
     },
@@ -88,8 +88,8 @@ const selectAll = () => {
 
 const statusChange = (userId, selectedStatus) => {
     router.post(route('user.update.status'), { id: userId, status: selectedStatus },
-	{ 
-        preserveState: true, 
+	{
+        preserveState: true,
         replace:true,
         onSuccess: () => {
 			closeModal();
@@ -103,7 +103,7 @@ const statusChange = (userId, selectedStatus) => {
 }
 
 watch(per_page, value => {
-	router.get('/users', 
+	router.get('/users',
 	{ per_page: value },
 	{ preserveState: true, replace:true })
 })
@@ -113,12 +113,12 @@ watch(search, debounce(function (value) {
 	{ preserveState: true, replace:true })
 }, 500));
 watch(store, value => {
-	router.get('/users', 
+	router.get('/users',
 	{ store: value },
 	{ preserveState: true, replace:true })
 })
 watch(status, value => {
-	router.get('/users', 
+	router.get('/users',
 	{ status: value },
 	{ preserveState: true, replace:true })
 })
@@ -129,7 +129,7 @@ const allUserCount = computed(() => {
 });
 
 const ActiveUserCount = computed(() => {
-  return usersData.reduce((count, user) => {
+  return props.users.data.reduce((count, user) => {
     if (user.status === 'active') {
       return count + 1;
     } else {
@@ -160,7 +160,7 @@ const blockedUserCount = computed(() => {
 <template>
     <Head :title="title" />
 
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
+    <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="p-4 grow-0 ">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                 <div>
@@ -199,14 +199,14 @@ const blockedUserCount = computed(() => {
                             </button>
                         </div>
                     </div>
-                    <NavLink href="/users/create" class="btn btn-sm btn-primary">Add new</NavLink>
+                    <NavLink href="/users/create" class="btn btn-sm btn-primary">New user</NavLink>
                     <DangerButton v-show="userIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
             </div>
         </div>
         <div class="w-1/5">
             <div role="tablist" class="tabs tabs-bordered">
-                <input type="radio" v-model="status" role="tab" class="tab" 
+                <input type="radio" v-model="status" role="tab" class="tab"
                 :aria-label="`All(${allUserCount})`" value="all"  :checked="status === 'all' || status === ''"/>
                 <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Active(${ActiveUserCount})`" value="active" :checked="status === 'active'" />
                 <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Inactive(${InactiveUserCount})`"
@@ -237,11 +237,11 @@ const blockedUserCount = computed(() => {
                             <div class="font-bold">Role</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Status 
+                            <div class="font-bold">Status
                             </div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Created on</div>
+                            <div class="font-bold">Registered Date</div>
                         </th>
                     </tr>
                 </thead>
@@ -264,7 +264,7 @@ const blockedUserCount = computed(() => {
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="flex text-sm font-bold gap-2">{{ user.name }} 
+                                    <div class="flex text-sm font-bold gap-2">{{ user.name }}
                                         <Link :href="route('user.impersonate', user.id)" class="text-primary text-xs" v-show="$page.props.auth.user.isSuperAdmin">Impersonate</Link>
 
                                     </div>
@@ -283,12 +283,12 @@ const blockedUserCount = computed(() => {
                         <td class="hidden sm:table-cell">{{ user.address }}</td>
                         <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ user.store }}</td>
                         <td class="hidden sm:table-cell">
-                            <div class="badge badge-info gap-2">
+                            <div class="badge badge-primary gap-2">
                             {{ user.role }}
                             </div>
                         </td>
                         <td class="hidden sm:table-cell">
-                            <select @change="statusChange(user.id, $event.target.value)" class="select select-xs" :class="user.statusColor">
+                            <select @change="statusChange(user.id, $event.target.value)" :class="user.statusColor" class="select select-xs">
                                 <option :selected="user.status === 'active'">active</option>
                                 <option :selected="user.status === 'inactive'">inactive</option>
                                 <option :selected="user.status === 'blocked'">blocked</option>
@@ -310,7 +310,7 @@ const blockedUserCount = computed(() => {
                                         <path d="M6.72245 9.67504C6.38495 9.70317 6.1037 10.0125 6.13182 10.35L6.3287 12.825C6.35683 13.1625 6.63808 13.4157 6.94745 13.4157C6.97558 13.4157 6.97558 13.4157 7.0037 13.4157C7.3412 13.3875 7.62245 13.0782 7.59433 12.7407L7.39745 10.2657C7.39745 9.90004 7.08808 9.64692 6.72245 9.67504Z" fill=""></path>
                                     </svg>
                                 </button>
-                            </div>    
+                            </div>
                         </td>
 
                     </tr>
@@ -322,7 +322,7 @@ const blockedUserCount = computed(() => {
                     </tr>
                 </tbody>
             </table>
-            
+
         </div>
     </section>
     <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
@@ -341,7 +341,7 @@ const blockedUserCount = computed(() => {
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitDeleteForm">
-    
+
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton
@@ -364,7 +364,7 @@ const blockedUserCount = computed(() => {
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">
-    
+
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton

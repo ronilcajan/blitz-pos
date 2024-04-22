@@ -32,7 +32,6 @@ class UserFormRequest extends FormRequest
             'phone' => '',
             'address' => '',
             'store_id' => $stores_required,
-            'role_id' => 'required',
         ];
     }
 }

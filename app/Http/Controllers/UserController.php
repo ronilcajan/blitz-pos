@@ -19,12 +19,16 @@ class UserController extends Controller
     {
         Gate::authorize('viewAny', User::class);
 
+        $perPage = $request->per_page
+        ? ($request->per_page == 'All' ? Store::count() : $request->per_page)
+        : 10;
+
         $users = User::query()
             ->with('store','roles')
             ->orderBy('id', 'DESC')
             ->filter(request(['search', 'store','status']))
             ->whereNot('id', auth()->id()) //prevent current user to display
-            ->paginate($request->per_page ? ($request->per_page == 'All' ? User::count() : $request->per_page) : 10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function ($user) {
                 return [
@@ -88,7 +92,7 @@ class UserController extends Controller
         }
 
         $validate['password'] = bcrypt($request->email); // default password
-        
+
         $user = User::create($validate);
 
         UserDetail::create(['user_id' =>  $user->id]);
@@ -138,6 +142,7 @@ class UserController extends Controller
     public function update(UserFormRequest $request)
     {
         $user = User::find($request->id);
+
         Gate::authorize('update', $user);
 
         $validate = $request->validated();
@@ -146,7 +151,7 @@ class UserController extends Controller
             $avatar = $request->file('profile_photo_url')->store('users','public');
             $validate['profile_photo_url'] = asset('storage/'. $avatar);
         }
-        
+
         $user->update($validate);
         $user->syncRoles([$request->role_id]); // parameter can be a Role object, BackedEnum, array, id or the role string name
 
@@ -161,10 +166,10 @@ class UserController extends Controller
         return redirect()->back();
     }
 
-    
+
 
     public function reset(Request $request)
-    {   
+    {
         $user = User::find($request->id);
         Gate::authorize('reset', $user);
 

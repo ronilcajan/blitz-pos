@@ -16,11 +16,15 @@ class ProductCategoryController extends Controller
     {
         Gate::authorize('viewAny', ProductCategory::class);
 
+        $perPage = $request->per_page
+        ? ($request->per_page == 'All' ? ProductCategory::count() : $request->per_page)
+        : 10;
+
         $product_categories = ProductCategory::query()
             ->with(['store'])
             ->orderBy('id', 'DESC')
             ->filter(request(['search','store']))
-            ->paginate($request->per_page ? ($request->per_page == 'All' ? ProductCategory::count() : $request->per_page) : 10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function ($category) {
                 return [

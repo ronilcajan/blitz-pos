@@ -17,11 +17,15 @@ class CustomerController extends Controller
     {
         Gate::authorize('viewAny', Customer::class);
 
+        $perPage = $request->per_page
+        ? ($request->per_page == 'All' ? Customer::count() : $request->per_page)
+        : 10;
+
         $customers = Customer::query()
             ->with('store')
             ->orderBy('id', 'DESC')
             ->filter(request(['search','store']))
-            ->paginate($request->per_page ? ($request->per_page == 'All' ? Customer::count()->get() : $request->per_page) : 10)
+            ->paginate($perPage)
             ->withQueryString()
             ->through(function ($customer) {
                 return [
@@ -70,7 +74,7 @@ class CustomerController extends Controller
             $logo = $request->file('logo')->store('customers','public');
             $validate['logo'] = asset('storage/'. $logo);
         }
-        
+
         Customer::create($validate);
 
         return redirect()->back();
@@ -122,7 +126,7 @@ class CustomerController extends Controller
             $logo = $request->file('logo')->store('customers','public');
             $validate['logo'] = asset('storage/'. $logo);
         }
-        
+
         $customer->update($validate);
 
         return redirect()->back();
@@ -142,7 +146,7 @@ class CustomerController extends Controller
     public function destroy(Customer $customer)
     {
         Gate::authorize('delete', $customer);
-        
+
         $customer->delete();
         return redirect()->back();
     }
