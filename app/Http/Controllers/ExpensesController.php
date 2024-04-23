@@ -9,7 +9,6 @@ use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Number;
-use Illuminate\Support\Str;
 
 class ExpensesController extends Controller
 {
@@ -34,7 +33,7 @@ class ExpensesController extends Controller
                 return [
                     'id' => $expense->id,
                     'expenses_date' => date('M d, Y', strtotime($expense->expenses_date)),
-                    'description' => Str::of($expense->description)->take(30).'...',
+                    'vendor' => $expense->vendor,
                     'amount' => Number::currency($expense->amount, in: 'PHP'),
                     'attachments' => $expense->attachments,
                     'category' => $expense->category?->name,
@@ -107,7 +106,7 @@ class ExpensesController extends Controller
         $data = [
             'id' => $expense->id,
             'expenses_date' => $expense->expenses_date,
-            'description' => $expense->description,
+            'vendor' => $expense->vendor,
             'amount' => $expense->amount,
             'notes' => $expense->notes,
             'attachments' => $expense->attachments,

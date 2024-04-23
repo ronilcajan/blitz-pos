@@ -18,7 +18,7 @@ defineProps({
                         <div class="bg-neutral text-neutral-content rounded w-24">
                             <span class="text-3xl">{{ profile.name[0] }}</span>
                         </div>
-                    </div> 
+                    </div>
                     <div class="avatar" v-show="profile.profile_photo_url">
                         <div class="w-24 rounded">
                             <img :src="profile.profile_photo_url" />
@@ -31,7 +31,7 @@ defineProps({
                         </svg>
                         {{ profile.roles[0].name }}
                     </span>
-                    
+
                     <div class="mt-2">
                         <small class="text-content font-bold">Email Address</small>
                         <p>{{ profile.email }}</p>
@@ -51,8 +51,8 @@ defineProps({
                 <div class="card-body">
                     <h2 class="card-title font-bold">Skills</h2>
                     <div class="mt-2">
-                        <div v-for="(skill, index) in user_details.skills.split(',')" :key="index" class="badge badge-neutral mr-2">{{ skill }}</div>
-                        
+                        <div v-for="(skill, index) in user_details?.skills.split(',')" :key="index" class="badge badge-neutral mr-2">{{ skill }}</div>
+
                     </div>
                 </div>
             </div>
@@ -60,8 +60,8 @@ defineProps({
                 <div class="card-body">
                     <h2 class="card-title font-bold">Hobbies</h2>
                     <div class="mt-2">
-                        <div v-for="(hobby, index) in user_details.hobbies.split(',')" :key="index" class="badge badge-primary mr-2">{{ hobby }}</div>
-                        
+                        <div v-for="(hobby, index) in user_details?.hobbies.split(',')" :key="index" class="badge badge-primary mr-2">{{ hobby }}</div>
+
                     </div>
                 </div>
             </div>
@@ -71,18 +71,18 @@ defineProps({
                 <div class="card-body">
                     <h2 class="card-title font-bold">General information</h2>
                     <h4 class="font-bold">About me</h4>
-                    <p>{{ user_details.bio }}</p>
+                    <p>{{ user_details?.bio }}</p>
                     <div class="mt-2">
                         <small class="primary-content font-bold">Education</small>
-                        <p>{{ user_details.education }}</p>
+                        <p>{{ user_details?.education }}</p>
                     </div>
                     <div class="mt-2">
                         <small class="primary-content font-bold">Position</small>
-                        <p>{{ user_details.position }}</p>
+                        <p>{{ user_details?.position }}</p>
                     </div>
                     <div class="mt-2">
                         <small class="primary-content font-bold">Join Date</small>
-                        <p>{{ user_details.join_date }}</p>
+                        <p>{{ user_details?.join_date }}</p>
                     </div>
                 </div>
             </div>

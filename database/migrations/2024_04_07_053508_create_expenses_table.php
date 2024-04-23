@@ -17,11 +17,11 @@ return new class extends Migration
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             $table->date('expenses_date');
-            $table->string('description')->nullable();
+            $table->string('vendor')->nullable();
             $table->decimal('amount',10,2);
-            $table->string('notes')->nullable();
             $table->string('attachments')->nullable();
             $table->string('status',20)->default('pending');
+            $table->string('notes')->nullable();
             $table->foreignIdFor(ExpensesCategory::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Store::class)->constrained()->cascadeOnDelete();

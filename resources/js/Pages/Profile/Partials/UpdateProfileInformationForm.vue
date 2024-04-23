@@ -19,13 +19,13 @@ const form = useForm({
     email: user.email,
     phone: user.phone,
     address: user.address,
-    bio: props.user_details.bio,
-    birthdate: props.user_details.birthdate,
-    education: props.user_details.education,
-    position: props.user_details.position,
-    join_date: props.user_details.join_date,
-    skills: props.user_details.skills,
-    hobbies: props.user_details.hobbies,
+    bio: props.user_details?.bio,
+    birthdate: props.user_details?.birthdate,
+    education: props.user_details?.education,
+    position: props.user_details?.position,
+    join_date: props.user_details?.join_date,
+    skills: props.user_details?.skills,
+    hobbies: props.user_details?.hobbies,
 });
 
 const avatarForm = useForm({
@@ -75,7 +75,7 @@ const submitProfileChanges = () => {
 
         <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
             <div class="form-control">
-            
+
                 <div class="avatar placeholder" v-show="!$page.props.auth.user.avatar">
                     <div class="w-36 bg-neutral text-neutral-content rounded-full">
                         <span class="text-3xl">{{ user.name[0] }}</span>
@@ -100,7 +100,7 @@ const submitProfileChanges = () => {
             </div>
         </div>
     <section class="w-full">
-        <form @submit.prevent="submitProfileChanges" class="mt-6 space-y-6">    
+        <form @submit.prevent="submitProfileChanges" class="mt-6 space-y-6">
             <div>
                 <InputLabel for="name" value="Name" />
                 <TextInput
@@ -133,7 +133,7 @@ const submitProfileChanges = () => {
                         type="text"
                         class="block w-full"
                         v-model="form.phone"
-                        
+
                         placeholder="Enter phone number"
                     />
                     <InputError class="mt-2" :message="form.errors.phone" />
@@ -238,5 +238,5 @@ const submitProfileChanges = () => {
             </div>
         </form>
     </section>
-       
+
 </template>

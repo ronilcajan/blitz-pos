@@ -21,7 +21,7 @@ class ExpensesFactory extends Factory
     {
         return [
             'expenses_date' => fake()->date(),
-            'description' => fake()->text(),
+            'vendor' => fake()->company(),
             'amount' => '2000',
             'notes' => fake()->text(),
             'attachments' => fake()->imageUrl(),

@@ -44,16 +44,23 @@ const data = {
       label: 'Data One',
       backgroundColor: '#2B49FF',
       data: [40, 39, 10, 40, 39, 80, 40]
+    },
+    {
+      label: 'Data two',
+      backgroundColor: '#292D34',
+      data: [2, 3, 8, 5, 50, 9, 15]
     }
-  ]
+  ],
+  chartOptions: {
+        responsive: true
+      }
 }
 
 const options = {
-  responsive: true,
-  maintainAspectRatio: false
-}
+ //responsive: true,
+   //maintainAspectRatio: false
+ }
 
-const page = usePage();
 let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
@@ -131,7 +138,7 @@ const statusChange = (id,status) => {
 	router.post(`/expenses/change-status/${id}`, {
             status: status,
         },
-	    { preserveState: true, replace:true,
+	    { preserveState: true, replace:true, preserveScroll: true,
             onSuccess: () => {
             useToast().success('Expenses has been updated successfully!', {
                 position: 'top-right',
@@ -150,25 +157,25 @@ watch(per_page, value => {
 watch(search, debounce(function (value) {
 	router.get('/expenses',
 	{ search: value },
-	{ preserveState: true, replace:true })
+	{ preserveState: true, replace:true, preserveScroll: true })
 }, 500)) ;
 
 watch(store, value => {
 	router.get('/expenses',
 	{ store: value },
-	{ preserveState: true, replace:true })
+	{ preserveState: true, replace:true, preserveScroll: true })
 })
 
 watch(category, value => {
 	router.get('/expenses',
 	{ category: value },
-	{ preserveState: true, replace:true })
+	{ preserveState: true, replace:true, preserveScroll: true })
 })
 
 watch(status, value => {
 	router.get('/expenses',
 	{ status: value },
-	{ preserveState: true, replace:true })
+	{ preserveState: true, replace:true, preserveScroll: true })
 })
 
 const showRefresh = computed(() => {
@@ -202,12 +209,15 @@ const showRefresh = computed(() => {
         </div>
     </div>
     <div class="w-ful md:w-1/2">
-        <div class="card">
-            <div class="card-body">
-                <div class="card-title">Ex</div>
-              
+        <div class="card bg-base-100 shadow">
+            <div class="card-body grow-0 ">
+                <h2 class="card-title grow text-sm mb-5">
+                    <span class="uppercase">Customer Profile</span>
+                </h2>
+
+                <Line :data="data" :options="options" />
+
             </div>
-            <Line :data="data" :options="options" />
         </div>
     </div>
 </div>
@@ -224,13 +234,13 @@ const showRefresh = computed(() => {
                     </select>
                 </div>
                 <div class="flex gap-2 flex-col sm:flex-row">
-                    <NavLink href="/expenses" class="mt-1 mr-2 tooltip" v-show="showRefresh" data-tip="refresh">
+                    <NavLink href="/expenses" class="mt-1 mr-2 tooltip tooltip-left" v-show="showRefresh" data-tip="refresh">
                         <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
                         </svg>
                     </NavLink>
                     <div class="w-full" v-show="$page.props.auth.user.isSuperAdmin">
-                        <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
+                        <select v-model="store" class="select select-bordered select-sm w-full">
                             <option selected value="">Filter by store</option>
                             <option v-for="store in stores" :value="store.name" :key="store.id">
                                 {{ store.name }}
@@ -238,7 +248,7 @@ const showRefresh = computed(() => {
                         </select>
                     </div>
                     <div class="w-full">
-                        <select v-model="category" class="select select-bordered select-sm w-full max-w-xs">
+                        <select v-model="category" class="select select-bordered select-sm w-full">
                             <option selected value="">Filter by categories</option>
                             <option v-for="category in categories" :value="category.name" :key="category.id">
                                 {{ category.name }}
@@ -253,7 +263,7 @@ const showRefresh = computed(() => {
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                                 </svg>
                             </div>
-                            <input placeholder="Type here" v-model="search" class="input pl-8 input-bordered input-sm w-full max-w-xs"/>
+                            <input placeholder="Type here" v-model="search" class="input pl-8 input-bordered input-sm w-full"/>
                             <button type="button" v-if="search" class="absolute inset-y-0 end-0 flex items-center pe-3" @click="search = ''">
                                 <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
@@ -276,17 +286,17 @@ const showRefresh = computed(() => {
             </div>
         </div>
         <div class="overflow-x-auto">
-            <table class="table table-zebra">
+            <table class="table">
                 <thead class="uppercase">
                     <tr>
                         <th v-if="$page.props.auth.user.canDelete">
                             <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
                         </th>
-                        <th class="hidden sm:table-cell">
+                        <th class="font-bold">
                             <div class="font-bold">Date</div>
                         </th>
                         <th>
-                            <div class="font-bold">Description</div>
+                            <div class="font-bold">Vendor</div>
                         </th>
 
                         <th class="hidden sm:table-cell">
@@ -308,7 +318,7 @@ const showRefresh = computed(() => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="expense in expenses.data" :key="expense.id">
+                    <tr class="hover" v-for="expense in expenses.data" :key="expense.id">
                         <td class="w-0" v-if="$page.props.auth.user.canDelete">
                             <input :value="expense.id" v-model="expenseIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
@@ -318,34 +328,11 @@ const showRefresh = computed(() => {
                             <div class="flex items-center gap-2">
                                 <div>
                                     <div class="flex text-sm font-bold gap-2">
-                                        {{ expense.description }}
+                                        {{ expense.vendor }}
                                     </div>
 
                                     <div class="flex flex-col gap-2 sm:hidden ">
-                                        <div class="text-xs opacity-50">P {{ expense.amount }}</div>
-                                        <div class="text-xs opacity-50">
-                                            <a v-if="expense.attachments" :href="expense.attachments" target="_blank" download>
-                                                <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Z"/>
-                                                <path fill-rule="evenodd" d="M11 7V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Zm4.707 5.707a1 1 0 0 0-1.414-1.414L11 14.586l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                                                </svg>
-
-                                            </a>
-                                        </div>
-                                        <div class="text-xs opacity-50">
-                                            {{ expense.notes }}
-                                        </div>
-                                        <div class="text-xs opacity-50">
-                                            {{ expense.notes }}
-                                        </div>
-                                        <div class="text-xs opacity-50 ">
-                                            <select @change="statusChange(expense.id, $event.target.value)" class="select select-xs" :class="expense.statusColor">
-                                                <option :selected="expense.status === 'pending'">pending</option>
-                                                <option :selected="expense.status === 'approved'">approved</option>
-                                                <option :selected="expense.status === 'rejected'">rejected</option>
-                                            </select>
-                                        </div>
-                                        <div class="text-xs opacity-50">{{ expense.expenses_date }}</div>
+                                        <div class="text-xs opacity-50">{{ expense.amount }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -353,8 +340,7 @@ const showRefresh = computed(() => {
                         <!-- These columns will be hidden on small screens -->
                         <td class="hidden sm:table-cell">
                             <a v-if="expense.attachments" :href="expense.attachments" target="_blank" download class="tooltip" data-tip="view documents">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-files"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 3v4a1 1 0 0 0 1 1h4" /><path d="M18 17h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h4l5 5v7a2 2 0 0 1 -2 2z" /><path d="M16 17v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2" /></svg>
-                            </a>
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M12 17v-6" /><path d="M9.5 14.5l2.5 2.5l2.5 -2.5" /></svg>                            </a>
                         </td>
                         <td class="hidden sm:table-cell">
                                 {{ expense.category }}
