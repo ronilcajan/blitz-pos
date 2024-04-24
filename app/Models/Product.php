@@ -54,7 +54,6 @@ class Product extends Model
             $query->whereAny([
                 'name',
                 'barcode',
-                'sku',
                 'size',
                 'dimension',
                 'brand',
