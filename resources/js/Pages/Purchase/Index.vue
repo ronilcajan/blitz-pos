@@ -120,7 +120,6 @@ watch(store, value => {
                     </select>
                 </div>
                 <div class="flex gap-2 flex-col sm:flex-row">
-
                     <div class="w-full" v-show="$page.props.auth.user.isSuperAdmin">
                         <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
                             <option selected value="">Filter by</option>
@@ -175,9 +174,6 @@ watch(store, value => {
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Supplier</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">User</div>
                         </th>
                         <th class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">
                             <div class="font-bold">Store</div>

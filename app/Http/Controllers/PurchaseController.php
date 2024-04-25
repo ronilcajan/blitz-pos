@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\ProductSupplier;
 use App\Models\Purchase;
 use App\Models\Store;
 use App\Models\Supplier;
@@ -43,7 +42,7 @@ class PurchaseController extends Controller
         return inertia('Purchase/Index', [
             'title' => "Purchase Orders",
             'orders' => $orders,
-            'supplier' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
+            'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
             'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
             'filter' => $request->only(['search','store','per_page']),
         ]);
@@ -72,13 +71,14 @@ class PurchaseController extends Controller
                     'image' => $product->image,
                     'category' => $product->category->name,
                     'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
-                    'price' =>  $product->price?->discount_price ? Number::currency($product->price->discount_price, in: 'PHP') : null,
+                    'price' =>  $product->price?->discount_price,
                 ];
         });
 
         return inertia('Purchase/Create', [
             'title' => "New Purchase",
             'products' =>  $products ,
+            'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
             'filter' =>  request()->only(['search','barcode']) ,
         ]);
     }
