@@ -35,7 +35,7 @@ class PurchaseController extends Controller
                     'order_no' => $order->tx_no,
                     'quantity' => Number::format($order->quantity),
                     'discount' => Number::format($order->discount, maxPrecision: 2),
-                    'amount' => Number::currency($order->amount, in: 'PHP'),
+                    'amount' => Number::currency($order->amount - $order->discount, in: 'PHP'),
                     'status' => $order->status,
                     'supplier' => $order->supplier->name,
                     'store' => $order->store->name,
@@ -97,7 +97,6 @@ class PurchaseController extends Controller
     public function store(PurchaseFormRequest $request)
     {
         $request->validated();
-
         $generator = new TransactionCodeGenerator();
         $code = $generator->generate();
 
@@ -105,7 +104,7 @@ class PurchaseController extends Controller
         $total = $this->convertToNumber($request->details['total']);
 
         $purchaseAttributes = [
-            'tx_no' => "P" .$code,
+            'tx_no' => "PO" .$code,
             'quantity' => $request->details['quantity'],
             'discount' => $discount,
             'amount' => $total - $discount,
@@ -151,25 +150,111 @@ class PurchaseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Purchase $order)
+    public function edit(Purchase $purchase)
     {
-        //
+        $products =  Product::query()
+            ->with(['store', 'price', 'stock','category'])
+            ->filter(request(['search']))
+            ->paginate(5)
+            ->withQueryString()
+            ->through(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'size' => $product->size,
+                    'unit' => $product->unit,
+                    'image' => $product->image,
+                    'category' => $product->category->name,
+                    'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
+                    'price' =>  $product->price?->discount_price,
+                ];
+        });
+
+        $items = $purchase->items()->get()->map(function($item){
+            return [
+                'id' => $item->product_id,
+                'name' => $item->product->name,
+                'size' => $item->product->size,
+                'unit' => $item->product->unit,
+                'image' => $item->product->image,
+                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                'price' =>  $item->price,
+                'qty' =>  $item->quantity,
+            ];
+        });
+
+        return inertia('Purchase/Edit', [
+            'title' => "Edit Purchase",
+            'products' =>  $products,
+            'purchase' =>  $purchase,
+            'purchase_items' =>  $items,
+            'stores' => Store::select('id', 'name')->get(),
+            'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
+            'units' => ProductUnit::select('id','name')
+            ->orderBy('name', 'ASC')->get(),
+            'categories' => ProductCategory::select('id','name')
+            ->orderBy('name', 'ASC')->get(),
+            'filter' =>  request()->only(['search','barcode']) ,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Purchase $order)
+    public function update(PurchaseFormRequest $request, Purchase $purchase)
     {
-        //
+        $request->validated();
+
+        $discount = $this->convertToNumber($request->details['discount']);
+        $total = $this->convertToNumber($request->details['total']);
+
+        $purchaseAttributes = [
+            'quantity' => $request->details['quantity'],
+            'discount' => $discount,
+            'amount' => $total - $discount,
+            'total' => $total,
+            'status' => $request->details['status'] ?? 'pending',
+            'notes' => $request->details['notes'],
+            'supplier_id' => $request->details['supplier_id'],
+            'created_at' => $request->details['transaction_date'],
+        ];
+
+        $purchase->update($purchaseAttributes);
+
+        $products = [];
+
+        foreach($request->products as $product){
+            $products[] = [
+                'quantity' =>  $product['qty'],
+                'price' =>  $product['price'],
+                'product_id' =>  $product['id'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+        }
+
+        $purchase->items()->forceDelete();
+        $purchase->items()->createMany($products);
+
+        return redirect()->back();
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Purchase $order)
+    public function destroy(Purchase $purchase)
     {
-        //
+        $purchase->delete();
+        return redirect()->back();
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        // Gate::authorize('bulk_delete', Supplier::class);
+
+        Purchase::whereIn('id',$request->orders_id)->delete();
+        return redirect()->back();
     }
 
     public function convertToNumber($string)

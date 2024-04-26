@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/purchase', PurchaseController::class);
     Route::post('/purchase/update', [PurchaseController::class, 'update']);
+    Route::post('/purchase/bulk/delete', [PurchaseController::class, 'bulkDelete'])->name('purchase.bulkDelete');
 
     Route::resource('/inventory', InventoryController::class);
     Route::post('/inventory/update', [InventoryController::class, 'update']);
