@@ -14,13 +14,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('purchase', function (Blueprint $table) {
+        Schema::create('purchases', function (Blueprint $table) {
             $table->id();
             $table->string('tx_no');
             $table->decimal('quantity',8,2);
             $table->integer('discount');
             $table->decimal('amount',8,2);
-            $table->char('status',20)->default('pending');
+            $table->decimal('total',8,2);
+            $table->string('status',20)->default('pending');
+            $table->string('notes')->nullable();
             $table->foreignIdFor(Supplier::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Store::class)->constrained()->cascadeOnDelete();
@@ -34,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('purchase');
+        Schema::dropIfExists('purchases');
     }
 };

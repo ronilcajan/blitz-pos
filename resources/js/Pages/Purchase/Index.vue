@@ -208,7 +208,6 @@ watch(store, value => {
                         <td class="hidden sm:table-cell">{{ order.discount }}</td>
                         <td class="hidden sm:table-cell">{{ order.amount }}</td>
                         <td class="hidden sm:table-cell">{{ order.supplier }}</td>
-                        <td class="hidden sm:table-cell">{{ order.user }}</td>
                         <td class="hidden sm:table-cell">{{ order.store }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">

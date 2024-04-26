@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\TransactionCodeGenerator;
+use App\Http\Requests\PurchaseFormRequest;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductUnit;
 use App\Models\Purchase;
+use App\Models\PurchaseItems;
 use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
@@ -29,13 +32,12 @@ class PurchaseController extends Controller
             ->through(function ($order) {
                 return [
                     'id' => $order->id,
-                    'order_no' => $order->order_no,
-                    'quantity' => $order->quantity,
-                    'discount' => $order->discount,
-                    'amount' => $order->amount,
+                    'order_no' => $order->tx_no,
+                    'quantity' => Number::format($order->quantity),
+                    'discount' => Number::format($order->discount, maxPrecision: 2),
+                    'amount' => Number::currency($order->amount, in: 'PHP'),
                     'status' => $order->status,
                     'supplier' => $order->supplier->name,
-                    'user' => $order->user->name,
                     'store' => $order->store->name,
                     'created_at' => $order->created_at->format('M d, Y h:i: A'),
                 ];
@@ -92,9 +94,50 @@ class PurchaseController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PurchaseFormRequest $request)
     {
-        dd($request->all());
+        $request->validated();
+
+        $generator = new TransactionCodeGenerator();
+        $code = $generator->generate();
+
+        $discount = $this->convertToNumber($request->details['discount']);
+        $total = $this->convertToNumber($request->details['total']);
+
+        $purchaseAttributes = [
+            'tx_no' => "P" .$code,
+            'quantity' => $request->details['quantity'],
+            'discount' => $discount,
+            'amount' => $total - $discount,
+            'total' => $total,
+            'status' => $request->details['status'] ?? 'pending',
+            'notes' => $request->details['notes'],
+            'supplier_id' => $request->details['supplier_id'],
+            'user_id' => auth()->id(),
+            'store_id' => auth()->user()->store_id ?? 1,
+            'created_at' => $request->details['transaction_date'],
+        ];
+
+        $purchase_created = Purchase::create($purchaseAttributes);
+
+        $products = [];
+
+
+        foreach($request->products as $product){
+            $products[] = [
+                'quantity' =>  $product['qty'],
+                'price' =>  $product['price'],
+                'purchase_id' =>  $purchase_created->id,
+                'product_id' =>  $product['id'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+
+        }
+        PurchaseItems::insert($products);
+
+        return redirect()->back();
+
     }
 
     /**
@@ -127,5 +170,10 @@ class PurchaseController extends Controller
     public function destroy(Purchase $order)
     {
         //
+    }
+
+    public function convertToNumber($string)
+    {
+        return floatval(str_replace(',','',$string));
     }
 }

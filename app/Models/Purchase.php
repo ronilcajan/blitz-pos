@@ -16,28 +16,28 @@ class Purchase extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
-    protected $table = 'purchase';
+    protected $table = 'purchases';
 
-    protected $guarded = [];  
+    protected $guarded = [];
 
     public function store():BelongsTo
     {
         return $this->belongsTo(Store::class);
-    } 
+    }
 
     public function user():BelongsTo
     {
         return $this->belongsTo(User::class);
-    } 
+    }
 
     public function supplier():BelongsTo
     {
         return $this->belongsTo(Supplier::class);
-    } 
+    }
 
     public function scopeFilter($query, array $filter){
         if(!empty($filter['search'])){
-            
+
             $search = $filter['search'];
 
             $query->whereAny([
@@ -51,7 +51,7 @@ class Purchase extends Model
             })
             ->orWhereHas('user', function($q) use ($search){
                 $q->where('name', $search);
-            }) 
+            })
             ->orWhereHas('store', function($q) use ($search){
                 $q->where('name', $search);
             });
@@ -78,13 +78,13 @@ class Purchase extends Model
             });
         }
     }
-    
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->useLogName('Purchase')
             ->logOnly(['name'])
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");    
+            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
     }
 }

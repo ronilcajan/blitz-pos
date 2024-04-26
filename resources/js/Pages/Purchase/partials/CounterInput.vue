@@ -9,9 +9,9 @@ const model = defineModel({
 </script>
 <template>
     <div class="join bg-base-100 border mb-3">
-      <button class="btn btn-ghost join-item btn-sm" @click="$emit('decreasedBy',1)">–</button>
+      <button type="button" class="btn btn-ghost join-item btn-sm" @click="$emit('decreasedBy',1)">–</button>
       <input class="input join-item input-ghost input-sm w-14 text-center" v-model="model" type="number" step="0.01" min="0.00">
-      <button class="btn btn-ghost join-item btn-sm" @click="$emit('increaseBy',1)">+</button>
+      <button type="button" class="btn btn-ghost join-item btn-sm" @click="$emit('increaseBy',1)">+</button>
     </div>
 </template>
 
