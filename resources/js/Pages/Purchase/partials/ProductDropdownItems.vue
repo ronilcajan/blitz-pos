@@ -4,7 +4,7 @@
             <div class="flex items-center gap-1">
                 <img v-if="product.image" class="h-12 w-12 shrink-0 rounded-btn" :src="product.image" alt="Product">
                 <div class="flex flex-col">
-                    <span class="text-sm ">{{ product.name }}</span>
+                    <span class="text-sm ">{{ product.name + " - " + product.price }} </span>
                 <span class="text-sm text-base-content/50">{{ product.barcode }}</span>
                 <span class="text-sm text-base-content/50">{{ product.size }}</span>
                 </div>

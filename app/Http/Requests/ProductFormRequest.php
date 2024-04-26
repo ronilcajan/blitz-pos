@@ -25,13 +25,14 @@ class ProductFormRequest extends FormRequest
         $productId = $this->id;
         return [
             'name' => 'required',
-            'barcode' => ['required',Rule::unique('products', 'barcode')->ignore($productId)],
+            'barcode' => [Rule::unique('products', 'barcode')->ignore($productId)],
             'unit' => 'required',
             'product_category_id' => 'required',
             'base_price' => 'required',
-            'markup_price' => 'required',
-            'sale_price' => 'required',
-            'discount_price' => 'required',
+            'product_type' => '',
+            'markup_price' => '',
+            'sale_price' => '',
+            'discount_price' => '',
             'in_store' => 'required',
         ];
     }

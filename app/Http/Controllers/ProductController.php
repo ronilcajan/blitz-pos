@@ -120,7 +120,7 @@ class ProductController extends Controller
             'markup_price' => $request->markup_price,
             'sale_price' => $request->sale_price,
             'discount' => $request->discount,
-            'manual_percentage' => $request->manual_percentage,
+            'manual_percentage' => $request->manual_percentage ?? 'manual',
             'discount_price' => $request->discount_price,
             'product_id' => $product->id
         ];

@@ -16,11 +16,11 @@ return new class extends Migration
         Schema::create('product_price', function (Blueprint $table) {
             $table->id();
             $table->decimal('base_price', total: 10, places: 2);
-            $table->decimal('markup_price', total: 10, places: 2);
-            $table->decimal('sale_price', total: 10, places: 2);
-            $table->decimal('discount', total: 10, places: 2);
+            $table->decimal('markup_price', total: 10, places: 2)->nullable();
+            $table->decimal('sale_price', total: 10, places: 2)->nullable();
+            $table->decimal('discount', total: 10, places: 2)->nullable();
             $table->string('manual_percentage')->default('manual');
-            $table->decimal('discount_price', total: 10, places: 2);
+            $table->decimal('discount_price', total: 10, places: 2)->nullable();
             $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
             $table->softDeletes(); // <-- This will add a deleted_at field
             $table->timestamps();

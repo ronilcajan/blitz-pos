@@ -2,9 +2,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import ProductDropdownItems from './partials/ProductDropdownItems.vue';
 import CounterInput from './partials/CounterInput.vue';
-import { router } from '@inertiajs/vue3'
+import { router, useForm } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-import { reactive, ref, watch,watchEffect, computed  } from 'vue';
+import { reactive, ref, watch,watchEffect, computed,onMounted  } from 'vue';
 import debounce from "lodash/debounce";
 
 defineOptions({ layout: AuthenticatedLayout })
@@ -13,6 +13,8 @@ const props = defineProps({
     title: String,
     categories: Object,
     suppliers: Object,
+    stores: Object,
+    units: Object,
     products: Object,
     search_products: Object,
     filter: Object
@@ -22,6 +24,40 @@ const purchases = reactive([]);
 const barcode = ref(props.filter.barcode);
 const search = ref(props.filter.search);
 const discount = ref(0);
+const createSupplierModal = ref(false);
+const createProductModal = ref(false);
+const addDiscountModal = ref(false);
+const hideDropdownRef = ref('pending');
+
+const supplierForm = useForm({
+    name: '',
+	contact_person: '',
+	email: '',
+	phone : '',
+	address : '',
+    store_id : '',
+});
+const productForm = useForm({
+    name: '',
+	barcode: '',
+	unit: '',
+	product_category_id : '',
+    product_type: '',
+	base_price : '',
+    in_store : '',
+    store_id : '',
+});
+
+const closeModal = () => {
+    supplierForm.clearErrors()
+    createSupplierModal.value = false;
+    supplierForm.reset();
+    addDiscountModal.value = false;
+    productForm.clearErrors()
+    createProductModal.value = false;
+    productForm.reset();
+};
+
 
 watch(search, debounce(function (value) {
 	router.get('/purchase/create',
@@ -67,6 +103,38 @@ const newPurchase = (product) => {
         addToOrders(newOrder);
     }
 
+    hideDropdownRef.value.focus()
+
+}
+
+const submitSupplierForm = () => {
+	supplierForm.post('/suppliers',{
+		replace: true,
+		preserveScroll: true,
+  		onSuccess: () => {
+			supplierForm.reset()
+			useToast().success(`Supplier has been created successfully!`, {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+		},
+	})
+}
+
+const submitProductForm = () => {
+	productForm.post('/products',{
+		replace: true,
+		preserveScroll: true,
+  		onSuccess: () => {
+			productForm.reset()
+			useToast().success(`Product has been created successfully!`, {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+		},
+	})
 }
 
 const findProductById = (product_id, search_products) => {
@@ -107,10 +175,10 @@ const calculateQty = computed(() => {
     return formatNumberWithCommas(subTotal);
 })
 const calculateDiscount = computed(() => {
-    return discount.value.toFixed(2);
+    return formatNumberWithCommas(discount.value.toFixed(2));
 })
 const calculateTotal = computed(() => {
-    const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
+const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
     const discountValue = parseFloat(discount.value);
     const total = subTotal - discountValue;
     return formatNumberWithCommas(total.toFixed(2));
@@ -119,11 +187,49 @@ const calculateTotal = computed(() => {
 const formatNumberWithCommas = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+const purchaseForm = useForm({
+    supplier_id: '',
+	transaction_date: '',
+	status: '',
+	quantity : calculateQty,
+    sub_total: calculateSubTotal,
+	discount : calculateDiscount,
+    total : calculateTotal,
+    notes : '',
+    store_id : '',
+});
+
+const submitPurchaseForm = () => {
+    if(purchases.length === 0) {
+        useToast().error('Please add product to purchase!', {
+            position: 'top-right',
+            duration: 3000,
+            dismissible: true
+        });
+        return;
+    }
+	router.post('/purchase', {
+        products: purchases,
+        details: purchaseForm
+    },
+    {
+		replace: true,
+		preserveScroll: true,
+  		onSuccess: () => {
+			purchaseForm.reset()
+			useToast().success(`Product has been created successfully!`, {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+		},
+	})
+}
 </script>
 
 <template>
     <Head :title="title" />
-
+    <form @submit.prevent="submitPurchaseForm">
     <div class="flex gap-3 flex-col md:flex-row">
         <div class="w-full">
             <div class="card bg-base-100 shadow-sm">
@@ -137,16 +243,29 @@ const formatNumberWithCommas = (number) => {
                     </div>
                     <div class="flex gap-4 flex-col md:flex-row md:w-1/2">
                         <div class="w-full md:w-1/2">
-                            <InputLabel for="date" class="label" value="Supplier" />
-                            <select class="select select-bordered w-full select-sm" id="supplier">
-                                <option value="">Select supplier</option>
-                                <option v-for="supplier in suppliers" :key="supplier.id">
-                                    {{ supplier.name }}</option>
-                            </select>
+                            <div class="flex items-end gap-2">
+                                <div class="w-full">
+                                    <InputLabel for="date" class="label" value="Supplier"  />
+                                    <select v-model="purchaseForm.supplier_id" class="select select-bordered w-full select-sm" id="supplier" required>
+                                        <option value="">Select supplier</option>
+                                        <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
+                                            {{ supplier.name }}</option>
+                                    </select>
+
+                                </div>
+                                <div>
+                                    <button class="btn btn-square btn-outline btn-primary btn-sm" type="button" @click="createSupplierModal = true">
+                                        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
+                                        </svg>
+                                 </button>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="w-full md:w-1/2">
                                 <InputLabel for="date" class="label" value="Transaction Date" />
-                                <TextInput type="date" class="input input-sm w-full"/>
+                                <TextInput v-model="purchaseForm.transaction_date" type="date" class="input input-sm w-full" required/>
                         </div>
                     </div>
                     <div class="flex justify-between gap-2 flex-col sm:flex-row mb-2 mt-4">
@@ -174,7 +293,7 @@ const formatNumberWithCommas = (number) => {
                                     </button>
                                     <ul tabindex="0" class="dropdown-content z-[1] bg-base-100 shadow mt-4 w-full">
                                         <li class="p-2 px-5 border-b">
-                                            <button class="font-semibold text-primary">
+                                            <button @click="createProductModal = true" type="button" class="font-semibold text-primary">
                                                 + Create product
                                             </button>
                                         </li>
@@ -189,7 +308,7 @@ const formatNumberWithCommas = (number) => {
 
                             </div>
                             <div class="hidden sm:flex">
-                                <PrimaryButton class="btn-sm">Browse</PrimaryButton>
+                                <PrimaryButton class="btn-sm" type="button">Browse</PrimaryButton>
                             </div>
                         </div>
                     </div>
@@ -227,10 +346,10 @@ const formatNumberWithCommas = (number) => {
                                                 <div class="text-xs text-base-content/50" v-if="purchase.stocks > 10">
                                                     In stocks: {{ purchase.stocks + ' ' + purchase.unit }}
                                                 </div>
-                                                <div class="text-xs text-red-500" v-if="purchase.stocks < 5">
+                                                <div class="text-xs text-red-500" v-if="purchase.stocks === 0">
                                                     Out of stocks: {{ purchase.stocks + ' ' + purchase.unit }}
                                                 </div>
-                                                <div class="text-xs text-yellow-500" v-if="purchase.stocks > 5 && purchase.stocks < 10">
+                                                <div class="text-xs text-yellow-500" v-if="purchase.stocks > 1 && purchase.stocks < 10">
                                                     Low stocks: {{ purchase.stocks + ' ' + purchase.unit }}
                                                 </div>
                                             </div>
@@ -271,7 +390,7 @@ const formatNumberWithCommas = (number) => {
                     <div class="flex gap-4 justify-between flex-col md:flex-row mt-5">
                         <div class="w-full md:w-1/2">
                             <InputLabel class="label" value="Notes" />
-                            <textarea class="textarea textarea-bordered w-full max-w-xs" placeholder="Type here"></textarea>
+                            <textarea v-model="purchaseForm.notes" class="textarea textarea-bordered w-full max-w-xs" placeholder="Type here" ></textarea>
                         </div>
                         <div class="flex w-full md:w-1/2 justify-end">
                             <div class="bg-base-200 w-full md:w-2/3 rounded-lg p-4 px-5 shadow-sm border border-base-400">
@@ -284,10 +403,10 @@ const formatNumberWithCommas = (number) => {
                                     <span>{{ calculateSubTotal }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
-                                    <button class="font-semibold text-primary">
+                                    <button class="font-semibold text-primary" type="button" @click="addDiscountModal = true">
                                         Discount(+/-):
                                             </button>
-                                    <span>{{ calculateDiscount }}</span>
+                                    <span class="text-red-500">{{ calculateDiscount }}</span>
                                 </div>
                                 <div class="flex justify-between text-lg font-semibold">
                                     <span>Total:</span>
@@ -299,9 +418,9 @@ const formatNumberWithCommas = (number) => {
                     <div class="w-full justify-center mb-10">
                         <InputLabel class="label" value="Status" />
                         <div class="join">
-                            <input class="join-item btn btn-sm" type="radio" name="options" aria-label="Pending" checked/>
-                            <input class="join-item btn btn-sm" type="radio" name="options" aria-label="Completed" />
-                            <input class="join-item btn btn-sm" type="radio" name="options" aria-label="Cancelled" />
+                            <input v-model="purchaseForm.status" value="pending" class="join-item btn btn-sm" type="radio" name="options" aria-label="Pending" ref="hideDropdownRef" checked/>
+                            <input v-model="purchaseForm.status" value="completed" class="join-item btn btn-sm" type="radio" name="options" aria-label="Completed" />
+                            <input v-model="purchaseForm.status" value="cancelled" class="join-item btn btn-sm" type="radio" name="options" aria-label="Cancelled" />
                         </div>
                     </div>
                     <div class="flex justify-end gap-2 flex-col lg:flex-row">
@@ -313,8 +432,10 @@ const formatNumberWithCommas = (number) => {
                                     Cancel</NavLink>
                                 <PrimaryButton type="submit"
                                     class="btn btn-sm"
+                                    :class="{ 'opacity-25': purchaseForm.processing }"
+                                    :disabled="purchaseForm.processing"
                                 >
-
+                                <span v-if="purchaseForm.processing" class="loading loading-spinner"></span>
                                     Create Purchase
                                 </PrimaryButton>
                             </div>
@@ -323,4 +444,246 @@ const formatNumberWithCommas = (number) => {
             </div>
         </div>
     </div>
+    </form>
+    <Modal :show="createSupplierModal" @close="closeModal">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Create new supplier
+            </h1>
+
+            <form method="dialog" class="w-full" @submit.prevent="submitSupplierForm">
+                <div class="flex justify-between gap-2 flex-col lg:flex-row">
+                            <h2 class="card-title grow text-sm mb-5">
+                                <span class="uppercase">Supplier Information</span>
+                            </h2>
+                        </div>
+                        <div>
+                            <InputLabel for="name" value="Supplier name" />
+                            <TextInput
+                                type="text"
+                                class="block w-full"
+                                v-model="supplierForm.name"
+                                required
+                                placeholder="Enter supplier name"
+                            />
+                            <InputError class="mt-2" :message="supplierForm.errors.name" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="name" value="Contact person" />
+                            <TextInput
+                                type="text"
+                                class="block w-full"
+                                v-model="supplierForm.contact_person"
+                                required
+                                placeholder="Enter supplier contact person"
+                            />
+                            <InputError class="mt-2" :message="supplierForm.errors.name" />
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
+                            <div class="form-control">
+                                <InputLabel for="name" value="Email address" />
+                                <TextInput
+                                    type="email"
+                                    class="block w-full"
+                                    v-model="supplierForm.email"
+                                    required
+                                    placeholder="Enter email address"
+                                />
+                                <InputError class="mt-2" :message="supplierForm.errors.email" />
+                            </div>
+                            <div class="form-control">
+                                <InputLabel for="phone" value="Phone number" />
+                                <TextInput
+                                    type="text"
+                                    class="block w-full"
+                                    v-model="supplierForm.phone"
+
+                                    placeholder="Enter phone number"
+                                />
+                                <InputError class="mt-2" :message="supplierForm.errors.phone" />
+                            </div>
+                        </div>
+
+                        <div v-show="$page.props.auth.user.isSuperAdmin">
+                            <InputLabel for="phone" value="Store" />
+                            <select v-model="supplierForm.store_id" class="select select-bordered w-full">
+                                <option disabled selected value="">Select a store</option>
+                                <option v-for="store in stores" :value="store.id" :key="store.id">
+                                    {{ store.name }}
+                                </option>
+                            </select>
+                            <InputError class="mt-2" :message="supplierForm.errors.store_id" />
+                        </div>
+
+
+                        <div >
+                            <InputLabel value="Address" />
+                            <textarea v-model="supplierForm.address" class="textarea w-full textarea-bordered" placeholder="Address"></textarea>
+                            <InputError class="mt-2" :message="supplierForm.errors.address" />
+                        </div>
+                <div class="mt-6 flex justify-end">
+                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
+                    <PrimaryButton
+                        class="ms-3"
+                        :class="{ 'opacity-25': supplierForm.processing }"
+                        :disabled="supplierForm.processing"
+                    >
+                        <span v-if="supplierForm.processing" class="loading loading-spinner"></span>
+                        Create
+                    </PrimaryButton>
+                </div>
+            </form>
+        </div>
+    </Modal>
+
+    <Modal :show="createProductModal" @close="closeModal">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Add new product
+            </h1>
+            <form method="dialog" class="w-full" @submit.prevent="submitProductForm">
+                <div class="flex justify-between gap-2 flex-col lg:flex-row">
+                    <h2 class="card-title grow text-sm mb-2">
+                        <span class="uppercase">Product Information</span>
+                    </h2>
+                </div>
+                <div>
+                    <InputLabel for="name" value="Product name" />
+                    <TextInput
+                        type="text"
+                        class="block w-full"
+                        v-model="productForm.name"
+                        required
+                        placeholder="Enter product name"
+                    />
+                    <InputError class="mt-2" :message="productForm.errors.name" />
+                </div>
+
+                <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
+                    <div class="form-control">
+                        <InputLabel for="name" value="Barcode" />
+                        <TextInput
+                            type="text"
+                            class="block w-full"
+                            v-model="productForm.barcode"
+                            placeholder="Enter product barcode"
+                        />
+                        <InputError class="mt-2" :message="productForm.errors.barcode" />
+                    </div>
+                    <div class="form-control">
+                        <InputLabel for="product_type" value="Product Type" />
+                        <select v-model="productForm.product_type" class="select select-bordered w-full">
+                            <option disabled value="">Select a product type</option>
+                            <option>
+                                sellable
+                            </option>
+                            <option>
+                                consumable
+                            </option>
+                        </select>
+                        <InputError class="mt-2" :message="productForm.errors.product_type" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    <div class="form-control">
+                            <InputLabel for="name" value="Category" />
+                            <select v-model="productForm.product_category_id" required class="select select-bordered w-full">
+                                <option disabled selected value="">Select a product category</option>
+                                <option v-for="category in categories" :value="category.id" :key="category.id">
+                                    {{ category.name }}
+                                </option>
+                            </select>
+                        <InputError class="mt-2" :message="productForm.errors.product_category_id" />
+                    </div>
+                    <div class="form-control">
+                        <div class="w-full">
+                            <InputLabel for="name" value="Unit" />
+                            <select class="select select-bordered w-full" v-model="productForm.unit" required>
+                                <option disabled selected value="">Select a product unit</option>
+                                <option v-for="unit in units" :value="unit.name" :key="unit.id">
+                                    {{ unit.name }}
+                                </option>
+                            </select>
+
+                        </div>
+                        <InputError class="mt-2" :message="productForm.errors.unit" />
+
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-2 lg:grid-cols-2 mt-3">
+                    <div class="form-control">
+                        <InputLabel value="Price" />
+                        <TextInput
+                            type="number"
+                            class="block w-full"
+                            v-model="productForm.base_price"
+                            required
+                            placeholder="Enter product price"
+                        />
+                        <InputError class="mt-2" :message="productForm.errors.base_price" />
+                    </div>
+                    <div class="form-control">
+                        <InputLabel value="Stocks" />
+                        <TextInput
+                            type="text"
+                            class="block w-full"
+                            v-model="productForm.in_store"
+
+                            placeholder="Enter stocks"
+                        />
+                        <InputError class="mt-2" :message="productForm.errors.in_store" />
+                    </div>
+                </div>
+                <div v-show="$page.props.auth.user.isSuperAdmin">
+                    <InputLabel for="phone" value="Store" />
+                    <select v-model="productForm.store_id" class="select select-bordered w-full">
+                        <option disabled selected value="">Select a store</option>
+                        <option v-for="store in stores" :value="store.id" :key="store.id">
+                            {{ store.name }}
+                        </option>
+                    </select>
+                    <InputError class="mt-2" :message="productForm.errors.store_id" />
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
+                    <PrimaryButton
+                        class="ms-3"
+                        :class="{ 'opacity-25': productForm.processing }"
+                        :disabled="productForm.processing"
+                    >
+                        <span v-if="productForm.processing" class="loading loading-spinner"></span>
+                        Create
+                    </PrimaryButton>
+                </div>
+            </form>
+        </div>
+    </Modal>
+    <Modal :show="addDiscountModal" @close="closeModal">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Add discounts
+            </h1>
+            <div>
+                <InputLabel for="name" value="Discount" />
+                <NumberInput
+                    type="number"
+                    class="block w-full"
+                    v-model="discount"
+                    required
+                    placeholder="Enter supplier name"
+                />
+            </div>
+            <div class="mt-6 flex justify-end">
+                <PrimaryButton @click="closeModal"
+                    class="ms-3"
+                >
+                    Save
+                </PrimaryButton>
+            </div>
+        </div>
+    </Modal>
 </template>

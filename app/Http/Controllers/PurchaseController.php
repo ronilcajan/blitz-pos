@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\ProductUnit;
 use App\Models\Purchase;
 use App\Models\Store;
 use App\Models\Supplier;
@@ -57,7 +59,6 @@ class PurchaseController extends Controller
 
         $products =  Product::query()
             ->with(['store', 'price', 'stock','category'])
-            ->orderBy('name', 'ASC')
             ->filter(request(['search']))
             ->paginate(5)
             ->withQueryString()
@@ -78,7 +79,12 @@ class PurchaseController extends Controller
         return inertia('Purchase/Create', [
             'title' => "New Purchase",
             'products' =>  $products ,
+            'stores' => Store::select('id', 'name')->get(),
             'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
+            'units' => ProductUnit::select('id','name')
+            ->orderBy('name', 'ASC')->get(),
+            'categories' => ProductCategory::select('id','name')
+            ->orderBy('name', 'ASC')->get(),
             'filter' =>  request()->only(['search','barcode']) ,
         ]);
     }
@@ -88,7 +94,7 @@ class PurchaseController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd($request->all());
     }
 
     /**
