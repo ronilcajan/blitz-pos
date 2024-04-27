@@ -35,9 +35,9 @@ enum ExpensesStatus: string
     public function getLabelColor(): string
     {
         return match ($this) {
-            self::PENDING => 'select-bordered',
+            self::PENDING => 'select-warning',
             self::APPROVED => 'select-primary',
-            self::REJECTED => 'select-bordered'
+            self::REJECTED => 'select-error'
         };
     }
 }

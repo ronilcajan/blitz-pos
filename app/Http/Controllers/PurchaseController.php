@@ -142,9 +142,33 @@ class PurchaseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Purchase $order)
+    public function show(Purchase $purchase)
     {
-        //
+        $items = $purchase->items()->get()->map(function($item){
+            return [
+                'id' => $item->product_id,
+                'name' => $item->product->name,
+                'size' => $item->product->size,
+                'unit' => $item->product->unit,
+                'image' => $item->product->image,
+                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                'price' =>  $item->price,
+                'qty' =>  $item->quantity,
+            ];
+        });
+
+        return inertia('Purchase/Show', [
+            'title' => "View Purchase",
+            'purchase' =>  $purchase,
+            'purchase_items' =>  $items,
+            'stores' => Store::select('id', 'name')->get(),
+            'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
+            'units' => ProductUnit::select('id','name')
+            ->orderBy('name', 'ASC')->get(),
+            'categories' => ProductCategory::select('id','name')
+            ->orderBy('name', 'ASC')->get(),
+            'filter' =>  request()->only(['search','barcode']) ,
+        ]);
     }
 
     /**

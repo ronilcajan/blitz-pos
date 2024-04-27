@@ -175,7 +175,7 @@ watch(category, value => {
 watch(status, value => {
 	router.get('/expenses',
 	{ status: value },
-	{ preserveState: true, replace:true, preserveScroll: true })
+	{ preserveState: true, replace:true, preserveScroll: true, only: ['expenses'], })
 })
 
 const showRefresh = computed(() => {
@@ -188,7 +188,7 @@ const showRefresh = computed(() => {
 
 <div class="flex gap-5 mb-5 flex-col-reverse md:flex-row">
     <div class="w-full md:w-1/2">
-        <div class="w-full stats shadow mb-5">
+        <div class="w-full stats shadow mb-4">
             <div class="stat">
                 <div class="flex justify-between items-center mb-3">
                     <div class="stat-value">P 89,400</div>
@@ -197,7 +197,7 @@ const showRefresh = computed(() => {
                 <div class="stat-desc">Total spend this month</div>
             </div>
         </div>
-        <div class="w-full stats shadow">
+        <div class="w-full stats shadow mb-4">
             <div class="stat">
                 <div class="flex justify-between items-center mb-3">
                     <div class="stat-value">P 89,400</div>
@@ -207,11 +207,29 @@ const showRefresh = computed(() => {
                 <div class="stat-desc">Payment due this month</div>
             </div>
         </div>
+        <div class="w-full stats shadow mb-4">
+            <div class="stat">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="stat-value">P 89,400</div>
+                    <small>15 up vs last month</small>
+                </div>
+                <div class="stat-desc">Total spend this month</div>
+            </div>
+        </div>
+        <div class="w-full stats shadow mb-4">
+            <div class="stat">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="stat-value">P 89,400</div>
+                    <small>15 up vs last month</small>
+                </div>
+                <div class="stat-desc">Total spend this month</div>
+            </div>
+        </div>
     </div>
     <div class="w-ful md:w-1/2">
         <div class="card bg-base-100 shadow">
-            <div class="card-body grow-0 ">
-                <h2 class="card-title grow text-sm mb-5">
+            <div class="card-body grow-0">
+                <h2 class="card-title grow text-sm mb-3">
                     <span class="uppercase">Customer Profile</span>
                 </h2>
 
@@ -222,7 +240,7 @@ const showRefresh = computed(() => {
     </div>
 </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
-        <div class="p-4 grow-0">
+        <div class="p-4 grow-0 pt-8">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                 <div>
                     <select v-model="per_page" class="select select-sm max-w-xs">
@@ -348,7 +366,9 @@ const showRefresh = computed(() => {
                         <td class="hidden sm:table-cell">{{ expense.amount }}</td>
 
                         <td class="hidden sm:table-cell">
-                            <select @change="statusChange(expense.id, $event.target.value)" class="select select-xs" :class="expense.statusColor">
+                            <select @change="statusChange(expense.id, $event.target.value)"
+                                class="select select-xs"
+                                :class="expense.statusColor">
                                 <option :selected="expense.status === 'pending'">pending</option>
                                 <option :selected="expense.status === 'approved'">approved</option>
                                 <option :selected="expense.status === 'rejected'">rejected</option>

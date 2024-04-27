@@ -28,12 +28,12 @@ class Expenses extends Model
     public function store(): BelongsTo
     {
         return $this->belongsTo(Store::class);
-    } 
+    }
 
     public function user():BelongsTo
     {
         return $this->belongsTo(User::class)->withoutGlobalScopes();
-    } 
+    }
 
     public function category(): BelongsTo
     {
@@ -42,13 +42,13 @@ class Expenses extends Model
 
     public function scopeFilter($query, array $filter){
         if(!empty($filter['search'])){
-            
+
             $search = $filter['search'];
 
             $query->whereAny([
                 'expenses_date',
                 'amount',
-                'description',
+                'vendor',
                 'notes',
             ], 'LIKE', "%{$search}%")
             ->orWhereHas('category', function($q) use ($search){
@@ -56,7 +56,7 @@ class Expenses extends Model
             })
             ->orWhereHas('user', function($q) use ($search){
                 $q->where('name', $search);
-            }) 
+            })
             ->orWhereHas('store', function($q) use ($search){
                 $q->where('name', $search);
             });
@@ -92,6 +92,6 @@ class Expenses extends Model
             ->useLogName('Expenses')
             ->logOnly(['description'])
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");    
+            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
     }
 }

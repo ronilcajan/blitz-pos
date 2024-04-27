@@ -23,7 +23,7 @@ class ExpensesRequestForm extends FormRequest
     {
         return [
             'expenses_date' => 'required',
-            'description' => 'required',
+            'vendor' => 'required',
             'amount' => 'required',
             'notes' => '',
             'expenses_category_id' => 'required',

@@ -2,16 +2,18 @@
 
 namespace App\Classes;
 
+use App\Models\Purchase;
+
 class TransactionCodeGenerator
 {
-    private const DATE_FORMAT = 'Ymds';
+    private const DATE_FORMAT = 'ymd';
 
     public function generate(): string
     {
         $timestamp = $this->getCurrentTimestamp();
-        $randomNumber = $this->generateRandomAlphanumericCode(4);
+        $orderCount = $this->countPurchaseOrder();
 
-        return $timestamp . auth()->id(). $randomNumber;
+        return $timestamp . auth()->id() . "00" . $orderCount;
     }
 
     private function getCurrentTimestamp(): int
@@ -19,7 +21,9 @@ class TransactionCodeGenerator
         return date(self::DATE_FORMAT);
     }
 
-    private function generateRandomAlphanumericCode($length) {
-        return substr(bin2hex(random_bytes($length)), 0, $length);
+    private function countPurchaseOrder() {
+
+        $count = Purchase::count();
+        return $count ? 1 + $count : 1;
     }
 }
