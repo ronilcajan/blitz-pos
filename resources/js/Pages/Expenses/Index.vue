@@ -15,7 +15,6 @@ import {
   Legend
 } from 'chart.js'
 import { Line } from 'vue-chartjs'
-import * as chartConfig from './chartConfig.js'
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -24,7 +23,10 @@ const props = defineProps({
 	expenses: Object,
     categories: Object,
     stores: Object,
-	filter: Object
+	filter: Object,
+    totalExpenses: Object,
+    approveExpenses: String,
+    rejectedExpenses: String,
 });
 
 ChartJS.register(
@@ -145,7 +147,7 @@ const statusChange = (id,status) => {
                 duration: 3000,
                 dismissible: true
             });
-        },  only: ['expenses'], })
+        },  only: ['expenses','totalExpenses'], })
 }
 
 watch(per_page, value => {
@@ -157,30 +159,61 @@ watch(per_page, value => {
 watch(search, debounce(function (value) {
 	router.get('/expenses',
 	{ search: value },
-	{ preserveState: true, replace:true, preserveScroll: true })
+	{ preserveState: true, replace:true, preserveScroll: true,
+        only: ['expenses'], })
 }, 500)) ;
 
 watch(store, value => {
 	router.get('/expenses',
 	{ store: value },
-	{ preserveState: true, replace:true, preserveScroll: true })
+	{ preserveState: true, replace:true, preserveScroll: true,
+        only: ['expenses'], })
 })
 
 watch(category, value => {
 	router.get('/expenses',
 	{ category: value },
-	{ preserveState: true, replace:true, preserveScroll: true })
+	{ preserveState: true, replace:true, preserveScroll: true,
+        only: ['expenses'], })
 })
 
 watch(status, value => {
 	router.get('/expenses',
 	{ status: value },
-	{ preserveState: true, replace:true, preserveScroll: true, only: ['expenses'], })
+	{ preserveState: true, replace:true, preserveScroll: true,
+        only: ['expenses'], })
 })
 
 const showRefresh = computed(() => {
     return store.value !== '' || category.value !== '' || status.value !== ''
 })
+
+const pendingExpenses = computed(() => {
+    const total =  props.totalExpenses
+        .filter(expense => expense.status === 'pending')
+        .reduce((total, expense) => total + parseFloat((expense.amount.replace('₱', '')).replace(',', '')), 0);
+
+    return total.toFixed(2);
+})
+const approveExpenses = computed(() => {
+    const total =  props.totalExpenses
+        .filter(expense => expense.status === 'approved')
+        .reduce((total, expense) => total + parseFloat((expense.amount.replace('₱', '')).replace(',', '')), 0);
+
+    return total.toFixed(2);
+
+})
+const rejectedExpenses = computed(() => {
+    const total = props.totalExpenses
+        .filter(expense => expense.status === 'rejected')
+        .reduce((total, expense) => total + parseFloat((expense.amount.replace('₱', '')).replace(',', '')), 0);
+
+    return total.toFixed(2);
+})
+const formatNumberWithCommas = (number) => {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 </script>
 
 <template>
@@ -191,16 +224,16 @@ const showRefresh = computed(() => {
         <div class="w-full stats shadow mb-4">
             <div class="stat">
                 <div class="flex justify-between items-center mb-3">
-                    <div class="stat-value">P 89,400</div>
+                    <div class="stat-value">{{ formatNumberWithCommas(approveExpenses) }}</div>
                     <small>15 up vs last month</small>
                 </div>
-                <div class="stat-desc">Total spend this month</div>
+                <div class="stat-desc">Total spend</div>
             </div>
         </div>
         <div class="w-full stats shadow mb-4">
             <div class="stat">
                 <div class="flex justify-between items-center mb-3">
-                    <div class="stat-value">P 89,400</div>
+                    <div class="stat-value">P {{ formatNumberWithCommas(pendingExpenses) }}</div>
                     <small>1 pending expenses</small>
                 </div>
 
@@ -210,7 +243,7 @@ const showRefresh = computed(() => {
         <div class="w-full stats shadow mb-4">
             <div class="stat">
                 <div class="flex justify-between items-center mb-3">
-                    <div class="stat-value">P 89,400</div>
+                    <div class="stat-value">P {{ formatNumberWithCommas(rejectedExpenses) }}</div>
                     <small>15 up vs last month</small>
                 </div>
                 <div class="stat-desc">Total spend this month</div>
@@ -326,7 +359,7 @@ const showRefresh = computed(() => {
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Amount</div>
                         </th>
-                        <th class="hidden sm:table-cell">
+                        <th class="table-cell">
                             <div class="font-bold">Status</div>
                         </th>
                         <th class="hidden sm:table-cell"  v-show="$page.props.auth.user.isSuperAdmin">
@@ -366,9 +399,7 @@ const showRefresh = computed(() => {
                         <td class="hidden sm:table-cell">{{ expense.amount }}</td>
 
                         <td class="hidden sm:table-cell">
-                            <select @change="statusChange(expense.id, $event.target.value)"
-                                class="select select-xs"
-                                :class="expense.statusColor">
+                            <select @change="statusChange(expense.id, $event.target.value)" class="select select-xs " :class="`text-${expense.statusColor}`" >
                                 <option :selected="expense.status === 'pending'">pending</option>
                                 <option :selected="expense.status === 'approved'">approved</option>
                                 <option :selected="expense.status === 'rejected'">rejected</option>

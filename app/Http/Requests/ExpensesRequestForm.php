@@ -26,6 +26,7 @@ class ExpensesRequestForm extends FormRequest
             'vendor' => 'required',
             'amount' => 'required',
             'notes' => '',
+            'status' => '',
             'expenses_category_id' => 'required',
             'store_id' => 'required',
         ];

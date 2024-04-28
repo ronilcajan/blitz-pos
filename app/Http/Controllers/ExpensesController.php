@@ -23,7 +23,7 @@ class ExpensesController extends Controller
         ? ($request->per_page == 'All' ? Expenses::count() : $request->per_page)
         : 10;
 
-        $expenses = Expenses::query()
+        $allExpenses = Expenses::query()
             ->with(['category','user','store'])
             ->orderBy('id', 'DESC')
             ->filter(request(['search','store','category','status']))
@@ -34,6 +34,7 @@ class ExpensesController extends Controller
                     'id' => $expense->id,
                     'expenses_date' => date('M d, Y', strtotime($expense->expenses_date)),
                     'vendor' => $expense->vendor,
+                    'amount' => $expense->amount,
                     'amount' => Number::currency($expense->amount, in: 'PHP'),
                     'attachments' => $expense->attachments,
                     'category' => $expense->category?->name,
@@ -44,12 +45,17 @@ class ExpensesController extends Controller
                 ];
         });
 
+        $expenses = Expenses::query()
+            ->with(['category','user','store'])
+            ->get();
+
         return inertia('Expenses/Index', [
             'title' => "Expenses",
-            'expenses' => $expenses,
+            'expenses' => $allExpenses,
+            'totalExpenses' => $expenses,
             'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
             'categories' => ExpensesCategory::select('id', 'name')->orderBy('id', 'DESC')->get(),
-            'filter' => $request->only(['search','store','per_page','category']),
+            'filter' => $request->only(['search','store','per_page','category','status']),
         ]);
     }
 
@@ -110,6 +116,8 @@ class ExpensesController extends Controller
             'amount' => $expense->amount,
             'notes' => $expense->notes,
             'attachments' => $expense->attachments,
+            'status' => $expense->status->getLabelText(),
+            'statusColor' => $expense->status->getLabelColor(),
             'expenses_category_id' => $expense->expenses_category_id,
             'store_id' => $expense->store->id,
         ];

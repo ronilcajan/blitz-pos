@@ -21,7 +21,8 @@ const form = useForm({
 	vendor: props.expense.vendor,
 	amount: props.expense.amount,
 	notes : props.expense.notes,
-	attachments : '',
+	status : props.expense.status,
+    attachments : '',
 	expenses_category_id : props.expense.expenses_category_id,
     store_id : props.expense.store_id,
 });
@@ -50,7 +51,6 @@ const submitUpdateForm = () => {
 		},
 	})
 }
-
 const submitCategoryForm = () => {
 	category.post('/expenses_categories',{
 		replace: true,
@@ -178,7 +178,7 @@ const submitCategoryForm = () => {
                             <span class="uppercase">Upload Supporting Documents</span>
                         </h2>
                         <div class="flex items-center justify-center w-full">
-                            <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg">
+                            <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-56 border-2 border-gray-300 border-dashed rounded-lg">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                     <svg  xmlns="http://www.w3.org/2000/svg"  width="120"  height="120"  viewBox="0 0 24 24"  fill="none"  stroke="#525252"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-import"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M5 13v-8a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2h-5.5m-9.5 -2h7m-3 -3l3 3l-3 3" /></svg>
                                 </div>
@@ -189,6 +189,23 @@ const submitCategoryForm = () => {
                             {{ form.progress.percentage }}%
                         </progress>
                         <InputError class="mt-2" :message="form.errors.attachments" />
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow mt-5">
+                    <div class="card-body">
+                        <h2 class="card-title grow text-sm mb-5">
+                            <span class="uppercase">Expenses Status</span>
+                        </h2>
+                        <div class="w-full justify-center mb-5">
+                            <div class="join">
+                                <input v-model="form.status" value="pending" :checked="form.status==='pending'" class="join-item btn btn-sm"
+                            type="radio" name="options" aria-label="Pending" ref="hideDropdownRef" />
+                                <input v-model="form.status" value="approved" :checked="form.status==='approved'" class="join-item btn btn-sm" type="radio" name="options" aria-label="Completed" />
+                                <input v-model="form.status" value="rejected" :checked="form.status==='rejected'" class="join-item btn btn-sm" type="radio" name="options" aria-label="rejected" />
+                            </div>
+                        </div>
+                        <InputError class="mt-2" :message="form.errors.status" />
                     </div>
                 </div>
             </div>

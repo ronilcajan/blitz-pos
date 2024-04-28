@@ -40,6 +40,21 @@ class Expenses extends Model
         return $this->belongsTo(ExpensesCategory::class, 'expenses_category_id')->withoutGlobalScopes();
     }
 
+    public function scopeApproved($query)
+    {
+        return $query->where('status', ExpensesStatus::APPROVED);
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', ExpensesStatus::PENDING);
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', ExpensesStatus::REJECTED);
+    }
+
     public function scopeFilter($query, array $filter){
         if(!empty($filter['search'])){
 
