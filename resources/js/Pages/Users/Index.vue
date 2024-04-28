@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import StatusFilter from './partials/StatusFilter.vue';
 import { useForm, router } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
@@ -160,58 +161,33 @@ const blockedUserCount = computed(() => {
 <template>
     <Head :title="title" />
 
+    <div class="flex justify-end items-center mb-5 gap-3">
+            <NavLink href="/users/create" class="btn btn-sm btn-primary">
+                <svg class="w-4 h-4 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
+                </svg>New user</NavLink>
+            <DangerButton v-show="userIds.length > 0"           @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
+            <status-filter v-model="status" />
+    </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="p-4 grow-0 ">
-            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
+            <div class="flex justify-between gap-2 flex-col sm:flex-row">
                 <div>
-                    <select v-model="per_page" class="select select-sm max-w-xs">
-                        <option class="text-body">10</option>
-                        <option class="text-body">25</option>
-                        <option class="text-body">50</option>
-                        <option class="text-body">100</option>
-                        <option class="text-body">All</option>
-                    </select>
-                </div>
-                <div class="flex gap-2 flex-col sm:flex-row">
-
                     <div class="w-full" v-show="$page.props.auth.user.isSuperAdmin">
-                        <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
+                        <select v-model="store" class="select select-bordered select-sm w-full">
                             <option selected value="">Filter by</option>
                             <option v-for="store in stores" :value="store.name" :key="store.id">
                                 {{ store.name }}
                             </option>
                         </select>
                     </div>
-                    <div class="w-full">
-                        <label for="simple-search" class="sr-only">Search</label>
-                        <div class="relative sm:w-60 w-full">
-                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                </svg>
-                            </div>
-                            <input placeholder="Type here" v-model="search" class="input pl-8 input-bordered input-sm w-full max-w-xs"/>
-                            <button type="button" v-if="search" class="absolute inset-y-0 end-0 flex items-center pe-3" @click="search = ''">
-                                <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                                </svg>
-
-                            </button>
-                        </div>
-                    </div>
-                    <NavLink href="/users/create" class="btn btn-sm btn-primary">New user</NavLink>
-                    <DangerButton v-show="userIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
+                    <Dropdown>
+                        <DropdownLink href="/user">Link</DropdownLink>
+                    </Dropdown>
                 </div>
-            </div>
-        </div>
-        <div class="w-1/5">
-            <div role="tablist" class="tabs tabs-bordered">
-                <input type="radio" v-model="status" role="tab" class="tab"
-                :aria-label="`All(${allUserCount})`" value="all"  :checked="status === 'all' || status === ''"/>
-                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Active(${ActiveUserCount})`" value="active" :checked="status === 'active'" />
-                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Inactive(${InactiveUserCount})`"
-                value="inactive" :checked="status === 'inactive'" />
-                <input type="radio" v-model="status" role="tab" class="tab" :aria-label="`Blocked(${blockedUserCount})`" value="blocked" :checked="status === 'blocked'" />
+                <div class="flex gap-2 flex-col sm:flex-row">
+                    <SearchInput v-model="search" />
+                </div>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -314,24 +290,19 @@ const blockedUserCount = computed(() => {
                         </td>
 
                     </tr>
-                    <tr v-if="users.data.length  <= 0">
+                    <tr v-if="users.data.length <= 0">
                         <td colspan="7" class="text-center">
                             No data found
                         </td>
-
                     </tr>
                 </tbody>
             </table>
-
         </div>
     </section>
-    <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
-        <div class="text-center mb-4">
-            <small>
-                Showing {{ users.from }} to  {{ users.to }} of  {{ users.total }} results
-            </small>
-        </div>
-        <Paginator :links="users.links" />
+    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+        <pagination-result-range :data="users"/>
+        <pagination-control-list v-model="per_page" />
+        <pagination :links="users.links" />
     </div>
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">

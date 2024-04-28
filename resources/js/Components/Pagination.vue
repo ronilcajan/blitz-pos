@@ -1,5 +1,5 @@
 <template>
-    <div class="sm:p-6 xl:p-7.5">
+    <div>
           <nav>
               <ul class="flex flex-wrap items-center gap-1 justify-center">
                   <li v-for="link in links" :key="link.id">

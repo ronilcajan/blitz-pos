@@ -17,8 +17,14 @@ import DangerButton from '@/Components/DangerButton.vue';
 import SuccessButton from '@/Components/SuccessButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import NumberInput from '@/Components/NumberInput.vue';
+import Dropdown from '@/Components/Dropdown.vue';
+import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import Paginator from '@/Components/Paginator.vue';
+import SearchInput from '@/Components/SearchInput.vue';
+import Pagination from '@/Components/Pagination.vue';
+import PaginationControlList from '@/Components/PaginationControlList.vue';
+import PaginationResultRange from '@/Components/PaginationResultRange.vue';
 import Modal from '@/Components/Modal.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -42,9 +48,15 @@ createInertiaApp({
             .component('DangerButton', DangerButton)
             .component('TextInput', TextInput)
             .component('NumberInput', NumberInput)
+            .component('Dropdown', Dropdown)
+            .component('DropdownLink', DropdownLink)
             .component('InputLabel', InputLabel)
             .component('NavLink', NavLink)
             .component('Paginator', Paginator)
+            .component('SearchInput', SearchInput)
+            .component('Pagination', Pagination)
+            .component('PaginationControlList', PaginationControlList)
+            .component('PaginationResultRange', PaginationResultRange)
             .component('Modal', Modal)
             .mount(el);
     },

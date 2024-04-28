@@ -3,7 +3,7 @@
 		<label for="my-drawer" class="drawer-overlay"></label>
 		<!-- sidebar menu -->
 		<nav class="flex min-h-screen w-72 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
-			
+
 			<div class="mx-4 flex items-center gap-2 font-black">
 				<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-home"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
 				<h1 class="text-xl">POSblend</h1>
@@ -19,16 +19,6 @@
 					</NavLink>
 				</li>
 				<li>
-					<NavLink :active="$page.component.startsWith('Purchase')" href="/purchase">
-						<svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-						<path d="M12.268 6A2 2 0 0 0 14 9h1v1a2 2 0 0 0 3.04 1.708l-.311 1.496a1 1 0 0 1-.979.796H8.605l.208 1H16a3 3 0 1 1-2.83 2h-2.34a3 3 0 1 1-4.009-1.76L4.686 5H4a1 1 0 0 1 0-2h1.5a1 1 0 0 1 .979.796L6.939 6h5.329Z"/>
-						<path d="M18 4a1 1 0 1 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0V8h2a1 1 0 1 0 0-2h-2V4Z"/>
-						</svg>
-
-						Purchase
-					</NavLink>
-				</li>
-				<li >
 					<details :open="$page.component.startsWith('Product') || $page.component.startsWith('Inventory')">
 						<summary >
 							<svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
@@ -48,11 +38,11 @@
 							</li>
 							<li class="mb-2">
 								<NavLink href="/product_categories" :active="$page.component.startsWith('ProductCategory/')">
-									Category</NavLink>	
+									Category</NavLink>
 							</li>
 							<li>
 								<NavLink href="/product_units" :active="$page.component.startsWith('ProductUnit/')">
-									Units</NavLink>	
+									Units</NavLink>
 							</li>
 						</ul>
 					</details>
@@ -74,16 +64,26 @@
 							</li>
 							<li>
 								<NavLink href="/expenses_categories" :active="$page.component.startsWith('ExpensesCategory/')">
-									Category</NavLink>	
+									Category</NavLink>
 							</li>
 						</ul>
 					</details>
 				</li>
+                <li>
+					<NavLink :active="$page.component.startsWith('Purchase')" href="/purchase">
+						<svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+						<path d="M12.268 6A2 2 0 0 0 14 9h1v1a2 2 0 0 0 3.04 1.708l-.311 1.496a1 1 0 0 1-.979.796H8.605l.208 1H16a3 3 0 1 1-2.83 2h-2.34a3 3 0 1 1-4.009-1.76L4.686 5H4a1 1 0 0 1 0-2h1.5a1 1 0 0 1 .979.796L6.939 6h5.329Z"/>
+						<path d="M18 4a1 1 0 1 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0V8h2a1 1 0 1 0 0-2h-2V4Z"/>
+						</svg>
+
+						Purchase
+					</NavLink>
+				</li>
 				<li>
 					<NavLink :active="$page.component.startsWith('Customers')" href="/customers">
-						<svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-						<path fill-rule="evenodd" d="M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H6Zm7.25-2.095c.478-.86.75-1.85.75-2.905a5.973 5.973 0 0 0-.75-2.906 4 4 0 1 1 0 5.811ZM15.466 20c.34-.588.535-1.271.535-2v-1a5.978 5.978 0 0 0-1.528-4H18a4 4 0 0 1 4 4v1a2 2 0 0 1-2 2h-4.535Z" clip-rule="evenodd"/>
-						</svg>
+						<svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd" d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z" clip-rule="evenodd"/>
+                        </svg>
 						Customers
 					</NavLink>
 				</li>
@@ -95,14 +95,6 @@
 						Suppliers
 					</NavLink>
 				</li>
-				<li v-show="!$page.props.auth.user.isStaff && !$page.props.auth.user.isAdmin">
-					<NavLink :active="$page.component.startsWith('User')" href="/users">
-						<svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-						<path fill-rule="evenodd" d="M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H6Zm7.25-2.095c.478-.86.75-1.85.75-2.905a5.973 5.973 0 0 0-.75-2.906 4 4 0 1 1 0 5.811ZM15.466 20c.34-.588.535-1.271.535-2v-1a5.978 5.978 0 0 0-1.528-4H18a4 4 0 0 1 4 4v1a2 2 0 0 1-2 2h-4.535Z" clip-rule="evenodd"/>
-						</svg>
-						Users
-					</NavLink>
-				</li>
 				<li v-show="$page.props.auth.user.isSuperAdmin">
 					<NavLink :active="$page.component.startsWith('Store')" href="/stores">
 						<svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
@@ -111,35 +103,22 @@
 						Store
 					</NavLink>
 				</li>
-					<li>
-						<details>
+					<li v-show="!$page.props.auth.user.isStaff && !$page.props.auth.user.isAdmin">
+						<details details :open="$page.component.startsWith('Users')" >
 							<summary>
 								<svg data-src="https://unpkg.com/heroicons/20/solid/adjustments-vertical.svg" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon" data-id="svg-loader_17">
 								<path d="M17 2.75a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5ZM17 15.75a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0v-1.5ZM3.75 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 .75-.75ZM4.5 2.75a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5ZM10 11a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0v-5.5A.75.75 0 0 1 10 11ZM10.75 2.75a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0v-1.5ZM10 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM3.75 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM16.25 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"></path>
 								</svg>
 								Settings
 							</summary>
-							<ul>
-								<li><a>Users</a></li>
+							<ul class="mt-2">
+								<li class="mb-2">
+                                    <NavLink :active="$page.component.startsWith('User')" href="/users">
+                                        Users
+                                    </NavLink>
+                                </li>
 								<li><a>Themes</a></li>
 								<li><a>Routes</a></li>
-								<li><a>Comments</a></li>
-								<li><a>Media</a></li>
-								<li><a>Roles</a></li>
-								<li><a>Merchants</a></li>
-								<li>
-									<a>Tools</a>
-									<ul>
-										<li><a>Files</a></li>
-										<li><a>Scripts</a></li>
-										<li><a>Suggestions</a></li>
-									</ul>
-								</li>
-								<li><a>Databases</a></li>
-								<li><a>Gateways</a></li>
-								<li><a>Plugins</a></li>
-								<li><a>API</a></li>
-								<li><a>Support</a></li>
 							</ul>
 						</details>
 					</li>
