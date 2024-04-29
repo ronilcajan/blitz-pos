@@ -1,3 +1,10 @@
+<script setup>
+const model = defineModel({
+    type: Number,
+    required: true,
+});
+</script>
+
 <template>
      <div class="flex justify-center">
         <div class="join">
@@ -14,10 +21,3 @@
         </div>
     </div>
 </template>
-
-<script setup>
-const model = defineModel({
-    type: Number,
-    required: true,
-});
-</script>

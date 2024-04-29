@@ -1,3 +1,6 @@
+<script setup>
+defineProps({ links: Array })
+</script>
 <template>
     <div>
           <nav>
@@ -14,7 +17,3 @@
           </nav>
       </div>
   </template>
-
-  <script setup>
-    defineProps({ links: Array })
-  </script>

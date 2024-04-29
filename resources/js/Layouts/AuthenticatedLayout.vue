@@ -6,7 +6,7 @@ import { usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 
-const impersonating = computed(() => 
+const impersonating = computed(() =>
     page.props.auth.user.impersonate !== null ? true : false
 )
 
@@ -15,7 +15,7 @@ const impersonating = computed(() =>
     <div class="drawer min-h-screen bg-base-200 lg:drawer-open">
         <input id="my-drawer" type="checkbox" class="drawer-toggle" />
 		<!-- content -->
-        
+
 		<main class="drawer-content">
             <div class="grid grid-cols-12 grid-rows-[min-content] p-4 lg:gap-x-12 lg:p-10 lg:pb-1">
                 <div v-if="impersonating" tabindex="-1" class="fixed bg-primary top-0 start-0 z-50 flex justify-between w-full p-2">
@@ -27,7 +27,7 @@ const impersonating = computed(() =>
                                 </svg>
                                 <span class="sr-only">Light bulb</span>
                             </span>
-                            <span>You're impersonating {{ $page.props.auth.user.name }}. 
+                            <span>You're impersonating {{ $page.props.auth.user.name }}.
                                 <NavLink :href="route('user.leave')" class="inline font-medium underline underline-offset-2 decoration-600 decoration-solid hover:no-underline">
                                     Leave Now</NavLink></span>
                         </p>
@@ -35,7 +35,7 @@ const impersonating = computed(() =>
                 </div>
                 <HeaderBar />
             </div>
-            <div class="p-4 lg:gap-x-12 lg:p-10 lg:pt-2 min-h-screen mt-5">
+            <div class="p-4 lg:gap-x-12 lg:p-10 lg:pt-2 min-h-screen mt-2">
                 <slot />
 
                 <footer class="footer footer-center mt-20 p-4 w-full">
@@ -44,13 +44,13 @@ const impersonating = computed(() =>
                     </aside>
                 </footer>
             </div>
-           
+
 		</main>
-        
+
 		<!-- /content -->
         <SideBar />
-      
+
     </div>
-		
-        
+
+
 </template>

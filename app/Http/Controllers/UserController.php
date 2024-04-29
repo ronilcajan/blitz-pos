@@ -46,9 +46,18 @@ class UserController extends Controller
                 ];
             });
 
+        $userSummary = User::query()
+            ->with('store','roles')->get()->map(function($user){
+                return [
+                    'id' => $user->id,
+                    'status' => $user->status->getLabelText(),
+                ];
+            });
+
         return inertia('Users/Index', [
             'title' => 'Users',
             'users' => $users,
+            'userSummary' => $userSummary,
             'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
             'roles' => Role::select('id','name')->orderBy('name','ASC')->get(),
             'filter' => $request->only(['search','store','per_page']),

@@ -1,3 +1,7 @@
+<script setup>
+defineProps({ data: Object })
+</script>
+
 <template>
    <div class="flex justify-center">
         <small>
@@ -6,6 +10,3 @@
     </div>
   </template>
 
-  <script setup>
-    defineProps({ data: Object })
-  </script>

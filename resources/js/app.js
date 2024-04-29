@@ -20,11 +20,15 @@ import NumberInput from '@/Components/NumberInput.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
+import CreateButtonLink from '@/Components/CreateButtonLink.vue';
+import DefaultButtonLink from '@/Components/DefaultButtonLink.vue';
+import DeleteButton from '@/Components/DeleteButton.vue';
 import Paginator from '@/Components/Paginator.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import Pagination from '@/Components/Pagination.vue';
 import PaginationControlList from '@/Components/PaginationControlList.vue';
 import PaginationResultRange from '@/Components/PaginationResultRange.vue';
+import FilterByStoreDropdown from '@/Components/FilterByStoreDropdown.vue';
 import Modal from '@/Components/Modal.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -52,11 +56,15 @@ createInertiaApp({
             .component('DropdownLink', DropdownLink)
             .component('InputLabel', InputLabel)
             .component('NavLink', NavLink)
+            .component('CreateButtonLink', CreateButtonLink)
+            .component('DefaultButtonLink', DefaultButtonLink)
+            .component('DeleteButton', DeleteButton)
             .component('Paginator', Paginator)
             .component('SearchInput', SearchInput)
             .component('Pagination', Pagination)
             .component('PaginationControlList', PaginationControlList)
             .component('PaginationResultRange', PaginationResultRange)
+            .component('FilterByStoreDropdown', FilterByStoreDropdown)
             .component('Modal', Modal)
             .mount(el);
     },
