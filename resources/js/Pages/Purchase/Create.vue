@@ -398,7 +398,7 @@ const submitPurchaseForm = () => {
                         <div class="flex w-full md:w-1/2 justify-end">
                             <div class="bg-base-200 w-full md:w-2/3 rounded-lg p-4 px-5 shadow-sm border border-base-400">
                                 <div class="flex justify-between mb-2">
-                                    <span>Quantity:</span>
+                                    <span>Items:</span>
                                     <span>{{ calculateQty }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">

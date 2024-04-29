@@ -137,19 +137,11 @@ watch(status, value => {
 	</section>
     <div class="flex justify-end items-center mb-5 gap-3 mt-4 flex-wrap">
         <DefaultButtonLink href="/users" v-show="status || store">
-            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-            </svg>
             Clear Result
         </DefaultButtonLink>
         <CreateButtonLink href="/users/create">New user</CreateButtonLink>
         <DeleteButton v-model="userIds" @delete-all="submitBulkDeleteForm">Delete</DeleteButton>
-        <DefaultButtonLink href="user/export">
-            <svg class="w-4 h-4 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"/>
-            </svg>
-            Export
-        </DefaultButtonLink>
+        <DownloadButton :href="route('user.export')">Export</DownloadButton>
         <StatusFilter v-model="status" />
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">

@@ -164,7 +164,7 @@ watch(store, value => {
                             <div class="font-bold">ORDER Date</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">QTY</div>
+                            <div class="font-bold">Items</div>
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold uppercase">Discount</div>
@@ -207,7 +207,7 @@ watch(store, value => {
                         </td>
                         <!-- These columns will be hidden on small screens -->
                         <td class="hidden sm:table-cell">{{ order.created_at }}</td>
-                        <td class="hidden sm:table-cell">{{ order.quantity }}</td>
+                        <td class="hidden sm:table-cell">{{ order.quantity }} Items</td>
                         <td class="hidden sm:table-cell">{{ order.discount }}</td>
                         <td class="hidden sm:table-cell">{{ order.amount }}</td>
                         <td class="hidden sm:table-cell">{{ order.supplier }}</td>

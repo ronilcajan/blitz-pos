@@ -25,6 +25,9 @@ import DefaultButtonLink from '@/Components/DefaultButtonLink.vue';
 import DeleteButton from '@/Components/DeleteButton.vue';
 import Paginator from '@/Components/Paginator.vue';
 import SearchInput from '@/Components/SearchInput.vue';
+import PrintButton from '@/Components/PrintButton.vue';
+import CancelButton from '@/Components/CancelButton.vue';
+import DownloadButton from '@/Components/DownloadButton.vue';
 import Pagination from '@/Components/Pagination.vue';
 import PaginationControlList from '@/Components/PaginationControlList.vue';
 import PaginationResultRange from '@/Components/PaginationResultRange.vue';
@@ -50,6 +53,9 @@ createInertiaApp({
             .component('SecondaryButton', SecondaryButton)
             .component('SuccessButton', SuccessButton)
             .component('DangerButton', DangerButton)
+            .component('PrintButton', PrintButton)
+            .component('CancelButton', CancelButton)
+            .component('DownloadButton', DownloadButton)
             .component('TextInput', TextInput)
             .component('NumberInput', NumberInput)
             .component('Dropdown', Dropdown)

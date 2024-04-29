@@ -9,7 +9,8 @@ use App\Models\User;
 use App\Models\UserDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-
+use App\Exports\UsersExport;
+use Maatwebsite\Excel\Facades\Excel;
 class UserController extends Controller
 {
     /**
@@ -186,6 +187,11 @@ class UserController extends Controller
         return redirect()->back();
     }
 
+    public function export()
+    {
+        $filename = date('Y-m-d-H-i-s').'_users.xlsx';
+        return Excel::download(new UsersExport, $filename);
+    }
 
     /**
      * Remove the specified resource from storage.

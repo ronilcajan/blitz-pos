@@ -21,6 +21,9 @@
     "dependencies": {
         "@inertiajs/vue3": "^1.0.15",
         "chart.js": "^4.4.2",
+        "html2canvas": "^1.4.1",
+        "html2pdf.js": "^0.10.1",
+        "jspdf": "^2.5.1",
         "lodash": "^4.17.21",
         "vue-chartjs": "^5.3.1",
         "vue-toast-notification": "^3.1.2"

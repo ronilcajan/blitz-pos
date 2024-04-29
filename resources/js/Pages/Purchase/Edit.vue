@@ -180,7 +180,7 @@ const calculateDiscount = computed(() => {
     return formatNumberWithCommas(discount.value.toFixed(2));
 })
 const calculateTotal = computed(() => {
-const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
+    const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
     const discountValue = parseFloat(discount.value);
     const total = subTotal - discountValue;
     return formatNumberWithCommas(total.toFixed(2));
@@ -425,7 +425,7 @@ onMounted(() => {
                         <div class="flex w-full md:w-1/2 justify-end">
                             <div class="bg-base-200 w-full md:w-2/3 rounded-lg p-4 px-5 shadow-sm border border-base-400">
                                 <div class="flex justify-between mb-2">
-                                    <span>Quantity:</span>
+                                    <span>Items:</span>
                                     <span>{{ calculateQty }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
@@ -454,22 +454,22 @@ onMounted(() => {
                         </div>
                     </div>
                     <div class="flex justify-end gap-2 flex-col lg:flex-row">
-                            <div class="flex justify-end gap-3 flex-col md:flex-row">
-                                <NavLink href="/purchase" class="btn btn-sm">
-                                    <svg class="w-5 h-5 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
-                                    </svg>
-                                    Cancel</NavLink>
-                                <SuccessButton type="submit"
-                                    class="btn btn-sm"
-                                    :class="{ 'opacity-25': purchaseForm.processing }"
-                                    :disabled="purchaseForm.processing"
-                                >
-                                <span v-if="purchaseForm.processing" class="loading loading-spinner"></span>
-                                    Save changes
-                                </SuccessButton>
-                            </div>
+                        <div class="flex justify-end gap-3 flex-col md:flex-row">
+                            <NavLink href="/purchase" class="btn btn-sm">
+                                <svg class="w-5 h-5 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
+                                </svg>
+                                Cancel</NavLink>
+                            <SuccessButton type="submit"
+                                class="btn btn-sm"
+                                :class="{ 'opacity-25': purchaseForm.processing }"
+                                :disabled="purchaseForm.processing"
+                            >
+                            <span v-if="purchaseForm.processing" class="loading loading-spinner"></span>
+                                Save changes
+                            </SuccessButton>
                         </div>
+                    </div>
                 </div>
             </div>
         </div>

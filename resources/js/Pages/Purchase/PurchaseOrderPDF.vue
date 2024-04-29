@@ -1,11 +1,11 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import PDFLayout from '@/Layouts/PDFLayout.vue';
 import { reactive, ref, computed, onMounted  } from 'vue';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import html2pdf from 'html2pdf.js';
 
-defineOptions({ layout: AuthenticatedLayout })
+defineOptions({ layout: PDFLayout })
 
 const props = defineProps({
     title: String,
@@ -207,7 +207,6 @@ const formatDate = (dateString) => {
                     <div class="flex justify-end gap-2 flex-col lg:flex-row mt-10">
                         <div class="flex justify-end gap-3 flex-col md:flex-row">
                             <CancelButton href="/purchase" />
-                            <a :href="route('purchase.downloadPDF', purchase.id)">PDF</a>
                             <button @click="generatePDF">Download PDF</button>
 
                             <PrintButton :id="'purchaseContainer'" />
