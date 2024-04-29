@@ -1,7 +1,8 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import StatusFilter from './partials/StatusFilter.vue';
+import StatsCard from './partials/StatsCard.vue';
 import { useForm, router } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
@@ -124,71 +125,37 @@ watch(status, value => {
 	{ status: value },
 	{ preserveState: true, replace:true} )
 })
-
-const allUserCount = computed(() => {
-  return props.userSummary.length // Initialize count to 0
-});
-
-const ActiveUserCount = computed(() => {
-    return props.userSummary.filter(user => user.status === 'active').length;
-});
-
-const InactiveUserCount = computed(() => {
-    return props.userSummary.filter(user => user.status === 'inactive').length;
-});
-const blockedUserCount = computed(() => {
-    return props.userSummary.filter(user => user.status === 'blocked').length;
-});
-
-const formatNumberWithCommas = (number) => {
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
 </script>
 
 <template>
     <Head :title="title" />
     <section class="stats stats-vertical col-span-12 w-full shadow-sm xl:stats-horizontal">
-		<div class="stat">
-			<div class="stat-title">Total Users</div>
-			<div class="stat-value">{{ formatNumberWithCommas(allUserCount) }}</div>
-		</div>
-
-		<div class="stat">
-			<div class="stat-title">Total Active User</div>
-			<div class="stat-value">{{ formatNumberWithCommas(ActiveUserCount) }}</div>
-		</div>
-
-		<div class="stat">
-			<div class="stat-title">Total Inactive User</div>
-			<div class="stat-value">{{ formatNumberWithCommas(InactiveUserCount) }}</div>
-		</div>
-
-		<div class="stat">
-			<div class="stat-title">Total Blocked User</div>
-			<div class="stat-value">{{ formatNumberWithCommas(blockedUserCount) }}</div>
-		</div>
+		<StatsCard title="Total Users" :users="userSummary" filter="all" />
+		<StatsCard title="Total Active User" :users="userSummary" filter="active" />
+		<StatsCard title="Total Inactive User" :users="userSummary" filter="inactive" />
+		<StatsCard title="Total Blocked User" :users="userSummary" filter="blocked" />
 	</section>
     <div class="flex justify-end items-center mb-5 gap-3 mt-4 flex-wrap">
-        <default-button-link href="/users" v-show="status || store">
+        <DefaultButtonLink href="/users" v-show="status || store">
             <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
             </svg>
             Clear Result
-        </default-button-link>
+        </DefaultButtonLink>
         <CreateButtonLink href="/users/create">New user</CreateButtonLink>
         <DeleteButton v-model="userIds" @delete-all="submitBulkDeleteForm">Delete</DeleteButton>
-        <default-button-link href="user/export">
+        <DefaultButtonLink href="user/export">
             <svg class="w-4 h-4 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"/>
             </svg>
             Export
-        </default-button-link>
-        <status-filter v-model="status" />
+        </DefaultButtonLink>
+        <StatusFilter v-model="status" />
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="p-4 grow-0 ">
             <div class="flex justify-between gap-2 flex-col sm:flex-row">
-                <filter-by-store-dropdown v-model="store" :stores="stores" />
+                <FilterByStoreDropdown v-model="store" :stores="stores" />
                 <SearchInput v-model="search" @clear-search="search = ''" />
             </div>
         </div>
@@ -208,9 +175,6 @@ const formatNumberWithCommas = (number) => {
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Address</div>
                         </th>
-                        <th class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">
-                            <div class="font-bold">Store</div>
-                        </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Role</div>
                         </th>
@@ -220,6 +184,9 @@ const formatNumberWithCommas = (number) => {
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Registered Date</div>
+                        </th>
+                        <th class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">
+                            <div class="font-bold">Store</div>
                         </th>
                     </tr>
                 </thead>
@@ -244,7 +211,6 @@ const formatNumberWithCommas = (number) => {
                                 <div>
                                     <div class="flex text-sm font-bold gap-2">{{ user.name }}
                                         <Link :href="route('user.impersonate', user.id)" class="text-primary text-xs" v-show="$page.props.auth.user.isSuperAdmin">Impersonate</Link>
-
                                     </div>
 
                                     <div class="text-xs opacity-50">{{ user.email }}</div>
@@ -259,7 +225,6 @@ const formatNumberWithCommas = (number) => {
                         <!-- These columns will be hidden on small screens -->
                         <td class="hidden sm:table-cell">{{ user.phone }}</td>
                         <td class="hidden sm:table-cell">{{ user.address }}</td>
-                        <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ user.store }}</td>
                         <td class="hidden sm:table-cell">
                             <div class="badge badge-primary gap-2">
                             {{ user.role }}
@@ -273,6 +238,7 @@ const formatNumberWithCommas = (number) => {
                             </select>
                         </td>
                         <td class="hidden sm:table-cell">{{ user.created_at }}</td>
+                        <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ user.store }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">
                                 <Link :href="`/users/${user.id}/edit`" class=" hover:text-green-500">
@@ -302,9 +268,9 @@ const formatNumberWithCommas = (number) => {
         </div>
     </section>
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <pagination-result-range :data="users"/>
-        <pagination-control-list v-model="per_page" />
-        <pagination :links="users.links" />
+        <PaginationResultRange :data="users"/>
+        <PaginationControlList v-model="per_page" />
+        <Pagination :links="users.links" />
     </div>
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">
