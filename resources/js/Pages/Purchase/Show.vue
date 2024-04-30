@@ -1,9 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { reactive, ref, computed, onMounted  } from 'vue';
-import { jsPDF } from "jspdf";
-import html2canvasPro from 'html2canvas-pro';
-import html2pdf from 'html2pdf.js'
 
 defineOptions({ layout: AuthenticatedLayout })
 

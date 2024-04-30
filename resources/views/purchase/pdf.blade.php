@@ -30,7 +30,7 @@
             <thead>
                 <tr>
                     <td style="padding: 20px 16px 18px 16px;">
-                        <h1 style="font-weight: 700; color: #1A1C21;"> Purchase Order # {{ $purchase->id }}</h1>
+                        <h1 style="font-weight: 700; color: #1A1C21;"> Purchase Order #0{{ $purchase->id }}</h1>
                     </td>
                 </tr>
             </thead>
@@ -82,6 +82,8 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td style="display:flex !important; padding-block: 12px;">
+                            <img src="{{ $item['image'] }}" class="h-10 w-10 shrink-0 rounded-btn" width="56"
+                                height="56" alt="Product">
                             <p style="font-weight: 700; color: #1A1C21;">{{ $item['name'] }}</p>
                             <p style="color: #5E6470;"> {{ $item['size'] }}</p>
                         </td>
@@ -108,7 +110,7 @@
                     <td style="padding: 12px 0; border-top:1px solid #D7DAE0;">
 
                     </td>
-                    <td style="border-top:1px solid #D7DAE0;" colspan="3">
+                    <td style="border-top:1px solid #D7DAE0;" colspan="4">
                         <table style="width: 100%;border-spacing: 0;">
                             <tbody>
                                 <tr>

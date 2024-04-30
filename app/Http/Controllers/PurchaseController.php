@@ -159,17 +159,12 @@ class PurchaseController extends Controller
             ];
         });
 
+        $purchase = Purchase::with('store', 'supplier')->find($purchase->id);
+
         return inertia('Purchase/Show', [
             'title' => "View Purchase",
-            'purchase' =>  $purchase->with('store','supplier')->first(),
+            'purchase' =>  $purchase,
             'purchase_items' =>  $items,
-            'stores' => Store::select('id', 'name')->get(),
-            'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
-            'units' => ProductUnit::select('id','name')
-            ->orderBy('name', 'ASC')->get(),
-            'categories' => ProductCategory::select('id','name')
-            ->orderBy('name', 'ASC')->get(),
-            'filter' =>  request()->only(['search','barcode']) ,
         ]);
     }
 
@@ -189,7 +184,7 @@ class PurchaseController extends Controller
         });
 
         $pdf = Pdf::loadView('purchase.pdf', [
-            'title' => "Download Purchase",
+            'title' => "Download Purchase Order",
             'purchase' =>  $purchase->with('store','supplier')->first(),
             'purchase_items' =>  $items,
             'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),

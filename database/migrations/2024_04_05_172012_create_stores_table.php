@@ -14,11 +14,19 @@ return new class extends Migration
         Schema::create('stores', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('founder')->nullable();
+            $table->string('tagline')->nullable();
             $table->string('email')->nullable();
             $table->string('contact')->nullable();
-            $table->string('address')->nullable();
             $table->string('logo')->nullable();
+            $table->string('website')->nullable();
+            $table->string('industry')->nullable();
+            $table->string('country')->nullable();
+            $table->string('timezone')->nullable();
             $table->string('currency')->nullable();
+            $table->string('tax')->nullable();
+            $table->string('description')->nullable();
+            $table->string('address')->nullable();
             $table->softDeletes(); // <-- This will add a deleted_at field
             $table->timestamps();
         });

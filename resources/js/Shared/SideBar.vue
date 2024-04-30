@@ -115,7 +115,11 @@
                                         Users
                                     </NavLink>
                                 </li>
-								<li><a>Themes</a></li>
+								<li class="mb-2" v-show="$page.props.auth.user.isOwner">
+                                    <NavLink :active="$page.component.startsWith('Stores')" :href="`/stores/${$page.props.auth.user.store_id}`">
+                                        Store
+                                    </NavLink>
+                                </li>
 								<li><a>Routes</a></li>
 							</ul>
 						</details>

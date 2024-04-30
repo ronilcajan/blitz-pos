@@ -37,18 +37,18 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                     'user' => $user ? [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'address' => $user->address,
-                    'avatar' => $user->profile_photo_url,
-                    'store_id' => $user->store->id ?? '',
-                    'isSuperAdmin' =>  $user_role === 'super-admin',
-                    'isOwner' => $user_role === 'owner',
-                    'isAdmin' => $user_role === 'admin',
-                    'isStaff' => $user_role === 'staff',
-                    'canDelete' => $user_role === 'staff' ? false : true,
-                    'impersonate' => session()->get('impersonate') ?? null
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone' => $user->phone,
+                        'address' => $user->address,
+                        'avatar' => $user->profile_photo_url,
+                        'store_id' => $user->store->id ?? '',
+                        'isSuperAdmin' =>  $user_role === 'super-admin',
+                        'isOwner' => $user_role === 'owner',
+                        'isAdmin' => $user_role === 'admin',
+                        'isStaff' => $user_role === 'staff',
+                        'canDelete' => $user_role !== 'staff',
+                        'impersonate' => session()->get('impersonate') ?? null
                     ] : null,
                 ],
             'flash' => [

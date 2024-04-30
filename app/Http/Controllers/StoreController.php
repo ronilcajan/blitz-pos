@@ -68,7 +68,17 @@ class StoreController extends Controller
      */
     public function show(Store $store)
     {
-        //
+       return inertia('Store/Show', [
+           'store' => [
+               'id' => $store->id,
+               'name' => $store->name,
+               'address' => $store->address,
+               'contact' => $store->contact,
+               'email' => $store->email,
+               'logo' => $store->logo,
+               'created_at' => $store->created_at->format('M d, Y h:i: A'),
+           ]
+       ]);
     }
     /**
      * Update the specified resource in storage.
