@@ -13,8 +13,8 @@ use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Number;
-use Spatie\LaravelPdf\Facades\Pdf;
-use function Spatie\LaravelPdf\Support\pdf;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class PurchaseController extends Controller
 {
@@ -173,29 +173,6 @@ class PurchaseController extends Controller
         ]);
     }
 
-    public function pdfview(Purchase $purchase)
-    {
-        $items = $purchase->items()->get()->map(function($item){
-            return [
-                'id' => $item->product_id,
-                'name' => $item->product->name,
-                'size' => $item->product->size,
-                'unit' => $item->product->unit,
-                'image' => $item->product->image,
-                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
-                'price' =>  $item->price,
-                'qty' =>  $item->quantity,
-            ];
-        });
-
-        return view('purchase.pdf', [
-            'title' => "Download Purchase",
-            'purchase' =>  $purchase->with('store','supplier')->first(),
-            'purchase_items' =>  $items,
-            'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
-        ]);
-    }
-
     public function downloadPDF(Purchase $purchase)
     {
         $items = $purchase->items()->get()->map(function($item){
@@ -210,11 +187,16 @@ class PurchaseController extends Controller
                 'qty' =>  $item->quantity,
             ];
         });
-        return pdf('purchase.pdf', [
+
+        $pdf = Pdf::loadView('purchase.pdf', [
+            'title' => "Download Purchase",
             'purchase' =>  $purchase->with('store','supplier')->first(),
             'purchase_items' =>  $items,
             'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
         ]);
+
+        $filename = 'purchase-'.$purchase->tx_no.'.pdf';
+        return $pdf->download($filename);
     }
 
     /**

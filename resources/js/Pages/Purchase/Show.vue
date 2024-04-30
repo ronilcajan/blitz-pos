@@ -1,9 +1,9 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { reactive, ref, computed, onMounted  } from 'vue';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
-import html2pdf from 'html2pdf.js';
+import { jsPDF } from "jspdf";
+import html2canvasPro from 'html2canvas-pro';
+import html2pdf from 'html2pdf.js'
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -68,21 +68,9 @@ const formatNumberWithCommas = (number) => {
 
 const formatDate = (dateString) => {
     let date = new Date(dateString);
-    let options = { year: 'numeric', month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+    let options = { year: 'numeric', month: 'long', day: '2-digit'};
     return date.toLocaleString('en-US', options);
 }
-
-    const generatePDF = () => {
-        const element = document.getElementById('purchaseContainer');
-        const opt = {
-          margin:       1,
-          filename:     'myfile.pdf',
-          image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2 },
-          jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        html2pdf().from(element).set(opt).save();
-    };
 </script>
 
 <template>
@@ -91,19 +79,20 @@ const formatDate = (dateString) => {
         <div class="w-full">
             <div class="card bg-base-100 shadow-sm">
                 <div class="card-body grow-0">
-                    <div id="purchaseContainer">
+                    <div id="purchaseContainer" ref="purchaseContainer">
                         <div>
-                            <h1 class="text-3xl font-bold">
+                            <h1 class="text-3xl font-bold mb-4 ">
                                 <span>Purchase Order #0{{ purchase.id }}</span>
                             </h1>
                         </div>
-                        <div class="flex justify-end gap-2 flex-col sm:flex-row">
-                            <div class="text-right">
+                        <div class="flex justify-start sm:justify-end gap-2">
+                            <div class="flex flex-col mb-3 items-start sm:items-end">
                                 <h1 class="text-xl font-bold">
                                     <span>Store 1 </span>
                                 </h1>
                                 <p>Locc Proper Plaridel Misamis occidental</p>
                                 <p>Date: {{ formatDate(purchase.created_at) }}</p>
+                                <p>Status: {{ purchase.status }}</p>
                             </div>
                         </div>
                         <h2 class="font-bold text-xl">Supplier </h2>
@@ -175,12 +164,12 @@ const formatDate = (dateString) => {
                             </table>
                         </div>
 
-                        <div class="flex gap-4 justify-between mt-5 flex-col sm:flex-row">
+                        <div class="flex gap-4 justify-between mt-5 flex-col-reverse sm:flex-row">
                             <div class="w-full sm:w-1/2">
                                 <InputLabel class="label" value="Notes" />
                                 <textarea v-model="purchase.notes" class="textarea textarea-bordered w-full max-w-md" placeholder="Type here" ></textarea>
                             </div>
-                            <div class="w-full sm: w-1/2 flex justify-end">
+                            <div class="w-full sm:w-1/2 flex justify-end">
                                 <div class="bg-base-200 w-full rounded-lg p-4 px-5 shadow-sm border border-base-400">
                                     <div class="flex justify-between mb-2">
                                         <span>Items:</span>
@@ -207,9 +196,7 @@ const formatDate = (dateString) => {
                     <div class="flex justify-end gap-2 flex-col lg:flex-row mt-10">
                         <div class="flex justify-end gap-3 flex-col md:flex-row">
                             <CancelButton href="/purchase" />
-                            <a :href="route('purchase.downloadPDF', purchase.id)">PDF</a>
-                            <button @click="generatePDF">Download PDF</button>
-
+                            <DownloadButton :href="route('purchase.downloadPDF', purchase.id)"> Download PDF </DownloadButton>
                             <PrintButton :id="'purchaseContainer'" />
                         </div>
                     </div>

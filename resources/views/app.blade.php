@@ -14,6 +14,7 @@
         document.documentElement.setAttribute("data-theme", localStorage.getItem("theme"))
     </script>
     <!-- Scripts -->
+
     @routes
     @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
     @inertiaHead

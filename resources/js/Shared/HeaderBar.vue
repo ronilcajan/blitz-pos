@@ -10,8 +10,6 @@ watch(darkMode, () => {
 	localStorage.setItem('theme', darkMode.value ? 'dark' : 'light');
 	document.documentElement.setAttribute("data-theme", localStorage.getItem("theme"))
 })
-
-console.log(darkMode.value);
 </script>
 
 <template>
