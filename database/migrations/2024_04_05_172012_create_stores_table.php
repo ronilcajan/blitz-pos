@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('timezone')->nullable();
             $table->string('currency')->nullable();
+            $table->string('currency_name')->nullable();
+            $table->string('currency_symbol')->nullable();
             $table->string('tax')->nullable();
             $table->string('description')->nullable();
             $table->string('address')->nullable();

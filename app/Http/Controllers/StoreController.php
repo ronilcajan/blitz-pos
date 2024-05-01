@@ -6,6 +6,7 @@ use App\Http\Requests\StoreFormRequest;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Http;
 
 class StoreController extends Controller
 {
@@ -68,16 +69,42 @@ class StoreController extends Controller
      */
     public function show(Store $store)
     {
+        $api_key = env('COUNTRY_API_KEY');
+        $response = Http::get('https://countryapi.io/api/all?apikey='.$api_key)->json();
+
+        $countries = [];
+
+        foreach($response as $country){
+            $currencies = $country['currencies'];
+            $currencyCode = array_keys($currencies)[0]; // Get the first currency code
+            $currencyInfo = $currencies[$currencyCode];
+
+            $countries[] = [
+                'name' => $country['name'],
+                'flag' => $country['flag']['small'],
+                'alpha3Code' => $country['alpha3Code'],
+                'timezone' => $country['timezones'][0],
+                'currency_code' => $currencyCode,
+                'currency_name' => $currencyInfo['name'] ?? null,
+                'currency_symbol' => $currencyInfo['symbol'] ?? null,
+            ];
+        }
+
+        $store = [
+            'id' => $store->id,
+            'name' => $store->name,
+            'address' => $store->address,
+            'contact' => $store->contact,
+            'email' => $store->email,
+            'logo' => $store->logo,
+            'created_at' => $store->created_at->format('M d, Y h:i: A'),
+        ];
+
+
        return inertia('Store/Show', [
-           'store' => [
-               'id' => $store->id,
-               'name' => $store->name,
-               'address' => $store->address,
-               'contact' => $store->contact,
-               'email' => $store->email,
-               'logo' => $store->logo,
-               'created_at' => $store->created_at->format('M d, Y h:i: A'),
-           ]
+            'title' => 'Store Details',
+            'store' => $store,
+            'countries' => $countries,
        ]);
     }
     /**

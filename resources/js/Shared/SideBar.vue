@@ -102,7 +102,7 @@
 					</NavLink>
 				</li>
 					<li v-show="!$page.props.auth.user.isStaff && !$page.props.auth.user.isAdmin">
-						<details details :open="$page.component.startsWith('Users')" >
+						<details details :open="$page.component.startsWith('Users') || $page.component.startsWith('Store')" >
 							<summary>
 								<svg data-src="https://unpkg.com/heroicons/20/solid/adjustments-vertical.svg" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon" data-id="svg-loader_17">
 								<path d="M17 2.75a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5ZM17 15.75a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0v-1.5ZM3.75 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 .75-.75ZM4.5 2.75a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5ZM10 11a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0v-5.5A.75.75 0 0 1 10 11ZM10.75 2.75a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0v-1.5ZM10 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM3.75 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM16.25 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"></path>
@@ -116,7 +116,7 @@
                                     </NavLink>
                                 </li>
 								<li class="mb-2" v-show="$page.props.auth.user.isOwner">
-                                    <NavLink :active="$page.component.startsWith('Stores')" :href="`/stores/${$page.props.auth.user.store_id}`">
+                                    <NavLink :active="$page.component.startsWith('Store')" :href="`/stores/${$page.props.auth.user.store_id}`">
                                         Store
                                     </NavLink>
                                 </li>
