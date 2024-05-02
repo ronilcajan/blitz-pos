@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->string('industry')->nullable();
             $table->string('country')->nullable();
+            $table->string('country_code')->nullable();
             $table->string('timezone')->nullable();
             $table->string('currency')->nullable();
             $table->string('currency_name')->nullable();

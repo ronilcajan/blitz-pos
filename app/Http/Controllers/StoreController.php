@@ -73,7 +73,6 @@ class StoreController extends Controller
         $response = Http::get('https://countryapi.io/api/all?apikey='.$api_key)->json();
 
         $countries = [];
-
         foreach($response as $country){
             $currencies = $country['currencies'];
             $currencyCode = array_keys($currencies)[0]; // Get the first currency code

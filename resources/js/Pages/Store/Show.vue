@@ -11,8 +11,7 @@ const props = defineProps({
 	filters: Object
 });
 
-const currency = ref(null);
-const searchTerm = ref('');
+const image_preview = ref(null);
 
 const form = useForm({
     name: props.store?.name,
@@ -23,7 +22,9 @@ const form = useForm({
     website: props.store?.website,
     industry: props.store?.industry ?? '',
     country: props.store?.country ?? '',
+    country_code: props.store?.country_code ?? '',
     timezone : props.store?.timezone ?? '',
+    timezone_ : '',
     currency : props.store?.currency ?? '',
     currency_name : props.store?.currency ?? '',
     currency_symbol : props.store?.currency_symbol ?? '',
@@ -56,7 +57,9 @@ const countryChange = (e) => {
 
     if (selectedCountry) {
         form.country = e.name;
-        form.timezone = selectedCountry.alpha3Code;
+        form.country_code = selectedCountry.alpha3Code;
+        form.timezone_ = selectedCountry.alpha3Code;
+        form.timezone = selectedCountry.timezone;
         form.currency = selectedCountry.currency_code;
         form.currency_name = selectedCountry.currency_name;
         form.currency_symbol = selectedCountry.currency_symbol;
@@ -68,6 +71,14 @@ const filterCountries = (searchTerm) => {
     return sortedCountries.value.filter(country =>
         country.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+}
+const onFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+    }
+    image_preview.value = URL.createObjectURL(file);
 }
 
 </script>
@@ -218,8 +229,8 @@ const filterCountries = (searchTerm) => {
                                     @input="filterCountries(form.country)"
                                     placeholder="Select a country"
                                 />
-                                    <ul tabindex="0" class="dropdown-content z-[1] bg-base-100 shadow-lg w-full overflow-y-auto h-64">
-                                        <li class="p-2 px-5 border-b border-gray-50 cursor-pointer hover:bg-base-300 flex gap-2" v-for="(country,index) in sortedCountries" :key="index" @click="countryChange(country)">
+                                    <ul tabindex="0" class="dropdown-content z-[1] bg-base-100 shadow-lg w-full overflow-y-auto max-h-40">
+                                        <li class="p-2 px-5 border-b border-gray-50 cursor-pointer hover:bg-base-300 flex gap-2" v-for="(country,index) in filterCountries(form.country)" :key="index" @click="countryChange(country)">
                                         <img :src="country.flag" alt="">
                                         {{ country.name }}
                                         </li>
@@ -229,7 +240,7 @@ const filterCountries = (searchTerm) => {
                             </div>
                             <div class="form-control">
                                 <InputLabel for="phone" value="Timezone" />
-                                <select v-model="form.timezone" class="select select-bordered w-full">
+                                <select v-model="form.timezone_" class="select select-bordered w-full">
                                     <option value="">Select a timezone...</option>
                                     <option v-for="(country,index) in sortedCountries" :key="index" :value="country.alpha3Code">{{ country.alpha3Code+' - '+country.timezone }}</option>
                                 </select>
@@ -244,21 +255,43 @@ const filterCountries = (searchTerm) => {
                                     <option value="">Select a currency...</option>
                                     <option v-for="(country,index) in sortedCountries" :key="index" :value="country.currency_code">{{ country.currency_code + " - "+ country.currency_symbol  }}</option>
                                 </select>
-                                <InputError class="mt-2" :message="form.errors.email" />
+                                <InputError class="mt-2" :message="form.errors.currency" />
+                                <TextInput
+                                    type="hidden"
+                                    v-model="form.timezone"
+                                />
+                                <TextInput
+                                    type="hidden"
+                                    v-model="form.currency"
+                                />
+                                <TextInput
+                                    type="hidden"
+                                    v-model="form.country_code"
+                                />
+                                <TextInput
+                                    type="hidden"
+                                    v-model="form.currency_symbol"
+                                />
                             </div>
                             <div class="form-control">
-                                <InputLabel for="phone" value="Currency Symbol" />
-                                <select v-model="form.currency_symbol" class="select select-bordered w-full">
-                                    <option value="">Select a currency...</option>
-                                    <option v-for="(country,index) in countries" :key="index" :value="country.currency_code">{{ country.currency_symbol }}</option>
-                                </select>
-                                <InputError class="mt-2" :message="form.errors.currency" />
+                                <InputLabel for="phone" value="TIN" />
+                                <TextInput
+                                    type="url"
+                                    class="block w-full"
+                                    v-model="form.tax"
+                                    placeholder="Enter TIN"
+                                />
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <InputLabel value="Timezone" />
+                        <div>
+                            <InputLabel value="Full address" />
                             <textarea v-model="form.address" class="textarea w-full textarea-bordered" placeholder="Address" ref=""></textarea>
                             <InputError class="mt-2" :message="form.errors.address" />
+                        </div>
+                        <div class="mb-3">
+                            <InputLabel value="Store description" />
+                            <textarea v-model="form.description" class="textarea w-full textarea-bordered" placeholder="Address" ref=""></textarea>
+                            <InputError class="mt-2" :message="form.errors.description" />
                         </div>
                     </div>
                 </div>
@@ -270,15 +303,10 @@ const filterCountries = (searchTerm) => {
                             <span class="uppercase">Customer Profile</span>
                         </h2>
 
-                        <div class="flex items-center justify-center w-full">
-                            <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg">
-                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="200"  height="200"  viewBox="0 0 24 24"  fill="none"  stroke="#9b9797"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-8 4.5" /></svg>
-                                </div>
-                            </label>
-                        </div>
+                        <ImageUpload :initialImage="image_preview" />
+
                         <div class="mt-3">
-                            <input accept="image/*" @input="form.logo = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full " />
+                            <input accept="image/*" @input="form.logo = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full" @change="onFileChange"/>
                             <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
                                 {{ form.progress.percentage }}%
                             </progress>

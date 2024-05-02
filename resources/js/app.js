@@ -29,6 +29,7 @@ import PrintButton from '@/Components/PrintButton.vue';
 import CancelButton from '@/Components/CancelButton.vue';
 import DownloadButton from '@/Components/DownloadButton.vue';
 import Pagination from '@/Components/Pagination.vue';
+import ImageUpload from '@/Components/ImageUpload.vue';
 import PaginationControlList from '@/Components/PaginationControlList.vue';
 import PaginationResultRange from '@/Components/PaginationResultRange.vue';
 import FilterByStoreDropdown from '@/Components/FilterByStoreDropdown.vue';
@@ -61,6 +62,7 @@ createInertiaApp({
             .component('Dropdown', Dropdown)
             .component('DropdownLink', DropdownLink)
             .component('InputLabel', InputLabel)
+            .component('ImageUpload', ImageUpload)
             .component('NavLink', NavLink)
             .component('CreateButtonLink', CreateButtonLink)
             .component('DefaultButtonLink', DefaultButtonLink)
