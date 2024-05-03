@@ -21,7 +21,7 @@ class StoreFactory extends Factory
             'email' => fake()->companyEmail(),
             'contact' => fake()->phoneNumber(),
             'address' => fake()->address(),
-            'logo' => fake()->imageUrl(),
+            'avatar' => fake()->imageUrl(),
         ];
     }
 }

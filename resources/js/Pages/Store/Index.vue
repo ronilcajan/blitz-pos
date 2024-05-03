@@ -28,7 +28,7 @@ const createForm = useForm({
 	email: '',
 	contact: '',
 	address: '',
-	logo: '',
+	avatar: '',
 });
 
 const editForm = useForm({
@@ -38,7 +38,7 @@ const editForm = useForm({
 	contact: '',
 	address: '',
 	initialLogo: '',
-    logo: '',
+    avatar: '',
 });
 
 const deleteForm = useForm({
@@ -234,9 +234,9 @@ watch(search, debounce(function (value) {
                         </td>
                         <td class="w-5">
                             <div class="flex items-center gap-2">
-                                <div class="avatar" v-show="store.logo">
+                                <div class="avatar" v-show="store.avatar">
                                     <div class="mask mask-squircle h-10 w-10">
-                                        <img :src="store.logo" alt="Store logo">
+                                        <img :src="store.avatar" alt="Store logo">
                                     </div>
                                 </div>
                                 <div>
@@ -257,7 +257,7 @@ watch(search, debounce(function (value) {
                             <div class="flex items-center space-x-2">
                                 <button class=" hover:text-green-500"
                                     @click="editModalForm(store.id,
-                                        { name: store.name, email: store.email,contact: store.contact, address: store.address,initialLogo: store.logo})">
+                                        { name: store.name, email: store.email,contact: store.contact, address: store.address,initialLogo: store.file})">
                                     <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
                                     </svg>
@@ -341,11 +341,11 @@ watch(search, debounce(function (value) {
                 </div>
                 <div class="mb-3">
                     <InputLabel value="Store logo" />
-                    <input accept="image/*" @input="createForm.logo = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
+                    <input accept="image/*" @input="createForm.avatar = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
                     <progress v-if="createForm.progress" :value="createForm.progress.percentage" class="progress" max="100">
                         {{ createForm.progress.percentage }}%
                     </progress>
-                    <InputError class="mt-2" :message="createForm.errors.logo" />
+                    <InputError class="mt-2" :message="createForm.errors.avatar" />
                 </div>
 
 
@@ -413,11 +413,11 @@ watch(search, debounce(function (value) {
                         <img width="60" class="rounded-md" :src="editForm.initialLogo" alt="Product">
                     </div>
                     <InputLabel value="Store logo" />
-                    <input accept="image/*" @input="editForm.logo = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
+                    <input accept="image/*" @input="editForm.avatar = $event.target.avatar[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
                     <progress v-if="editForm.progress" :value="editForm.progress.percentage" class="progress" max="100">
                         {{ editForm.progress.percentage }}%
                     </progress>
-                    <InputError class="mt-2" :message="editForm.errors.logo" />
+                    <InputError class="mt-2" :message="editForm.errors.avatar" />
                 </div>
 
 

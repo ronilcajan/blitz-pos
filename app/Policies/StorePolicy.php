@@ -29,7 +29,7 @@ class StorePolicy
      */
     public function update(User $user, Store $model): bool
     {
-        return $user->hasRole('super-admin');
+        return $user->hasRole('super-admin|owner') || $user->store_id === $model->id;
     }
 
     /**

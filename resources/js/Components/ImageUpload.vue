@@ -1,21 +1,36 @@
 <script setup>
 import { ref, watch } from 'vue';
 
-const props = defineProps({
-    initialImage: {
-        type: String,
-        default: null,
-    },
+const props = defineProps(
+    {
+        avatar: {
+            type: String,
+        }
+    }
+);
+
+const model = defineModel({
+    type: Object,
+    required: true,
 });
+const image_preview = ref(props.avatar);
 
-const image_preview = ref(null);
-
-watch(() => props.initialImage, (newVal) => {
+watch(() => model.file, (newVal) => {
     image_preview.value = newVal;
+    model.avatar = '';
 });
 
 const removeImage = () => {
     image_preview.value = null;
+}
+
+const onFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+    }
+    image_preview.value = URL.createObjectURL(file);
 }
 
 </script>
@@ -33,6 +48,13 @@ const removeImage = () => {
                 <img class="hover:opacity-90" v-if="image_preview" :src="image_preview" />
             </div>
         </label>
+    </div>
+    <div class="mt-3">
+        <input accept="image/*" @input="model.avatar = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full" @change="onFileChange"/>
+        <progress v-if="model.progress" :value="model.progress.percentage" class="progress" max="100">
+            {{ model.progress.percentage }}%
+        </progress>
+        <InputError class="mt-2" :message="model.errors.avatar" />
     </div>
 </template>
 

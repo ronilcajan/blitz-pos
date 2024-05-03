@@ -2,8 +2,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm } from '@inertiajs/vue3'
 import { ref,computed } from 'vue';
+import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
+
 const props = defineProps({
     title: String,
     store: Object,
@@ -11,9 +13,10 @@ const props = defineProps({
 	filters: Object
 });
 
-const image_preview = ref(null);
+const tin = ref(null);
 
 const form = useForm({
+    id: props.store.id,
     name: props.store?.name,
     founder: props.store?.founder,
     tagline: props.store?.tagline,
@@ -30,16 +33,17 @@ const form = useForm({
     currency_symbol : props.store?.currency_symbol ?? '',
     tax : props.store?.tax,
     description : props.store?.description,
-    logo : '',
+    avatar : '',
 });
 
+console.log(props.store.avatar);
+
 const submitUpdateForm = () => {
-    form.post(`/stores/${props.store.id}`,{
+    form.post(`/stores/update`,{
         replace: true,
         preserveScroll: true,
         onSuccess: () => {
-            form.reset()
-            useToast().success(`Store has been updated successfully!`, {
+            useToast().success(`Store details has been updated successfully!`, {
                 position: 'top-right',
                 duration: 3000,
                 dismissible: true
@@ -63,7 +67,7 @@ const countryChange = (e) => {
         form.currency = selectedCountry.currency_code;
         form.currency_name = selectedCountry.currency_name;
         form.currency_symbol = selectedCountry.currency_symbol;
-        currency.value.focus()
+        tin.value.focus()
     }
 }
 
@@ -72,14 +76,6 @@ const filterCountries = (searchTerm) => {
         country.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 }
-const onFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
-    }
-    image_preview.value = URL.createObjectURL(file);
-}
 
 </script>
 
@@ -87,7 +83,7 @@ const onFileChange = (e) => {
 <template>
     <Head :title="title" />
 
-    <form @submit.prevent="submitCreateForm">
+    <form @submit.prevent="submitUpdateForm">
         <div class="flex gap-5 flex-col md:flex-row">
             <div class="w-full sm:w-2/3">
                 <div class="card bg-base-100 shadow">
@@ -97,15 +93,7 @@ const onFileChange = (e) => {
                                 <span class="uppercase">Store Information</span>
                             </h2>
                             <div class="flex justify-end gap-3 flex-col md:flex-row">
-
-                                <SuccessButton type="submit"
-                                    class="btn btn-sm"
-                                    :class="{ 'opacity-25': form.processing }"
-                                    :disabled="form.processing"
-                                >
-                                    <span v-if="form.processing" class="loading loading-spinner"></span>
-                                    Save changes
-                                </SuccessButton>
+                                <SaveButton v-model="form" />
                             </div>
                         </div>
                         <div>
@@ -127,7 +115,6 @@ const onFileChange = (e) => {
                                     type="text"
                                     class="block w-full"
                                     v-model="form.tagline"
-
                                     placeholder="Enter store tagline"
                                 />
                                 <InputError class="mt-2" :message="form.errors.tagline" />
@@ -138,7 +125,6 @@ const onFileChange = (e) => {
                                     type="text"
                                     class="block w-full"
                                     v-model="form.founder"
-                                    required
                                     placeholder="Enter store founder"
                                 />
                                 <InputError class="mt-2" :message="form.errors.founder" />
@@ -163,11 +149,10 @@ const onFileChange = (e) => {
                                 <TextInput
                                     type="text"
                                     class="block w-full"
-                                    v-model="form.phone"
-
+                                    v-model="form.contact"
                                     placeholder="Enter phone number"
                                 />
-                                <InputError class="mt-2" :message="form.errors.phone" />
+                                <InputError class="mt-2" :message="form.errors.contact" />
                             </div>
                         </div>
 
@@ -220,14 +205,14 @@ const onFileChange = (e) => {
 
                             <div class="form-control">
                                 <InputLabel for="name" value="Country" />
-
                                 <div class="dropdown">
                                     <TextInput
-                                    type="url"
+                                    type="text"
                                     class="block w-full"
                                     v-model="form.country"
                                     @input="filterCountries(form.country)"
                                     placeholder="Select a country"
+                                    required
                                 />
                                     <ul tabindex="0" class="dropdown-content z-[1] bg-base-100 shadow-lg w-full overflow-y-auto max-h-40">
                                         <li class="p-2 px-5 border-b border-gray-50 cursor-pointer hover:bg-base-300 flex gap-2" v-for="(country,index) in filterCountries(form.country)" :key="index" @click="countryChange(country)">
@@ -236,7 +221,7 @@ const onFileChange = (e) => {
                                         </li>
                                     </ul>
                                 </div>
-                                <InputError class="mt-2" :message="form.errors.email" />
+                                <InputError class="mt-2" :message="form.errors.country" />
                             </div>
                             <div class="form-control">
                                 <InputLabel for="phone" value="Timezone" />
@@ -253,7 +238,9 @@ const onFileChange = (e) => {
                                 <InputLabel for="name" value="Currency" />
                                 <select v-model="form.currency" class="select select-bordered w-full" ref="currency">
                                     <option value="">Select a currency...</option>
-                                    <option v-for="(country,index) in sortedCountries" :key="index" :value="country.currency_code">{{ country.currency_code + " - "+ country.currency_symbol  }}</option>
+                                    <option v-for="(country,index) in sortedCountries"
+                                    :key="index"
+                                    :value="country.currency_code">{{ country.currency_code + " - "+ country.currency_symbol  }}</option>
                                 </select>
                                 <InputError class="mt-2" :message="form.errors.currency" />
                                 <TextInput
@@ -276,21 +263,22 @@ const onFileChange = (e) => {
                             <div class="form-control">
                                 <InputLabel for="phone" value="TIN" />
                                 <TextInput
-                                    type="url"
+                                    type="text"
                                     class="block w-full"
                                     v-model="form.tax"
                                     placeholder="Enter TIN"
+                                    ref="tin"
                                 />
                             </div>
                         </div>
                         <div>
                             <InputLabel value="Full address" />
-                            <textarea v-model="form.address" class="textarea w-full textarea-bordered" placeholder="Address" ref=""></textarea>
+                            <TextArea placeholder="Address" v-model="form.address" />
                             <InputError class="mt-2" :message="form.errors.address" />
                         </div>
                         <div class="mb-3">
-                            <InputLabel value="Store description" />
-                            <textarea v-model="form.description" class="textarea w-full textarea-bordered" placeholder="Address" ref=""></textarea>
+                            <InputLabel value="Description" />
+                            <TextArea placeholder="Shop description" v-model="form.description" />
                             <InputError class="mt-2" :message="form.errors.description" />
                         </div>
                     </div>
@@ -302,17 +290,7 @@ const onFileChange = (e) => {
                         <h2 class="card-title grow text-sm mb-5">
                             <span class="uppercase">Customer Profile</span>
                         </h2>
-
-                        <ImageUpload :initialImage="image_preview" />
-
-                        <div class="mt-3">
-                            <input accept="image/*" @input="form.logo = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full" @change="onFileChange"/>
-                            <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
-                                {{ form.progress.percentage }}%
-                            </progress>
-                            <InputError class="mt-2" :message="form.errors.logo" />
-                        </div>
-
+                        <ImageUpload v-model="form" :avatar="store.avatar" />
                     </div>
                 </div>
             </div>

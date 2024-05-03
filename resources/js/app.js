@@ -1,6 +1,7 @@
 import './bootstrap';
 import '../css/app.css';
 import 'vue-toast-notification/dist/theme-default.css';
+import.meta.glob('../images/**');
 
 import { createApp, h } from 'vue';
 import { createInertiaApp, Head, Link } from '@inertiajs/vue3';
@@ -16,12 +17,14 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import SuccessButton from '@/Components/SuccessButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import TextArea from '@/Components/TextArea.vue';
 import NumberInput from '@/Components/NumberInput.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import CreateButtonLink from '@/Components/CreateButtonLink.vue';
 import DefaultButtonLink from '@/Components/DefaultButtonLink.vue';
+import SaveButton from '@/Components/SaveButton.vue';
 import DeleteButton from '@/Components/DeleteButton.vue';
 import Paginator from '@/Components/Paginator.vue';
 import SearchInput from '@/Components/SearchInput.vue';
@@ -34,6 +37,7 @@ import PaginationControlList from '@/Components/PaginationControlList.vue';
 import PaginationResultRange from '@/Components/PaginationResultRange.vue';
 import FilterByStoreDropdown from '@/Components/FilterByStoreDropdown.vue';
 import Modal from '@/Components/Modal.vue';
+import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -58,6 +62,7 @@ createInertiaApp({
             .component('CancelButton', CancelButton)
             .component('DownloadButton', DownloadButton)
             .component('TextInput', TextInput)
+            .component('TextArea', TextArea)
             .component('NumberInput', NumberInput)
             .component('Dropdown', Dropdown)
             .component('DropdownLink', DropdownLink)
@@ -66,10 +71,12 @@ createInertiaApp({
             .component('NavLink', NavLink)
             .component('CreateButtonLink', CreateButtonLink)
             .component('DefaultButtonLink', DefaultButtonLink)
+            .component('SaveButton', SaveButton)
             .component('DeleteButton', DeleteButton)
             .component('Paginator', Paginator)
             .component('SearchInput', SearchInput)
             .component('Pagination', Pagination)
+            .component('ApplicationLogo', ApplicationLogo)
             .component('PaginationControlList', PaginationControlList)
             .component('PaginationResultRange', PaginationResultRange)
             .component('FilterByStoreDropdown', FilterByStoreDropdown)

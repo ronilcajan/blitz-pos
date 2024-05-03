@@ -33,7 +33,7 @@ class StoreController extends Controller
                     'address' => $store->address,
                     'contact' => $store->contact,
                     'email' => $store->email,
-                    'logo' => $store->logo,
+                    'avatar' => $store->avatar,
                     'created_at' => $store->created_at->format('M d, Y h:i: A'),
                 ];
         });
@@ -54,9 +54,9 @@ class StoreController extends Controller
 
         $validate = $request->validated();
 
-        if($request->hasFile('logo')){
-            $logo = $request->file('logo')->store('store','public');
-            $validate['logo'] = asset('storage/'. $logo);
+        if($request->hasFile('file')){
+            $avatar = $request->file('file')->store('store','public');
+            $validate['avatar'] = asset('storage/'. $avatar);
         }
 
         Store::create($validate);
@@ -92,13 +92,23 @@ class StoreController extends Controller
         $store = [
             'id' => $store->id,
             'name' => $store->name,
-            'address' => $store->address,
-            'contact' => $store->contact,
+            'founder' => $store->founder,
+            'tagline' => $store->tagline,
             'email' => $store->email,
-            'logo' => $store->logo,
-            'created_at' => $store->created_at->format('M d, Y h:i: A'),
+            'contact' => $store->contact,
+            'website' => $store->website,
+            'industry' => $store->industry,
+            'country' => $store->country,
+            'country_code' => $store->country_code,
+            'timezone' => $store->timezone,
+            'currency' => $store?->currency,
+            'currency_name' => $store->currency_name,
+            'currency_symbol' => $store->currency_symbol,
+            'tax' => $store->tax,
+            'description' => $store->description,
+            'address' => $store->address,
+            'avatar' => $store->avatar,
         ];
-
 
        return inertia('Store/Show', [
             'title' => 'Store Details',
@@ -113,13 +123,13 @@ class StoreController extends Controller
     {
         $store = Store::find($request->id);
 
-        Gate::authorize('create', $store);
+        auth()->user()->can('update', $store);
 
         $validate = $request->validated();
 
-        if($request->hasFile('logo')){
-            $logo = $request->file('logo')->store('stores','public');
-            $validate['logo'] = asset('storage/'.$logo);
+        if($request->hasFile('avatar')){
+            $avatar = $request->file('avatar')->store('stores','public');
+            $validate['avatar'] = asset('storage/'.$avatar);
         }
 
         $store->update($validate);

@@ -24,7 +24,20 @@ class StoreFormRequest extends FormRequest
         return [
             'name' => 'required',
             'email' => 'required|email',
+            'founder' => '',
+            'tagline' => '',
             'contact' => '',
+            'website' => '',
+            'industry' => '',
+            'country' => '',
+            'country_code' => '',
+            'timezone' => '',
+            'contact' => '',
+            'currency' => '',
+            'currency_name' => '',
+            'currency_symbol' => '',
+            'tax' => '',
+            'description' => '',
             'address' => '',
         ];
     }

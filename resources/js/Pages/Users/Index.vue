@@ -129,13 +129,8 @@ watch(status, value => {
 
 <template>
     <Head :title="title" />
-    <section class="stats stats-vertical col-span-12 w-full shadow-sm xl:stats-horizontal">
-		<StatsCard title="Total Users" :users="userSummary" filter="all" />
-		<StatsCard title="Total Active User" :users="userSummary" filter="active" />
-		<StatsCard title="Total Inactive User" :users="userSummary" filter="inactive" />
-		<StatsCard title="Total Blocked User" :users="userSummary" filter="blocked" />
-	</section>
-    <div class="flex justify-end items-center mb-5 gap-3 mt-4 flex-wrap">
+
+    <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
         <DefaultButtonLink href="/users" v-show="status || store">
             Clear Result
         </DefaultButtonLink>
@@ -144,6 +139,12 @@ watch(status, value => {
         <DownloadButton :href="route('user.export')">Export</DownloadButton>
         <StatusFilter v-model="status" />
     </div>
+    <section class="stats stats-vertical col-span-12 mb-5 w-full shadow-sm xl:stats-horizontal">
+		<StatsCard title="Total Users" :users="userSummary" filter="all" />
+		<StatsCard title="Total Active User" :users="userSummary" filter="active" />
+		<StatsCard title="Total Inactive User" :users="userSummary" filter="inactive" />
+		<StatsCard title="Total Blocked User" :users="userSummary" filter="blocked" />
+	</section>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="p-4 grow-0 ">
             <div class="flex justify-between gap-2 flex-col sm:flex-row">
