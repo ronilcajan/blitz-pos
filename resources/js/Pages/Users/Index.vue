@@ -135,7 +135,7 @@ watch(status, value => {
             Clear Result
         </DefaultButtonLink>
         <CreateButtonLink href="/users/create">New user</CreateButtonLink>
-        <DeleteButton v-model="userIds" @delete-all="submitBulkDeleteForm">Delete</DeleteButton>
+        <DeleteButton v-show="userIds.length > 0" @click="deleteAllSelectedModal=true">Delete</DeleteButton>
         <DownloadButton :href="route('user.export')">Export</DownloadButton>
         <StatusFilter v-model="status" />
     </div>

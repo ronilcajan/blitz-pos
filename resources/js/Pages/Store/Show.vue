@@ -14,6 +14,7 @@ const props = defineProps({
 });
 
 const tin = ref(null);
+const country = ref('');
 
 const form = useForm({
     id: props.store.id,
@@ -26,17 +27,16 @@ const form = useForm({
     industry: props.store?.industry ?? '',
     country: props.store?.country ?? '',
     country_code: props.store?.country_code ?? '',
-    timezone : props.store?.timezone ?? '',
-    timezone_ : '',
-    currency : props.store?.currency ?? '',
-    currency_name : props.store?.currency ?? '',
-    currency_symbol : props.store?.currency_symbol ?? '',
+    // timezone : props.store?.timezone ?? '',
+    // timezone_ : '',
+    // currency : props.store?.currency ?? '',
+    // currency_name : props.store?.currency ?? '',
+    // currency_symbol : props.store?.currency_symbol ?? '',
     tax : props.store?.tax,
+    address : props.store?.address,
     description : props.store?.description,
     avatar : '',
 });
-
-console.log(props.store.avatar);
 
 const submitUpdateForm = () => {
     form.post(`/stores/update`,{
@@ -52,27 +52,24 @@ const submitUpdateForm = () => {
     })
 }
 
-const sortedCountries = computed(() => {
-    return props.countries.sort((a, b) => a.name.localeCompare(b.name));
-});
-
 const countryChange = (e) => {
-    const selectedCountry = sortedCountries.value.find(country => country.name === e.name);
+    const selectedCountry = props.countries.find(country => country.name === e.name);
 
     if (selectedCountry) {
         form.country = e.name;
         form.country_code = selectedCountry.alpha3Code;
-        form.timezone_ = selectedCountry.alpha3Code;
-        form.timezone = selectedCountry.timezone;
-        form.currency = selectedCountry.currency_code;
-        form.currency_name = selectedCountry.currency_name;
-        form.currency_symbol = selectedCountry.currency_symbol;
-        tin.value.focus()
+        // form.timezone_ = selectedCountry.alpha3Code;
+        // form.timezone = selectedCountry.timezone;
+        // form.currency = selectedCountry.currency_code;
+        // form.currency_name = selectedCountry.currency_name;
+        // form.currency_symbol = selectedCountry.currency_symbol;
+        tin.value.focus();
+        country.value = '';
     }
 }
 
 const filterCountries = (searchTerm) => {
-    return sortedCountries.value.filter(country =>
+    return props.countries.filter(country =>
         country.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 }
@@ -210,13 +207,21 @@ const filterCountries = (searchTerm) => {
                                     type="text"
                                     class="block w-full"
                                     v-model="form.country"
-                                    @input="filterCountries(form.country)"
                                     placeholder="Select a country"
                                     required
                                 />
                                     <ul tabindex="0" class="dropdown-content z-[1] bg-base-100 shadow-lg w-full overflow-y-auto max-h-40">
-                                        <li class="p-2 px-5 border-b border-gray-50 cursor-pointer hover:bg-base-300 flex gap-2" v-for="(country,index) in filterCountries(form.country)" :key="index" @click="countryChange(country)">
-                                        <img :src="country.flag" alt="">
+                                        <li class="p-2 pt-3">
+                                            <TextInput
+                                            type="text"
+                                            v-model="country"
+                                            class="block w-full input-sm mb-0"
+                                            @input="filterCountries(country)"
+                                            placeholder="search country..."
+                                        />
+                                        </li>
+                                        <li class="p-2 px-5 border-b border-gray-50 cursor-pointer hover:bg-base-300 flex gap-2" v-for="(country,index) in filterCountries(country)" :key="index" @click="countryChange(country)">
+                                        <img :src="country.flag" class="w-8" alt="">
                                         {{ country.name }}
                                         </li>
                                     </ul>
@@ -224,24 +229,19 @@ const filterCountries = (searchTerm) => {
                                 <InputError class="mt-2" :message="form.errors.country" />
                             </div>
                             <div class="form-control">
-                                <InputLabel for="phone" value="Timezone" />
-                                <select v-model="form.timezone_" class="select select-bordered w-full">
-                                    <option value="">Select a timezone...</option>
-                                    <option v-for="(country,index) in sortedCountries" :key="index" :value="country.alpha3Code">{{ country.alpha3Code+' - '+country.timezone }}</option>
-                                </select>
-                                <InputError class="mt-2" :message="form.errors.timezone" />
+                                <InputLabel for="phone" value="TIN" />
+                                <TextInput
+                                    type="text"
+                                    class="block w-full"
+                                    v-model="form.tax"
+                                    placeholder="Enter TIN"
+                                    ref="tin"
+                                />
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
                             <div class="form-control">
-                                <InputLabel for="name" value="Currency" />
-                                <select v-model="form.currency" class="select select-bordered w-full" ref="currency">
-                                    <option value="">Select a currency...</option>
-                                    <option v-for="(country,index) in sortedCountries"
-                                    :key="index"
-                                    :value="country.currency_code">{{ country.currency_code + " - "+ country.currency_symbol  }}</option>
-                                </select>
                                 <InputError class="mt-2" :message="form.errors.currency" />
                                 <TextInput
                                     type="hidden"
@@ -258,16 +258,6 @@ const filterCountries = (searchTerm) => {
                                 <TextInput
                                     type="hidden"
                                     v-model="form.currency_symbol"
-                                />
-                            </div>
-                            <div class="form-control">
-                                <InputLabel for="phone" value="TIN" />
-                                <TextInput
-                                    type="text"
-                                    class="block w-full"
-                                    v-model="form.tax"
-                                    placeholder="Enter TIN"
-                                    ref="tin"
                                 />
                             </div>
                         </div>

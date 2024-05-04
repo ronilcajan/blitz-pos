@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laratrust\Traits\HasRolesAndPermissions;
@@ -20,8 +21,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 #[ScopedBy([UserScope::class])]
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, HasRolesAndPermissions, LogsActivity;
-
+    use HasFactory, Notifiable, SoftDeletes, HasRolesAndPermissions, LogsActivity, Authorizable;
     /**
      * The attributes that are mass assignable.
      *
@@ -56,12 +56,12 @@ class User extends Authenticatable
     public function store():BelongsTo
     {
         return $this->belongsTo(Store::class);
-    } 
+    }
 
     public function details(): HasOne
     {
         return $this->hasOne(UserDetail::class);
-    } 
+    }
 
     public function getRoleAttribute()
     {
@@ -95,7 +95,7 @@ class User extends Authenticatable
             if($status != 'all'){
                 $query->where('status', $status);
             }
-           
+
         }
     }
 
@@ -105,6 +105,6 @@ class User extends Authenticatable
             ->useLogName('User')
             ->logOnly(['name'])
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");    
+            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
     }
 }

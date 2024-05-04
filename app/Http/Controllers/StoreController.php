@@ -15,7 +15,7 @@ class StoreController extends Controller
      */
     public function index(Request $request)
     {
-        Gate::authorize('viewAny', Store::class);
+        auth()->user()->can('viewAny', Store::class);
 
         $perPage = $request->per_page
         ? ($request->per_page == 'All' ? Store::count() : $request->per_page)
@@ -50,7 +50,7 @@ class StoreController extends Controller
      */
     public function store(StoreFormRequest $request)
     {
-        Gate::authorize('create', Store::class);
+        auth()->user()->can('create', Store::class);
 
         $validate = $request->validated();
 
@@ -69,23 +69,17 @@ class StoreController extends Controller
      */
     public function show(Store $store)
     {
-        $api_key = env('COUNTRY_API_KEY');
-        $response = Http::get('https://countryapi.io/api/all?apikey='.$api_key)->json();
+        auth()->user()->can('update', $store);
+
+        $country_data = Http::get('https://countriesnow.space/api/v0.1/countries/flag/images')->json();
 
         $countries = [];
-        foreach($response as $country){
-            $currencies = $country['currencies'];
-            $currencyCode = array_keys($currencies)[0]; // Get the first currency code
-            $currencyInfo = $currencies[$currencyCode];
+        foreach($country_data['data'] as $country){
 
             $countries[] = [
                 'name' => $country['name'],
-                'flag' => $country['flag']['small'],
-                'alpha3Code' => $country['alpha3Code'],
-                'timezone' => $country['timezones'][0],
-                'currency_code' => $currencyCode,
-                'currency_name' => $currencyInfo['name'] ?? null,
-                'currency_symbol' => $currencyInfo['symbol'] ?? null,
+                'flag' => $country['flag'],
+                'alpha3Code' => $country['iso3'],
             ];
         }
 
@@ -126,6 +120,12 @@ class StoreController extends Controller
         auth()->user()->can('update', $store);
 
         $validate = $request->validated();
+
+        $response = Http::post('https://countriesnow.space/api/v0.1/countries/currency', [
+            'country' =>  $request->country,
+        ])->json();
+
+        $validate['currency'] = $response['data']['currency'];
 
         if($request->hasFile('avatar')){
             $avatar = $request->file('avatar')->store('stores','public');
