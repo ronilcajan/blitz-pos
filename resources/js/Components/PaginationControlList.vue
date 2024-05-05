@@ -1,8 +1,23 @@
 <script setup>
+
+import { watch } from 'vue';
+import { router } from '@inertiajs/vue3'
+
+const props = defineProps({
+    url: String,
+});
+
 const model = defineModel({
     type: Number,
     required: true,
 });
+
+watch(model, value => {
+	router.get(props.url,
+	{ per_page: value },
+	{ preserveState: true, replace:true, preserveScroll: true })
+})
+
 </script>
 
 <template>

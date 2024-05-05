@@ -1,12 +1,23 @@
 <script setup>
-const props = defineProps({
-    stores: Object,
-    required: true,
-});
+import { watch } from 'vue';
+import { router } from '@inertiajs/vue3'
+
+const props = defineProps(
+    {
+        stores: Object,
+        url: String,
+    });
 
 const model = defineModel({
     type: String,
 });
+
+watch(model, value => {
+	router.get(props.url,
+	{ store: value },
+	{ preserveState: true, replace:true, preserveScroll: true })
+})
+
 </script>
 
 <template>

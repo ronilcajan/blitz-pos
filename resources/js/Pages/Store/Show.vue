@@ -9,12 +9,12 @@ defineOptions({ layout: AuthenticatedLayout })
 const props = defineProps({
     title: String,
     store: Object,
-    countries: Object,
+    country: Object,
 	filters: Object
 });
 
 const tin = ref(null);
-const country = ref('');
+// const country = ref('');
 
 const form = useForm({
     id: props.store.id,
@@ -25,13 +25,11 @@ const form = useForm({
     contact: props.store?.contact,
     website: props.store?.website,
     industry: props.store?.industry ?? '',
-    country: props.store?.country ?? '',
-    country_code: props.store?.country_code ?? '',
-    // timezone : props.store?.timezone ?? '',
-    // timezone_ : '',
-    // currency : props.store?.currency ?? '',
-    // currency_name : props.store?.currency ?? '',
-    // currency_symbol : props.store?.currency_symbol ?? '',
+    country: props.store?.country ?? props.country?.name,
+    country_code: props.store?.country_code ?? props.country?.code,
+    timezone : props.store?.timezone ?? props.country?.time_zone,
+    currency : props.store?.currency ?? props.country?.currency,
+    flag : props.store?.flag ?? props.country?.flag,
     tax : props.store?.tax,
     address : props.store?.address,
     description : props.store?.description,
@@ -51,29 +49,6 @@ const submitUpdateForm = () => {
         },
     })
 }
-
-const countryChange = (e) => {
-    const selectedCountry = props.countries.find(country => country.name === e.name);
-
-    if (selectedCountry) {
-        form.country = e.name;
-        form.country_code = selectedCountry.alpha3Code;
-        // form.timezone_ = selectedCountry.alpha3Code;
-        // form.timezone = selectedCountry.timezone;
-        // form.currency = selectedCountry.currency_code;
-        // form.currency_name = selectedCountry.currency_name;
-        // form.currency_symbol = selectedCountry.currency_symbol;
-        tin.value.focus();
-        country.value = '';
-    }
-}
-
-const filterCountries = (searchTerm) => {
-    return props.countries.filter(country =>
-        country.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-}
-
 </script>
 
 
@@ -105,7 +80,7 @@ const filterCountries = (searchTerm) => {
                             <InputError class="mt-2" :message="form.errors.name" />
                         </div>
 
-                        <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
                             <div class="form-control">
                                 <InputLabel for="phone" value="Tagline" />
                                 <TextInput
@@ -129,7 +104,7 @@ const filterCountries = (searchTerm) => {
 
                         </div>
 
-                        <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
                             <div class="form-control">
                                 <InputLabel for="name" value="Email address" />
                                 <TextInput
@@ -153,7 +128,7 @@ const filterCountries = (searchTerm) => {
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
                             <div class="form-control">
                                 <InputLabel for="name" value="Website" />
                                 <TextInput
@@ -198,35 +173,28 @@ const filterCountries = (searchTerm) => {
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
 
                             <div class="form-control">
                                 <InputLabel for="name" value="Country" />
-                                <div class="dropdown">
-                                    <TextInput
-                                    type="text"
-                                    class="block w-full"
-                                    v-model="form.country"
-                                    placeholder="Select a country"
-                                    required
-                                />
-                                    <ul tabindex="0" class="dropdown-content z-[1] bg-base-100 shadow-lg w-full overflow-y-auto max-h-40">
-                                        <li class="p-2 pt-3">
+                                <div class="join w-full">
+                                    <div class="indicator">
+                                        <span class="btn join-item">
+                                            <img :src="form.flag" class="w-8" alt="">
+                                        </span>
+                                    </div>                                    <div class="w-full">
+                                        <div>
                                             <TextInput
-                                            type="text"
-                                            v-model="country"
-                                            class="block w-full input-sm mb-0"
-                                            @input="filterCountries(country)"
-                                            placeholder="search country..."
-                                        />
-                                        </li>
-                                        <li class="p-2 px-5 border-b border-gray-50 cursor-pointer hover:bg-base-300 flex gap-2" v-for="(country,index) in filterCountries(country)" :key="index" @click="countryChange(country)">
-                                        <img :src="country.flag" class="w-8" alt="">
-                                        {{ country.name }}
-                                        </li>
-                                    </ul>
+                                                type="text"
+                                                class="join-item w-full"
+                                                v-model="form.country"
+                                                placeholder="Select a country"
+                                                required
+                                                readonly
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                                <InputError class="mt-2" :message="form.errors.country" />
                             </div>
                             <div class="form-control">
                                 <InputLabel for="phone" value="TIN" />
@@ -236,28 +204,6 @@ const filterCountries = (searchTerm) => {
                                     v-model="form.tax"
                                     placeholder="Enter TIN"
                                     ref="tin"
-                                />
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
-                            <div class="form-control">
-                                <InputError class="mt-2" :message="form.errors.currency" />
-                                <TextInput
-                                    type="hidden"
-                                    v-model="form.timezone"
-                                />
-                                <TextInput
-                                    type="hidden"
-                                    v-model="form.currency"
-                                />
-                                <TextInput
-                                    type="hidden"
-                                    v-model="form.country_code"
-                                />
-                                <TextInput
-                                    type="hidden"
-                                    v-model="form.currency_symbol"
                                 />
                             </div>
                         </div>

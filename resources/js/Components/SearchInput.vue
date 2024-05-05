@@ -1,8 +1,22 @@
 <script setup>
+import { watch } from 'vue';
+import { router } from '@inertiajs/vue3'
+import debounce from "lodash/debounce";
+
+const props = defineProps({
+    url: String,
+});
+
 const model = defineModel({
     type: String,
     required: true,
 });
+
+watch(model, debounce(function (value) {
+	router.get(props.url,
+	{ search: value },
+	{ preserveState: true, replace:true, preserveScroll: true})
+}, 500));
 
 </script>
 
@@ -16,7 +30,7 @@ const model = defineModel({
                 </svg>
             </div>
             <input placeholder="Type here" v-model="model" class="input pl-8 input-bordered input-sm w-full"/>
-            <button type="button" v-if="model" class="absolute inset-y-0 end-0 flex items-center pe-3" @click="$emit('clearSearch')">
+            <button type="button" v-if="model" class="absolute inset-y-0 end-0 flex items-center pe-3" @click="model = ''">
                 <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
                 </svg>

@@ -1,7 +1,17 @@
 <script setup>
+import { watch } from 'vue';
+import { router } from '@inertiajs/vue3'
+
 const model = defineModel({
     status: String,
 });
+
+watch(model, value => {
+	router.get('/users',
+	{ status: value },
+	{ preserveState: true, replace:true, preserveScroll: true } )
+})
+
 </script>
 <template>
 <div class="dropdown dropdown-bottom dropdown-end">
@@ -12,7 +22,10 @@ const model = defineModel({
     </SecondaryButton>
     <div tabindex="0" class="dropdown-content z-[9] card card-compact w-64 p-1 shadow-lg mt-1 bg-base-100 ">
         <div class="card-body">
-            <h3 class="card-title">Status</h3>
+            <div class="flex">
+                <h3 class="card-title">Status</h3>
+                <button @click="model = ''" class="btn btn-xs btn-outline ml-auto">Clear</button>
+            </div>
             <label class="label cursor-pointer justify-start gap-3">
                 <input type="radio" v-model="model" class="radio radio-sm" name="status" value="all" :checked="model === 'all' || model === ''" />
                 <span class="label-text">All</span>

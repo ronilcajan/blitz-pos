@@ -71,17 +71,17 @@ class StoreController extends Controller
     {
         auth()->user()->can('update', $store);
 
-        $country_data = Http::get('https://countriesnow.space/api/v0.1/countries/flag/images')->json();
+        $response = Http::get('https://api.ipgeolocation.io/ipgeo',[
+            'apiKey' => '8aa952f04a194d639a762c8e66425c46',
+        ])->json();
 
-        $countries = [];
-        foreach($country_data['data'] as $country){
-
-            $countries[] = [
-                'name' => $country['name'],
-                'flag' => $country['flag'],
-                'alpha3Code' => $country['iso3'],
-            ];
-        }
+        $country = [
+            'name' => $response['country_name'],
+            'code' => $response['country_code3'],
+            'flag' => $response['country_flag'],
+            'currency' => $response['currency']['code'],
+            'time_zone' => $response['time_zone']['name'],
+        ];
 
         $store = [
             'id' => $store->id,
@@ -96,8 +96,7 @@ class StoreController extends Controller
             'country_code' => $store->country_code,
             'timezone' => $store->timezone,
             'currency' => $store?->currency,
-            'currency_name' => $store->currency_name,
-            'currency_symbol' => $store->currency_symbol,
+            'flag' => $store->flag,
             'tax' => $store->tax,
             'description' => $store->description,
             'address' => $store->address,
@@ -107,7 +106,7 @@ class StoreController extends Controller
        return inertia('Store/Show', [
             'title' => 'Store Details',
             'store' => $store,
-            'countries' => $countries,
+            'country' => $country,
        ]);
     }
     /**
@@ -120,12 +119,6 @@ class StoreController extends Controller
         auth()->user()->can('update', $store);
 
         $validate = $request->validated();
-
-        $response = Http::post('https://countriesnow.space/api/v0.1/countries/currency', [
-            'country' =>  $request->country,
-        ])->json();
-
-        $validate['currency'] = $response['data']['currency'];
 
         if($request->hasFile('avatar')){
             $avatar = $request->file('avatar')->store('stores','public');

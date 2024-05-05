@@ -1,11 +1,11 @@
 <script setup>
 import { ref, watch } from 'vue';
+import { useForm, router } from '@inertiajs/vue3'
+import { useToast } from 'vue-toast-notification';
+
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import StatusFilter from './partials/StatusFilter.vue';
 import StatsCard from './partials/StatsCard.vue';
-import { useForm, router } from '@inertiajs/vue3'
-import debounce from "lodash/debounce";
-import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -17,10 +17,11 @@ const props = defineProps({
     userSummary: Object,
 });
 
-let per_page = ref(10);
-let search = ref(props.filter.search);
-let store = ref('');
-let status = ref('');
+const per_page = ref(10);
+const search = ref(props.filter.search);
+const store = ref('');
+const status = ref('');
+const url = ref('/users');
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -94,6 +95,7 @@ const statusChange = (userId, selectedStatus) => {
 	{
         preserveState: true,
         replace:true,
+        preserveScroll: true,
         onSuccess: () => {
 			closeModal();
 			useToast().success('User status been updated successfully!', {
@@ -104,38 +106,13 @@ const statusChange = (userId, selectedStatus) => {
 		},
         only: ['users','userSummary'] })
 }
-
-watch(per_page, value => {
-	router.get('/users',
-	{ per_page: value },
-	{ preserveState: true, replace:true })
-})
-watch(search, debounce(function (value) {
-	router.get('/users',
-	{ search: value },
-	{ preserveState: true, replace:true })
-}, 500));
-watch(store, value => {
-	router.get('/users',
-	{ store: value },
-	{ preserveState: true, replace:true })
-})
-watch(status, value => {
-	router.get('/users',
-	{ status: value },
-	{ preserveState: true, replace:true} )
-})
 </script>
 
 <template>
     <Head :title="title" />
 
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
-        <DefaultButtonLink href="/users" v-show="status || store">
-            Clear Result
-        </DefaultButtonLink>
         <CreateButtonLink href="/users/create">New user</CreateButtonLink>
-        <DeleteButton v-show="userIds.length > 0" @click="deleteAllSelectedModal=true">Delete</DeleteButton>
         <DownloadButton :href="route('user.export')">Export</DownloadButton>
         <StatusFilter v-model="status" />
     </div>
@@ -147,9 +124,14 @@ watch(status, value => {
 	</section>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="p-4 grow-0 ">
-            <div class="flex justify-between gap-2 flex-col sm:flex-row">
-                <FilterByStoreDropdown v-model="store" :stores="stores" />
-                <SearchInput v-model="search" @clear-search="search = ''" />
+            <div class="flex justify-between gap-5 flex-col-reverse sm:flex-row">
+                <div class="flex gap-3">
+                    <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
+                    <DeleteButton v-show="userIds.length > 0" @click="deleteAllSelectedModal = true">
+                        Delete
+                    </DeleteButton>
+                </div>
+                <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -261,8 +243,8 @@ watch(status, value => {
         </div>
     </section>
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <PaginationResultRange :data="users"/>
-        <PaginationControlList v-model="per_page" />
+        <PaginationResultRange :data="users" />
+        <PaginationControlList v-model="per_page" :url="url" />
         <Pagination :links="users.links" />
     </div>
     <!-- delete modal -->
