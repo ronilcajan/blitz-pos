@@ -36,7 +36,7 @@ class SupplierController extends Controller
                     'phone' => $supplier->phone,
                     'address' => $supplier->address,
                     'logo' => $supplier->logo,
-                    'store' => $supplier->store->name,
+                    'store' => $supplier->store?->name,
                     'created_at' => $supplier->created_at->format('M d, Y h:i: A'),
                 ];
         });

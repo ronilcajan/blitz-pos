@@ -34,5 +34,8 @@ const formatNumberWithCommas = (number) => {
     <div class="stat">
         <div class="stat-title">{{ title }}</div>
         <div class="stat-value">{{ formatNumberWithCommas(value) }}</div>
+        <div class="stat-desc">
+            <slot/>
+        </div>
     </div>
 </template>

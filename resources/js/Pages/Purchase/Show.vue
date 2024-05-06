@@ -85,9 +85,9 @@ const formatDate = (dateString) => {
                         <div class="flex justify-start sm:justify-end gap-2">
                             <div class="flex flex-col mb-3 items-start sm:items-end">
                                 <h1 class="text-xl font-bold">
-                                    <span>Store 1 </span>
+                                    <span>{{ purchase.store.name }}</span>
                                 </h1>
-                                <p>Locc Proper Plaridel Misamis occidental</p>
+                                <p>{{ purchase.store.address }}</p>
                                 <p>Date: {{ formatDate(purchase.created_at) }}</p>
                                 <p>Status: {{ purchase.status }}</p>
                             </div>
@@ -95,6 +95,7 @@ const formatDate = (dateString) => {
                         <h2 class="font-bold text-xl">Supplier </h2>
                         <div class="flex justify-start gap-2 flex-col sm:flex-row">
                             <div class="">
+
                                 <p class="font-semibold">{{ purchase.supplier.name }}</p>
                                 <p class="font-semibold">{{ purchase.supplier.contact_person }}</p>
                                 <p class="text-gray-500">{{ purchase.supplier.address }}</p>
@@ -161,7 +162,7 @@ const formatDate = (dateString) => {
                             </table>
                         </div>
 
-                        <div class="flex gap-4 justify-between mt-5 flex-col-reverse sm:flex-row">
+                        <div class="flex gap-4 page-break justify-between mt-5 flex-col-reverse sm:flex-row">
                             <div class="w-full sm:w-1/2">
                                 <InputLabel class="label" value="Notes" />
                                 <textarea v-model="purchase.notes" class="textarea textarea-bordered w-full max-w-md" placeholder="Type here" ></textarea>
@@ -202,3 +203,10 @@ const formatDate = (dateString) => {
         </div>
     </div>
 </template>
+<style>
+@media print {
+  .page-break {
+    page-break-after: always;
+  }
+}
+</style>

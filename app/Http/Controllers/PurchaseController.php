@@ -29,7 +29,7 @@ class PurchaseController extends Controller
             ->with(['store','supplier','store'])
             ->orderBy('id', 'DESC')
             ->filter(request(['search','store']))
-            ->paginate($request->per_page ? ($request->per_page == 'All' ? Purchase::count()->get() : $request->per_page) : 10)
+            ->paginate($request->per_page ? ($request->per_page == 'All' ? Purchase::count(): $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($order) {
                 return [

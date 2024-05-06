@@ -37,8 +37,9 @@
             <tbody>
                 <tr>
                     <td style="text-align: right !important; padding: 0 16px 18px 16px;">
-                        <h3 style="font-weight: 700; color: #1A1C21;">Store 1</h3>
-                        <p style="color: #5E6470;">Locc Proper Plaridel Misamis occidental</p>
+                        <h3 style="font-weight: 700; color: #1A1C21;"></h3>
+                        <h3 style="font-weight: 700; color: #1A1C21;">{{ $purchase->store->name }}</h3>
+                        <p style="color: #5E6470;">{{ $purchase->store->address }}</p>
                         <p style="color: #5E6470;">Date: {{ date('F d, Y', strtotime($purchase->created_at)) }}</p>
                         <p style="color: #5E6470;">Status: {{ $purchase->status }}</p>
 

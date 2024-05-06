@@ -9,7 +9,7 @@ const props = defineProps({
 
 const model = defineModel({
     type: String,
-    required: true,
+    default: '',
 });
 
 watch(model, debounce(function (value) {
