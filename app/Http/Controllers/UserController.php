@@ -111,7 +111,6 @@ class UserController extends Controller
 
         return redirect()->back();
     }
-
     /**
      * Display the specified resource.
      */
@@ -153,7 +152,7 @@ class UserController extends Controller
     {
         $user = User::find($request->id);
 
-        Gate::authorize('update', $user);
+        auth()->user()->can('update', $user);
 
         $validate = $request->validated();
 

@@ -88,7 +88,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/stores/bulk/delete', [StoreController::class, 'bulkDelete'])->name('store.bulkDelete');
 
     Route::resource('/users', UserController::class);
-    Route::post('/users/update', [UserController::class, 'update']);
+    Route::post('/users/update/profile', [UserController::class, 'update'])->name('user.update.profile');
     Route::post('/users/update/status', [UserController::class, 'updateStatus'])->name('user.update.status');
     Route::post('/users/reset', [UserController::class, 'reset']);
     Route::post('/users/bulk/delete', [UserController::class, 'bulkDelete'])->name('user.bulkDelete');

@@ -133,7 +133,7 @@ const statusChange = (userId, selectedStatus) => {
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="p-4 grow-0 ">
             <div class="flex justify-between gap-5 flex-col-reverse sm:flex-row">
-                <div class="flex w-full gap-3">
+                <div class="flex gap-3">
                     <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
                     <DeleteButton v-show="userIds.length > 0" @click="deleteAllSelectedModal = true">
                         Delete

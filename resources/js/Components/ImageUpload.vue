@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 
 const props = defineProps(
     {
-        avatar: {
+        image: {
             type: String,
         }
     }
@@ -13,7 +13,7 @@ const model = defineModel({
     type: Object,
     required: true,
 });
-const image_preview = ref(props.avatar);
+const image_preview = ref(props.image);
 
 watch(() => model.file, (newVal) => {
     image_preview.value = newVal;
@@ -57,5 +57,7 @@ const onFileChange = (e) => {
         <InputError class="mt-2" :message="model.errors.avatar" />
     </div>
 </template>
+
+
 
 

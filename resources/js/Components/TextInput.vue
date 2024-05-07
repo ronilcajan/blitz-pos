@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue';
 
 const model = defineModel({
     type: String,
-    required: true,
+    default: '',
 });
 
 const input = ref(null);

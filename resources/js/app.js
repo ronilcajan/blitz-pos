@@ -32,6 +32,7 @@ import SearchInput from '@/Components/SearchInput.vue';
 import PrintButton from '@/Components/PrintButton.vue';
 import CancelButton from '@/Components/CancelButton.vue';
 import DownloadButton from '@/Components/DownloadButton.vue';
+import ImagePreview from '@/Components/ImagePreview.vue';
 import Pagination from '@/Components/Pagination.vue';
 import ImageUpload from '@/Components/ImageUpload.vue';
 import PaginationControlList from '@/Components/PaginationControlList.vue';
@@ -62,6 +63,7 @@ createInertiaApp({
             .component('PrintButton', PrintButton)
             .component('CancelButton', CancelButton)
             .component('DownloadButton', DownloadButton)
+            .component('ImagePreview', ImagePreview)
             .component('TextInput', TextInput)
             .component('TextArea', TextArea)
             .component('NumberInput', NumberInput)

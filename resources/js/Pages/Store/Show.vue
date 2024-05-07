@@ -224,7 +224,7 @@ const submitUpdateForm = () => {
                 <div class="card bg-base-100 shadow">
                     <div class="card-body grow-0 ">
                         <h2 class="card-title grow text-sm mb-5">
-                            <span class="uppercase">Customer Profile</span>
+                            <span class="uppercase">Store Logo</span>
                         </h2>
                         <ImageUpload v-model="form" :avatar="store.avatar" />
                     </div>
