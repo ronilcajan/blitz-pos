@@ -1,8 +1,7 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router } from '@inertiajs/vue3'
-import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
@@ -17,6 +16,7 @@ const props = defineProps({
 let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
+const url = '/customers';
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -70,7 +70,7 @@ const submitBulkDeleteForm = () => {
                 duration: 3000,
                 dismissible: true
             });
-            selectAllCheckbox.value = []
+            selectAllCheckbox.value = false
         },
     })
 }
@@ -81,73 +81,29 @@ const selectAll = () => {
         customerIds.value = props.customers.data.map(customer => customer.id);
       } else {
         // If "Select All" checkbox is unchecked, deselect all users
-        customerIds.value = [];
+        customerIds.value = false;
       }
 }
-
-watch(per_page, value => {
-	router.get('/customers',
-	{ per_page: value },
-	{ preserveState: true, replace:true })
-})
-
-watch(search, debounce(function (value) {
-	router.get('/customers',
-	{ search: value },
-	{ preserveState: true, replace:true })
-}, 500)) ;
-
-watch(store, value => {
-	router.get('/customers',
-	{ store: value },
-	{ preserveState: true, replace:true })
-})
 </script>
 
 <template>
     <Head :title="title" />
-
+    <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
+        <CreateButtonLink href="/customers/create">New customer</CreateButtonLink>
+    </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
-                <div>
-                    <select v-model="per_page" class="select select-sm max-w-xs">
-                        <option class="text-body">10</option>
-                        <option class="text-body">25</option>
-                        <option class="text-body">50</option>
-                        <option class="text-body">100</option>
-                        <option class="text-body">All</option>
-                    </select>
+                <div class="flex gap-2">
+                    <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
+                    <DeleteButton v-if="$page.props.auth.user.canDelete" v-show="customerIds.length > 0" @click="deleteAllSelectedModal = true">
+                        Delete
+                    </DeleteButton>
                 </div>
                 <div class="flex gap-2 flex-col sm:flex-row">
-
-                    <div class="w-full" v-show="$page.props.auth.user.isSuperAdmin">
-                        <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
-                            <option selected value="">Filter by</option>
-                            <option v-for="store in stores" :value="store.name" :key="store.id">
-                                {{ store.name }}
-                            </option>
-                        </select>
-                    </div>
                     <div class="w-full">
-                        <label for="simple-search" class="sr-only">Search</label>
-                        <div class="relative sm:w-60 w-full">
-                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                </svg>
-                            </div>
-                            <input placeholder="Type here" v-model="search" class="input pl-8 input-bordered input-sm w-full max-w-xs"/>
-                            <button type="button" v-if="search" class="absolute inset-y-0 end-0 flex items-center pe-3" @click="search = ''">
-                                <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                                </svg>
-
-                            </button>
-                        </div>
+                        <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
                     </div>
-                    <NavLink href="/customers/create" class="btn btn-sm btn-primary">New customer</NavLink>
-                    <DangerButton v-if="$page.props.auth.user.canDelete" v-show="customerIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
             </div>
         </div>
@@ -243,13 +199,18 @@ watch(store, value => {
 
         </div>
     </section>
-    <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
+    <!-- <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
         <div class="text-center mb-4">
             <small>
                 Showing {{ customers.from }} to  {{ customers.to }} of  {{ customers.total }} results
             </small>
         </div>
         <Paginator :links="customers.links" />
+    </div> -->
+    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+        <PaginationResultRange :data="customers" />
+        <PaginationControlList v-model="per_page" :url="url" />
+        <Pagination :links="customers.links" />
     </div>
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">

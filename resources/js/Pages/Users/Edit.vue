@@ -25,11 +25,6 @@ const form = useForm({
 	profile_photo_url : '',
 });
 
-const profile_photo_form = useForm({
-    id: props.employee.id,
-	profile_photo_url : '',
-});
-
 const roles = computed(() => { // remove super-admin roles when creating a user
 	return page?.props?.auth?.user.isSuperAdmin ? props.roles : props?.roles.filter(role => role.id !== 1);
 })

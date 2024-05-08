@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { useForm, usePage } from '@inertiajs/vue3'
-import { computed } from 'vue';
+import { useForm } from '@inertiajs/vue3'
+import { ref } from 'vue';
 import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
@@ -34,6 +34,16 @@ const submitUpdateForm  = () => {
 			});
 		},
 	})
+}
+const image_preview = ref(props.customer.logo);
+
+const onFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+    }
+    image_preview.value = URL.createObjectURL(file);
 }
 </script>
 
@@ -123,26 +133,16 @@ const submitUpdateForm  = () => {
                 <div class="card bg-base-100 shadow">
                     <div class="card-body grow-0 ">
                         <h2 class="card-title grow text-sm mb-5">
-                            <span class="uppercase">Customer Profile</span>
+                            <span class="uppercase">Customer Photo</span>
                         </h2>
+                        <div class="flex relative mb-5.5 w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5 justify-center">
+                            <input type="file" @input="form.logo = $event.target.files[0]" accept="image/*" class="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none" @change="onFileChange">
 
-                        <div class="flex items-center justify-center w-full">
-                            <label v-if="!props.customer.logo" for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg">
-                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="200"  height="200"  viewBox="0 0 24 24"  fill="none"  stroke="#9b9797"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-8 4.5" /></svg>
-                                </div>
-                            </label>
-                            <img :src="props.customer.logo" v-if="props.customer.logo" alt="product image">
-
+                            <ImagePreview v-model="image_preview" />
                         </div>
-                        <div class="mt-3">
-                            <input accept="image/*" @input="form.logo = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full " />
-                            <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
+                        <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
                                 {{ form.progress.percentage }}%
                             </progress>
-                            <InputError class="mt-2" :message="form.errors.logo" />
-                        </div>
-
                     </div>
                 </div>
             </div>

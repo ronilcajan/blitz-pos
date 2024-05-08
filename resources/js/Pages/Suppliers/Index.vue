@@ -85,24 +85,6 @@ const selectAll = () => {
         supplierIds.value = [];
       }
 }
-
-watch(per_page, value => {
-	router.get('/suppliers',
-	{ per_page: value },
-	{ preserveState: true, replace:true })
-})
-
-watch(search, debounce(function (value) {
-	router.get('/suppliers',
-	{ search: value },
-	{ preserveState: true, replace:true })
-}, 500)) ;
-
-watch(store, value => {
-	router.get('/suppliers',
-	{ store: value },
-	{ preserveState: true, replace:true })
-})
 </script>
 
 <template>
