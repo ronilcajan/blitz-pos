@@ -17,7 +17,6 @@ const props = defineProps({
     userSummary: Object,
 });
 
-const per_page = ref(10);
 const search = ref(props.filter.search);
 const store = ref('');
 const status = ref('');
@@ -245,7 +244,7 @@ const statusChange = (userId, selectedStatus) => {
     </section>
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
         <PaginationResultRange :data="users" />
-        <PaginationControlList v-model="per_page" :url="url" />
+        <PaginationControlList :url="url" />
         <Pagination :links="users.links" />
     </div>
     <!-- delete modal -->

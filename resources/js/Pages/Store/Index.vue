@@ -13,7 +13,6 @@ const props = defineProps({
 	filters: Object
 });
 
-let per_page = ref(10);
 let search = ref(props.filters.search);
 const createModal = ref(false);
 const editModal = ref(false);
@@ -249,7 +248,7 @@ const selectAll = () => {
     </section>
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
         <PaginationResultRange :data="stores" />
-        <PaginationControlList v-model="per_page" :url="url" />
+        <PaginationControlList :url="url" />
         <Pagination :links="stores.links" />
     </div>
 

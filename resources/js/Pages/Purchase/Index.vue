@@ -14,7 +14,6 @@ const props = defineProps({
 	filter: Object
 });
 
-let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
 const url = '/purchase';
@@ -229,7 +228,7 @@ watch(store, value => {
     </section>
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
         <PaginationResultRange :data="orders" />
-        <PaginationControlList v-model="per_page" :url="url" />
+        <PaginationControlList :url="url" />
         <Pagination :links="orders.links" />
     </div>
     <!-- delete modal -->

@@ -15,6 +15,7 @@ import {
   Legend
 } from 'chart.js'
 import { Line } from 'vue-chartjs'
+import StatusFilter from './partials/StatusFilter.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -63,11 +64,11 @@ const options = {
    //maintainAspectRatio: false
  }
 
-let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
 let category = ref('');
 let status = ref('');
+const url = '/expenses';
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -150,12 +151,6 @@ const statusChange = (id,status) => {
         },  only: ['expenses','totalExpenses'], })
 }
 
-watch(per_page, value => {
-	router.get('/expenses',
-	{ per_page: value },
-	{ preserveState: true, replace:true })
-})
-
 watch(search, debounce(function (value) {
 	router.get('/expenses',
 	{ search: value },
@@ -218,86 +213,70 @@ const formatNumberWithCommas = (number) => {
 
 <template>
     <Head :title="title" />
-
-<div class="flex gap-5 mb-5 flex-col-reverse md:flex-row">
-    <div class="w-full md:w-1/2">
-        <div class="w-full stats shadow mb-4">
-            <div class="stat">
-                <div class="flex justify-between items-center mb-3">
-                    <div class="stat-value">{{ formatNumberWithCommas(approveExpenses) }}</div>
-                    <small>15 up vs last month</small>
-                </div>
-                <div class="stat-desc">Total spend</div>
-            </div>
-        </div>
-        <div class="w-full stats shadow mb-4">
-            <div class="stat">
-                <div class="flex justify-between items-center mb-3">
-                    <div class="stat-value">P {{ formatNumberWithCommas(pendingExpenses) }}</div>
-                    <small>1 pending expenses</small>
-                </div>
-
-                <div class="stat-desc">Payment due this month</div>
-            </div>
-        </div>
-        <div class="w-full stats shadow mb-4">
-            <div class="stat">
-                <div class="flex justify-between items-center mb-3">
-                    <div class="stat-value">P {{ formatNumberWithCommas(rejectedExpenses) }}</div>
-                    <small>15 up vs last month</small>
-                </div>
-                <div class="stat-desc">Total spend this month</div>
-            </div>
-        </div>
-        <div class="w-full stats shadow mb-4">
-            <div class="stat">
-                <div class="flex justify-between items-center mb-3">
-                    <div class="stat-value">P 89,400</div>
-                    <small>15 up vs last month</small>
-                </div>
-                <div class="stat-desc">Total spend this month</div>
-            </div>
-        </div>
+    <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
+        <CreateButtonLink href="/expenses/create">New Expenses</CreateButtonLink>
+        <!-- <DownloadButton :href="route('user.export')">Export</DownloadButton> -->
+        <StatusFilter v-model="status" />
     </div>
-    <div class="w-ful md:w-1/2">
-        <div class="card bg-base-100 shadow">
-            <div class="card-body grow-0">
-                <h2 class="card-title grow text-sm mb-3">
-                    <span class="uppercase">Customer Profile</span>
-                </h2>
-
-                <Line :data="data" :options="options" />
-
-            </div>
-        </div>
-    </div>
-</div>
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
-        <div class="p-4 grow-0 pt-8">
-            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
-                <div>
-                    <select v-model="per_page" class="select select-sm max-w-xs">
-                        <option class="text-body">10</option>
-                        <option class="text-body">25</option>
-                        <option class="text-body">50</option>
-                        <option class="text-body">100</option>
-                        <option class="text-body">All</option>
-                    </select>
-                </div>
-                <div class="flex gap-2 flex-col sm:flex-row">
-                    <NavLink href="/expenses" class="mt-1 mr-2 tooltip tooltip-left" v-show="showRefresh" data-tip="refresh">
-                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
-                        </svg>
-                    </NavLink>
-                    <div class="w-full" v-show="$page.props.auth.user.isSuperAdmin">
-                        <select v-model="store" class="select select-bordered select-sm w-full">
-                            <option selected value="">Filter by store</option>
-                            <option v-for="store in stores" :value="store.name" :key="store.id">
-                                {{ store.name }}
-                            </option>
-                        </select>
+    <div class="flex gap-5 mb-5 flex-col-reverse md:flex-row">
+        <div class="w-full md:w-1/2">
+            <div class="w-full stats shadow mb-4">
+                <div class="stat">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="stat-value">{{ formatNumberWithCommas(approveExpenses) }}</div>
+                        <small>15 up vs last month</small>
                     </div>
+                    <div class="stat-desc">Total spend</div>
+                </div>
+            </div>
+            <div class="w-full stats shadow mb-4">
+                <div class="stat">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="stat-value">P {{ formatNumberWithCommas(pendingExpenses) }}</div>
+                        <small>1 pending expenses</small>
+                    </div>
+
+                    <div class="stat-desc">Payment due this month</div>
+                </div>
+            </div>
+            <div class="w-full stats shadow mb-4">
+                <div class="stat">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="stat-value">P {{ formatNumberWithCommas(rejectedExpenses) }}</div>
+                        <small>15 up vs last month</small>
+                    </div>
+                    <div class="stat-desc">Total spend this month</div>
+                </div>
+            </div>
+            <div class="w-full stats shadow mb-4">
+                <div class="stat">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="stat-value">P 89,400</div>
+                        <small>15 up vs last month</small>
+                    </div>
+                    <div class="stat-desc">Total spend this month</div>
+                </div>
+            </div>
+        </div>
+        <div class="w-ful md:w-1/2">
+            <div class="card bg-base-100 shadow">
+                <div class="card-body grow-0">
+                    <h2 class="card-title grow text-sm mb-3">
+                        <span class="uppercase">Customer Profile</span>
+                    </h2>
+
+                    <Line :data="data" :options="options" />
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
+
+        <div class="card-body grow-0">
+            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
+                <div class="flex gap-2 flex-col sm:flex-row">
+                    <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
                     <div class="w-full">
                         <select v-model="category" class="select select-bordered select-sm w-full">
                             <option selected value="">Filter by categories</option>
@@ -306,34 +285,18 @@ const formatNumberWithCommas = (number) => {
                             </option>
                         </select>
                     </div>
-                    <div class="w-full">
-                        <label for="simple-search" class="sr-only">Search</label>
-                        <div class="relative sm:w-60 w-full">
-                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                </svg>
-                            </div>
-                            <input placeholder="Type here" v-model="search" class="input pl-8 input-bordered input-sm w-full"/>
-                            <button type="button" v-if="search" class="absolute inset-y-0 end-0 flex items-center pe-3" @click="search = ''">
-                                <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                                </svg>
-
-                            </button>
-                        </div>
+                    <div>
+                        <DeleteButton v-if="$page.props.auth.user.canDelete" v-show="expenseIds.length > 0" @click="deleteAllSelectedModal = true">
+                            Delete
+                        </DeleteButton>
                     </div>
-                    <NavLink href="/expenses/create" class="btn btn-sm btn-primary">New expenses</NavLink>
-                    <DangerButton v-if="$page.props.auth.user.canDelete" v-show="expenseIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
+
                 </div>
-            </div>
-        </div>
-        <div class="w-auto md:w-1/5">
-            <div role="tablist" class="tabs tabs-bordered">
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="All" value="all"  :checked="status === 'all' || status === ''"/>
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Pending" value="pending" :checked="status === 'pending'" />
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Approved" value="approved" :checked="status === 'approved'" />
-                <input type="radio" v-model="status" role="tab" class="tab" aria-label="Rejected" value="rejected" :checked="status === 'rejected'" />
+                <div class="flex gap-2 flex-col sm:flex-row">
+                    <div class="w-full">
+                        <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -350,9 +313,7 @@ const formatNumberWithCommas = (number) => {
                             <div class="font-bold">Vendor</div>
                         </th>
 
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Documents</div>
-                        </th>
+
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Category</div>
                         </th>
@@ -365,7 +326,9 @@ const formatNumberWithCommas = (number) => {
                         <th class="hidden sm:table-cell"  v-show="$page.props.auth.user.isSuperAdmin">
                             <div class="font-bold">Store</div>
                         </th>
-
+                        <th class="hidden sm:table-cell">
+                            <div class="font-bold">Documents</div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -388,11 +351,7 @@ const formatNumberWithCommas = (number) => {
                                 </div>
                             </div>
                         </td>
-                        <!-- These columns will be hidden on small screens -->
-                        <td class="hidden sm:table-cell">
-                            <a v-if="expense.attachments" :href="expense.attachments" target="_blank" download class="tooltip" data-tip="view documents">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M12 17v-6" /><path d="M9.5 14.5l2.5 2.5l2.5 -2.5" /></svg>                            </a>
-                        </td>
+
                         <td class="hidden sm:table-cell">
                                 {{ expense.category }}
                         </td>
@@ -407,6 +366,11 @@ const formatNumberWithCommas = (number) => {
                         </td>
 
                         <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ expense.store }}
+                        </td>
+                          <!-- These columns will be hidden on small screens -->
+                          <td class="hidden sm:table-cell">
+                            <a v-if="expense.attachments" :href="expense.attachments" target="_blank" download class="tooltip" data-tip="view documents">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M12 17v-6" /><path d="M9.5 14.5l2.5 2.5l2.5 -2.5" /></svg>                            </a>
                         </td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">
@@ -438,13 +402,11 @@ const formatNumberWithCommas = (number) => {
 
         </div>
     </section>
-    <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
-        <div class="text-center mb-4">
-            <small>
-                Showing {{ expenses.from }} to  {{ expenses.to }} of  {{ expenses.total }} results
-            </small>
-        </div>
-        <Paginator :links="expenses.links" />
+
+    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+        <PaginationResultRange :data="stores" />
+        <PaginationControlList :url="url" />
+        <Pagination :links="expenses.links" />
     </div>
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">

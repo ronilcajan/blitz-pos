@@ -13,7 +13,6 @@ const props = defineProps({
 	filter: Object
 });
 
-let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
 const url = '/customers';
@@ -199,17 +198,9 @@ const selectAll = () => {
 
         </div>
     </section>
-    <!-- <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
-        <div class="text-center mb-4">
-            <small>
-                Showing {{ customers.from }} to  {{ customers.to }} of  {{ customers.total }} results
-            </small>
-        </div>
-        <Paginator :links="customers.links" />
-    </div> -->
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
         <PaginationResultRange :data="customers" />
-        <PaginationControlList v-model="per_page" :url="url" />
+        <PaginationControlList :url="url" />
         <Pagination :links="customers.links" />
     </div>
     <!-- delete modal -->
