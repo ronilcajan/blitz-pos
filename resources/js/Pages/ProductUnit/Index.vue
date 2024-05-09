@@ -17,6 +17,7 @@ const props = defineProps({
 let per_page = ref(10);
 let search = ref(props.filters.search);
 let store = ref('');
+const url = '/product_units';
 
 const createModal = ref(false);
 const editModal = ref(false);
@@ -24,7 +25,7 @@ const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
 const page = usePage();
 
-let categoryIds = ref([]);
+let unitsId = ref([]);
 let selectAllCheckbox = ref(false);
 
 const createForm = useForm({name: ''});
@@ -108,21 +109,21 @@ const submitDeleteForm = () => {
 const submitBulkDeleteForm = () => {
     router.post(route('product_unit.bulkDelete'),
     {
-        categories_id: categoryIds.value
+        categories_id: unitsId.value
     },
     {
         forceFormData: true,
         replace: true,
         preserveScroll: true,
         onSuccess: () => {
-            categoryIds.value = [];
+            unitsId.value = [];
             closeModal();
             useToast().success('Multiple units has been deleted successfully!', {
                 position: 'top-right',
                 duration: 3000,
                 dismissible: true
             });
-            selectAllCheckbox.value = []
+            selectAllCheckbox.value = false
         },
     })
 }
@@ -130,10 +131,10 @@ const submitBulkDeleteForm = () => {
 const selectAll = () => {
 	if (selectAllCheckbox.value) {
         // If "Select All" checkbox is checked, select all users
-        categoryIds.value = props.units.data.map(unit => unit.id);
+        unitsId.value = props.units.data.map(unit => unit.id);
       } else {
         // If "Select All" checkbox is unchecked, deselect all users
-        categoryIds.value = [];
+        unitsId.value = [];
       }
 }
 
@@ -141,69 +142,30 @@ const isSuperAdmin = computed(() =>
     page.props.auth.user.isSuperAdmin ? true : false
 )
 
-watch(per_page, value => {
-	router.get('/product_units',
-	{ per_page: value },
-	{ preserveState: true, replace:true })
-})
-
-watch(search, debounce(function (value) {
-	router.get('/product_units',
-	{ search: value },
-	{ preserveState: true, replace:true })
-}, 500)) ;
-
-watch(store, value => {
-	router.get('/product_units',
-	{ store: value },
-	{ preserveState: true, replace:true })
-})
-
 </script>
 
 <template>
     <Head :title="title" />
-
+    <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
+        <PrimaryButton class="btn btn-sm"  @click="createModal = true">
+            <svg class="w-4 h-4 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
+                </svg>
+                New unit</PrimaryButton>
+    </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
-                <div>
-                    <select v-model="per_page" class="select select-sm max-w-xs">
-                        <option class="text-body">10</option>
-                        <option class="text-body">25</option>
-                        <option class="text-body">50</option>
-                        <option class="text-body">100</option>
-                        <option class="text-body">All</option>
-                    </select>
+                <div class="flex gap-2">
+                    <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
+                    <DeleteButton v-if="$page.props.auth.user.canDelete" v-show="unitsId.length > 0" @click="deleteAllSelectedModal = true">
+                        Delete
+                    </DeleteButton>
                 </div>
                 <div class="flex gap-2 flex-col sm:flex-row">
-                    <div class="w-full" v-show="isSuperAdmin">
-                        <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
-                            <option selected value="">Filter by store</option>
-                            <option v-for="store in stores" :value="store.name" :key="store.id">
-                                {{ store.name }}
-                            </option>
-                        </select>
-                    </div>
                     <div class="w-full">
-                        <label for="simple-search" class="sr-only">Search</label>
-                        <div class="relative sm:w-60 w-full">
-                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                </svg>
-                            </div>
-                            <input placeholder="Type here" v-model="search" class="input pl-8 input-bordered input-sm w-full max-w-xs"/>
-                            <button type="button" v-if="search" class="absolute inset-y-0 end-0 flex items-center pe-3" @click="search = ''">
-                                <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                                </svg>
-
-                            </button>
-                        </div>
+                        <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
                     </div>
-                    <PrimaryButton class="btn btn-sm"  @click="createModal = true">New unit</PrimaryButton>
-                    <DangerButton v-show="categoryIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
                 </div>
             </div>
         </div>
@@ -228,7 +190,7 @@ watch(store, value => {
                 <tbody>
                     <tr v-for="unit in units.data" :key="unit.id">
                         <td class="w-0">
-                            <input :value="unit.id" v-model="categoryIds" type="checkbox" class="checkbox checkbox-sm">
+                            <input :value="unit.id" v-model="unitsId" type="checkbox" class="checkbox checkbox-sm">
                         </td>
                         <td>
                             <div class="flex items-center gap-2">
@@ -278,15 +240,11 @@ watch(store, value => {
 
         </div>
     </section>
-    <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
-        <div class="text-center mb-4">
-            <small>
-                Showing {{ units.from }} to  {{ units.to }} of  {{ units.total }} results
-            </small>
-        </div>
-        <Paginator :links="units.links" />
+    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+        <PaginationResultRange :data="units" />
+        <PaginationControlList :url="url" />
+        <Pagination :links="units.links" />
     </div>
-
     <!-- create modal -->
     <Modal :show="createModal" @close="closeModal">
         <div class="p-6">
@@ -381,7 +339,7 @@ watch(store, value => {
     <Modal :show="deleteAllSelectedModal" @close="closeModal">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
-                Delete {{ categoryIds.length }} product units
+                Delete {{ unitsId.length }} product units
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">

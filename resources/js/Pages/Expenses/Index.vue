@@ -272,7 +272,6 @@ const formatNumberWithCommas = (number) => {
         </div>
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
-
         <div class="card-body grow-0">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                 <div class="flex gap-2 flex-col sm:flex-row">
@@ -404,7 +403,7 @@ const formatNumberWithCommas = (number) => {
     </section>
 
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <PaginationResultRange :data="stores" />
+        <PaginationResultRange :data="expenses" />
         <PaginationControlList :url="url" />
         <Pagination :links="expenses.links" />
     </div>

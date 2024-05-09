@@ -17,11 +17,11 @@ const props = defineProps({
 });
 
 const page = usePage();
-let per_page = ref(10);
 let search = ref(props.filter.search);
 let store = ref('');
 let category = ref('');
 let supplier = ref('');
+const url = '/inventory';
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -75,7 +75,7 @@ const submitBulkDeleteForm = () => {
                 duration: 3000,
                 dismissible: true
             });
-            selectAllCheckbox.value = []
+            selectAllCheckbox.value = false;
         },
     })
 }
@@ -89,18 +89,6 @@ const selectAll = () => {
         productIds.value = [];
       }
 }
-
-watch(per_page, value => {
-	router.get('/inventory',
-	{ per_page: value },
-	{ preserveState: true, replace:true })
-})
-
-watch(search, debounce(function (value) {
-	router.get('/inventory',
-	{ search: value },
-	{ preserveState: true, replace:true })
-}, 500)) ;
 
 watch(store, value => {
 	router.get('/inventory',
@@ -125,21 +113,25 @@ const canDelete = page.props.auth.user.canDelete
 
 <template>
     <Head :title="title" />
-
+    <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
+        <CreateButtonLink href="/products/create">New product</CreateButtonLink>
+        <!-- <DownloadButton :href="route('user.export')">Export</DownloadButton> -->
+        <!-- <StatusFilter v-model="status" /> -->
+    </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
         <div class="card-body grow-0">
-            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
-                <div>
-                    <select v-model="per_page" class="select select-sm max-w-xs">
-                        <option class="text-body">10</option>
-                        <option class="text-body">25</option>
-                        <option class="text-body">50</option>
-                        <option class="text-body">100</option>
-                        <option class="text-body">All</option>
-                    </select>
-                </div>
-                <div class="flex gap-2 flex-col sm:flex-row">
 
+            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
+                <div class="flex gap-2 flex-col sm:flex-row">
+                    <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
+                    <div class="w-full">
+                        <select v-model="category" class="select select-bordered select-sm w-full">
+                            <option selected value="">Filter by categories</option>
+                            <option v-for="category in product_categories" :value="category.name" :key="category.id">
+                                {{ category.name }}
+                            </option>
+                        </select>
+                    </div>
                     <div class="w-full">
                         <select v-model="supplier" class="select select-bordered select-sm w-full max-w-xs">
                             <option selected value="">Filter by suppliers</option>
@@ -148,34 +140,20 @@ const canDelete = page.props.auth.user.canDelete
                             </option>
                         </select>
                     </div>
-                    <div class="w-full" v-show="isSuperAdmin">
-                        <select v-model="store" class="select select-bordered select-sm w-full max-w-xs">
-                            <option selected value="">Filter by store</option>
-                            <option v-for="store in stores" :value="store.name" :key="store.id">
-                                {{ store.name }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="w-full">
-                        <label for="simple-search" class="sr-only">Search</label>
-                        <div class="relative sm:w-60 w-full">
-                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                </svg>
-                            </div>
-                            <input placeholder="Type here" v-model="search" class="input pl-8 input-bordered input-sm w-full max-w-xs"/>
-                            <button type="button" v-if="search" class="absolute inset-y-0 end-0 flex items-center pe-3" @click="search = ''">
-                                <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                                </svg>
 
-                            </button>
-                        </div>
-                    </div>
-                    <NavLink href="/products/create" class="btn btn-sm btn-primary">New product</NavLink>
-                    <DangerButton v-if="canDelete" v-show="productIds.length > 0" @click="deleteAllSelectedModal = true" class="btn btn-sm">Delete</DangerButton>
+
                 </div>
+                <div class="flex gap-2 flex-col sm:flex-row">
+
+                    <div class="w-full">
+                        <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <DeleteButton v-if="canDelete" v-show="productIds.length > 0" @click="deleteAllSelectedModal = true">
+                    Delete
+                </DeleteButton>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -285,13 +263,10 @@ const canDelete = page.props.auth.user.canDelete
 
         </div>
     </section>
-    <div class="col-span-12 items-center sm:flex sm:justify-between sm:mt-0 mt-2">
-        <div class="text-center mb-4">
-            <small>
-                Showing {{ products.from }} to  {{ products.to }} of  {{ products.total }} results
-            </small>
-        </div>
-        <Paginator :links="products.links" />
+    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+        <PaginationResultRange :data="products" />
+        <PaginationControlList :url="url" />
+        <Pagination :links="products.links" />
     </div>
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">

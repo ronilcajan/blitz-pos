@@ -76,7 +76,9 @@ class Product extends Model
 
         if(!empty($filter['type'])){
             $type = $filter['type'];
-            $query->where('product_type', $type);
+            if($type != 'all'){
+                $query->where('product_type', $type);
+            }
         }
 
         if(!empty($filter['category'])){

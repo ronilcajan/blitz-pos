@@ -235,7 +235,7 @@ const isSuperAdmin = computed(() =>
         </div>
     </section>
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <PaginationResultRange :data="stores" />
+        <PaginationResultRange :data="expenses_categories" />
         <PaginationControlList :url="url" />
         <Pagination :links="expenses_categories.links" />
     </div>
