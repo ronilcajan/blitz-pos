@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ConvertToNumber;
 use App\Classes\TransactionCodeGenerator;
 use App\Http\Requests\PurchaseFormRequest;
 use App\Models\Product;
@@ -11,9 +12,9 @@ use App\Models\Purchase;
 use App\Models\PurchaseItems;
 use App\Models\Store;
 use App\Models\Supplier;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Number;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class PurchaseController extends Controller
@@ -23,7 +24,7 @@ class PurchaseController extends Controller
      */
     public function index(Request $request)
     {
-        // Gate::authorize('viewAny', Customer::class);
+        auth()->user()->can('viewAny', Purchase::class);
 
         $orders = Purchase::query()
             ->with(['store','supplier','store'])
@@ -59,7 +60,7 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-        // Gate::authorize('create', Expenses::class);
+        auth()->user()->can('create', Purchase::class);
 
         $products =  Product::query()
             ->with(['store', 'price', 'stock','category'])
@@ -98,6 +99,8 @@ class PurchaseController extends Controller
      */
     public function store(PurchaseFormRequest $request)
     {
+        auth()->user()->can('create', Purchase::class);
+
         $request->validated();
         $generator = new TransactionCodeGenerator();
         $code = $generator->generate();
@@ -146,6 +149,8 @@ class PurchaseController extends Controller
      */
     public function show(Purchase $purchase)
     {
+        auth()->user()->can('view', $purchase);
+
         $items = $purchase->items()->get()->map(function($item){
             return [
                 'id' => $item->product_id,
@@ -170,6 +175,8 @@ class PurchaseController extends Controller
 
     public function downloadPDF(Purchase $purchase)
     {
+        auth()->user()->can('view', $purchase);
+
         $items = $purchase->items()->get()->map(function($item){
             return [
                 'id' => $item->product_id,
@@ -199,6 +206,8 @@ class PurchaseController extends Controller
      */
     public function edit(Purchase $purchase)
     {
+        auth()->user()->can('update', $purchase);
+
         $products =  Product::query()
             ->with(['store', 'price', 'stock','category'])
             ->filter(request(['search']))
@@ -251,10 +260,14 @@ class PurchaseController extends Controller
      */
     public function update(PurchaseFormRequest $request, Purchase $purchase)
     {
+        auth()->user()->can('update', $purchase);
+
         $request->validated();
 
-        $discount = $this->convertToNumber($request->details['discount']);
-        $total = $this->convertToNumber($request->details['total']);
+        $convertStringToNumber = new ConvertToNumber();
+
+        $discount = $convertStringToNumber($request->details['discount']);
+        $total = $convertStringToNumber($request->details['total']);
 
         $purchaseAttributes = [
             'quantity' => $request->details['quantity'],
@@ -292,20 +305,17 @@ class PurchaseController extends Controller
      */
     public function destroy(Purchase $purchase)
     {
+        auth()->user()->can('delete', $purchase);
+
         $purchase->delete();
         return redirect()->back();
     }
 
     public function bulkDelete(Request $request)
     {
-        // Gate::authorize('bulk_delete', Supplier::class);
+        auth()->user()->can('create', Purchase::class);
 
         Purchase::whereIn('id',$request->orders_id)->delete();
         return redirect()->back();
-    }
-
-    public function convertToNumber($string)
-    {
-        return floatval(str_replace(',','',$string));
     }
 }
