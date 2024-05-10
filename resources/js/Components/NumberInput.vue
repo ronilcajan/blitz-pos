@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue';
 
 const model = defineModel({
     type: Number,
-    required: true,
 });
 
 const input = ref(null);
@@ -19,6 +18,7 @@ defineExpose({ focus: () => input.value.focus() });
 
 <template>
     <input
+        type="number"
         class="input input-bordered mb-4"
         v-model="model"
         ref="input"
