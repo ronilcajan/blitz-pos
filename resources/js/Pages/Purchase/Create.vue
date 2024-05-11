@@ -20,7 +20,7 @@ const props = defineProps({
     filter: Object
 });
 
-const purchases = reactive([]);
+let purchases = reactive([]);
 const barcode = ref(props.filter.barcode);
 const search = ref(props.filter.search);
 const discount = ref(0);
@@ -197,6 +197,7 @@ const purchaseForm = useForm({
     total : calculateTotal,
     notes : '',
     store_id : '',
+    items : [],
 });
 
 const submitPurchaseForm = () => {
@@ -208,10 +209,8 @@ const submitPurchaseForm = () => {
         });
         return;
     }
-	router.post('/purchase', {
-        products: purchases,
-        details: purchaseForm
-    },
+    purchaseForm.items = purchases;
+	purchaseForm.post('/purchase',
     {
 		replace: true,
 		preserveScroll: true,

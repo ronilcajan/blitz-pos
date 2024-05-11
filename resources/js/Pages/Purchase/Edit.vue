@@ -198,6 +198,7 @@ const purchaseForm = useForm({
 	discount : calculateDiscount,
     total : calculateTotal,
     notes : '',
+    items : [],
 });
 
 const submitPurchaseForm = () => {
@@ -209,10 +210,8 @@ const submitPurchaseForm = () => {
         });
         return;
     }
-	router.patch(`/purchase/${props.purchase.id}`, {
-        products: purchases,
-        details: purchaseForm
-    },
+    purchaseForm.items = purchases;
+	purchaseForm.patch(`/purchase/${props.purchase.id}`,
     {
 		replace: true,
 		preserveScroll: true,

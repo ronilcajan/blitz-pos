@@ -13,7 +13,7 @@ class DeliveryScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
-         if(session()->has('store_id')){
+        if(session()->has('store_id')){
             $builder->where('store_id', session()->get('store_id'));
         }
     }

@@ -103,31 +103,30 @@ class PurchaseController extends Controller
 
         $request->validated();
         $generator = new TransactionCodeGenerator();
-        $code = $generator->generate();
+        $convertStringToNumber = new ConvertToNumber();
 
-        $discount = $this->convertToNumber($request->details['discount']);
-        $total = $this->convertToNumber($request->details['total']);
+        $discount = $convertStringToNumber->convertToNumber($request->discount);
+        $total = $convertStringToNumber->convertToNumber($request->total);
 
         $purchaseAttributes = [
-            'tx_no' => "PO" .$code,
-            'quantity' => $request->details['quantity'],
+            'tx_no' => "PO" .$generator->generate(),
+            'quantity' => $request->quantity,
             'discount' => $discount,
             'amount' => $total - $discount,
             'total' => $total,
-            'status' => $request->details['status'] ?? 'pending',
-            'notes' => $request->details['notes'],
-            'supplier_id' => $request->details['supplier_id'],
+            'status' => $request->status ?? 'pending',
+            'notes' => $request->notes,
+            'supplier_id' => $request->supplier_id,
             'user_id' => auth()->id(),
             'store_id' => auth()->user()->store_id ?? 1,
-            'created_at' => $request->details['transaction_date'],
+            'created_at' => $request->transaction_date,
         ];
 
         $purchase_created = Purchase::create($purchaseAttributes);
 
         $products = [];
 
-
-        foreach($request->products as $product){
+        foreach($request->items as $product){
             $products[] = [
                 'quantity' =>  $product['qty'],
                 'price' =>  $product['price'],
@@ -266,25 +265,25 @@ class PurchaseController extends Controller
 
         $convertStringToNumber = new ConvertToNumber();
 
-        $discount = $convertStringToNumber($request->details['discount']);
-        $total = $convertStringToNumber($request->details['total']);
+        $discount = $convertStringToNumber->convertToNumber($request->discount);
+        $total = $convertStringToNumber->convertToNumber($request->total);
 
         $purchaseAttributes = [
-            'quantity' => $request->details['quantity'],
+            'quantity' => $request->quantity,
             'discount' => $discount,
             'amount' => $total - $discount,
             'total' => $total,
-            'status' => $request->details['status'] ?? 'pending',
-            'notes' => $request->details['notes'],
-            'supplier_id' => $request->details['supplier_id'],
-            'created_at' => $request->details['transaction_date'],
+            'status' => $request->status ?? 'pending',
+            'notes' => $request->notes,
+            'supplier_id' => $request->supplier_id,
+            'created_at' => $request->transaction_date,
         ];
 
         $purchase->update($purchaseAttributes);
 
         $products = [];
 
-        foreach($request->products as $product){
+        foreach($request->items as $product){
             $products[] = [
                 'quantity' =>  $product['qty'],
                 'price' =>  $product['price'],

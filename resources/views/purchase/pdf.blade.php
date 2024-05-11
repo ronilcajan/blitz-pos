@@ -83,8 +83,8 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td style="display:flex !important; padding-block: 12px;">
-                            <img src="{{ $item['image'] }}" class="h-10 w-10 shrink-0 rounded-btn" width="56"
-                                height="56" alt="Product">
+                            {{-- <img src="{{ $item['image'] }}" class="h-10 w-10 shrink-0 rounded-btn" width="56"
+                                height="56" alt="Product"> --}}
                             <p style="font-weight: 700; color: #1A1C21;">{{ $item['name'] }}</p>
                             <p style="color: #5E6470;"> {{ $item['size'] }}</p>
                         </td>

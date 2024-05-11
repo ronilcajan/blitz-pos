@@ -25,6 +25,50 @@ class Delivery extends Model
         return $this->belongsTo(Store::class);
     }
 
+    public function scopeFilter($query, array $filter){
+        if(!empty($filter['search'])){
+
+            $search = $filter['search'];
+
+            $query->whereAny([
+                'expenses_date',
+                'amount',
+                'description',
+                'notes',
+            ], 'LIKE', "%{$search}%")
+            ->orWhereHas('category', function($q) use ($search){
+                $q->where('name', $search);
+            })
+            ->orWhereHas('user', function($q) use ($search){
+                $q->where('name', $search);
+            })
+            ->orWhereHas('store', function($q) use ($search){
+                $q->where('name', $search);
+            });
+        }
+
+        if(!empty($filter['status'])){
+            $status = $filter['status'];
+            $query->where('status', $status === 'Approved' ? 1 : 0);
+        }
+
+        if(!empty($filter['category'])){
+            $category = $filter['category'];
+
+            $query->whereHas('category', function($q) use ($category){
+                $q->where('name', $category);
+            });
+        }
+
+        if(!empty($filter['store'])){
+            $store = $filter['store'];
+
+            $query->whereHas('store', function($q) use ($store){
+                $q->where('name', $store);
+            });
+        }
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

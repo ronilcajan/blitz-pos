@@ -22,11 +22,11 @@ class PurchaseFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'details.supplier_id' => 'required',
-            'details.transaction_date' => 'required',
-            'purchase.id.*' => 'required',
-            'purchase.price.*' => 'required|numeric',
-            'purchase.quantity.*' => 'required|numeric',
+            'supplier_id' => 'required',
+            'transaction_date' => 'required',
+            'items.id.*' => 'required',
+            'items.price.*' => 'required|numeric',
+            'items.quantity.*' => 'required|numeric',
         ];
     }
 }

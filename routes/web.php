@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ImpersonateController;
@@ -48,6 +49,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/purchase/update', [PurchaseController::class, 'update']);
     Route::post('/purchase/bulk/delete', [PurchaseController::class, 'bulkDelete'])->name('purchase.bulkDelete');
     Route::get('/purchase/pdfview/{purchase}', [PurchaseController::class, 'downloadPDF'])->name('purchase.downloadPDF');
+
+    Route::resource('/deliveries', DeliveryController::class);
 
     Route::resource('/inventory', InventoryController::class);
     Route::post('/inventory/update', [InventoryController::class, 'update']);
