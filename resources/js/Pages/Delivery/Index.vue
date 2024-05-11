@@ -20,7 +20,7 @@ let search = ref(props.filter.search);
 let store = ref('');
 let category = ref('');
 let type = ref('');
-const url = '/products';
+const url = '/deliveries';
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -127,7 +127,7 @@ const showRefresh = computed(() => {
 <template>
     <Head :title="title" />
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
-        <CreateButtonLink href="/products/create">New product</CreateButtonLink>
+        <CreateButtonLink href="/deliveries/create">New delivery</CreateButtonLink>
         <!-- <DownloadButton :href="route('user.export')">Export</DownloadButton> -->
         <StatusFilter v-model="type" />
     </div>

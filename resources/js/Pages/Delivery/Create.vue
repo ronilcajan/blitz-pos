@@ -2,9 +2,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import ProductDropdownItems from './partials/ProductDropdownItems.vue';
 import CounterInput from './partials/CounterInput.vue';
+import SearchBar from './partials/SearchBar.vue';
 import { router, useForm } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-import { reactive, ref, watch, watchEffect, computed, onMounted  } from 'vue';
+import { reactive, ref, watch,watchEffect, computed,onMounted  } from 'vue';
 import debounce from "lodash/debounce";
 
 defineOptions({ layout: AuthenticatedLayout })
@@ -16,16 +17,18 @@ const props = defineProps({
     stores: Object,
     units: Object,
     products: Object,
+    orders: Object,
+    order: Object,
     purchase: Object,
-    purchase_items: Object,
     search_products: Object,
     filter: Object
 });
 
-const purchases = reactive([]);
+let purchases = reactive([]);
 const barcode = ref(props.filter.barcode);
 const search = ref(props.filter.search);
 const discount = ref(0);
+const order_id = ref('');
 const createSupplierModal = ref(false);
 const createProductModal = ref(false);
 const addDiscountModal = ref(false);
@@ -62,11 +65,58 @@ const closeModal = () => {
 
 
 watch(search, debounce(function (value) {
-	router.get('/purchase/create',
+	router.get('/deliveries/create',
 	{ search: value },
 	{ preserveState: true, replace:true, only: ['products'] }
    )
-}, 500));
+}, 500)) ;
+
+watch(order_id, debounce(function (value) {
+    if (!order_id.value) {
+        return;
+    }
+	router.get('/deliveries/create',
+	{ order_id: value },
+	{ preserveState: true, replace:true, only: ['order','purchase'],
+        onSuccess: () => {
+            purchases.length = 0;
+            selectedOrder(props.order)
+            deliveryForm.purchase_id = props.purchase.id;
+            deliveryForm.supplier_id = props.purchase.supplier_id;
+            discount.value = parseFloat(props.purchase.discount);
+
+        }
+     }
+   )
+}, 500)) ;
+
+watchEffect(async () => {
+    router.get('/deliveries/create',
+	{ barcode: barcode.value },
+	{ preserveState: true, replace:true,
+        onSuccess: () => {
+            if (!barcode.value) {
+                return;
+            }
+            if (!props.search_products) {
+                useToast().error('Product not found!', {
+                    position: 'top-right',
+                    duration: 3000,
+                    dismissible: true
+                });
+                return;
+            }
+            const foundProduct = findProductById(props.search_products.id, purchase)
+            if (foundProduct) {
+                updateOrderQuantity(foundProduct)
+            } else {
+                const newOrder = createOrderFromProduct(props.search_products);
+                addToOrders(newOrder);
+            }
+
+            barcode.value = '';
+        }, })
+})
 
 const newPurchase = (product) => {
     const foundProduct = findProductById(product.id, purchases)
@@ -121,7 +171,7 @@ const createOrderFromProduct = (product) => {
         details: product.size,
         qty: 1,
         unit: product.unit,
-        stocks: parseFloat(product.stocks),
+        stocks: product.stocks,
         price: parseFloat(product.price ?? 0.00).toFixed(2),
         image: product.image,
         get total() {
@@ -152,7 +202,7 @@ const calculateDiscount = computed(() => {
     return formatNumberWithCommas(discount.value.toFixed(2));
 })
 const calculateTotal = computed(() => {
-    const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
+const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
     const discountValue = parseFloat(discount.value);
     const total = subTotal - discountValue;
     return formatNumberWithCommas(total.toFixed(2));
@@ -161,17 +211,20 @@ const calculateTotal = computed(() => {
 const formatNumberWithCommas = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-const purchaseForm = useForm({
+const deliveryForm = useForm({
     supplier_id: '',
 	transaction_date: '',
+    purchase_id : '',
 	status: '',
 	quantity : calculateQty,
     sub_total: calculateSubTotal,
 	discount : calculateDiscount,
     total : calculateTotal,
     notes : '',
+    store_id : '',
     items : [],
 });
+
 
 const submitPurchaseForm = () => {
     if(purchases.length === 0) {
@@ -182,29 +235,27 @@ const submitPurchaseForm = () => {
         });
         return;
     }
-    purchaseForm.items = purchases;
-	purchaseForm.patch(`/purchase/${props.purchase.id}`,
+    deliveryForm.items = purchases;
+	deliveryForm.post('/purchase',
     {
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
-			useToast().success(`Purchase has been updated successfully!`, {
+			deliveryForm.reset()
+			useToast().success(`Purchase has been created successfully!`, {
 				position: 'top-right',
 				duration: 3000,
 				dismissible: true
 			});
+            purchases.length = 0;
 		},
 	})
 
     purchases = [];
 }
-onMounted(() => {
-    discount.value = parseFloat(props.purchase.discount);
 
-    const items = props.purchase_items;
-
+const selectedOrder = (items) =>{
     items.map(item => {
-        console.log(item);
         const product = {
             id: item.id,
             product: item.name,
@@ -220,14 +271,8 @@ onMounted(() => {
         };
         addToOrders(product);
     });
+}
 
-    if (props.purchase) {
-        purchaseForm.supplier_id = props.purchase.supplier_id;
-        purchaseForm.transaction_date = new Date(props.purchase.created_at).toISOString().split('T')[0]
-        purchaseForm.status = props.purchase.status;
-        purchaseForm.notes = props.purchase.notes;
-    }
-})
 </script>
 
 <template>
@@ -240,7 +285,7 @@ onMounted(() => {
                     <div class="flex justify-between gap-2 flex-col sm:flex-row">
                         <div>
                             <h2 class="card-title grow text-sm">
-                                <span class="uppercase">Purchase details</span>
+                                <span class="uppercase">Delivery details</span>
                             </h2>
                         </div>
                     </div>
@@ -248,8 +293,21 @@ onMounted(() => {
                         <div class="w-full md:w-1/2">
                             <div class="flex items-end gap-2">
                                 <div class="w-full">
+                                    <InputLabel for="date" class="label" value="Purchase Orders"/>
+                                    <select v-model="order_id" class="select select-bordered w-full select-sm" id="supplier" required>
+                                        <option value="">Select order</option>
+                                        <option v-for="order in orders" :key="order.id" :value="order.id">
+                                            {{ order.tx_no }}</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2">
+                            <div class="flex items-end gap-2">
+                                <div class="w-full">
                                     <InputLabel for="date" class="label" value="Supplier"  />
-                                    <select v-model="purchaseForm.supplier_id" class="select select-bordered w-full select-sm" id="supplier" required>
+                                    <select v-model="deliveryForm.supplier_id" class="select select-bordered w-full select-sm" id="supplier" required>
                                         <option value="">Select supplier</option>
                                         <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
                                             {{ supplier.name }}</option>
@@ -264,17 +322,16 @@ onMounted(() => {
                                  </button>
                                 </div>
                             </div>
-
                         </div>
                         <div class="w-full md:w-1/2">
                                 <InputLabel for="date" class="label" value="Transaction Date" />
-                                <TextInput v-model="purchaseForm.transaction_date" type="date" class="input input-sm w-full" required/>
+                                <TextInput v-model="deliveryForm.transaction_date" type="date" class="input input-sm w-full" required/>
                         </div>
                     </div>
                     <div class="flex justify-between gap-2 flex-col sm:flex-row mb-2 mt-4">
                         <div>
                             <h2 class="card-title grow text-sm">
-                                <span class="uppercase">Purchase items</span>
+                                <span class="uppercase">Delivery items</span>
                             </h2>
                         </div>
                     </div>
@@ -283,17 +340,7 @@ onMounted(() => {
                             <div class="w-full">
                                 <label for="simple-search" class="sr-only">Search</label>
                                 <div class="relative w-full">
-                                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                        <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                        </svg>
-                                    </div>
-                                    <input placeholder="Search product name or barcode" v-model="search" class="input pl-8 input-bordered input-sm w-full"/>
-                                    <button type="button" v-if="search" class="absolute inset-y-0 end-0 flex items-center pe-3" @click="search = ''">
-                                        <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                                        </svg>
-                                    </button>
+                                    <SearchBar v-model="search" />
                                     <ul tabindex="0" class="dropdown-content z-[1] bg-base-100 shadow mt-4 w-full">
                                         <li class="p-2 px-5 border-b">
                                             <button @click="createProductModal = true" type="button" class="font-semibold text-primary">
@@ -393,7 +440,7 @@ onMounted(() => {
                     <div class="flex gap-4 justify-between flex-col md:flex-row mt-5">
                         <div class="w-full md:w-1/2">
                             <InputLabel class="label" value="Notes" />
-                            <textarea v-model="purchaseForm.notes" class="textarea textarea-bordered w-full max-w-xs" placeholder="Type here" ></textarea>
+                            <textarea v-model="deliveryForm.notes" class="textarea textarea-bordered w-full max-w-xs" placeholder="Type here" ></textarea>
                         </div>
                         <div class="flex w-full md:w-1/2 justify-end">
                             <div class="bg-base-200 w-full md:w-2/3 rounded-lg p-4 px-5 shadow-sm border border-base-400">
@@ -421,28 +468,28 @@ onMounted(() => {
                     <div class="w-full justify-center mb-10">
                         <InputLabel class="label" value="Status" />
                         <div class="join">
-                            <input v-model="purchaseForm.status" value="pending" class="join-item btn btn-sm" type="radio" name="options" aria-label="Pending" ref="hideDropdownRef" checked/>
-                            <input v-model="purchaseForm.status" value="completed" class="join-item btn btn-sm" type="radio" name="options" aria-label="Completed" />
-                            <input v-model="purchaseForm.status" value="cancelled" class="join-item btn btn-sm" type="radio" name="options" aria-label="Cancelled" />
+                            <input v-model="deliveryForm.status" value="pending" class="join-item btn btn-sm" type="radio" name="options" aria-label="Pending" ref="hideDropdownRef" checked/>
+                            <input v-model="deliveryForm.status" value="completed" class="join-item btn btn-sm" type="radio" name="options" aria-label="Completed" />
+                            <input v-model="deliveryForm.status" value="cancelled" class="join-item btn btn-sm" type="radio" name="options" aria-label="Cancelled" />
                         </div>
                     </div>
                     <div class="flex justify-end gap-2 flex-col lg:flex-row">
-                        <div class="flex justify-end gap-3 flex-col md:flex-row">
-                            <NavLink href="/purchase" class="btn btn-sm">
-                                <svg class="w-5 h-5 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
-                                </svg>
-                                Cancel</NavLink>
-                            <SuccessButton type="submit"
-                                class="btn btn-sm"
-                                :class="{ 'opacity-25': purchaseForm.processing }"
-                                :disabled="purchaseForm.processing"
-                            >
-                            <span v-if="purchaseForm.processing" class="loading loading-spinner"></span>
-                                Save changes
-                            </SuccessButton>
+                            <div class="flex justify-end gap-3 flex-col md:flex-row">
+                                <NavLink href="/purchase" class="btn btn-sm">
+                                    <svg class="w-5 h-5 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
+                                    </svg>
+                                    Cancel</NavLink>
+                                <PrimaryButton type="submit"
+                                    class="btn btn-sm"
+                                    :class="{ 'opacity-25': deliveryForm.processing }"
+                                    :disabled="deliveryForm.processing"
+                                >
+                                <span v-if="deliveryForm.processing" class="loading loading-spinner"></span>
+                                    Create Delivery
+                                </PrimaryButton>
+                            </div>
                         </div>
-                    </div>
                 </div>
             </div>
         </div>

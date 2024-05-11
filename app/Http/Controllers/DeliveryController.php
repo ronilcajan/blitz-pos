@@ -5,10 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDeliveryRequest;
 use App\Http\Requests\UpdateDeliveryRequest;
 use App\Models\Delivery;
+use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\ProductUnit;
+use App\Models\Purchase;
 use App\Models\Store;
 use App\Models\Supplier;
-use Illuminate\Support\Number;
 use Illuminate\Http\Request;
+use Illuminate\Support\Number;
 
 class DeliveryController extends Controller
 {
@@ -54,9 +58,69 @@ class DeliveryController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        // auth()->user()->can('create', Purchase::class);
+
+        $products =  Product::query()
+            ->with(['store', 'price', 'stock','category'])
+            ->filter(request(['search']))
+            ->paginate(5)
+            ->withQueryString()
+            ->through(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'size' => $product->size,
+                    'unit' => $product->unit,
+                    'image' => $product->image,
+                    'category' => $product->category->name,
+                    'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
+                    'price' =>  $product->price?->discount_price,
+                ];
+        });
+
+        $orders = Purchase::select('id','tx_no')
+            ->where('status','pending')
+            ->orderBy('tx_no', 'ASC')
+            ->get();
+
+        $order = '';
+        $purchase = '';
+        if($request->order_id){
+            $purchase = Purchase::query()
+                ->with(['store','supplier','items'])
+                ->find($request->order_id);
+
+            $order =  $purchase->items()->get()->map(function($item){
+                return [
+                    'id' => $item->product_id,
+                    'name' => $item->product->name,
+                    'size' => $item->product->size,
+                    'unit' => $item->product->unit,
+                    'image' => $item->product->image,
+                    'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                    'price' =>  $item->price,
+                    'qty' =>  $item->quantity,
+                ];
+            });
+        }
+
+        return inertia('Delivery/Create', [
+            'title' => "New Delivery",
+            'products' =>  $products,
+            'orders' =>  $orders,
+            'order' =>  $order ?? '',
+            'purchase' =>  $purchase ?? '',
+            'stores' => Store::select('id', 'name')->get(),
+            'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
+            'units' => ProductUnit::select('id','name')
+            ->orderBy('name', 'ASC')->get(),
+            'categories' => ProductCategory::select('id','name')
+            ->orderBy('name', 'ASC')->get(),
+            'filter' =>  request()->only(['search','barcode']) ,
+        ]);
     }
 
     /**
