@@ -24,7 +24,7 @@ const props = defineProps({
     filter: Object
 });
 
-let purchases = reactive([]);
+let deliveries = reactive([]);
 const barcode = ref(props.filter.barcode);
 const search = ref(props.filter.search);
 const discount = ref(0);
@@ -79,7 +79,7 @@ watch(order_id, debounce(function (value) {
 	{ order_id: value },
 	{ preserveState: true, replace:true, only: ['order','purchase'],
         onSuccess: () => {
-            purchases.length = 0;
+            deliveries.length = 0;
             selectedOrder(props.order)
             deliveryForm.purchase_id = props.purchase.id;
             deliveryForm.supplier_id = props.purchase.supplier_id;
@@ -111,7 +111,7 @@ watchEffect(async () => {
                 updateOrderQuantity(foundProduct)
             } else {
                 const newOrder = createOrderFromProduct(props.search_products);
-                addToOrders(newOrder);
+                addToDelivery(newOrder);
             }
 
             barcode.value = '';
@@ -119,12 +119,12 @@ watchEffect(async () => {
 })
 
 const newPurchase = (product) => {
-    const foundProduct = findProductById(product.id, purchases)
+    const foundProduct = findProductById(product.id, deliveries)
     if (foundProduct) {
         updateOrderQuantity(foundProduct)
     } else {
         const newOrder = createOrderFromProduct(product);
-        addToOrders(newOrder);
+        addToDelivery(newOrder);
     }
 
     hideDropdownRef.value.focus()
@@ -183,26 +183,26 @@ const updateOrderQuantity = (purchase) => {
     purchase.qty++;
 }
 const deleteOrder = (order_id) => {
-    purchases.splice(purchases.findIndex(order => order.id === order_id), 1);
+    deliveries.splice(deliveries.findIndex(order => order.id === order_id), 1);
 }
 
-const addToOrders = (products) => {
-    purchases.push(products);
+const addToDelivery = (products) => {
+    deliveries.push(products);
 }
 
 const calculateSubTotal = computed(() => {
-    const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
+    const subTotal = deliveries.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
     return formatNumberWithCommas(subTotal);
 })
 const calculateQty = computed(() => {
-    const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.qty), 0);
+    const subTotal = deliveries.reduce((acc, order) => acc + parseFloat(order.qty), 0);
     return formatNumberWithCommas(subTotal);
 })
 const calculateDiscount = computed(() => {
     return formatNumberWithCommas(discount.value.toFixed(2));
 })
 const calculateTotal = computed(() => {
-const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
+const subTotal = deliveries.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
     const discountValue = parseFloat(discount.value);
     const total = subTotal - discountValue;
     return formatNumberWithCommas(total.toFixed(2));
@@ -227,7 +227,7 @@ const deliveryForm = useForm({
 
 
 const submitPurchaseForm = () => {
-    if(purchases.length === 0) {
+    if(deliveries.length === 0) {
         useToast().error('Please add product to purchase!', {
             position: 'top-right',
             duration: 3000,
@@ -235,8 +235,8 @@ const submitPurchaseForm = () => {
         });
         return;
     }
-    deliveryForm.items = purchases;
-	deliveryForm.post('/purchase',
+    deliveryForm.items = deliveries;
+	deliveryForm.post('/deliveries',
     {
 		replace: true,
 		preserveScroll: true,
@@ -247,11 +247,11 @@ const submitPurchaseForm = () => {
 				duration: 3000,
 				dismissible: true
 			});
-            purchases.length = 0;
+            deliveries.length = 0;
 		},
 	})
 
-    purchases = [];
+    deliveries = [];
 }
 
 const selectedOrder = (items) =>{
@@ -269,7 +269,7 @@ const selectedOrder = (items) =>{
                 return (this.qty * parseFloat(this.price)).toFixed(2);
             },
         };
-        addToOrders(product);
+        addToDelivery(product);
     });
 }
 
@@ -294,7 +294,7 @@ const selectedOrder = (items) =>{
                             <div class="flex items-end gap-2">
                                 <div class="w-full">
                                     <InputLabel for="date" class="label" value="Purchase Orders"/>
-                                    <select v-model="order_id" class="select select-bordered w-full select-sm" id="supplier" required>
+                                    <select v-model="order_id" class="select select-bordered w-full select-sm">
                                         <option value="">Select order</option>
                                         <option v-for="order in orders" :key="order.id" :value="order.id">
                                             {{ order.tx_no }}</option>
@@ -384,7 +384,7 @@ const selectedOrder = (items) =>{
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(purchase, index) in purchases" :key="purchase.id">
+                                <tr v-for="(purchase, index) in deliveries" :key="purchase.id">
                                     <td>{{ index + 1 }}</td>
                                     <td>
                                         <div class="flex gap-2 grow flex-col md:flex-row">

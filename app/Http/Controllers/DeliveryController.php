@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ConvertToNumber;
+use App\Classes\TransactionCodeGenerator;
 use App\Http\Requests\StoreDeliveryRequest;
 use App\Http\Requests\UpdateDeliveryRequest;
 use App\Models\Delivery;
+use App\Models\DeliveryItems;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductUnit;
@@ -128,7 +131,50 @@ class DeliveryController extends Controller
      */
     public function store(StoreDeliveryRequest $request)
     {
-        //
+        dd($request->all());
+        $user = auth()->user();
+        //auth()->user()->can('create', Purchase::class);
+
+        $request->validated();
+        $generator = new TransactionCodeGenerator();
+        $convertStringToNumber = new ConvertToNumber();
+
+        $discount = $convertStringToNumber->convertToNumber($request->discount);
+        $total = $convertStringToNumber->convertToNumber($request->total);
+
+        $purchaseAttributes = [
+            'tx_no' => "DE" .$generator->generate(),
+            'quantity' => $request->quantity,
+            'discount' => $discount,
+            'amount' => $total - $discount,
+            'total' => $total,
+            'status' => $request->status ?? 'pending',
+            'notes' => $request->notes,
+            'purchase_id' => $request->purchase_id,
+            'supplier_id' => $request->supplier_id,
+            'user_id' => $user->id,
+            'store_id' => $user->store_id ?? 1,
+            'created_at' => $request->transaction_date,
+        ];
+
+        $purchase_created = Delivery::create($purchaseAttributes);
+
+        $products = [];
+
+        foreach($request->items as $product){
+            $products[] = [
+                'quantity' =>  $product['qty'],
+                'price' =>  $product['price'],
+                'purchase_id' =>  $purchase_created->id,
+                'product_id' =>  $product['id'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+
+        }
+        DeliveryItems::insert($products);
+
+        return redirect()->back();
     }
 
     /**

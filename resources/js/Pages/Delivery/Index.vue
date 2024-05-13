@@ -3,7 +3,6 @@ import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-import StatusFilter from './partials/StatusFilter.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
