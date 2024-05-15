@@ -226,7 +226,7 @@ const deliveryForm = useForm({
 });
 
 
-const submitPurchaseForm = () => {
+const submitDeliveryForm = () => {
     if(deliveries.length === 0) {
         useToast().error('Please add product to purchase!', {
             position: 'top-right',
@@ -248,6 +248,7 @@ const submitPurchaseForm = () => {
 				dismissible: true
 			});
             deliveries.length = 0;
+            order_id.value = '';
 		},
 	})
 
@@ -277,7 +278,7 @@ const selectedOrder = (items) =>{
 
 <template>
     <Head :title="title" />
-    <form @submit.prevent="submitPurchaseForm">
+    <form @submit.prevent="submitDeliveryForm">
     <div class="flex gap-3 flex-col md:flex-row">
         <div class="w-full">
             <div class="card bg-base-100 shadow-sm">

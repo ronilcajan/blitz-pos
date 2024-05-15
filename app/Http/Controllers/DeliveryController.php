@@ -131,7 +131,6 @@ class DeliveryController extends Controller
      */
     public function store(StoreDeliveryRequest $request)
     {
-        dd($request->all());
         $user = auth()->user();
         //auth()->user()->can('create', Purchase::class);
 
@@ -157,7 +156,7 @@ class DeliveryController extends Controller
             'created_at' => $request->transaction_date,
         ];
 
-        $purchase_created = Delivery::create($purchaseAttributes);
+        $delivery = Delivery::create($purchaseAttributes);
 
         $products = [];
 
@@ -165,7 +164,7 @@ class DeliveryController extends Controller
             $products[] = [
                 'quantity' =>  $product['qty'],
                 'price' =>  $product['price'],
-                'purchase_id' =>  $purchase_created->id,
+                'delivery_id' =>  $delivery->id,
                 'product_id' =>  $product['id'],
                 'created_at' => now(),
                 'updated_at' => now()

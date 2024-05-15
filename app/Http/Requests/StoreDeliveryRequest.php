@@ -24,12 +24,15 @@ class StoreDeliveryRequest extends FormRequest
         return [
             'supplier_id' => 'required',
             'transaction_date' => 'required|date',
-            'quantity' => 'required|numeric',
-            'amount' => 'required|numeric',
-            'total' => 'required|numeric',
+            'quantity' => 'required',
+            'sub_total' => 'required',
+            'total' => 'required',
+            'status' => '',
+            'purchase_id' => '',
+            'notes' => '',
             'items.id.*' => 'required',
-            'items.price.*' => 'required|numeric',
-            'items.quantity.*' => 'required|numeric',
+            'items.price.*' => 'required',
+            'items.quantity.*' => 'required',
         ];
     }
 }
