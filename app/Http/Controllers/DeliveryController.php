@@ -30,28 +30,30 @@ class DeliveryController extends Controller
         : 10;
 
         $deliveries = Delivery::query()
-            ->with(['store','supplier','store'])
+            ->with(['store','supplier','purchase'])
             ->orderBy('id', 'DESC')
-            ->filter(request(['search','store']))
+            ->filter(request(['search','store','supplier']))
             ->paginate($perPage)
             ->withQueryString()
-            ->through(function ($order) {
+            ->through(function ($delivery) {
                 return [
-                    'id' => $order->id,
-                    'order_no' => $order->tx_no,
-                    'quantity' => Number::format($order->quantity),
-                    'discount' => Number::format($order->discount, maxPrecision: 2),
-                    'amount' => Number::currency($order->amount - $order->discount, in: 'PHP'),
-                    'status' => $order->status,
-                    'supplier' => $order->supplier->name,
-                    'store' => $order->store->name,
-                    'created_at' => $order->created_at->format('M d, Y h:i: A'),
+                    'id' => $delivery->id,
+                    'tx_no' => $delivery->tx_no,
+                    'quantity' => Number::format($delivery->quantity),
+                    'discount' => Number::format($delivery->discount, maxPrecision: 2),
+                    'amount' => Number::currency($delivery->amount - $delivery->discount, in: 'PHP'),
+                    'status' => $delivery->status,
+                    'notes' => $delivery->notes,
+                    'supplier' => $delivery->supplier->name,
+                    'purchase' => $delivery->purchase->tx_no,
+                    'store' => $delivery->store->name,
+                    'created_at' => $delivery->created_at->format('M d, Y h:i: A'),
                 ];
         });
 
         return inertia('Delivery/Index', [
             'title' => "Deliveries",
-            'products' => $deliveries,
+            'deliveries' => $deliveries,
             'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
             'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
             'filter' => $request->only(['search','store','per_page']),

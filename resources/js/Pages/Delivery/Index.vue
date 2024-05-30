@@ -8,23 +8,23 @@ defineOptions({ layout: AuthenticatedLayout })
 
 const props = defineProps({
     title: String,
-	products: Object,
+	deliveries: Object,
     stores: Object,
-    product_categories: Object,
+    suppliers: Object,
 	filter: Object
 });
 
 const page = usePage();
 let search = ref(props.filter.search);
 let store = ref('');
-let category = ref('');
+let supplier = ref('');
 let type = ref('');
 const url = '/deliveries';
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
 
-let productIds = ref([]);
+let deliveryIds = ref([]);
 let selectAllCheckbox = ref(false);
 
 const deleteForm = useForm({id: ''});
@@ -60,14 +60,14 @@ const submitDeleteForm = () => {
 const submitBulkDeleteForm = () => {
     router.post(route('products.bulkDelete'),
     {
-        products_id: productIds.value
+        products_id: deliveryIds.value
     },
     {
         forceFormData: true,
         replace: true,
         preserveScroll: true,
         onSuccess: () => {
-            productIds.value = [];
+            deliveryIds.value = [];
             closeModal();
             useToast().success('Multiple products has been deleted successfully!', {
                 position: 'top-right',
@@ -82,30 +82,16 @@ const submitBulkDeleteForm = () => {
 const selectAll = () => {
 	if (selectAllCheckbox.value) {
         // If "Select All" checkbox is checked, select all users
-        productIds.value = props.products.data.map(product => product.id);
+        deliveryIds.value = props.deliveries.data.map(delivery => delivery.id);
       } else {
         // If "Select All" checkbox is unchecked, deselect all users
-        productIds.value = [];
+        deliveryIds.value = [];
       }
 }
 
-const isVisible = (id,event) => {
-	router.patch(route('products.change_status',id), {
-            status: event.checked,
-        },
-	    { preserveState: true, replace:true,
-            onSuccess: () => {
-            useToast().success('Product visibility has been changed successfully!', {
-                position: 'top-right',
-                duration: 3000,
-                dismissible: true
-            });
-        },  only: ['products'], })
-}
-
-watch(category, value => {
-	router.get('/products',
-	{ category: value },
+watch(supplier, value => {
+	router.get('/deliveries',
+	{ supplier: value },
 	{ preserveState: true, replace:true })
 })
 watch(type, value => {
@@ -117,10 +103,6 @@ watch(type, value => {
 const isSuperAdmin = page.props.auth.user.isSuperAdmin
 const canDelete = page.props.auth.user.canDelete
 
-const showRefresh = computed(() => {
-    return store.value !== '' || category.value !== '' || type.value !== '';
-})
-
 </script>
 
 <template>
@@ -128,7 +110,7 @@ const showRefresh = computed(() => {
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
         <CreateButtonLink href="/deliveries/create">New delivery</CreateButtonLink>
         <!-- <DownloadButton :href="route('user.export')">Export</DownloadButton> -->
-        <StatusFilter v-model="type" />
+        <!-- <StatusFilter v-model="type" /> -->
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">
@@ -136,10 +118,10 @@ const showRefresh = computed(() => {
                 <div class="flex gap-2 flex-col sm:flex-row">
                     <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
                     <div class="w-full">
-                        <select v-model="category" class="select select-bordered select-sm w-full">
-                            <option selected value="">Filter by categories</option>
-                            <option v-for="category in product_categories" :value="category.name" :key="category.id">
-                                {{ category.name }}
+                        <select v-model="supplier" class="select select-bordered select-sm w-full">
+                            <option selected value="">Filter by suppliers</option>
+                            <option v-for="supplier in suppliers" :value="supplier.name" :key="supplier.id">
+                                {{ supplier.name }}
                             </option>
                         </select>
                     </div>
@@ -151,7 +133,7 @@ const showRefresh = computed(() => {
                 </div>
             </div>
             <div>
-                <DeleteButton v-if="canDelete" v-show="productIds.length > 0" @click="deleteAllSelectedModal = true">
+                <DeleteButton v-if="canDelete" v-show="deliveryIds.length > 0" @click="deleteAllSelectedModal = true">
                     Delete
                 </DeleteButton>
             </div>
@@ -164,28 +146,22 @@ const showRefresh = computed(() => {
                             <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
                         </th>
                         <th>
-                            <div class="font-bold">Name</div>
+                            <div class="font-bold">TX No</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Size</div>
+                            <div class="font-bold">Quantity</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Brand</div>
+                            <div class="font-bold">Amount</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Category</div>
+                            <div class="font-bold">Status</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Product Type</div>
+                            <div class="font-bold">Supplier</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">Unit</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Price</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Visible</div>
+                            <div class="font-bold">Purchase</div>
                         </th>
                         <th class="hidden sm:table-cell" v-show="isSuperAdmin">
                             <div class="font-bold">Store</div>
@@ -193,59 +169,30 @@ const showRefresh = computed(() => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="product in products.data" :key="product.id">
+                    <tr v-for="delivery in deliveries.data" :key="delivery.id">
                         <td class="w-0" v-if="canDelete">
-                            <input :value="product.id" v-model="productIds" type="checkbox" class="checkbox checkbox-sm">
+                            <input :value="delivery.id" v-model="deliveryIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <div class="avatar placeholder" v-show="!product.image">
-                                    <div class="w-10 bg-neutral text-neutral-content rounded-full">
-                                        <span class="text-xl">{{ product.name[0] }}</span>
-                                    </div>
-                                </div>
-                                <div class="avatar" v-show="product.image">
-                                    <div class="mask mask-squircle h-10 w-10">
-                                        <img :src="product.image" alt="logo">
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="flex text-sm font-bold gap-2">
-                                        {{ product.name }}
-                                    </div>
-                                    <div class="text-xs opacity-50">
-                                        {{ product.barcode }}
-                                    </div>
-                                    <div class="sm:hidden">
-                                        <div class="text-xs opacity-50">{{ product.phone }}</div>
-                                        <div class="text-xs opacity-50">{{ product.address }}</div>
-                                    </div>
-                                </div>
-                            </div>
+                        <td class="sm:table-cell">
+                            {{ delivery.tx_no }}</td>
+                        <td class="sm:table-cell">
+                            {{ delivery.quantity }}</td>
+                        <td class="sm:table-cell">
+                            {{ delivery.amount }}</td>
+                        <td class="sm:table-cell">
+                                {{ delivery.status }}
                         </td>
-                        <td class="hidden sm:table-cell">
-                            {{ product.size }}</td>
-                        <td class="hidden sm:table-cell">
-                            {{ product.brand }}</td>
-                        <td class="hidden sm:table-cell">
-                                {{ product.category }}
+                        <td class="sm:table-cell">
+                                {{ delivery.supplier }}
                         </td>
-                        <td class="hidden sm:table-cell">
-                            <div class="badge" :class="product.product_type === 'sellable' ? 'badge-primary' : 'badge-neutral'">
-                                {{ product.product_type }}</div>
+                        <td class="sm:table-cell">
+                                {{ delivery.purchase }}
                         </td>
-                        <td class="hidden sm:table-cell">
-                            {{ product.unit }}</td>
-                        <td class="hidden sm:table-cell">
-                            {{ product.price }}</td>
-                        <td class="hidden sm:table-cell">
-                            <input @change="isVisible(product.id, $event.target)" type="checkbox" class="toggle toggle-sm toggle-success" :checked="product.visible" />
-                        </td>
-                        <td class="hidden sm:table-cell" v-show="isSuperAdmin">
-                            {{ product.store }}</td>
+                        <td class="sm:table-cell" v-show="isSuperAdmin">
+                            {{ delivery.store }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">
-                                <Link :href="`/products/${product.id}/edit`" class=" hover:text-green-500">
+                                <Link :href="`/products/${delivery.id}/edit`" class=" hover:text-green-500">
                                     <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
                                     </svg>
@@ -261,7 +208,7 @@ const showRefresh = computed(() => {
                             </div>
                         </td>
                     </tr>
-                    <tr v-if="products.data.length  <= 0">
+                    <tr v-if="deliveries.data.length  <= 0">
                         <td colspan="12" class="text-center">
                             No data found
                         </td>
@@ -272,9 +219,9 @@ const showRefresh = computed(() => {
         </div>
     </section>
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <PaginationResultRange :data="products" />
+        <PaginationResultRange :data="deliveries" />
         <PaginationControlList :url="url" />
-        <Pagination :links="products.links" />
+        <Pagination :links="deliveries.links" />
     </div>
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">
@@ -303,7 +250,7 @@ const showRefresh = computed(() => {
     <Modal :show="deleteAllSelectedModal" @close="closeModal">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
-                Delete {{ productIds.length }} products
+                Delete {{ deliveryIds.length }} products
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">

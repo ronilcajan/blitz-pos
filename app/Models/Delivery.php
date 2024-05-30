@@ -22,9 +22,19 @@ class Delivery extends Model
 
     protected $guarded = [];
 
-    public function store():BelongsTo
+    public function store(): BelongsTo
     {
         return $this->belongsTo(Store::class);
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    public function purchase(): BelongsTo
+    {
+        return $this->belongsTo(Purchase::class);
     }
 
     public function delivery_items():HasMany
@@ -64,10 +74,10 @@ class Delivery extends Model
             $query->where('status', $status === 'Approved' ? 1 : 0);
         }
 
-        if(!empty($filter['category'])){
-            $category = $filter['category'];
+        if(!empty($filter['supplier'])){
+            $category = $filter['supplier'];
 
-            $query->whereHas('category', function($q) use ($category){
+            $query->whereHas('supplier', function($q) use ($category){
                 $q->where('name', $category);
             });
         }
