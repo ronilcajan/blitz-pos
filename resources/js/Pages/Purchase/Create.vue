@@ -98,9 +98,12 @@ const newPurchase = (product) => {
     const foundProduct = findProductById(product.id, purchases)
     if (foundProduct) {
         updateOrderQuantity(foundProduct)
+        console.log(1)
     } else {
         const newOrder = createOrderFromProduct(product);
         addToOrders(newOrder);
+        console.log(2)
+
     }
 
     hideDropdownRef.value.focus()
@@ -137,8 +140,8 @@ const submitProductForm = () => {
 	})
 }
 
-const findProductById = (product_id, search_products) => {
-    return search_products.find(product => product.id === product_id);
+const findProductById = (product_id, purchases) => {
+    return purchases.find(product => product.id === product_id);
 }
 const createOrderFromProduct = (product) => {
     return {
@@ -156,7 +159,7 @@ const createOrderFromProduct = (product) => {
     };
 }
 const updateOrderQuantity = (purchase) => {
-    purchase.qty++;
+    purchase.qty += 1;
 }
 const deleteOrder = (order_id) => {
     purchases.splice(purchases.findIndex(order => order.id === order_id), 1);
@@ -166,35 +169,43 @@ const addToOrders = (products) => {
     purchases.push(products);
 }
 
-const calculateSubTotal = computed(() => {
+const calculateSubTotal = () => {
     const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
     return formatNumberWithCommas(subTotal);
-})
-const calculateQty = computed(() => {
+}
+const calculateQty =() => {
     const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.qty), 0);
     return formatNumberWithCommas(subTotal);
-})
-const calculateDiscount = computed(() => {
+}
+const calculateDiscount =() => {
     return formatNumberWithCommas(discount.value.toFixed(2));
-})
-const calculateTotal = computed(() => {
+}
+const calculateTotal =() => {
 const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
     const discountValue = parseFloat(discount.value);
     const total = subTotal - discountValue;
     return formatNumberWithCommas(total.toFixed(2));
-});
-
+}
 const formatNumberWithCommas = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+const getCurrentDate = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
+
 const purchaseForm = useForm({
     supplier_id: '',
-	transaction_date: '',
+	transaction_date: getCurrentDate(),
 	status: '',
-	quantity : calculateQty,
-    sub_total: calculateSubTotal,
-	discount : calculateDiscount,
-    total : calculateTotal,
+	quantity : calculateQty(),
+    sub_total: calculateSubTotal(),
+	discount : calculateDiscount(),
+    total : calculateTotal(),
     notes : '',
     store_id : '',
     items : [],
@@ -224,8 +235,6 @@ const submitPurchaseForm = () => {
             purchases.length = 0;
 		},
 	})
-
-    purchases = [];
 }
 </script>
 
@@ -374,7 +383,7 @@ const submitPurchaseForm = () => {
                                     <td class="sm:table-cell text-right">
                                         <span class="mr-3">
                                             {{ formatNumberWithCommas(purchase.total) }}</span>
-                                            <button @click="deleteOrder(purchase.id)" class="text-orange-900 hover:text-orange-600">
+                                            <button type="button" @click="deleteOrder(purchase.id)" class="text-orange-900 hover:text-orange-600">
                                                 <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M13.7535 2.47502H11.5879V1.9969C11.5879 1.15315 10.9129 0.478149 10.0691 0.478149H7.90352C7.05977 0.478149 6.38477 1.15315 6.38477 1.9969V2.47502H4.21914C3.40352 2.47502 2.72852 3.15002 2.72852 3.96565V4.8094C2.72852 5.42815 3.09414 5.9344 3.62852 6.1594L4.07852 15.4688C4.13477 16.6219 5.09102 17.5219 6.24414 17.5219H11.7004C12.8535 17.5219 13.8098 16.6219 13.866 15.4688L14.3441 6.13127C14.8785 5.90627 15.2441 5.3719 15.2441 4.78127V3.93752C15.2441 3.15002 14.5691 2.47502 13.7535 2.47502ZM7.67852 1.9969C7.67852 1.85627 7.79102 1.74377 7.93164 1.74377H10.0973C10.2379 1.74377 10.3504 1.85627 10.3504 1.9969V2.47502H7.70664V1.9969H7.67852ZM4.02227 3.96565C4.02227 3.85315 4.10664 3.74065 4.24727 3.74065H13.7535C13.866 3.74065 13.9785 3.82502 13.9785 3.96565V4.8094C13.9785 4.9219 13.8941 5.0344 13.7535 5.0344H4.24727C4.13477 5.0344 4.02227 4.95002 4.02227 4.8094V3.96565ZM11.7285 16.2563H6.27227C5.79414 16.2563 5.40039 15.8906 5.37227 15.3844L4.95039 6.2719H13.0785L12.6566 15.3844C12.6004 15.8625 12.2066 16.2563 11.7285 16.2563Z" fill=""></path>
                                                     <path d="M9.00039 9.11255C8.66289 9.11255 8.35352 9.3938 8.35352 9.75942V13.3313C8.35352 13.6688 8.63477 13.9782 9.00039 13.9782C9.33789 13.9782 9.64727 13.6969 9.64727 13.3313V9.75942C9.64727 9.3938 9.33789 9.11255 9.00039 9.11255Z" fill=""></path>
@@ -398,21 +407,21 @@ const submitPurchaseForm = () => {
                             <div class="bg-base-200 w-full md:w-2/3 rounded-lg p-4 px-5 shadow-sm border border-base-400">
                                 <div class="flex justify-between mb-2">
                                     <span>Items:</span>
-                                    <span>{{ calculateQty }}</span>
+                                    <span>{{ calculateQty() }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span>{{ calculateSubTotal }}</span>
+                                    <span>{{ calculateSubTotal()  }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <button class="font-semibold text-primary" type="button" @click="addDiscountModal = true">
                                         Discount(+/-):
                                             </button>
-                                    <span class="text-red-500">{{ calculateDiscount }}</span>
+                                    <span class="text-red-500">{{ calculateDiscount() }}</span>
                                 </div>
                                 <div class="flex justify-between text-lg font-semibold">
                                     <span>Total:</span>
-                                    <span>{{ calculateTotal }}</span>
+                                    <span>{{ calculateTotal() }}</span>
                                 </div>
                             </div>
                         </div>
@@ -435,7 +444,7 @@ const submitPurchaseForm = () => {
                                 <PrimaryButton type="submit"
                                     class="btn btn-sm"
                                     :class="{ 'opacity-25': purchaseForm.processing }"
-                                    :disabled="purchaseForm.processing"
+                                    :disabled="purchaseForm.processing || purchases.length == 0"
                                 >
                                 <span v-if="purchaseForm.processing" class="loading loading-spinner"></span>
                                     Create Purchase

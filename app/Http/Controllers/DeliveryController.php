@@ -44,8 +44,8 @@ class DeliveryController extends Controller
                     'amount' => Number::currency($delivery->amount - $delivery->discount, in: 'PHP'),
                     'status' => $delivery->status,
                     'notes' => $delivery->notes,
-                    'supplier' => $delivery->supplier->name,
-                    'purchase' => $delivery->purchase->tx_no,
+                    'supplier' => $delivery->supplier?->name,
+                    'purchase' => $delivery->purchase?->tx_no,
                     'store' => $delivery->store->name,
                     'created_at' => $delivery->created_at->format('M d, Y h:i: A'),
                 ];
@@ -189,9 +189,89 @@ class DeliveryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Delivery $delivery)
+    public function edit(Delivery $delivery, Request $request)
     {
-        //
+        // auth()->user()->can('update', $purchase);
+
+        $products =  Product::query()
+            ->with(['store', 'price', 'stock','category'])
+            ->filter(request(['search']))
+            ->paginate(5)
+            ->withQueryString()
+            ->through(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'size' => $product->size,
+                    'unit' => $product->unit,
+                    'image' => $product->image,
+                    'category' => $product->category->name,
+                    'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
+                    'price' =>  $product->price?->discount_price,
+                ];
+        });
+
+        $orders = Purchase::select('id','tx_no')
+        ->where('status','pending')
+        ->orderBy('tx_no', 'ASC')
+        ->get();
+
+
+        $items = '';
+        if($delivery->purchase->id){
+            $items =  $delivery->delivery_items()->get()->map(function($item){
+                return [
+                    'id' => $item->product_id,
+                    'name' => $item->product->name,
+                    'size' => $item->product->size,
+                    'unit' => $item->product->unit,
+                    'image' => $item->product->image,
+                    'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                    'price' =>  $item->price,
+                    'qty' =>  $item->quantity,
+                ];
+            });
+        }
+
+        $order = '';
+        $purchase = '';
+
+        if($request->order_id){
+            $purchase = Purchase::query()
+                ->with(['store','supplier','items'])
+                ->find($request->order_id);
+
+            $order =  $purchase->items()->get()->map(function($item){
+                return [
+                    'id' => $item->product_id,
+                    'name' => $item->product->name,
+                    'size' => $item->product->size,
+                    'unit' => $item->product->unit,
+                    'image' => $item->product->image,
+                    'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                    'price' =>  $item->price,
+                    'qty' =>  $item->quantity,
+                ];
+            });
+        }
+
+        return inertia('Delivery/Edit', [
+            'title' => "Edit Delivery",
+            'products' =>  $products,
+            'orders' =>  $orders,
+            'order' =>  $order ?? '',
+            'purchase' =>  $purchase ?? '',
+            'purchase_items' =>  $items,
+            'delivery' => $delivery,
+            'stores' => Store::select('id', 'name')->get(),
+            'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
+            'units' => ProductUnit::select('id','name')
+            ->orderBy('name', 'ASC')->get(),
+            'categories' => ProductCategory::select('id','name')
+            ->orderBy('name', 'ASC')->get(),
+            'filter' =>  request()->only(['search','barcode']) ,
+        ]);
     }
 
     /**

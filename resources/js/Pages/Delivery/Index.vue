@@ -149,6 +149,13 @@ const canDelete = page.props.auth.user.canDelete
                             <div class="font-bold">TX No</div>
                         </th>
                         <th class="hidden sm:table-cell">
+                            <div class="font-bold">Purchase</div>
+                        </th>
+                        <th>
+                            <div class="font-bold">Date</div>
+                        </th>
+
+                        <th class="hidden sm:table-cell">
                             <div class="font-bold">Quantity</div>
                         </th>
                         <th class="hidden sm:table-cell">
@@ -160,9 +167,7 @@ const canDelete = page.props.auth.user.canDelete
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">Supplier</div>
                         </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Purchase</div>
-                        </th>
+
                         <th class="hidden sm:table-cell" v-show="isSuperAdmin">
                             <div class="font-bold">Store</div>
                         </th>
@@ -173,8 +178,13 @@ const canDelete = page.props.auth.user.canDelete
                         <td class="w-0" v-if="canDelete">
                             <input :value="delivery.id" v-model="deliveryIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
-                        <td class="sm:table-cell">
+                        <td class="sm:table-cell font-bold">
                             {{ delivery.tx_no }}</td>
+                        <td class="sm:table-cell">
+                                {{ delivery.purchase }}
+                        </td>
+                            <td class="sm:table-cell">
+                            {{ delivery.created_at }}</td>
                         <td class="sm:table-cell">
                             {{ delivery.quantity }}</td>
                         <td class="sm:table-cell">
@@ -185,14 +195,12 @@ const canDelete = page.props.auth.user.canDelete
                         <td class="sm:table-cell">
                                 {{ delivery.supplier }}
                         </td>
-                        <td class="sm:table-cell">
-                                {{ delivery.purchase }}
-                        </td>
+
                         <td class="sm:table-cell" v-show="isSuperAdmin">
                             {{ delivery.store }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">
-                                <Link :href="`/products/${delivery.id}/edit`" class=" hover:text-green-500">
+                                <Link :href="`/deliveries/${delivery.id}/edit`" class=" hover:text-green-500">
                                     <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
                                     </svg>
@@ -215,7 +223,6 @@ const canDelete = page.props.auth.user.canDelete
                     </tr>
                 </tbody>
             </table>
-
         </div>
     </section>
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">

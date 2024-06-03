@@ -5,13 +5,14 @@ import CounterInput from './partials/CounterInput.vue';
 import SearchBar from './partials/SearchBar.vue';
 import { router, useForm } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-import { reactive, ref, watch,watchEffect, computed,onMounted  } from 'vue';
+import { reactive, ref, watch,watchEffect, onMounted  } from 'vue';
 import debounce from "lodash/debounce";
 
 defineOptions({ layout: AuthenticatedLayout })
 
 const props = defineProps({
     title: String,
+    delivery: Object,
     categories: Object,
     suppliers: Object,
     stores: Object,
@@ -20,15 +21,18 @@ const props = defineProps({
     orders: Object,
     order: Object,
     purchase: Object,
+    purchase_items: Object,
     search_products: Object,
     filter: Object
 });
+
+console.log(props.delivery);
 
 let deliveries = reactive([]);
 const barcode = ref(props.filter.barcode);
 const search = ref(props.filter.search);
 const discount = ref(0);
-const order_id = ref('');
+const order_id = ref(props.delivery.purchase?.id);
 const createSupplierModal = ref(false);
 const createProductModal = ref(false);
 const addDiscountModal = ref(false);
@@ -65,7 +69,7 @@ const closeModal = () => {
 
 
 watch(search, debounce(function (value) {
-	router.get('/deliveries/create',
+	router.get(`/deliveries/${props.delivery.id}/edit`,
 	{ search: value },
 	{ preserveState: true, replace:true, only: ['products'] }
    )
@@ -75,7 +79,7 @@ watch(order_id, debounce(function (value) {
     if (!order_id.value) {
         return;
     }
-	router.get('/deliveries/create',
+	router.get(`/deliveries/${props.delivery.id}/edit`,
 	{ order_id: value },
 	{ preserveState: true, replace:true, only: ['order','purchase'],
         onSuccess: () => {
@@ -91,7 +95,7 @@ watch(order_id, debounce(function (value) {
 }, 500)) ;
 
 watchEffect(async () => {
-    router.get('/deliveries/create',
+	router.get(`/deliveries/${props.delivery.id}/edit`,
 	{ barcode: barcode.value },
 	{ preserveState: true, replace:true,
         onSuccess: () => {
@@ -210,26 +214,17 @@ const formatNumberWithCommas = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-const getCurrentDate = () => {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
-    const dd = String(today.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-}
-
-
 const deliveryForm = useForm({
-    supplier_id: '',
-	transaction_date: getCurrentDate(),
-    purchase_id : '',
-	status: '',
+    supplier_id: props.delivery.purchase?.supplier_id,
+	transaction_date: new Date(props.delivery.created_at).toISOString().split('T')[0],
+    purchase_id : props.delivery.id,
+	status: props.delivery.status,
 	quantity : calculateQty(),
     sub_total: calculateSubTotal(),
 	discount : calculateDiscount(),
     total : calculateTotal(),
-    notes : '',
-    store_id : '',
+    notes : props.delivery.notes,
+    store_id : props.delivery.store_id,
     items : [],
 });
 
@@ -278,7 +273,29 @@ const selectedOrder = (items) =>{
         addToDelivery(product);
     });
 }
+onMounted(() => {
+    discount.value = parseFloat(props.delivery.discount);
 
+    const items = props.purchase_items;
+
+    items.map(item => {
+        console.log(item);
+        const product = {
+            id: item.id,
+            product: item.name,
+            details: item.size,
+            qty: parseFloat(item.qty),
+            unit: item.unit,
+            stocks: parseFloat(item.stocks),
+            price: parseFloat(item.price).toFixed(2),
+            image: item.image,
+            get total() {
+                return (this.qty * parseFloat(this.price)).toFixed(2);
+            },
+        };
+        addToDelivery(product);
+    });
+})
 </script>
 
 <template>
@@ -300,11 +317,7 @@ const selectedOrder = (items) =>{
                             <div class="flex items-end gap-2">
                                 <div class="w-full">
                                     <InputLabel for="date" class="label" value="Purchase Orders"/>
-                                    <select v-model="order_id" class="select select-bordered w-full select-sm">
-                                        <option value="">Select order</option>
-                                        <option v-for="order in orders" :key="order.id" :value="order.id">
-                                            {{ order.tx_no }}</option>
-                                    </select>
+                                    <TextInput v-model="props.delivery.purchase.tx_no" readonly type="text" class="input input-sm w-full" required/>
 
                                 </div>
                             </div>
@@ -489,14 +502,14 @@ const selectedOrder = (items) =>{
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
                                     </svg>
                                     Cancel</NavLink>
-                                <PrimaryButton type="submit"
+                                <SuccessButton type="submit"
                                     class="btn btn-sm"
                                     :class="{ 'opacity-25': deliveryForm.processing }"
                                     :disabled="deliveryForm.processing || deliveries.length==0"
                                 >
                                 <span v-if="deliveryForm.processing" class="loading loading-spinner"></span>
-                                    Create Delivery
-                                </PrimaryButton>
+                                    Update Delivery
+                                </SuccessButton>
                             </div>
                         </div>
                 </div>
