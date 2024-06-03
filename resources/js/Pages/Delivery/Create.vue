@@ -5,7 +5,7 @@ import CounterInput from './partials/CounterInput.vue';
 import SearchBar from './partials/SearchBar.vue';
 import { router, useForm } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-import { reactive, ref, watch,watchEffect, computed,onMounted  } from 'vue';
+import { reactive, ref, watch,watchEffect, computed  } from 'vue';
 import debounce from "lodash/debounce";
 
 defineOptions({ layout: AuthenticatedLayout })
@@ -188,23 +188,23 @@ const addToDelivery = (products) => {
     deliveries.push(products);
 }
 
-const calculateSubTotal = () => {
+const calculateSubTotal = computed(() => {
     const subTotal = deliveries.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
     return formatNumberWithCommas(subTotal);
-}
-const calculateQty = () => {
+})
+const calculateQty = computed(() => {
     const subTotal = deliveries.reduce((acc, order) => acc + parseFloat(order.qty), 0);
     return formatNumberWithCommas(subTotal);
-}
-const calculateDiscount = () => {
+})
+const calculateDiscount = computed(() => {
     return formatNumberWithCommas(discount.value.toFixed(2));
-}
-const calculateTotal = () => {
+})
+const calculateTotal = computed(() => {
 const subTotal = deliveries.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
     const discountValue = parseFloat(discount.value);
     const total = subTotal - discountValue;
     return formatNumberWithCommas(total.toFixed(2));
-}
+})
 
 const formatNumberWithCommas = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -218,16 +218,15 @@ const getCurrentDate = () => {
     return `${yyyy}-${mm}-${dd}`;
 }
 
-
 const deliveryForm = useForm({
     supplier_id: '',
 	transaction_date: getCurrentDate(),
     purchase_id : '',
 	status: '',
-	quantity : calculateQty(),
-    sub_total: calculateSubTotal(),
-	discount : calculateDiscount(),
-    total : calculateTotal(),
+	quantity : calculateQty,
+    sub_total: calculateSubTotal,
+	discount : calculateDiscount,
+    total : calculateTotal,
     notes : '',
     store_id : '',
     items : [],
@@ -256,6 +255,7 @@ const submitDeliveryForm = () => {
 			});
             deliveries.length = 0;
             order_id.value = '';
+            discount.value = 0;
 		},
 	})
 }
@@ -452,34 +452,33 @@ const selectedOrder = (items) =>{
                             <div class="bg-base-200 w-full md:w-2/3 rounded-lg p-4 px-5 shadow-sm border border-base-400">
                                 <div class="flex justify-between mb-2">
                                     <span>Items:</span>
-                                    <span>{{ calculateQty() }}</span>
+                                    <span>{{ calculateQty }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span>{{ calculateSubTotal() }}</span>
+                                    <span>{{ calculateSubTotal }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <button class="font-semibold text-primary" type="button" @click="addDiscountModal = true">
                                         Discount(+/-):
                                             </button>
-                                    <span class="text-red-500">{{ calculateDiscount() }}</span>
+                                    <span class="text-red-500">{{ calculateDiscount }}</span>
                                 </div>
                                 <div class="flex justify-between text-lg font-semibold">
                                     <span>Total:</span>
-                                    <span>{{ calculateTotal() }}</span>
+                                    <span>{{ calculateTotal }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="w-full justify-center mb-10">
                         <InputLabel class="label" value="Status" />
-                        <div class="join">
+                        <div class="join flex-wrap">
                             <input v-model="deliveryForm.status" value="pending" class="join-item btn btn-sm" type="radio" name="options" aria-label="Pending" ref="hideDropdownRef" checked/>
                             <input v-model="deliveryForm.status" value="completed" class="join-item btn btn-sm" type="radio" name="options" aria-label="Completed" />
                             <input v-model="deliveryForm.status" value="cancelled" class="join-item btn btn-sm" type="radio" name="options" aria-label="Cancelled" />
-                            <input v-model="deliveryForm.status" value="partial" class="join-item btn btn-sm" type="radio" name="options" aria-label="Cancelled" />
-                            <input v-model="deliveryForm.status" value="full" class="join-item btn btn-sm" type="radio" name="options" aria-label="Cancelled" />
-
+                            <input v-model="deliveryForm.status" value="partial" class="join-item btn btn-sm" type="radio" name="options" aria-label="Partial" />
+                            <input v-model="deliveryForm.status" value="full" class="join-item btn btn-sm" type="radio" name="options" aria-label="Full" />
                         </div>
                     </div>
                     <div class="flex justify-end gap-2 flex-col lg:flex-row">

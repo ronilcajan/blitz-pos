@@ -14,6 +14,7 @@ use App\Models\ProductUnit;
 use App\Models\Purchase;
 use App\Models\Store;
 use App\Models\Supplier;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Number;
 
@@ -158,6 +159,8 @@ class DeliveryController extends Controller
             'created_at' => $request->transaction_date,
         ];
 
+        // dd($purchaseAttributes);
+
         $delivery = Delivery::create($purchaseAttributes);
 
         $products = [];
@@ -183,7 +186,28 @@ class DeliveryController extends Controller
      */
     public function show(Delivery $delivery)
     {
-        //
+        // auth()->user()->can('view', $purchase);
+
+        $items = $delivery->delivery_items()->get()->map(function($item){
+            return [
+                'id' => $item->product_id,
+                'name' => $item->product->name,
+                'size' => $item->product->size,
+                'unit' => $item->product->unit,
+                'image' => $item->product->image,
+                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                'price' =>  $item->price,
+                'qty' =>  $item->quantity,
+            ];
+        });
+
+        $delivery = Delivery::with(['store', 'supplier', 'purchase'])->find($delivery->id);
+
+        return inertia('Delivery/Show', [
+            'title' => "View Delivery",
+            'delivery' =>  $delivery,
+            'delivery_items' =>  $items,
+        ]);
     }
 
     /**
@@ -213,26 +237,22 @@ class DeliveryController extends Controller
         });
 
         $orders = Purchase::select('id','tx_no')
-        ->where('status','pending')
-        ->orderBy('tx_no', 'ASC')
-        ->get();
+            ->where('status','pending')
+            ->orderBy('tx_no', 'ASC')
+            ->get();
 
-
-        $items = '';
-        if($delivery->purchase->id){
-            $items =  $delivery->delivery_items()->get()->map(function($item){
-                return [
-                    'id' => $item->product_id,
-                    'name' => $item->product->name,
-                    'size' => $item->product->size,
-                    'unit' => $item->product->unit,
-                    'image' => $item->product->image,
-                    'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
-                    'price' =>  $item->price,
-                    'qty' =>  $item->quantity,
-                ];
-            });
-        }
+        $items =  $delivery->delivery_items()->get()->map(function($item){
+            return [
+                'id' => $item->product_id,
+                'name' => $item->product->name,
+                'size' => $item->product->size,
+                'unit' => $item->product->unit,
+                'image' => $item->product->image,
+                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                'price' =>  $item->price,
+                'qty' =>  $item->quantity,
+            ];
+        });
 
         $order = '';
         $purchase = '';
@@ -256,6 +276,8 @@ class DeliveryController extends Controller
             });
         }
 
+        $delivery_details = Delivery::with(['purchase'])->find($delivery->id);
+
         return inertia('Delivery/Edit', [
             'title' => "Edit Delivery",
             'products' =>  $products,
@@ -263,7 +285,7 @@ class DeliveryController extends Controller
             'order' =>  $order ?? '',
             'purchase' =>  $purchase ?? '',
             'purchase_items' =>  $items,
-            'delivery' => $delivery,
+            'delivery' => $delivery_details,
             'stores' => Store::select('id', 'name')->get(),
             'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
             'units' => ProductUnit::select('id','name')
@@ -279,7 +301,77 @@ class DeliveryController extends Controller
      */
     public function update(UpdateDeliveryRequest $request, Delivery $delivery)
     {
-        //
+        $user = auth()->user();
+        //auth()->user()->can('create', Purchase::class);
+
+        $request->validated();
+        $convertStringToNumber = new ConvertToNumber();
+
+        $discount = $convertStringToNumber->convertToNumber($request->discount);
+        $total = $convertStringToNumber->convertToNumber($request->total);
+
+        $purchaseAttributes = [
+            'quantity' => $request->quantity,
+            'discount' => $discount,
+            'amount' => $total - $discount,
+            'total' => $total,
+            'status' => $request->status,
+            'notes' => $request->notes,
+            'purchase_id' => $request->purchase_id,
+            'supplier_id' => $request->supplier_id,
+            'user_id' => $user->id,
+            'store_id' => $user->store_id ?? 1,
+            'created_at' => $request->transaction_date,
+        ];
+
+        $delivery->update($purchaseAttributes);
+
+        $products = [];
+
+        foreach($request->items as $product){
+            $products[] = [
+                'quantity' =>  $product['qty'],
+                'price' =>  $product['price'],
+                'delivery_id' =>  $delivery->id,
+                'product_id' =>  $product['id'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+        }
+
+        $delivery->delivery_items()->forceDelete();
+        $delivery->delivery_items()->createMany($products);
+
+        return redirect()->back();
+
+    }
+
+    public function downloadPDF(Delivery $delivery)
+    {
+        // auth()->user()->can('view', $purchase);
+
+        $items = $delivery->delivery_items()->get()->map(function($item){
+            return [
+                'id' => $item->product_id,
+                'name' => $item->product->name,
+                'size' => $item->product->size,
+                'unit' => $item->product->unit,
+                'image' => $item->product->image,
+                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                'price' =>  $item->price,
+                'qty' =>  $item->quantity,
+            ];
+        });
+
+        $pdf = Pdf::loadView('delivery.pdf', [
+            'title' => "Delivery TX No: ".$delivery->tx_no,
+            'delivery' =>  $delivery->with('store','supplier','purchase')->find($delivery->id),
+            'delivery_items' =>  $items,
+            'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
+        ]);
+
+        $filename = 'delivery-'.$delivery->tx_no.'.pdf';
+        return $pdf->download($filename);
     }
 
     /**
@@ -287,6 +379,17 @@ class DeliveryController extends Controller
      */
     public function destroy(Delivery $delivery)
     {
-        //
+        // auth()->user()->can('delete', $delivery);
+
+        $delivery->delete();
+        return redirect()->back();
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        // auth()->user()->can('create', Purchase::class);
+
+        Delivery::whereIn('id',$request->delivery_id)->delete();
+        return redirect()->back();
     }
 }

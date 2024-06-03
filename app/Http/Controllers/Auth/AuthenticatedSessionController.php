@@ -36,6 +36,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()
             ->intended(route('dashboard', absolute: false))
             ->with('message', "Welcome back, ".auth()->user()->name.". Everything is up and running smoothly.");
+
         } else {
             Auth::guard('web')->logout();
             $request->session()->invalidate();

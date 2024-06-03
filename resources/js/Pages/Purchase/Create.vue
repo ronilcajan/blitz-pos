@@ -233,6 +233,7 @@ const submitPurchaseForm = () => {
 				dismissible: true
 			});
             purchases.length = 0;
+            discount.value = 0;
 		},
 	})
 }

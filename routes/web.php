@@ -51,6 +51,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/purchase/pdfview/{purchase}', [PurchaseController::class, 'downloadPDF'])->name('purchase.downloadPDF');
 
     Route::resource('/deliveries', DeliveryController::class);
+    Route::get('/deliveries/pdfview/{delivery}', [DeliveryController::class, 'downloadPDF'])->name('delivery.downloadPDF');
+    Route::post('/deliveries/bulk/delete', [DeliveryController::class, 'bulkDelete'])->name('delivery.bulkDelete');
 
     Route::resource('/inventory', InventoryController::class);
     Route::post('/inventory/update', [InventoryController::class, 'update']);

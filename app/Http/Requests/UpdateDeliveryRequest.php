@@ -11,7 +11,7 @@ class UpdateDeliveryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,17 @@ class UpdateDeliveryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'supplier_id' => 'required',
+            'transaction_date' => 'required|date',
+            'quantity' => 'required',
+            'sub_total' => 'required',
+            'total' => 'required',
+            'status' => '',
+            'purchase_id' => '',
+            'notes' => '',
+            'items.id.*' => 'required',
+            'items.price.*' => 'required',
+            'items.quantity.*' => 'required',
         ];
     }
 }

@@ -6,18 +6,18 @@ defineOptions({ layout: AuthenticatedLayout })
 
 const props = defineProps({
     title: String,
-    purchase: Object,
-    purchase_items: Object,
+    delivery: Object,
+    delivery_items: Object,
 });
 
-const purchases = reactive([]);
+const deliveries = reactive([]);
 const discount = ref(0);
 
 const addToOrders = (products) => {
-    purchases.push(products);
+    deliveries.push(products);
 }
 onMounted(() => {
-    const items = props.purchase_items;
+    const items = props.delivery_items;
     items.map(item => {
         const product = {
             id: item.id,
@@ -36,18 +36,18 @@ onMounted(() => {
     });
 })
 const calculateSubTotal = computed(() => {
-    const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
+    const subTotal = deliveries.reduce((acc, delivery) => acc + parseFloat(delivery.total), 0).toFixed(2);
     return formatNumberWithCommas(subTotal);
 })
 const calculateQty = computed(() => {
-    const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.qty), 0);
+    const subTotal = deliveries.reduce((acc, delivery) => acc + parseFloat(delivery.qty), 0);
     return formatNumberWithCommas(subTotal);
 })
 const calculateDiscount = computed(() => {
     return formatNumberWithCommas(discount.value.toFixed(2));
 })
 const calculateTotal = computed(() => {
-    const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
+    const subTotal = deliveries.reduce((acc, delivery) => acc + parseFloat(delivery.total), 0).toFixed(2);
     const discountValue = parseFloat(discount.value);
     const total = subTotal - discountValue;
     return formatNumberWithCommas(total.toFixed(2));
@@ -72,28 +72,30 @@ const formatDate = (dateString) => {
                     <div id="purchaseContainer" ref="purchaseContainer">
                         <div>
                             <h1 class="text-3xl font-bold mb-4 ">
-                                <span>Purchase Order #0{{ purchase.id }}</span>
+                                <span>Delivery Details #0{{ delivery.id }}</span>
                             </h1>
                         </div>
                         <div class="flex justify-start sm:justify-end gap-2">
                             <div class="flex flex-col mb-3 items-start sm:items-end">
                                 <h1 class="text-xl font-bold">
-                                    <span>{{ purchase.store.name }}</span>
+                                    <span>{{ delivery.store.name }}</span>
                                 </h1>
-                                <p>{{ purchase.store.address }}</p>
-                                <p>Date: {{ formatDate(purchase.created_at) }}</p>
-                                <p>Status: {{ purchase.status }}</p>
+                                <p>{{ delivery.store.address }}</p>
+                                <p>Delivery Tx No: {{ delivery.tx_no }}</p>
+                                <p>Purchase Order: {{ delivery.purchase?.tx_no }}</p>
+                                <p>Date: {{ formatDate(delivery.created_at) }}</p>
+                                <p>Status: {{ delivery.status }}</p>
                             </div>
                         </div>
                         <h2 class="font-bold text-xl">Supplier </h2>
                         <div class="flex justify-start gap-2 flex-col sm:flex-row">
                             <div class="">
 
-                                <p class="font-semibold">{{ purchase.supplier.name }}</p>
-                                <p class="font-semibold">{{ purchase.supplier.contact_person }}</p>
-                                <p class="text-gray-500">{{ purchase.supplier.address }}</p>
-                                <p class="text-gray-500">{{ purchase.supplier.email }}</p>
-                                <p class="text-gray-500">{{ purchase.supplier.phone }}</p>
+                                <p class="font-semibold">{{ delivery.supplier.name }}</p>
+                                <p class="font-semibold">{{ delivery.supplier.contact_person }}</p>
+                                <p class="text-gray-500">{{ delivery.supplier.address }}</p>
+                                <p class="text-gray-500">{{ delivery.supplier.email }}</p>
+                                <p class="text-gray-500">{{ delivery.supplier.phone }}</p>
                             </div>
                         </div>
 
@@ -127,7 +129,7 @@ const formatDate = (dateString) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(purchase, index) in purchases" :key="purchase.id">
+                                    <tr v-for="(purchase, index) in deliveries" :key="purchase.id">
                                         <td>{{ index + 1 }}</td>
                                         <td>
                                             <div class="flex gap-2 grow flex-col md:flex-row">
@@ -158,7 +160,7 @@ const formatDate = (dateString) => {
                         <div class="flex gap-4 page-break justify-between mt-5 flex-col-reverse sm:flex-row">
                             <div class="w-full sm:w-1/2">
                                 <InputLabel class="label" value="Notes" />
-                                <textarea v-model="purchase.notes" class="textarea textarea-bordered w-full max-w-md" placeholder="Type here" ></textarea>
+                                <textarea v-model="delivery.notes" class="textarea textarea-bordered w-full max-w-md" placeholder="Type here" ></textarea>
                             </div>
                             <div class="w-full sm:w-1/2 flex justify-end">
                                 <div class="bg-base-200 w-full rounded-lg p-4 px-5 shadow-sm border border-base-400">
@@ -186,8 +188,8 @@ const formatDate = (dateString) => {
                     </div>
                     <div class="flex justify-end gap-2 flex-col lg:flex-row mt-10">
                         <div class="flex justify-end gap-3 flex-col md:flex-row">
-                            <CancelButton href="/purchase" />
-                            <DownloadButton :href="route('purchase.downloadPDF', purchase.id)"> Download PDF </DownloadButton>
+                            <CancelButton href="/deliveries" />
+                            <DownloadButton :href="route('delivery.downloadPDF', delivery.id)"> Download PDF </DownloadButton>
                             <PrintButton :id="'purchaseContainer'" />
                         </div>
                     </div>

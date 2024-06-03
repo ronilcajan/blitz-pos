@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use App\Models\Delivery;
 use App\Models\Purchase;
 
 class TransactionCodeGenerator
@@ -23,7 +24,7 @@ class TransactionCodeGenerator
 
     private function countPurchaseOrder() {
 
-        $count = Purchase::count();
+        $count = Delivery::count();
         return $count ? 1 + $count : 1;
     }
 }
