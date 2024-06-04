@@ -27,20 +27,20 @@ class PurchaseController extends Controller
         auth()->user()->can('viewAny', Purchase::class);
 
         $orders = Purchase::query()
-            ->with(['store','supplier','store'])
+            ->with(['store','supplier'])
             ->orderBy('id', 'DESC')
-            ->filter(request(['search','store']))
+            ->filter(request(['search','store','supplier']))
             ->paginate($request->per_page ? ($request->per_page == 'All' ? Purchase::count(): $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($order) {
                 return [
                     'id' => $order->id,
                     'order_no' => $order->tx_no,
-                    'quantity' => Number::format($order->quantity),
-                    'discount' => Number::format($order->discount, maxPrecision: 2),
-                    'amount' => Number::currency($order->amount - $order->discount, in: 'PHP'),
+                    'quantity' => Number::format($order->quantity).'  Items',
+                    'discount' => Number::currency($order->discount, in: $order->store->currency),
+                    'amount' => Number::currency($order->amount - $order->discount, in: $order->store->currency),
                     'status' => $order->status,
-                    'supplier' => $order->supplier->name,
+                    'supplier' => $order->supplier?->name,
                     'store' => $order->store->name,
                     'created_at' => $order->created_at->format('M d, Y h:i: A'),
                 ];
@@ -60,7 +60,8 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-        auth()->user()->can('create', Purchase::class);
+        $user = auth()->user();
+        $user->can('create', Purchase::class);
 
         $products =  Product::query()
             ->with(['store', 'price', 'stock','category'])
@@ -75,11 +76,13 @@ class PurchaseController extends Controller
                     'size' => $product->size,
                     'unit' => $product->unit,
                     'image' => $product->image,
-                    'category' => $product->category->name,
+                    'category' => $product->category?->name,
                     'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
                     'price' =>  $product->price?->discount_price,
                 ];
         });
+
+
 
         return inertia('Purchase/Create', [
             'title' => "New Purchase",
@@ -155,15 +158,21 @@ class PurchaseController extends Controller
                 'id' => $item->product_id,
                 'name' => $item->product->name,
                 'size' => $item->product->size,
-                'unit' => $item->product->unit,
                 'image' => $item->product->image,
-                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
-                'price' =>  $item->price,
-                'qty' =>  $item->quantity,
+                'stocks' => Number::format($item->product->stock?->in_store + $item->product->stock?->in_warehouse),
+                'price' => Number::currency($item->price, in: $item->purchase->store->currency),
+                'qty' =>  Number::format($item->quantity).' '.$item->product->unit,
+                'total' =>  Number::currency($item->price * $item->quantity, in: $item->purchase->store->currency),
             ];
         });
 
         $purchase = Purchase::with('store', 'supplier')->find($purchase->id);
+
+        $purchase->quantity = Number::format($purchase->quantity);
+        $purchase->discount = Number::currency($purchase->discount, in: $purchase->store->currency);
+        $purchase->amount = Number::currency($purchase->amount, in: $purchase->store->currency);
+        $purchase->total = Number::currency($purchase->total, in: $purchase->store->currency);
+        $purchase->date = $purchase->created_at->format('F d, Y');
 
         return inertia('Purchase/Show', [
             'title' => "View Purchase",
@@ -220,7 +229,7 @@ class PurchaseController extends Controller
                     'size' => $product->size,
                     'unit' => $product->unit,
                     'image' => $product->image,
-                    'category' => $product->category->name,
+                    'category' => $product->category?->name,
                     'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
                     'price' =>  $product->price?->discount_price,
                 ];
@@ -238,6 +247,8 @@ class PurchaseController extends Controller
                 'qty' =>  $item->quantity,
             ];
         });
+
+        $purchase = Purchase::with('store', 'supplier')->find($purchase->id);
 
         return inertia('Purchase/Edit', [
             'title' => "Edit Purchase",

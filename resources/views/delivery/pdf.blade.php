@@ -42,7 +42,9 @@
                         <p style="color: #5E6470;">{{ $delivery->store->address }}</p>
                         <p style="color: #5E6470;">Delivery Tx No: {{ $delivery->tx_no }}</p>
                         <p style="color: #5E6470;">Date: {{ date('F d, Y', strtotime($delivery->created_at)) }}</p>
-                        <p style="color: #5E6470;">Purchase Order: {{ $delivery->purchase?->tx_no }}</p>
+                        @if ($delivery->purchase?->tx_no)
+                            <p style="color: #5E6470;">Purchase Order: {{ $delivery->purchase?->tx_no }}</p>
+                        @endif
                         <p style="color: #5E6470;">Status: {{ $delivery->status }}</p>
 
                     </td>
@@ -90,15 +92,15 @@
                         </td>
                         <td style="padding-block: 12px; text-align: center">
                             <p style="font-weight: 700; color: #1A1C21;">
-                                {{ Number::format($item['qty']) }}</p>
+                                {{ $item['qty'] }}</p>
                         </td>
                         <td style="padding-block: 12px; text-align: center;">
                             <p style="font-weight: 700; color: #1A1C21;">
-                                {{ Number::format($item['price'], precision: 2) }}</p>
+                                {{ $item['price'] }}</p>
                         </td>
                         <td style="padding-block: 12px; text-align: right!important;">
                             <p style="font-weight: 700; color: #1A1C21;">
-                                {{ Number::format($item['price'] * $item['qty'], precision: 2) }}</p>
+                                {{ $item['total'] }}</p>
                         </td>
                     </tr>
                 @endforeach
@@ -118,19 +120,19 @@
                                     <th style="padding-top: 12px; text-align: left !important; color: #1A1C21;">
                                         Items</th>
                                     <td style="padding-top: 12px;text-align: right !important;; color: #1A1C21;">
-                                        {{ Number::format($delivery->quantity) }}</td>
+                                        {{ $delivery->quantity }}</td>
                                 </tr>
                                 <tr>
                                     <th style="padding-top: 12px;text-align: left !important;; color: #1A1C21;">
                                         Subtotal</th>
                                     <td style="padding-top: 12px;text-align: right !important;; color: #1A1C21;">
-                                        {{ Number::format($delivery->total, precision: 2) }}</td>
+                                        {{ $delivery->total }}</td>
                                 </tr>
                                 <tr>
                                     <th style="padding: 12px 0;text-align: left !important; color: #1A1C21;">
                                         Discounts</th>
                                     <td style="padding: 12px 0;text-align: right !important; color: #1A1C21;">
-                                        {{ Number::format($delivery->discount) }}</td>
+                                        {{ $delivery->discount }}</td>
                                 </tr>
                             </tbody>
                             <tfoot>
@@ -140,7 +142,7 @@
                                         Total Price</th>
                                     <th
                                         style="padding: 12px 0 30px 0; color: #1A1C21;border-top:1px solid #D7DAE0; text-align: right !important;">
-                                        {{ Number::format($delivery->total, precision: 2) }}</th>
+                                        {{ $delivery->total }}</th>
                                 </tr>
                             </tfoot>
                         </table>

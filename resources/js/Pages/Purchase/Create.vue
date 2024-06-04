@@ -169,23 +169,23 @@ const addToOrders = (products) => {
     purchases.push(products);
 }
 
-const calculateSubTotal = () => {
+const calculateSubTotal = computed(() => {
     const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
     return formatNumberWithCommas(subTotal);
-}
-const calculateQty =() => {
+})
+const calculateQty = computed(() => {
     const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.qty), 0);
     return formatNumberWithCommas(subTotal);
-}
-const calculateDiscount =() => {
+})
+const calculateDiscount = computed(() => {
     return formatNumberWithCommas(discount.value.toFixed(2));
-}
-const calculateTotal =() => {
+})
+const calculateTotal = computed(() => {
 const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
     const discountValue = parseFloat(discount.value);
     const total = subTotal - discountValue;
     return formatNumberWithCommas(total.toFixed(2));
-}
+})
 const formatNumberWithCommas = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -202,10 +202,10 @@ const purchaseForm = useForm({
     supplier_id: '',
 	transaction_date: getCurrentDate(),
 	status: '',
-	quantity : calculateQty(),
-    sub_total: calculateSubTotal(),
-	discount : calculateDiscount(),
-    total : calculateTotal(),
+	quantity : calculateQty,
+    sub_total: calculateSubTotal,
+	discount : calculateDiscount,
+    total : calculateTotal,
     notes : '',
     store_id : '',
     items : [],
@@ -383,6 +383,7 @@ const submitPurchaseForm = () => {
                                     </td>
                                     <td class="sm:table-cell text-right">
                                         <span class="mr-3">
+                                            {{ $page.props.auth.user.currency }}
                                             {{ formatNumberWithCommas(purchase.total) }}</span>
                                             <button type="button" @click="deleteOrder(purchase.id)" class="text-orange-900 hover:text-orange-600">
                                                 <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -408,21 +409,28 @@ const submitPurchaseForm = () => {
                             <div class="bg-base-200 w-full md:w-2/3 rounded-lg p-4 px-5 shadow-sm border border-base-400">
                                 <div class="flex justify-between mb-2">
                                     <span>Items:</span>
-                                    <span>{{ calculateQty() }}</span>
+                                    <span>
+                                        {{ calculateQty }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span>{{ calculateSubTotal()  }}</span>
+                                    <span>
+                                        {{ $page.props.auth.user.currency }}
+                                        {{ calculateSubTotal  }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <button class="font-semibold text-primary" type="button" @click="addDiscountModal = true">
                                         Discount(+/-):
                                             </button>
-                                    <span class="text-red-500">{{ calculateDiscount() }}</span>
+                                    <span class="text-red-500">
+                                        {{ $page.props.auth.user.currency }}
+                                        {{ calculateDiscount }}</span>
                                 </div>
                                 <div class="flex justify-between text-lg font-semibold">
                                     <span>Total:</span>
-                                    <span>{{ calculateTotal() }}</span>
+                                    <span>
+                                        {{ $page.props.auth.user.currency }}
+                                        {{ calculateTotal }}</span>
                                 </div>
                             </div>
                         </div>

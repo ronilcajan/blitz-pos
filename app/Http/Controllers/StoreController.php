@@ -80,6 +80,7 @@ class StoreController extends Controller
             'code' => $response['country_code3'],
             'flag' => $response['country_flag'],
             'currency' => $response['currency']['code'],
+            'currency_symbol' => $response['currency']['symbol'],
             'time_zone' => $response['time_zone']['name'],
         ];
 

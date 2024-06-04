@@ -25,7 +25,8 @@ class DeliveryController extends Controller
      */
     public function index(Request $request)
     {
-        // auth()->user()->can('viewAny', Purchase::class);
+        auth()->user()->can('viewAny', Delivery::class);
+
         $perPage = $request->per_page
         ? ($request->per_page == 'All' ? Delivery::count() : $request->per_page)
         : 10;
@@ -41,8 +42,7 @@ class DeliveryController extends Controller
                     'id' => $delivery->id,
                     'tx_no' => $delivery->tx_no,
                     'quantity' => Number::format($delivery->quantity),
-                    'discount' => Number::format($delivery->discount, maxPrecision: 2),
-                    'amount' => Number::currency($delivery->amount - $delivery->discount, in: 'PHP'),
+                    'amount' => Number::currency($delivery->amount - $delivery->discount, in: $delivery->store->currency),
                     'status' => $delivery->status,
                     'notes' => $delivery->notes,
                     'supplier' => $delivery->supplier?->name,
@@ -66,7 +66,7 @@ class DeliveryController extends Controller
      */
     public function create(Request $request)
     {
-        // auth()->user()->can('create', Purchase::class);
+        auth()->user()->can('create', Delivery::class);
 
         $products =  Product::query()
             ->with(['store', 'price', 'stock','category'])
@@ -81,9 +81,9 @@ class DeliveryController extends Controller
                     'size' => $product->size,
                     'unit' => $product->unit,
                     'image' => $product->image,
-                    'category' => $product->category->name,
+                    'category' => $product->category?->name,
                     'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
-                    'price' =>  $product->price?->discount_price,
+                    'price' => $product->price?->discount_price,
                 ];
         });
 
@@ -107,8 +107,8 @@ class DeliveryController extends Controller
                     'unit' => $item->product->unit,
                     'image' => $item->product->image,
                     'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
-                    'price' =>  $item->price,
-                    'qty' =>  $item->quantity,
+                    'price' => Number::currency($item->price, in: $item->store->currency),
+                    'qty' =>  Number::format($item->quantity),
                 ];
             });
         }
@@ -135,7 +135,8 @@ class DeliveryController extends Controller
     public function store(StoreDeliveryRequest $request)
     {
         $user = auth()->user();
-        //auth()->user()->can('create', Purchase::class);
+
+        $user->can('create', Delivery::class);
 
         $request->validated();
         $generator = new TransactionCodeGenerator();
@@ -158,8 +159,6 @@ class DeliveryController extends Controller
             'store_id' => $user->store_id ?? 1,
             'created_at' => $request->transaction_date,
         ];
-
-        // dd($purchaseAttributes);
 
         $delivery = Delivery::create($purchaseAttributes);
 
@@ -186,22 +185,28 @@ class DeliveryController extends Controller
      */
     public function show(Delivery $delivery)
     {
-        // auth()->user()->can('view', $purchase);
+        auth()->user()->can('view', $delivery);
 
         $items = $delivery->delivery_items()->get()->map(function($item){
             return [
                 'id' => $item->product_id,
                 'name' => $item->product->name,
                 'size' => $item->product->size,
-                'unit' => $item->product->unit,
                 'image' => $item->product->image,
-                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
-                'price' =>  $item->price,
-                'qty' =>  $item->quantity,
+                'stocks' => Number::format($item->product->stock?->in_store + $item->product->stock?->in_warehouse),
+                'price' => Number::currency($item->price, in: $item->delivery->store->currency),
+                'qty' =>  Number::format($item->quantity).' '.$item->product->unit,
+                'total' =>  Number::currency($item->price * $item->quantity, in: $item->delivery->store->currency),
             ];
         });
 
         $delivery = Delivery::with(['store', 'supplier', 'purchase'])->find($delivery->id);
+
+        $delivery->quantity = Number::format($delivery->quantity);
+        $delivery->discount = Number::currency($delivery->discount, in: $delivery->store->currency);
+        $delivery->amount = Number::currency($delivery->amount, in: $delivery->store->currency);
+        $delivery->total = Number::currency($delivery->total, in: $delivery->store->currency);
+        $delivery->date = $delivery->created_at->format('F d, Y');
 
         return inertia('Delivery/Show', [
             'title' => "View Delivery",
@@ -215,7 +220,7 @@ class DeliveryController extends Controller
      */
     public function edit(Delivery $delivery, Request $request)
     {
-        // auth()->user()->can('update', $purchase);
+        auth()->user()->can('update', $delivery);
 
         $products =  Product::query()
             ->with(['store', 'price', 'stock','category'])
@@ -230,13 +235,15 @@ class DeliveryController extends Controller
                     'size' => $product->size,
                     'unit' => $product->unit,
                     'image' => $product->image,
-                    'category' => $product->category->name,
+                    'category' => $product->category?->name,
                     'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
                     'price' =>  $product->price?->discount_price,
                 ];
         });
 
-        $orders = Purchase::select('id','tx_no')
+        $orders = Purchase::query()
+            ->with('store')
+            ->select('id','tx_no')
             ->where('status','pending')
             ->orderBy('tx_no', 'ASC')
             ->get();
@@ -244,11 +251,11 @@ class DeliveryController extends Controller
         $items =  $delivery->delivery_items()->get()->map(function($item){
             return [
                 'id' => $item->product_id,
-                'name' => $item->product->name,
-                'size' => $item->product->size,
-                'unit' => $item->product->unit,
-                'image' => $item->product->image,
-                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                'name' => $item->product?->name,
+                'size' => $item->product?->size,
+                'unit' => $item->product?->unit,
+                'image' => $item->product?->image,
+                'stocks' => $item->product?->stock?->in_store + $item->product?->stock?->in_warehouse,
                 'price' =>  $item->price,
                 'qty' =>  $item->quantity,
             ];
@@ -276,7 +283,7 @@ class DeliveryController extends Controller
             });
         }
 
-        $delivery_details = Delivery::with(['purchase'])->find($delivery->id);
+        $delivery_details = Delivery::with(['store','purchase'])->find($delivery->id);
 
         return inertia('Delivery/Edit', [
             'title' => "Edit Delivery",
@@ -302,7 +309,7 @@ class DeliveryController extends Controller
     public function update(UpdateDeliveryRequest $request, Delivery $delivery)
     {
         $user = auth()->user();
-        //auth()->user()->can('create', Purchase::class);
+        $user->can('update', $delivery);
 
         $request->validated();
         $convertStringToNumber = new ConvertToNumber();
@@ -342,35 +349,45 @@ class DeliveryController extends Controller
         $delivery->delivery_items()->forceDelete();
         $delivery->delivery_items()->createMany($products);
 
+        // if status is completed, add products quantity to the inventory
+
         return redirect()->back();
 
     }
 
     public function downloadPDF(Delivery $delivery)
     {
-        // auth()->user()->can('view', $purchase);
+        auth()->user()->can('view', $delivery);
 
         $items = $delivery->delivery_items()->get()->map(function($item){
             return [
-                'id' => $item->product_id,
+                 'id' => $item->product_id,
                 'name' => $item->product->name,
                 'size' => $item->product->size,
-                'unit' => $item->product->unit,
                 'image' => $item->product->image,
-                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
-                'price' =>  $item->price,
-                'qty' =>  $item->quantity,
+                'stocks' => Number::format($item->product->stock?->in_store + $item->product->stock?->in_warehouse, precision:2),
+                'price' => $item->delivery->store->currency.' '.Number::format($item->price, precision:2),
+                'qty' =>  Number::format($item->quantity).' '.$item->product->unit,
+                'total' =>  $item->delivery->store->currency.' '.Number::format($item->price * $item->quantity, precision:2),
             ];
         });
 
+        $delivery = Delivery::with(['store', 'supplier', 'purchase'])->find($delivery->id);
+
+        $delivery->quantity = Number::format($delivery->quantity);
+        $delivery->discount = $delivery->store->currency.' '.Number::format($delivery->discount, precision:2);
+        $delivery->amount = $delivery->store->currency.' '.Number::format($delivery->amount, precision:2);
+        $delivery->total = $delivery->store->currency.' '.Number::format($delivery->total, precision:2);
+
+
         $pdf = Pdf::loadView('delivery.pdf', [
             'title' => "Delivery TX No: ".$delivery->tx_no,
-            'delivery' =>  $delivery->with('store','supplier','purchase')->find($delivery->id),
+            'delivery' =>  $delivery,
             'delivery_items' =>  $items,
             'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
         ]);
 
-        $filename = 'delivery-'.$delivery->tx_no.'.pdf';
+        $filename = 'delivery-'.$delivery->tx_no.'-'.date('Y-m-d').'.pdf';
         return $pdf->download($filename);
     }
 
@@ -379,7 +396,7 @@ class DeliveryController extends Controller
      */
     public function destroy(Delivery $delivery)
     {
-        // auth()->user()->can('delete', $delivery);
+        auth()->user()->can('delete', $delivery);
 
         $delivery->delete();
         return redirect()->back();
@@ -387,7 +404,7 @@ class DeliveryController extends Controller
 
     public function bulkDelete(Request $request)
     {
-        // auth()->user()->can('create', Purchase::class);
+        auth()->user()->can('bulk_delete', Delivery::class);
 
         Delivery::whereIn('id',$request->delivery_id)->delete();
         return redirect()->back();

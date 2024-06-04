@@ -15,6 +15,7 @@ const props = defineProps({
 
 const tin = ref(null);
 // const country = ref('');
+const image_preview = ref(props.store.avatar);
 
 const form = useForm({
     id: props.store.id,
@@ -29,6 +30,7 @@ const form = useForm({
     country_code: props.store?.country_code ?? props.country?.code,
     timezone : props.store?.timezone ?? props.country?.time_zone,
     currency : props.store?.currency ?? props.country?.currency,
+    currency_symbol : props.store?.currency_symbol ?? props.country?.currency_symbol,
     flag : props.store?.flag ?? props.country?.flag,
     tax : props.store?.tax,
     address : props.store?.address,
@@ -49,12 +51,20 @@ const submitUpdateForm = () => {
         },
     })
 }
+
+const onFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+    }
+    image_preview.value = URL.createObjectURL(file);
+}
 </script>
 
 
 <template>
     <Head :title="title" />
-
     <form @submit.prevent="submitUpdateForm">
         <div class="flex gap-5 flex-col md:flex-row">
             <div class="w-full sm:w-2/3">
@@ -222,11 +232,21 @@ const submitUpdateForm = () => {
             </div>
             <div class="w-full sm:w-1/3">
                 <div class="card bg-base-100 shadow">
-                    <div class="card-body grow-0 ">
-                        <h2 class="card-title grow text-sm mb-5">
-                            <span class="uppercase">Store Logo</span>
-                        </h2>
-                        <ImageUpload v-model="form" :avatar="store.avatar" />
+
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body grow-0 ">
+                            <h2 class="card-title grow text-sm mb-5">
+                                <span class="uppercase">Store Logo</span>
+                            </h2>
+                            <div class="flex relative mb-5.5 w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5 justify-center">
+                                <input type="file" @input="form.avatar = $event.target.files[0]" accept="image/*" class="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none" @change="onFileChange">
+
+                                <ImagePreview v-model="image_preview" />
+                            </div>
+                            <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
+                                    {{ form.progress.percentage }}%
+                            </progress>
+                        </div>
                     </div>
                 </div>
             </div>

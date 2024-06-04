@@ -47,15 +47,14 @@ class Purchase extends Model
             $search = $filter['search'];
 
             $query->whereAny([
-                'expenses_date',
+                'tx_no',
+                'quantity',
+                'discount',
                 'amount',
-                'description',
-                'notes',
+                'total',
+                'status',
             ], 'LIKE', "%{$search}%")
-            ->orWhereHas('category', function($q) use ($search){
-                $q->where('name', $search);
-            })
-            ->orWhereHas('user', function($q) use ($search){
+            ->orWhereHas('supplier', function($q) use ($search){
                 $q->where('name', $search);
             })
             ->orWhereHas('store', function($q) use ($search){
@@ -63,15 +62,9 @@ class Purchase extends Model
             });
         }
 
-        if(!empty($filter['status'])){
-            $status = $filter['status'];
-            $query->where('status', $status === 'Approved' ? 1 : 0);
-        }
-
-        if(!empty($filter['category'])){
-            $category = $filter['category'];
-
-            $query->whereHas('category', function($q) use ($category){
+        if(!empty($filter['supplier'])){
+            $category = $filter['supplier'];
+            $query->whereHas('supplier', function($q) use ($category){
                 $q->where('name', $category);
             });
         }

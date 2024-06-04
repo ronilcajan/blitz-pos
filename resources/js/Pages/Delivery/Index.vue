@@ -179,7 +179,10 @@ const canDelete = page.props.auth.user.canDelete
                             <input :value="delivery.id" v-model="deliveryIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
                         <td class="sm:table-cell font-bold">
-                            {{ delivery.tx_no }}</td>
+                            <Link :href="`/deliveries/${delivery.id}`" class="hover:text-primary">
+                                {{ delivery.tx_no }}
+                            </Link>
+                        </td>
                         <td class="sm:table-cell">
                                 {{ delivery.purchase }}
                         </td>

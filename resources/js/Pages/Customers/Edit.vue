@@ -142,7 +142,7 @@ const onFileChange = (e) => {
                         </div>
                         <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
                                 {{ form.progress.percentage }}%
-                            </progress>
+                        </progress>
                     </div>
                 </div>
             </div>

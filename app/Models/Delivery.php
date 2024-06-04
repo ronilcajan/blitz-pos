@@ -53,25 +53,22 @@ class Delivery extends Model
             $search = $filter['search'];
 
             $query->whereAny([
-                'expenses_date',
+                'tx_no',
+                'quantity',
+                'discount',
                 'amount',
-                'description',
-                'notes',
+                'total',
+                'status',
             ], 'LIKE', "%{$search}%")
-            ->orWhereHas('category', function($q) use ($search){
-                $q->where('name', $search);
+            ->orWhereHas('purchase', function($q) use ($search){
+                $q->where('tx_no', $search);
             })
-            ->orWhereHas('user', function($q) use ($search){
+            ->orWhereHas('supplier', function($q) use ($search){
                 $q->where('name', $search);
             })
             ->orWhereHas('store', function($q) use ($search){
                 $q->where('name', $search);
             });
-        }
-
-        if(!empty($filter['status'])){
-            $status = $filter['status'];
-            $query->where('status', $status === 'Approved' ? 1 : 0);
         }
 
         if(!empty($filter['supplier'])){

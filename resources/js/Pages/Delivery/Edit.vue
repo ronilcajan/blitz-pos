@@ -420,12 +420,12 @@ onMounted(() => {
                                     <td class="text-left">
                                         <div class="flex justify-start">
                                         <NumberInput type="number" min="1" v-model="purchase.price" class="input input-sm w-24" />
-                                        <span class="ml-1 pt-2">{{ purchase.unit }}</span>
                                     </div>
 
                                     </td>
                                     <td class="sm:table-cell text-right">
                                         <span class="mr-3">
+                                            {{ props.delivery.store.currency_symbol }}
                                             {{ formatNumberWithCommas(purchase.total) }}</span>
                                         <button type="button" @click="deleteOrder(purchase.id)" class="text-orange-900 hover:text-orange-600">
                                             <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -451,21 +451,28 @@ onMounted(() => {
                             <div class="bg-base-200 w-full md:w-2/3 rounded-lg p-4 px-5 shadow-sm border border-base-400">
                                 <div class="flex justify-between mb-2">
                                     <span>Items:</span>
-                                    <span>{{ calculateQty }}</span>
+                                    <span>
+                                        {{ calculateQty }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span>{{ calculateSubTotal }}</span>
+                                    <span>
+                                        {{ delivery.store.currency_symbol }}
+                                        {{ calculateSubTotal }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <button class="font-semibold text-primary" type="button" @click="addDiscountModal = true">
                                         Discount(+/-):
                                             </button>
-                                    <span class="text-red-500">{{ calculateDiscount }}</span>
+                                    <span class="text-red-500">
+                                        {{ delivery.store.currency_symbol }}
+                                        {{ calculateDiscount }}</span>
                                 </div>
                                 <div class="flex justify-between text-lg font-semibold">
                                     <span>Total:</span>
-                                    <span>{{ calculateTotal }}</span>
+                                    <span>
+                                        {{ delivery.store.currency_symbol }}
+                                        {{ calculateTotal }}</span>
                                 </div>
                             </div>
                         </div>

@@ -1,6 +1,5 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { reactive, ref, computed, onMounted  } from 'vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -10,57 +9,6 @@ const props = defineProps({
     delivery_items: Object,
 });
 
-const deliveries = reactive([]);
-const discount = ref(0);
-
-const addToOrders = (products) => {
-    deliveries.push(products);
-}
-onMounted(() => {
-    const items = props.delivery_items;
-    items.map(item => {
-        const product = {
-            id: item.id,
-            product: item.name,
-            details: item.size,
-            qty: parseFloat(item.qty),
-            unit: item.unit,
-            stocks: parseFloat(item.stocks),
-            price: parseFloat(item.price).toFixed(2),
-            image: item.image,
-            get total() {
-                return (this.qty * parseFloat(this.price)).toFixed(2);
-            },
-        };
-        addToOrders(product);
-    });
-})
-const calculateSubTotal = computed(() => {
-    const subTotal = deliveries.reduce((acc, delivery) => acc + parseFloat(delivery.total), 0).toFixed(2);
-    return formatNumberWithCommas(subTotal);
-})
-const calculateQty = computed(() => {
-    const subTotal = deliveries.reduce((acc, delivery) => acc + parseFloat(delivery.qty), 0);
-    return formatNumberWithCommas(subTotal);
-})
-const calculateDiscount = computed(() => {
-    return formatNumberWithCommas(discount.value.toFixed(2));
-})
-const calculateTotal = computed(() => {
-    const subTotal = deliveries.reduce((acc, delivery) => acc + parseFloat(delivery.total), 0).toFixed(2);
-    const discountValue = parseFloat(discount.value);
-    const total = subTotal - discountValue;
-    return formatNumberWithCommas(total.toFixed(2));
-});
-const formatNumberWithCommas = (number) => {
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-const formatDate = (dateString) => {
-    let date = new Date(dateString);
-    let options = { year: 'numeric', month: 'long', day: '2-digit'};
-    return date.toLocaleString('en-US', options);
-}
 </script>
 
 <template>
@@ -82,15 +30,14 @@ const formatDate = (dateString) => {
                                 </h1>
                                 <p>{{ delivery.store.address }}</p>
                                 <p>Delivery Tx No: {{ delivery.tx_no }}</p>
-                                <p>Purchase Order: {{ delivery.purchase?.tx_no }}</p>
-                                <p>Date: {{ formatDate(delivery.created_at) }}</p>
+                                <p v-if="delivery.purchase?.tx_no">Purchase Order: {{ delivery.purchase?.tx_no }}</p>
+                                <p>Date: {{ delivery.date }}</p>
                                 <p>Status: {{ delivery.status }}</p>
                             </div>
                         </div>
                         <h2 class="font-bold text-xl">Supplier </h2>
                         <div class="flex justify-start gap-2 flex-col sm:flex-row">
                             <div class="">
-
                                 <p class="font-semibold">{{ delivery.supplier.name }}</p>
                                 <p class="font-semibold">{{ delivery.supplier.contact_person }}</p>
                                 <p class="text-gray-500">{{ delivery.supplier.address }}</p>
@@ -129,15 +76,16 @@ const formatDate = (dateString) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(purchase, index) in deliveries" :key="purchase.id">
+                                    <tr v-for="(purchase, index) in delivery_items" :key="purchase.id">
                                         <td>{{ index + 1 }}</td>
                                         <td>
-                                            <div class="flex gap-2 grow flex-col md:flex-row">
-                                                <img v-if="purchase.image" class="h-10 w-10 shrink-0 rounded-btn" width="56" height="56" :src="purchase.image" alt="Product">
+                                            <div class="flex gap-2 grow flex-col sm:flex-row">
+                                                <img v-if="purchase.image" class="h-12 w-12 shrink-0 rounded-btn" width="56" height="56" :src="purchase.image" alt="Product">
                                                 <div class="flex flex-col gap-1">
                                                     <div class="text-sm">
-                                                        {{ purchase.product }}
+                                                        {{ purchase.name }}
                                                     </div>
+                                                    {{ purchase.size }}
                                                 </div>
                                             </div>
                                         </td>
@@ -145,11 +93,11 @@ const formatDate = (dateString) => {
                                             <span class="pl-5 pt-2">{{ purchase.qty }}</span>
                                         </td>
                                         <td>
-                                            <span class="ml-1 pt-2">{{ purchase.price + ' ' +purchase.unit }}</span>
+                                            <span class="ml-1 pt-2">{{ purchase.price }}</span>
                                         </td>
                                         <td>
                                             <span class="mr-3">
-                                                {{ formatNumberWithCommas(purchase.total) }}</span>
+                                                {{ purchase.total }}</span>
                                         </td>
                                     </tr>
 
@@ -166,21 +114,21 @@ const formatDate = (dateString) => {
                                 <div class="bg-base-200 w-full rounded-lg p-4 px-5 shadow-sm border border-base-400">
                                     <div class="flex justify-between mb-2">
                                         <span>Items:</span>
-                                        <span>{{ calculateQty }}</span>
+                                        <span>{{ delivery.quantity }}</span>
                                     </div>
                                     <div class="flex justify-between mb-2">
                                         <span>Subtotal:</span>
-                                        <span>{{ calculateSubTotal }}</span>
+                                        <span>{{ delivery.amount }}</span>
                                     </div>
                                     <div class="flex justify-between mb-2">
                                         <button class="font-semibold" type="button" @click="addDiscountModal = true">
                                             Discount(+/-):
                                                 </button>
-                                        <span class="text-red-500">{{ calculateDiscount }}</span>
+                                        <span class="text-red-500">{{ delivery.discount }}</span>
                                     </div>
                                     <div class="flex justify-between text-lg font-semibold">
                                         <span>Total:</span>
-                                        <span>{{ calculateTotal }}</span>
+                                        <span>{{ delivery.total }}</span>
                                     </div>
                                 </div>
                             </div>

@@ -368,12 +368,12 @@ onMounted(() => {
                                     <td class="text-left">
                                         <div class="flex justify-start">
                                         <NumberInput type="number" min="1" v-model="purchase.price" class="input input-sm w-24" />
-                                        <span class="ml-1 pt-2">{{ purchase.unit }}</span>
                                     </div>
 
                                     </td>
                                     <td class="sm:table-cell text-right">
                                         <span class="mr-3">
+                                            {{ props.purchase.store.currency_symbol }}
                                             {{ formatNumberWithCommas(purchase.total) }}</span>
                                             <button @click="deleteOrder(purchase.id)" class="text-orange-900 hover:text-orange-600">
                                                 <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -403,17 +403,23 @@ onMounted(() => {
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span>{{ calculateSubTotal }}</span>
+                                    <span>
+                                         {{ purchase.store.currency_symbol }}
+                                         {{ calculateSubTotal }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <button class="font-semibold text-primary" type="button" @click="addDiscountModal = true">
                                         Discount(+/-):
                                             </button>
-                                    <span class="text-red-500">{{ calculateDiscount }}</span>
+                                    <span class="text-red-500">
+                                        {{ purchase.store.currency_symbol }}
+                                        {{ calculateDiscount }}</span>
                                 </div>
                                 <div class="flex justify-between text-lg font-semibold">
                                     <span>Total:</span>
-                                    <span>{{ calculateTotal }}</span>
+                                    <span>
+                                        {{ purchase.store.currency_symbol }}
+                                        {{ calculateTotal }}</span>
                                 </div>
                             </div>
                         </div>

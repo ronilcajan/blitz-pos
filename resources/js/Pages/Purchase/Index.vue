@@ -11,12 +11,14 @@ const props = defineProps({
     title: String,
 	orders: Object,
     stores: Object,
-	filter: Object
+	filter: Object,
+    suppliers: Object
 });
 
 let search = ref(props.filter.search);
 let store = ref('');
 const url = '/purchase';
+let supplier = ref('');
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -87,13 +89,17 @@ const selectAll = () => {
 
 
 watch(search, debounce(function (value) {
-	router.get('/customers',
+	router.get('/purchase',
 	{ search: value },
 	{ preserveState: true, replace:true })
 }, 500)) ;
-
+watch(supplier, value => {
+	router.get('/purchase',
+	{ supplier: value },
+	{ preserveState: true, replace:true })
+})
 watch(store, value => {
-	router.get('/customers',
+	router.get('/purchase',
 	{ store: value },
 	{ preserveState: true, replace:true })
 })
@@ -108,13 +114,22 @@ watch(store, value => {
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">
             <div class="flex justify-between gap-5 flex-col-reverse sm:flex-row">
-                <div class="flex gap-3">
+                <div class="flex gap-2 flex-col sm:flex-row">
                     <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
-                    <DeleteButton v-show="orderIds.length > 0" @click="deleteAllSelectedModal = true">
-                        Delete
-                    </DeleteButton>
+                    <div class="w-full">
+                        <select v-model="supplier" class="select select-bordered select-sm w-full">
+                            <option selected value="">Filter by suppliers</option>
+                            <option v-for="supplier in suppliers" :value="supplier.name" :key="supplier.id">
+                                {{ supplier.name }}
+                            </option>
+                        </select>
+                    </div>
                 </div>
-                <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
+                <div class="flex gap-2 flex-col sm:flex-row">
+                    <div class="w-full">
+                        <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -155,26 +170,14 @@ watch(store, value => {
                         <td class="w-0" v-if="$page.props.auth.user.canDelete">
                             <input :value="order.id" v-model="orderIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
-                        <td class="w-10">
-                            <div class="flex items-center gap-2">
-                                <div>
-                                    <div class="flex text-sm font-bold gap-2">
-                                        {{ order.order_no }}
-                                    </div>
-                                    <div class="sm:hidden">
-                                        <div class="text-xs opacity-50">
-                                            {{ order.created_at }}
-                                        </div>
-                                        <div class="text-xs opacity-50">
-                                            {{ order.address }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <td class="sm:table-cell font-bold">
+                            <Link :href="`/purchase/${order.id}`" class="hover:text-primary">
+                                {{ order.order_no }}
+                            </Link>
                         </td>
                         <!-- These columns will be hidden on small screens -->
                         <td class="hidden sm:table-cell">{{ order.created_at }}</td>
-                        <td class="hidden sm:table-cell">{{ order.quantity }} Items</td>
+                        <td class="hidden sm:table-cell">{{ order.quantity }}</td>
                         <td class="hidden sm:table-cell">{{ order.discount }}</td>
                         <td class="hidden sm:table-cell">{{ order.amount }}</td>
                         <td class="hidden sm:table-cell">{{ order.supplier }}</td>
@@ -189,7 +192,7 @@ watch(store, value => {
                             {{ order.status }}
                             </div>
                         </td>
-                        <td class="hidden sm:table-cell">{{ order.store }}</td>
+                        <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ order.store }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-center">
                                 <Link v-if="order.status !== 'completed'" :href="`/purchase/${order.id}/edit`"

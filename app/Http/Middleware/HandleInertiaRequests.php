@@ -43,6 +43,7 @@ class HandleInertiaRequests extends Middleware
                         'address' => $user->address,
                         'avatar' => $user->profile_photo_url,
                         'store_id' => $user->store->id ?? '',
+                        'currency' => $user->store->currency_symbol ?? '',
                         'isSuperAdmin' =>  $user_role === 'super-admin',
                         'isOwner' => $user_role === 'owner',
                         'isAdmin' => $user_role === 'admin',

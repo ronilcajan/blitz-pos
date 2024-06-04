@@ -427,6 +427,7 @@ const selectedOrder = (items) =>{
                                     </td>
                                     <td class="sm:table-cell text-right">
                                         <span class="mr-3">
+                                            {{ $page.props.auth.user.currency }}
                                             {{ formatNumberWithCommas(purchase.total) }}</span>
                                             <button type="button" @click="deleteOrder(purchase.id)" class="text-orange-900 hover:text-orange-600">
                                                 <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -456,17 +457,23 @@ const selectedOrder = (items) =>{
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span>{{ calculateSubTotal }}</span>
+                                    <span>
+                                        {{ $page.props.auth.user.currency }}
+                                        {{ calculateSubTotal }}</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <button class="font-semibold text-primary" type="button" @click="addDiscountModal = true">
                                         Discount(+/-):
                                             </button>
-                                    <span class="text-red-500">{{ calculateDiscount }}</span>
+                                    <span class="text-red-500">
+                                        {{ $page.props.auth.user.currency }}
+                                        {{ calculateDiscount }}</span>
                                 </div>
                                 <div class="flex justify-between text-lg font-semibold">
                                     <span>Total:</span>
-                                    <span>{{ calculateTotal }}</span>
+                                    <span>
+                                        {{ $page.props.auth.user.currency }}
+                                        {{ calculateTotal }}</span>
                                 </div>
                             </div>
                         </div>
