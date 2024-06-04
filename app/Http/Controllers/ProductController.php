@@ -48,7 +48,7 @@ class ProductController extends Controller
                     'image' => $product->image,
                     'visible' => $product->visible === 'published',
                     'store' => $product->store->name,
-                    'category' => $product->category->name,
+                    'category' => $product->category?->name,
                     'price' =>  $product->price?->discount_price ? Number::currency($product->price->discount_price, in: 'PHP') : null,
                 ];
         });
