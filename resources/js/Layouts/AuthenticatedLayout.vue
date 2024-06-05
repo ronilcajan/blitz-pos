@@ -35,7 +35,7 @@ const impersonating = computed(() =>
                 </div>
                 <HeaderBar />
             </div>
-            <div class="p-4 lg:gap-x-12 lg:p-10 lg:pt-2 min-h-screen mt-2">
+            <div class="p-3 lg:gap-x-12 lg:p-4 lg:pt-2 min-h-screen">
                 <slot />
 
                 <footer class="footer footer-center mt-20 p-4 w-full">

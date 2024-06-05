@@ -19,10 +19,32 @@ const page = usePage();
 
 const customer = ref('');
 const purchase = reactive([]);
+const datetime = ref('');
 
 const formatNumberWithCommas = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+const updateDateTime = () => {
+    // Get the current date and time
+    let date = new Date();
+
+    // Options for formatting the date string
+    let options = {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+    };
+    // Format the date string
+    let formatted_date = date.toLocaleDateString('en-US', options).replace(',', '');
+    datetime.value = formatted_date;
+}
+setInterval(updateDateTime, 1000);
+updateDateTime();
 </script>
 
 <template>
@@ -30,7 +52,7 @@ const formatNumberWithCommas = (number) => {
     <div class="grid gap-4 md:grid-cols-5">
         <div class="col-span-5 md:col-span-3">
             <div class="card bg-base-100 shadow-sm rounded">
-                <div class="card-body p-6">
+                <div class="card-body p-3 md:p-5">
                     <div class="flex justify-between gap-2">
                         <div class="w-full">
                             <label for="simple-search" class="sr-only">Search</label>
@@ -64,7 +86,7 @@ const formatNumberWithCommas = (number) => {
                 </div>
                     </div>
                     <!-- products -->
-                    <div class="hidden md:flex flex-wrap gap-3 justify-start mt-4 overflow-x-auto overflow-y-auto" style="height:750px">
+                    <div class="hidden md:flex flex-wrap gap-3 pb-5 justify-start mt-4 overflow-x-auto overflow-y-auto" style="height:750px">
                         <div v-for="product in products.data" :key="product.id" class="card w-44 bg-base-100 shadow">
                             <figure class="h-24">
                                 <img class="object-fill" v-if="product.image" :src="product.image" alt="Shoes" loading="lazy" />
@@ -87,14 +109,16 @@ const formatNumberWithCommas = (number) => {
                                 </div>
                             </div>
                         </div>
-                    </div>
 
+
+                    </div>
+                    <Pagination :links="products.links" />
                 </div>
             </div>
         </div>
         <div class="col-span-5 md:col-span-2">
             <div class="card bg-base-100 shadow-sm rounded">
-                <div class="card-body p-6">
+                <div class="card-body p-3 md:p-5">
                     <div class="w-full">
                         <select v-model="customer" class="select select-bordered select-sm w-full">
                             <option selected value="">Select customer</option>
@@ -103,7 +127,7 @@ const formatNumberWithCommas = (number) => {
                             </option>
                         </select>
                     </div>
-                    <div style="height:530px" class="mt-4 overflow-x-auto overflow-y-auto">
+                    <div style="height:530px" class="mt-2 overflow-x-auto overflow-y-auto">
 
                         <div class="border border-gray-100 p-2 rounded flex justify-between items-center">
                             <div class="flex gap-3 justify-center items-center">
@@ -114,26 +138,29 @@ const formatNumberWithCommas = (number) => {
                                 </div>
                                 <div class="">
                                     <div class="font-bold">
-                                    Product 1
+                                    Product 1 sdfdsf sdfsdf sdfs fsfsdfsdf
                                     </div>
                                     <div class="text-sm">
                                     Size 2
                                     </div>
+                                    <div class="text-sm">
+                                    100.00/box
+                                    </div>
                                 </div>
                             </div>
-                            <div class="font-bold flex justify-center items-center gap-2">
+                            <div class="font-bold hidden lg:flex justify-center items-center gap-2">
 
-                                <button type="button" @click="deleteOrder(purchase.id)" class="text-primary hover:text-blue-500">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-circle-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path fill-rule="evenodd" d="M4.929 4.929A10 10 0 1 1 19.07 19.07 10 10 0 0 1 4.93 4.93ZM13 9a1 1 0 1 0 -2 0v2H9a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0v-2h2a1 1 0 1 0 0 -2h-2V9Z" clip-rule="evenodd" /></svg>
-                                    </button>
-                                    100 pcs
+                                <CounterInput v-model="purchase.qty" @increase-by="(n) => purchase.qty += n" @decreased-by="(n) => purchase.qty > 1 ? purchase.qty -= n : 0"/>
+
                             </div>
-                            <div class="flex flex-col items-end">
-                                <p class="font-bold mb-2">PHP 2,3423.00</p>
-                                <div class="flex gap-2">
+                            <div class="flex flex-col items-end ">
+                                <p class="font-bold mb-2 text-right">PHP 2,3423.00</p>
 
+                                <div class="flex gap-2 justify-center align-bottom">
+                                    <div class="lg:hidden">
+                                        <CounterInput v-model="purchase.qty" @increase-by="(n) => purchase.qty += n" @decreased-by="(n) => purchase.qty > 1 ? purchase.qty -= n : 0"/>
 
-
+                                    </div>
                                     <button type="button" @click="deleteOrder(purchase.id)" class="text-orange-900 hover:text-orange-600">
                                                 <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M13.7535 2.47502H11.5879V1.9969C11.5879 1.15315 10.9129 0.478149 10.0691 0.478149H7.90352C7.05977 0.478149 6.38477 1.15315 6.38477 1.9969V2.47502H4.21914C3.40352 2.47502 2.72852 3.15002 2.72852 3.96565V4.8094C2.72852 5.42815 3.09414 5.9344 3.62852 6.1594L4.07852 15.4688C4.13477 16.6219 5.09102 17.5219 6.24414 17.5219H11.7004C12.8535 17.5219 13.8098 16.6219 13.866 15.4688L14.3441 6.13127C14.8785 5.90627 15.2441 5.3719 15.2441 4.78127V3.93752C15.2441 3.15002 14.5691 2.47502 13.7535 2.47502ZM7.67852 1.9969C7.67852 1.85627 7.79102 1.74377 7.93164 1.74377H10.0973C10.2379 1.74377 10.3504 1.85627 10.3504 1.9969V2.47502H7.70664V1.9969H7.67852ZM4.02227 3.96565C4.02227 3.85315 4.10664 3.74065 4.24727 3.74065H13.7535C13.866 3.74065 13.9785 3.82502 13.9785 3.96565V4.8094C13.9785 4.9219 13.8941 5.0344 13.7535 5.0344H4.24727C4.13477 5.0344 4.02227 4.95002 4.02227 4.8094V3.96565ZM11.7285 16.2563H6.27227C5.79414 16.2563 5.40039 15.8906 5.37227 15.3844L4.95039 6.2719H13.0785L12.6566 15.3844C12.6004 15.8625 12.2066 16.2563 11.7285 16.2563Z" fill=""></path>
@@ -154,27 +181,38 @@ const formatNumberWithCommas = (number) => {
                         </div>
                         <div class="flex justify-between  uppercase">
                             <div>Sub-total</div>
-                            <div>2000</div>
+                            <div>P2,000.00</div>
                         </div>
                         <div class="flex justify-between  uppercase">
                             <div>Discount</div>
-                            <div>2000</div>
+                            <div>P2,000.00</div>
                         </div>
                         <div class="flex justify-between uppercase">
                             <div class="text-2xl font-bold">Grand Total</div>
-                            <div class="text-2xl font-bold">2000</div>
+                            <div class="text-2xl font-bold">P2,000.00</div>
                         </div>
                     </div>
 
-                    <div class="flex p-2 gap-3 justify-end">
-                        <div>
-                            <button class="btn lg:btn-lg">Cancel</button>
+                    <div class="flex p-2 gap-3 justify-between">
+                        <div class="w-full text-xs">
+                            <div>
+                                Store: {{ $page.props.auth.user.store_name }}
+                            </div>
+                            <div>
+                                Date: <span>{{ datetime }}</span>
+                            </div>
+                            <div>
+                                User: {{ $page.props.auth.user.name }}
+                            </div>
+                            <div>
+                                Powered by: POSblend.
+                            </div>
                         </div>
-                        <div>
+                        <div class="flex gap-3 justify-end">
+                            <button class="btn lg:btn-lg">Cancel</button>
                             <button class="btn lg:btn-lg btn-primary">Finish</button>
 
                         </div>
-
                     </div>
                 </div>
             </div>

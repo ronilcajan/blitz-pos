@@ -37,7 +37,7 @@ class POSController extends Controller
         $store = Store::find($user->store_id);
 
         return inertia('Pos/Index', [
-            'title' => "Point of Sale Page",
+            'title' => "Point of Sale",
             'store' => $store,
             'customers' => $customers,
             'products' => $products,

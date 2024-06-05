@@ -96,7 +96,7 @@ const isVisible = (id,event) => {
         },
 	    { preserveState: true, replace:true,
             onSuccess: () => {
-            useToast().success('Product visibility has been changed successfully!', {
+            useToast().success('Product visibility has been changed!', {
                 position: 'top-right',
                 duration: 3000,
                 dismissible: true

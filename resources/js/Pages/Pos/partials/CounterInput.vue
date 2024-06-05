@@ -8,10 +8,10 @@ const model = defineModel({
 
 </script>
 <template>
-    <div class="join bg-base-100 border mb-3">
-      <button type="button" class="btn btn-ghost join-item btn-sm" @click="$emit('decreasedBy',1)">–</button>
-      <input class="input join-item input-ghost w-8 p-0 input-sm text-center" v-model="model" type="number" step="0.01" min="0.00">
-      <button type="button" class="btn btn-ghost join-item btn-sm" @click="$emit('increaseBy',1)">+</button>
+    <div class="join bg-base-100 border">
+      <button type="button" class="btn btn-ghost join-item btn-xs" @click="$emit('decreasedBy',1)">–</button>
+      <input class="input join-item input-ghost w-8 p-0 input-xs text-center" v-model="model" type="number" step="0.01" min="0.00">
+      <button type="button" class="btn btn-ghost join-item btn-xs" @click="$emit('increaseBy',1)">+</button>
     </div>
 </template>
 

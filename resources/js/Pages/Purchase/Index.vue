@@ -108,7 +108,7 @@ watch(store, value => {
 <template>
     <Head :title="title" />
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
-        <CreateButtonLink href="/purchase/create">New user</CreateButtonLink>
+        <CreateButtonLink href="/purchase/create">New pruchase</CreateButtonLink>
         <StatusFilter v-model="status" />
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
