@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\ProductUnit;
 use App\Models\Store;
 use Illuminate\Http\Request;
 
@@ -17,7 +19,8 @@ class POSController extends Controller
             ->with(['price','stock','category'])
             ->orderBy('name', 'ASC')
             ->where('visible','published')
-            ->paginate(25)
+            ->filter(request(['search']))
+            ->paginate(24)
             ->withQueryString()
             ->through(function ($product) {
                 return [
@@ -33,15 +36,22 @@ class POSController extends Controller
 
             });
 
-        $customers = Customer::select('id','name')->orderBy('name','ASC')->get();
         $store = Store::find($user->store_id);
+
+        $customers = Customer::select('id','name')->orderBy('name','ASC')->get();
+        $units = ProductUnit::select('id','name')->orderBy('name', 'ASC')->get();
+        $categories = ProductCategory::select('id','name')->orderBy('name', 'ASC')->get();
+        $stores = Store::select('id','name')->orderBy('name', 'ASC')->get();
 
         return inertia('Pos/Index', [
             'title' => "Point of Sale",
             'store' => $store,
+            'stores' => $stores,
             'customers' => $customers,
             'products' => $products,
-            'filter' => $request->only(['search','store','per_page']),
+            'units' => $units,
+            'categories' => $categories,
+            'filter' => $request->only(['search','store','page']),
         ]);
     }
 }

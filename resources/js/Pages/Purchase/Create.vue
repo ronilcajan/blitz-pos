@@ -557,7 +557,6 @@ const submitPurchaseForm = () => {
             </form>
         </div>
     </Modal>
-
     <Modal :show="createProductModal" @close="closeModal">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">

@@ -23,7 +23,7 @@ class CustomerFormRequest extends FormRequest
     public function rules(): array
     {
         $customerId = $this->id;
-        
+
         return [
             'name' => 'required',
             'email' => ['required',Rule::unique('customers', 'email')->ignore($customerId)],

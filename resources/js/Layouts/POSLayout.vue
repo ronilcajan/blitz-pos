@@ -34,7 +34,9 @@ watch(darkMode, () => {
                     </div>
                 </div>
                 <div class="navbar-center">
-                    <a class="btn btn-ghost text-xl">daisyUI</a>
+                    <a :href="route('dashboard')">
+                    <ApplicationLogo class="fill-current" />
+                </a>
                 </div>
                 <div class="navbar-end gap-3">
                     <label class="swap swap-rotate">
