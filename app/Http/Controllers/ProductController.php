@@ -115,13 +115,24 @@ class ProductController extends Controller
         }
         $product = Product::create($productAttributes);
 
+        // calculate price if base_price is only set
+        $discounted_price = 0;
+        $sale_price = $request->base_price + $request->markup_price;
+
+        if($request->manual_percentage == 'manual'){
+            $discounted_price = $sale_price - $request->discount;
+        }else{
+            $discount = $sale_price * ($request->discount/100);
+            $discounted_price = $sale_price - $discount;
+        }
+
         $productPriceAttributes = [
             'base_price' => $request->base_price,
             'markup_price' => $request->markup_price,
             'sale_price' => $request->sale_price,
             'discount' => $request->discount,
             'manual_percentage' => $request->manual_percentage ?? 'manual',
-            'discount_price' => $request->discount_price,
+            'discount_price' => $request->discount_price ?? $discounted_price,
             'product_id' => $product->id
         ];
 

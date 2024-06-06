@@ -200,10 +200,10 @@ const calculateDiscount = computed(() => {
     return formatNumberWithCommas(discount.value.toFixed(2));
 })
 const calculateTotal = computed(() => {
-const subTotal = deliveries.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
-    const discountValue = parseFloat(discount.value);
-    const total = subTotal - discountValue;
-    return formatNumberWithCommas(total.toFixed(2));
+    const subTotal = deliveries.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
+        const discountValue = parseFloat(discount.value);
+        const total = subTotal - discountValue;
+        return formatNumberWithCommas(total.toFixed(2));
 })
 
 const formatNumberWithCommas = (number) => {
@@ -215,7 +215,7 @@ const getCurrentDate = () => {
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
     const dd = String(today.getDate()).padStart(2, '0');
-    return `${Y}-${mm}-${dd}`;
+    return `${yyyy}-${mm}-${dd}`;
 }
 
 const deliveryForm = useForm({
@@ -498,7 +498,7 @@ const selectedOrder = (items) =>{
                                 <PrimaryButton type="submit"
                                     class="btn btn-sm"
                                     :class="{ 'opacity-25': deliveryForm.processing }"
-                                    :disabled="deliveryForm.processing || deliveries.length==0"
+                                    :disabled="deliveryForm.processing || deliveries.length == 0"
                                 >
                                 <span v-if="deliveryForm.processing" class="loading loading-spinner"></span>
                                     Create Delivery
@@ -725,30 +725,6 @@ const selectedOrder = (items) =>{
                     </PrimaryButton>
                 </div>
             </form>
-        </div>
-    </Modal>
-    <Modal :show="addDiscountModal" @close="closeModal">
-        <div class="p-6">
-            <h1 class="text-xl mb-4 font-medium">
-                Add discounts
-            </h1>
-            <div>
-                <InputLabel for="name" value="Discount" />
-                <NumberInput
-                    type="number"
-                    class="block w-full"
-                    v-model="discount"
-                    required
-                    placeholder="Enter supplier name"
-                />
-            </div>
-            <div class="mt-6 flex justify-end">
-                <PrimaryButton @click="closeModal"
-                    class="ms-3"
-                >
-                    Save
-                </PrimaryButton>
-            </div>
         </div>
     </Modal>
     <Modal :show="addDiscountModal" @close="closeModal">

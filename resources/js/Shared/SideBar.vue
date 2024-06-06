@@ -5,9 +5,9 @@
 		<nav class="flex min-h-screen w-72 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
 
 			<div class="mx-4 flex items-center gap-2 font-black">
-                <a :href="route('dashboard')">
+                <Link :href="route('dashboard')">
                     <ApplicationLogo class="fill-current" />
-                </a>
+                </Link>
 			</div>
 
 			<ul class="menu gap-2">

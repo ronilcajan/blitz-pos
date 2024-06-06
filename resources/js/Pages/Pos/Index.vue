@@ -1,10 +1,13 @@
 <script setup>
-import { reactive, ref,watch } from 'vue';
+import { reactive, ref, watch, computed } from 'vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
 import POSLayout from '@/Layouts/POSLayout.vue';
-import CounterInput from './partials/CounterInput.vue';
 import SearchBar from './partials/SearchBar.vue';
+import ProductDropdownItems from './partials/ProductDropdownItems.vue';
+import ProductCard from './partials/ProductCard.vue';
+import PurchaseCard from './partials/PurchaseCard.vue';
+import PaymentButtons from './partials/PaymentButtons.vue';
 import debounce from "lodash/debounce";
 
 defineOptions({ layout: POSLayout })
@@ -21,12 +24,20 @@ const props = defineProps({
 });
 
 const page = usePage();
-const purchase = reactive([]);
+const purchases = reactive([]);
 const customer = ref('');
+const discount = ref(0);
+const tax = ref(0);
 const search = ref(props.filter.search);
 const datetime = ref('');
 const createProductModal = ref(false);
 const createCustomerModal = ref(false);
+const addDiscountModal = ref(false);
+const addTaxModal = ref(false);
+const cancelPurchaseModal = ref(false);
+const reviewPurchaseModal = ref(false);
+const confirmPurchaseModal = ref(false);
+const hideDropdownRef = ref('pending');
 
 const productForm = useForm({
     name: '',
@@ -47,6 +58,7 @@ const customerForm = useForm({
     store_id : page.props.auth.user.store_id,
 });
 
+
 const closeModal = () => {
     createProductModal.value = false;
     productForm.clearErrors()
@@ -63,6 +75,89 @@ watch(search, debounce(function (value) {
 	{ preserveState: true, replace:true, only: ['products'] }
    )
 }, 500)) ;
+
+const newPurchase = (product) => {
+    if(product.price === 0){
+        useToast().error(`Product price not set. Please update the price!`, {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+        return;
+    }
+    const foundProduct = findProductById(product.id, purchases)
+    if (foundProduct) {
+        updateOrderQuantity(foundProduct)
+    } else {
+        const newOrder = createOrderFromProduct(product);
+        addToDelivery(newOrder);
+    }
+    hideDropdownRef.value.focus()
+}
+const findProductById = (product_id, search_products) => {
+    return search_products.find(product => product.id === product_id);
+}
+const createOrderFromProduct = (product) => {
+    return {
+        id: product.id,
+        product: product.name,
+        details: product.size,
+        qty: 1,
+        unit: product.unit,
+        stocks: product.stocks,
+        price: parseFloat(product.price ?? 0.00).toFixed(2),
+        image: product.image,
+        get total() {
+            return (this.qty * parseFloat(this.price)).toFixed(2);
+        },
+    };
+}
+const updateOrderQuantity = (purchase) => {
+    purchase.qty++;
+}
+const deleteOrder = (order_id) => {
+    purchases.splice(purchases.findIndex(order => order.id === order_id), 1);
+}
+
+const addToDelivery = (products) => {
+    purchases.push(products);
+}
+
+const calculateSubTotal = computed(() => {
+    const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
+    return formatNumberWithCommas(subTotal);
+})
+const calculateQty = computed(() => {
+    const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.qty), 0);
+    return formatNumberWithCommas(subTotal);
+})
+const calculateDiscount = computed(() => {
+    if(!isNaN(discount.value) && discount.value > 0){
+        return formatNumberWithCommas(discount.value.toFixed(2));
+    }
+    if(discount.value == ''){
+        return discount.value = 0
+    }
+})
+const calculateTax = computed(() => {
+    if(!isNaN(tax.value) && tax.value > 0){
+        return formatNumberWithCommas(tax.value.toFixed(2));
+    }
+    if(tax.value == ''){
+        return tax.value = 0
+    }
+})
+const calculateTotal = computed(() => {
+    const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
+    const discountValue = parseFloat(discount.value);
+    const taxValue = parseFloat(tax.value);
+    const total = subTotal - (discountValue + taxValue);
+    return formatNumberWithCommas(total.toFixed(2));
+})
+
+const formatNumberWithCommas = (number) => {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 
 const submitProductForm = () => {
 	productForm.post('/products',{
@@ -94,9 +189,7 @@ const submitCustomerForm = () => {
         only: ['customers']
 	})
 }
-const formatNumberWithCommas = (number) => {
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
+
 const updateDateTime = () => {
     // Get the current date and time
     let date = new Date();
@@ -117,6 +210,68 @@ const updateDateTime = () => {
 }
 setInterval(updateDateTime, 1000);
 updateDateTime();
+
+
+
+const purchaseForm = useForm({
+    customer_id: '',
+	transaction_date: updateDateTime(),
+	quantity : calculateQty,
+    sub_total: calculateSubTotal,
+	discount : calculateDiscount,
+    tax : calculateTax,
+    total : calculateTotal,
+    payment_tender : 0,
+    payment_changed : 0,
+    payment_method : 'cash',
+    referrence : '',
+    notes : '',
+    items : [],
+});
+
+
+const setPaymentAmount = (amount) => {
+    if (typeof purchaseForm.payment_tender === 'undefined' || isNaN(purchaseForm.payment_tender)) {
+        purchaseForm.payment_tender = 0;
+    }else {
+        purchaseForm.payment_tender = parseFloat(purchaseForm.payment_tender);
+    }
+
+    if (amount === 'reset') {
+        purchaseForm.payment_tender = 0;
+        purchaseForm.payment_changed = 0;
+        return purchaseForm.payment_tender;
+    }
+
+    let parsedAmount = parseFloat(amount);
+
+    if (isNaN(parsedAmount)) {
+        throw new Error('Invalid amount');
+    }
+
+    purchaseForm.payment_tender += parsedAmount;
+
+    if(checkPayment.value){
+        useToast().error(`Insufficient payment!`, {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+        return;
+    }
+
+    paymentChanged()
+    return purchaseForm.payment_tender.toFixed(2);
+
+};
+const checkPayment = computed(() => {
+      return purchaseForm.total > purchaseForm.payment_tender;
+})
+
+const paymentChanged = () => {
+      return purchaseForm.payment_changed = Math.abs(purchaseForm.total - purchaseForm.payment_tender).toFixed(2);
+}
+
 </script>
 
 <template>
@@ -126,11 +281,11 @@ updateDateTime();
             <div class="card bg-base-100 shadow-sm rounded">
                 <div class="card-body p-3 md:p-5">
                     <div class="flex justify-between gap-2">
-                        <div class="w-full">
+                        <div class="w-full dropdown">
                             <label for="simple-search" class="sr-only">Search</label>
                             <div class="relative w-full">
                                 <SearchBar v-model="search" />
-                                <ul tabindex="0" class="dropdown-content z-[1] bg-base-100 shadow mt-4 w-full">
+                                <ul tabindex="0" class="dropdown-content md:hidden  z-[1] bg-base-100 shadow mt-4 w-full">
                                     <ProductDropdownItems
                                         v-for="product in products.data"
                                         :product="product"
@@ -141,43 +296,37 @@ updateDateTime();
                             </div>
 
                         </div>
-                <div class="flex gap-2">
-                    <PrimaryButton @click="createProductModal = true" class="btn-sm tooltip" data-tip="Add products" type="button">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
-                    </PrimaryButton>
-                    <PrimaryButton class="btn-sm tooltip" data-tip="Barcode scan" type="button">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
-                    </PrimaryButton>
-                </div>
+                        <div class="flex gap-2">
+                            <PrimaryButton @click="createProductModal = true" class="btn-sm tooltip" data-tip="Add products" type="button">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                            </PrimaryButton>
+                            <PrimaryButton class="btn-sm tooltip" data-tip="Barcode scan" type="button">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
+                            </PrimaryButton>
+                        </div>
                     </div>
+                    <h1 class="font-bold mt-3">PRODUCTS</h1>
                     <!-- products -->
-                    <div class="hidden md:flex flex-wrap gap-3 pb-5 justify-start mt-4 overflow-x-auto overflow-y-auto" style="height:750px">
-                        <div v-for="product in products.data" :key="product.id" class="card w-44 bg-base-100 shadow" style="height:250px">
-                            <figure class="h-24">
-                                <img class="object-fill" v-if="product.image" :src="product.image" alt="Shoes" loading="lazy" />
-                            </figure>
-                            <div class="p-3">
-                                <h1 class="font-bold">
-                                    {{ product.name }}
-                                </h1>
-                                <div class="flex flex-col text-sm">
-                                    <div>{{ product.barcode }}</div>
-                                    {{ product.size }}
-                                    <div>
-                                        {{ product.stocks }} {{ product.unit }}
-                                    </div>
-                                </div>
-                                <div class="card-actions justify-end">
-                                <button class="btn btn-sm btn-primary mt-2">
-                                    {{ $page.props.auth.user.currency }}
-                                    {{ formatNumberWithCommas(product.price) }}</button>
-                                </div>
+                    <div class="hidden md:flex flex-wrap gap-3 pb-5 justify-start mt-4 overflow-x-auto overflow-y-auto " style="height:710px">
+                        <ProductCard
+                            v-for="product in products.data"
+                            :product="product"
+                            :key="product.id"
+                            @add-products="newPurchase(product)"
+                        />
+
+                        <div class="w-full flex justify-center items-center border border-gray-100 rounded bg-gray-100" v-if="products.data.length === 0">
+                            <div class="text-center">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="200"  height="200"  viewBox="0 0 24 24"  fill="none"  stroke="#858080"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8.812 4.793l3.188 -1.793l8 4.5v8.5m-2.282 1.784l-5.718 3.216l-8 -4.5v-9l2.223 -1.25" /><path d="M14.543 10.57l5.457 -3.07" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-4.35 2.447m-2.564 1.442l-1.086 .611" /><path d="M3 3l18 18" /></svg>
+                                <p class="text-gray-500">No products found!</p>
+
                             </div>
                         </div>
 
-
                     </div>
-                    <Pagination :links="products.links" />
+                    <div class="hidden md:flex">
+                        <Pagination :links="products.links" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -191,44 +340,24 @@ updateDateTime();
                                 {{ customer.name }}
                             </option>
                         </select>
-                        <PrimaryButton @click="createCustomerModal = true" class="btn-sm tooltip" data-tip="Add products" type="button">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
-                    </PrimaryButton>
+                            <PrimaryButton @click="createCustomerModal = true" class="btn-sm tooltip" data-tip="Add products" type="button">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                        </PrimaryButton>
                     </div>
-                    <div style="height:530px" class="mt-2 overflow-x-auto overflow-y-auto">
+                    <h1 class="font-bold mt-3">ORDERS</h1>
+                    <div style="height:530px" class="mt-2 overflow-x-auto overflow-y-auto ">
 
-                        <div class="border border-gray-100 p-2 rounded flex justify-between items-center">
-                            <div class="flex gap-3 justify-center items-center">
-                                <div class="avatar">
-                                    <div class="w-16 rounded-full">
-                                        <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
-                                    </div>
-                                </div>
-                                <div class="">
-                                    <div class="font-bold">
-                                    Product 1 sdfdsf sdfsdf sdfs fsfsdfsdf
-                                    </div>
-                                    <div class="text-sm">
-                                    Size 2
-                                    </div>
-                                    <div class="text-sm">
-                                    100.00/box
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="font-bold hidden lg:flex justify-center items-center gap-2">
-                                <CounterInput v-model="purchase.qty" @increase-by="(n) => purchase.qty += n" @decreased-by="(n) => purchase.qty > 1 ? purchase.qty -= n : 0"/>
-                            </div>
-                            <div class="flex flex-col items-end ">
-                                <p class="font-bold mb-2 text-right">PHP 2,3423.00</p>
+                        <PurchaseCard
+                            v-for="(item, index) in purchases"
+                            :item="item"
+                            :key="index"
+                            @delete-item="deleteOrder(item.id)"
+                        />
 
-                                <div class="flex gap-2 justify-center align-bottom">
-                                    <div class="lg:hidden">
-                                        <CounterInput v-model="purchase.qty" @increase-by="(n) => purchase.qty += n" @decreased-by="(n) => purchase.qty > 1 ? purchase.qty -= n : 0"/>
-
-                                    </div>
-                                    <DeleteIcon @click="deleteOrder(purchase.id)"/>
-                                </div>
+                        <div class="w-full h-full flex justify-center items-center border border-gray-100 rounded bg-base-200" v-if="purchases.length === 0">
+                            <div class="text-center">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="200"  height="200"  viewBox="0 0 24 24"  fill="none"  stroke="#858080"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-list"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l11 0" /><path d="M9 12l11 0" /><path d="M9 18l11 0" /><path d="M5 6l0 .01" /><path d="M5 12l0 .01" /><path d="M5 18l0 .01" /></svg>
+                                <p class="text-gray-500">Select a product to buy!</p>
 
                             </div>
                         </div>
@@ -236,19 +365,41 @@ updateDateTime();
                     <div class="border p-3 rounded border-gray-100 bg-base-200">
                         <div class="flex justify-between  uppercase">
                             <div>Items</div>
-                            <div>2</div>
+                            <div>{{ calculateQty }}</div>
                         </div>
                         <div class="flex justify-between  uppercase">
                             <div>Sub-total</div>
-                            <div>P2,000.00</div>
+                            <div>{{  $page.props.auth.user.currency + " " +calculateSubTotal }}</div>
                         </div>
                         <div class="flex justify-between  uppercase">
-                            <div>Discount</div>
-                            <div>P2,000.00</div>
+                            <div>
+                                <button class="font-semibold text-red-500" type="button" @click="addTaxModal = true">
+                                    TAX(+/-):
+                                </button>
+                            </div>
+                            <div>
+                                <span class="text-red-500">
+                                {{  $page.props.auth.user.currency + " " +calculateTax }}
+                                </span>
+                                </div>
+                        </div>
+                        <div class="flex justify-between uppercase">
+                            <div>
+                                <button class="font-semibold uppercase text-red-500" type="button" @click="addDiscountModal = true">
+                                    Discount(+/-):
+                                </button>
+                            </div>
+                            <div>
+                                <span class="text-red-500">
+                                {{  $page.props.auth.user.currency + " " +calculateDiscount }}
+                                </span>
+                                </div>
                         </div>
                         <div class="flex justify-between uppercase">
                             <div class="text-2xl font-bold">Grand Total</div>
-                            <div class="text-2xl font-bold">P2,000.00</div>
+                            <div class="text-2xl font-bold">
+                                {{  $page.props.auth.user.currency + " " +calculateTotal }}
+                            </div>
                         </div>
                     </div>
 
@@ -261,16 +412,18 @@ updateDateTime();
                                 Date: <span>{{ datetime }}</span>
                             </div>
                             <div>
-                                User: {{ $page.props.auth.user.name }}
+                                Sales Representative: {{ $page.props.auth.user.name }}
                             </div>
                             <div>
                                 Powered by: POSblend.
                             </div>
                         </div>
                         <div class="flex gap-3 justify-end">
-                            <button class="btn lg:btn-lg">Cancel</button>
-                            <button class="btn lg:btn-lg btn-primary">Finish</button>
-
+                            <SecondaryButton class="btn lg:btn-lg"
+                            :disabled="purchases.length == 0"
+                            @click="cancelPurchaseModal = true">DELETE</SecondaryButton>
+                            <PrimaryButton class="btn lg:btn-lg" ref="hideDropdownRef"
+                            :disabled="purchases.length == 0" @click="reviewPurchaseModal=true">PAY</PrimaryButton>
                         </div>
                     </div>
                 </div>
@@ -281,7 +434,7 @@ updateDateTime();
     <Modal :show="createProductModal" @close="closeModal">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
-                Add new product
+                Add New Product
             </h1>
             <form method="dialog" class="w-full" @submit.prevent="submitProductForm">
                 <div class="flex justify-between gap-2 flex-col lg:flex-row">
@@ -315,7 +468,7 @@ updateDateTime();
                     <div class="form-control">
                         <InputLabel for="product_type" value="Product Type" />
                         <select v-model="productForm.product_type" class="select select-bordered w-full">
-                            <option disabled value="">Select a product type</option>
+                            <option disabledd value="">Select a product type</option>
                             <option>
                                 sellable
                             </option>
@@ -405,7 +558,7 @@ updateDateTime();
     <Modal :show="createCustomerModal" @close="closeModal">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
-                Add new customer
+                Add New Customer
             </h1>
             <form method="dialog" class="w-full" @submit.prevent="submitCustomerForm">
                 <div class="flex justify-between gap-2 flex-col lg:flex-row">
@@ -476,6 +629,199 @@ updateDateTime();
                     </PrimaryButton>
                 </div>
             </form>
+        </div>
+    </Modal>
+    <Modal :show="addDiscountModal" @close="addDiscountModal = false">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Add Discounts
+            </h1>
+            <div>
+                <InputLabel for="name" value="Discount" />
+                <NumberInput
+                    type="number"
+                    class="block w-full"
+                    v-model="discount"
+                    required
+                    placeholder="Enter supplier name"
+                />
+            </div>
+            <div class="mt-6 flex justify-end">
+                <PrimaryButton @click="addDiscountModal = false"
+                    class="ms-3"
+                >
+                    Add discount
+                </PrimaryButton>
+            </div>
+        </div>
+    </Modal>
+    <Modal :show="addTaxModal" @close="addTaxModal = false">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Add TAX
+            </h1>
+            <div>
+                <InputLabel for="name" value="TAX" />
+                <NumberInput
+                    type="number"
+                    class="block w-full"
+                    v-model="tax"
+                    required
+                    placeholder="Enter supplier name"
+                />
+            </div>
+            <div class="mt-6 flex justify-end">
+                <PrimaryButton @click="addTaxModal = false"
+                    class="ms-3"
+                >
+                    Add tax
+                </PrimaryButton>
+            </div>
+        </div>
+    </Modal>
+    <Modal :show="cancelPurchaseModal" @close="cancelPurchaseModal = false">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Cancel Purchase
+            </h1>
+            <p>Are you sure you want to cancel this purchase?</p>
+            <div class="mt-6 flex justify-end gap-3">
+                <SecondaryButton class="btn" @click="cancelPurchaseModal = false">Close</SecondaryButton>
+                <DangerButton :disabled="purchases.length == 0" @click="purchases.length = 0; cancelPurchaseModal = false">
+                    Cancel Purchase
+                </DangerButton>
+            </div>
+        </div>
+    </Modal>
+    <Modal :show="reviewPurchaseModal" @close="reviewPurchaseModal = false">
+        <div class="p-6">
+            <h1 class="text-xl mb-3 font-medium">
+                Review Purchase
+            </h1>
+            <p>Please review the items and proceed.</p>
+            <div v-for="(item, index) in purchases"
+                :item="item"
+                :key="index" class="flex gap-3 justify-between text-sm border p-2 rounded items-end mt-1">
+                <p>
+                    <span class="font-bold">{{ item.product }} </span>
+                    - {{  $page.props.auth.user.currency + " "+formatNumberWithCommas(item.price) }} X {{ item.qty }} {{ item.unit }}</p>
+                <p class="font-bold text-primary">{{  $page.props.auth.user.currency + " "+formatNumberWithCommas(item.total) }}</p>
+
+            </div>
+            <div class="border p-3 mt-2 rounded border-gray-100 bg-base-200">
+                <div class="flex justify-between  uppercase">
+                    <div>Items</div>
+                    <div>{{ calculateQty }}</div>
+                </div>
+                <div class="flex justify-between  uppercase">
+                    <div>Sub-total</div>
+                    <div>{{  $page.props.auth.user.currency + " " +calculateSubTotal }}</div>
+                </div>
+                <div class="flex justify-between  uppercase">
+                    <div>
+                        <div>TAX</div>
+                    </div>
+                    <div>
+                        <span class="text-red-500">
+                        {{  $page.props.auth.user.currency + " " +calculateTax }}
+                        </span>
+                        </div>
+                </div>
+                <div class="flex justify-between  uppercase">
+                    <div>
+                        <div>Discount</div>
+                    </div>
+                    <div>
+                        <span class="text-red-500">
+                        {{  $page.props.auth.user.currency + " " +calculateDiscount }}
+                        </span>
+                        </div>
+                </div>
+                <div class="flex justify-between uppercase">
+                    <div class="text-2xl font-bold">Amount To Pay</div>
+                    <div class="text-2xl font-bold">
+                        {{  $page.props.auth.user.currency + " " +calculateTotal }}
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <SecondaryButton class="btn"
+                    @click="reviewPurchaseModal = false;">Cancel</SecondaryButton>
+                <PrimaryButton
+                    @click="reviewPurchaseModal=false;confirmPurchaseModal=true"
+                    :disabled="purchases.length == 0">
+                    Proceed
+                </PrimaryButton>
+            </div>
+        </div>
+    </Modal>
+    <Modal :show="confirmPurchaseModal" @close="confirmPurchaseModal = false">
+        <div class="p-6">
+            <h1 class="text-xl mb-3 font-medium">
+                Confirm Purchase
+            </h1>
+            <p>Please enter payments and pay.</p>
+
+            <div class="border p-3 mt-2 rounded border-gray-100 bg-base-200">
+                <div class="flex justify-between  uppercase">
+                    <div>Items</div>
+                    <div>{{ calculateQty }}</div>
+                </div>
+                <div class="flex justify-between uppercase">
+                    <div class="text-2xl font-bold">Amount To Pay</div>
+                    <div class="text-2xl font-bold">
+                        {{  $page.props.auth.user.currency + " " +calculateTotal }}
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <InputLabel value="Payment Tender" />
+                <input type="number" value="0" class="border w-full border-gray-300 rounded text-4xl px-2 py-4 text-right"
+                v-model="purchaseForm.payment_tender" min="0" step="0.01" />
+                <PaymentButtons :currency="$page.props.auth.user.currency" @set-payment="setPaymentAmount" />
+
+                <InputLabel value="Payment Changed" />
+                <input type="number" value="0" class="border w-full border-gray-300 rounded text-2xl px-2 py-2 text-right"
+                v-model="purchaseForm.payment_changed" />
+            </div>
+            <div class="mt-2">
+                <InputLabel value="Payment Method" />
+                <div class="flex gap-3 flex-wrap">
+                    <label class="flex items-center gap-1">
+                        <input type="radio" name="payment_method" class="radio radio-sm" v-model="purchaseForm.payment_method" value="cash" checked />
+                        Cash
+                    </label>
+                    <label class="flex items-center gap-3">
+                        <input type="radio" name="payment_method" class="radio radio-sm" v-model="purchaseForm.payment_method" value="card/bank transfer" />
+                        Card/Bank Transfer
+                    </label>
+                    <label class="flex items-center gap-3">
+                        <input type="radio" name="payment_method" class="radio radio-sm" v-model="purchaseForm.payment_method" value="e-wallet"/>
+                        E-wallet
+                    </label>
+                </div>
+                <div class="mt-3" v-if="purchaseForm.payment_method != 'cash'">
+                    <InputLabel value="Reference No." />
+                    <TextInput
+                        type="email"
+                        class="block w-full"
+                        v-model="purchaseForm.referrence"
+                        required
+                        placeholder="Enter reference number"
+                    />
+                </div>
+                <div class="mt-3">
+                    <InputLabel value="Notes (optional)" />
+                    <textarea v-model="purchaseForm.notes" class="textarea w-full textarea-bordered" placeholder="Enter something regarding this purchase"></textarea>
+                    <InputError class="mt-2" :message="purchaseForm.errors.notes" />
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <SecondaryButton class="btn" @click="confirmPurchaseModal = false">Cancel</SecondaryButton>
+                <PrimaryButton :disabled="checkPayment">
+                    Confirm
+                </PrimaryButton>
+            </div>
         </div>
     </Modal>
 </template>

@@ -1,6 +1,5 @@
 <script setup>
 const emit = defineEmits(['decreasedBy', 'increaseBy'])
-
 const model = defineModel({
     type: Number,
     required: true,

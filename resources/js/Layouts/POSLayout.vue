@@ -34,9 +34,9 @@ watch(darkMode, () => {
                     </div>
                 </div>
                 <div class="navbar-center">
-                    <a :href="route('dashboard')">
+                    <Link :href="route('dashboard')">
                     <ApplicationLogo class="fill-current" />
-                </a>
+                </Link>
                 </div>
                 <div class="navbar-end gap-3">
                     <label class="swap swap-rotate">
