@@ -251,7 +251,8 @@ const setPaymentAmount = (amount) => {
 
     purchaseForm.payment_tender += parsedAmount;
 
-    if(checkPayment.value){
+
+    if(checkPayment(purchaseForm.payment_tender)){
         useToast().error(`Insufficient payment!`, {
 				position: 'top-right',
 				duration: 3000,
@@ -264,14 +265,28 @@ const setPaymentAmount = (amount) => {
     return purchaseForm.payment_tender.toFixed(2);
 
 };
-const checkPayment = computed(() => {
-      return purchaseForm.total > purchaseForm.payment_tender;
-})
-
-const paymentChanged = () => {
-      return purchaseForm.payment_changed = Math.abs(purchaseForm.total - purchaseForm.payment_tender).toFixed(2);
+const checkPayment = (payment_tender) => {
+      return parseFloat((purchaseForm.total).replace(/,/g, '')) > payment_tender;
 }
 
+const paymentChanged = () => {
+      return purchaseForm.payment_changed = Math.abs(parseFloat((purchaseForm.total).replace(/,/g, '')) - purchaseForm.payment_tender).toFixed(2);
+}
+const submitPurchase = () => {
+	customerForm.post('/customers',{
+		replace: true,
+		preserveScroll: true,
+  		onSuccess: () => {
+			closeModal();
+			useToast().success(`Success!`, {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+		},
+        only: ['products']
+	})
+}
 </script>
 
 <template>
@@ -403,7 +418,7 @@ const paymentChanged = () => {
                         </div>
                     </div>
 
-                    <div class="flex p-2 gap-3 justify-between">
+                    <div class="flex p-2 gap-3 justify-between flex-col-reverse lg:flex-row ">
                         <div class="w-full text-xs">
                             <div>
                                 Store: {{ $page.props.auth.user.store_name }}
@@ -418,11 +433,11 @@ const paymentChanged = () => {
                                 Powered by: POSblend.
                             </div>
                         </div>
-                        <div class="flex gap-3 justify-end">
-                            <SecondaryButton class="btn lg:btn-lg"
+                        <div class="flex gap-3 justify-center lg:justify-end">
+                            <SecondaryButton class="btn btn-lg flex-1"
                             :disabled="purchases.length == 0"
                             @click="cancelPurchaseModal = true">DELETE</SecondaryButton>
-                            <PrimaryButton class="btn lg:btn-lg" ref="hideDropdownRef"
+                            <PrimaryButton class="btn btn-lg flex-1" ref="hideDropdownRef"
                             :disabled="purchases.length == 0" @click="reviewPurchaseModal=true">PAY</PrimaryButton>
                         </div>
                     </div>
@@ -738,7 +753,7 @@ const paymentChanged = () => {
                         </div>
                 </div>
                 <div class="flex justify-between uppercase">
-                    <div class="text-2xl font-bold">Amount To Pay</div>
+                    <div class="text-2xl font-bold">Amount DUE</div>
                     <div class="text-2xl font-bold">
                         {{  $page.props.auth.user.currency + " " +calculateTotal }}
                     </div>
@@ -768,7 +783,7 @@ const paymentChanged = () => {
                     <div>{{ calculateQty }}</div>
                 </div>
                 <div class="flex justify-between uppercase">
-                    <div class="text-2xl font-bold">Amount To Pay</div>
+                    <div class="text-2xl font-bold">Amount DUE</div>
                     <div class="text-2xl font-bold">
                         {{  $page.props.auth.user.currency + " " +calculateTotal }}
                     </div>
@@ -791,11 +806,11 @@ const paymentChanged = () => {
                         <input type="radio" name="payment_method" class="radio radio-sm" v-model="purchaseForm.payment_method" value="cash" checked />
                         Cash
                     </label>
-                    <label class="flex items-center gap-3">
+                    <label class="flex items-center gap-1">
                         <input type="radio" name="payment_method" class="radio radio-sm" v-model="purchaseForm.payment_method" value="card/bank transfer" />
                         Card/Bank Transfer
                     </label>
-                    <label class="flex items-center gap-3">
+                    <label class="flex items-center gap-1">
                         <input type="radio" name="payment_method" class="radio radio-sm" v-model="purchaseForm.payment_method" value="e-wallet"/>
                         E-wallet
                     </label>
@@ -818,7 +833,10 @@ const paymentChanged = () => {
             </div>
             <div class="mt-6 flex justify-end gap-3">
                 <SecondaryButton class="btn" @click="confirmPurchaseModal = false">Cancel</SecondaryButton>
-                <PrimaryButton :disabled="checkPayment">
+                <PrimaryButton
+                :class="{ 'opacity-25': submitPurchase.processing }"
+                :disabled="checkPayment(purchaseForm.payment_tender)">
+                    <span v-if="submitPurchase.processing" class="loading loading-spinner"></span>
                     Confirm
                 </PrimaryButton>
             </div>
