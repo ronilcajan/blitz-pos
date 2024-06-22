@@ -13,9 +13,12 @@ const formatNumberWithCommas = (number) => {
 
 <template>
     <div @click="$emit('addProducts')" class="cursor-pointer hover:bg-slate-100 card w-44 bg-base-100 shadow" style="height:250px">
-        <figure class="h-24">
-            <img class="object-fill" v-if="product.image" :src="product.image" alt="Shoes" loading="lazy" />
-        </figure>
+        <!-- <figure class="h-24"> -->
+        <div class="mt-1">
+            <img class="object-scale-down h-24 w-96" v-if="product.image" :src="product.image" alt="Shoes" loading="lazy" />
+        </div>
+
+        <!-- </figure> -->
         <div class="p-3">
             <h1 class="font-bold">
                 {{ product.name }}

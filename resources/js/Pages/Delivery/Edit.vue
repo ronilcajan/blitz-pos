@@ -92,34 +92,6 @@ watch(order_id, debounce(function (value) {
    )
 }, 500)) ;
 
-// watchEffect(async () => {
-// 	router.get(`/deliveries/${props.delivery.id}/edit`,
-// 	{ barcode: barcode.value },
-// 	{ preserveState: true, replace:true,
-//         onSuccess: () => {
-//             if (!barcode.value) {
-//                 return;
-//             }
-//             if (!props.search_products) {
-//                 useToast().error('Product not found!', {
-//                     position: 'top-right',
-//                     duration: 3000,
-//                     dismissible: true
-//                 });
-//                 return;
-//             }
-//             const foundProduct = findProductById(props.search_products.id, purchase)
-//             if (foundProduct) {
-//                 updateOrderQuantity(foundProduct)
-//             } else {
-//                 const newOrder = createOrderFromProduct(props.search_products);
-//                 addToDelivery(newOrder);
-//             }
-
-//             barcode.value = '';
-//         }, })
-// })
-
 const newPurchase = (product) => {
     const foundProduct = findProductById(product.id, deliveries)
     if (foundProduct) {

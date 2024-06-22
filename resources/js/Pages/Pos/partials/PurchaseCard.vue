@@ -16,7 +16,7 @@ const formatNumberWithCommas = (number) => {
     <div class="border border-gray-100 p-2 rounded flex justify-between items-center">
         <div class="flex gap-3 justify-center items-center">
             <div class="avatar">
-                <div class="w-16 rounded-full" v-if="item.image">
+                <div class="w-12 rounded-full" v-if="item.image">
                     <img :src="item.image" />
                 </div>
             </div>
@@ -24,10 +24,10 @@ const formatNumberWithCommas = (number) => {
                 <div class="font-bold">
                 {{ item.product }}
                 </div>
-                <div class="text-sm">
+                <div class="text-xs text-gray-500">
                 {{ item.details }}
                 </div>
-                <div class="text-sm ">
+                <div class="text-xs text-gray-500">
                     {{  $page.props.auth.user.currency + " " +formatNumberWithCommas(item.price) }}/{{item.unit}}
                 </div>
             </div>

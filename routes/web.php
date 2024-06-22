@@ -39,6 +39,7 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
 
     Route::get('/pos', [POSController::class, 'index'])->name('pos');
+    Route::post('/pos', [POSController::class, 'store'])->name('pos.store');
 
 
     Route::get('/profile/settings', [ProfileController::class, 'edit'])->name('profile.edit');

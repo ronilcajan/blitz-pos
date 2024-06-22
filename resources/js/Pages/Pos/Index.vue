@@ -25,7 +25,6 @@ const props = defineProps({
 
 const page = usePage();
 const purchases = reactive([]);
-const customer = ref('');
 const discount = ref(0);
 const tax = ref(0);
 const search = ref(props.filter.search);
@@ -66,7 +65,7 @@ const closeModal = () => {
 
     createCustomerModal.value = false;
     customerForm.clearErrors()
-    customerForm.reset();
+    customerForm.reset()
 };
 
 watch(search, debounce(function (value) {
@@ -125,15 +124,15 @@ const addToDelivery = (products) => {
 
 const calculateSubTotal = computed(() => {
     const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
-    return formatNumberWithCommas(subTotal);
+    return subTotal;
 })
 const calculateQty = computed(() => {
     const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.qty), 0);
-    return formatNumberWithCommas(subTotal);
+    return subTotal;
 })
 const calculateDiscount = computed(() => {
     if(!isNaN(discount.value) && discount.value > 0){
-        return formatNumberWithCommas(discount.value.toFixed(2));
+        return discount.value.toFixed(2);
     }
     if(discount.value == ''){
         return discount.value = 0
@@ -141,7 +140,7 @@ const calculateDiscount = computed(() => {
 })
 const calculateTax = computed(() => {
     if(!isNaN(tax.value) && tax.value > 0){
-        return formatNumberWithCommas(tax.value.toFixed(2));
+        return tax.value.toFixed(2);
     }
     if(tax.value == ''){
         return tax.value = 0
@@ -152,7 +151,7 @@ const calculateTotal = computed(() => {
     const discountValue = parseFloat(discount.value);
     const taxValue = parseFloat(tax.value);
     const total = subTotal - (discountValue + taxValue);
-    return formatNumberWithCommas(total.toFixed(2));
+    return total.toFixed(2);
 })
 
 const formatNumberWithCommas = (number) => {
@@ -231,6 +230,7 @@ const purchaseForm = useForm({
 
 
 const setPaymentAmount = (amount) => {
+
     if (typeof purchaseForm.payment_tender === 'undefined' || isNaN(purchaseForm.payment_tender)) {
         purchaseForm.payment_tender = 0;
     }else {
@@ -262,6 +262,42 @@ const setPaymentAmount = (amount) => {
     }
 
     paymentChanged()
+
+    console.log(amount);
+console.log(purchaseForm.total);
+
+    return purchaseForm.payment_tender.toFixed(2);
+
+};
+const setPaymentAmount2 = (amount) => {
+    if (typeof purchaseForm.payment_tender === 'undefined' || isNaN(purchaseForm.payment_tender)) {
+        purchaseForm.payment_tender = 0;
+    }else {
+        purchaseForm.payment_tender = parseFloat(purchaseForm.payment_tender);
+    }
+
+    if (amount === 'reset') {
+        purchaseForm.payment_tender = 0;
+        purchaseForm.payment_changed = 0;
+        return purchaseForm.payment_tender;
+    }
+
+    let parsedAmount = parseFloat(amount);
+
+    if (isNaN(parsedAmount)) {
+        throw new Error('Invalid amount');
+    }
+
+    if(checkPayment(purchaseForm.payment_tender)){
+        useToast().error(`Insufficient payment!`, {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+        return;
+    }
+
+    paymentChanged()
     return purchaseForm.payment_tender.toFixed(2);
 
 };
@@ -273,11 +309,31 @@ const paymentChanged = () => {
       return purchaseForm.payment_changed = Math.abs(parseFloat((purchaseForm.total).replace(/,/g, '')) - purchaseForm.payment_tender).toFixed(2);
 }
 const submitPurchase = () => {
-	customerForm.post('/customers',{
+    purchaseForm.items = purchases.map(purchase => ({
+                        product_id: purchase.id,
+                        qty: purchase.qty
+                    }));
+
+	purchaseForm.post('/pos',{
 		replace: true,
 		preserveScroll: true,
-  		onSuccess: () => {
-			closeModal();
+        onSuccess: () => {
+            confirmPurchaseModal.value = false; // Close the modal
+            purchaseForm.clearErrors(); // Clear any validation errors
+            purchaseForm.reset(); // Reset the form fields to their initial values
+
+            purchases.length = 0;
+            // Reset items array
+            purchaseForm.items = [];
+
+            // Recalculate and update the form fields
+            purchaseForm.quantity = calculateQty.value;
+            purchaseForm.sub_total = calculateSubTotal.value;
+            purchaseForm.discount = calculateDiscount.value;
+            purchaseForm.tax = calculateTax.value;
+            purchaseForm.total = calculateTotal.value;
+
+
 			useToast().success(`Success!`, {
 				position: 'top-right',
 				duration: 3000,
@@ -286,6 +342,7 @@ const submitPurchase = () => {
 		},
         only: ['products']
 	})
+
 }
 </script>
 
@@ -349,12 +406,16 @@ const submitPurchase = () => {
             <div class="card bg-base-100 shadow-sm rounded">
                 <div class="card-body p-3 md:p-5">
                     <div class="w-full flex gap-2">
-                        <select v-model="customer" class="select select-bordered select-sm w-full">
-                            <option selected value="">Select customer</option>
-                            <option v-for="customer in customers" :value="customer.name" :key="customer.id">
-                                {{ customer.name }}
-                            </option>
-                        </select>
+                        <form class="w-full" @submit.prevent="submitPurchase" id="purchaseForm">
+                            <select v-model="purchaseForm.customer_id" ref="hideDropdownRef" class="select select-bordered select-sm w-full">
+                                <option selected value="">Select customer</option>
+                                <option v-for="customer in customers" :value="customer.id" :key="customer.id">
+                                    {{ customer.name }}
+                                </option>
+                            </select>
+                            <InputError class="mt-2" :message="purchaseForm.errors.customer_id" />
+
+                        </form>
                             <PrimaryButton @click="createCustomerModal = true" class="btn-sm tooltip" data-tip="Add products" type="button">
                             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                         </PrimaryButton>
@@ -380,11 +441,11 @@ const submitPurchase = () => {
                     <div class="border p-3 rounded border-gray-100 bg-base-200">
                         <div class="flex justify-between  uppercase">
                             <div>Items</div>
-                            <div>{{ calculateQty }}</div>
+                            <div>{{ formatNumberWithCommas(calculateQty) }}</div>
                         </div>
                         <div class="flex justify-between  uppercase">
                             <div>Sub-total</div>
-                            <div>{{  $page.props.auth.user.currency + " " +calculateSubTotal }}</div>
+                            <div>{{  $page.props.auth.user.currency + " " + formatNumberWithCommas(calculateSubTotal) }}</div>
                         </div>
                         <div class="flex justify-between  uppercase">
                             <div>
@@ -394,7 +455,7 @@ const submitPurchase = () => {
                             </div>
                             <div>
                                 <span class="text-red-500">
-                                {{  $page.props.auth.user.currency + " " +calculateTax }}
+                                {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(calculateTax) }}
                                 </span>
                                 </div>
                         </div>
@@ -406,14 +467,14 @@ const submitPurchase = () => {
                             </div>
                             <div>
                                 <span class="text-red-500">
-                                {{  $page.props.auth.user.currency + " " +calculateDiscount }}
+                                {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(calculateDiscount) }}
                                 </span>
                                 </div>
                         </div>
                         <div class="flex justify-between uppercase">
                             <div class="text-2xl font-bold">Grand Total</div>
                             <div class="text-2xl font-bold">
-                                {{  $page.props.auth.user.currency + " " +calculateTotal }}
+                                {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(calculateTotal) }}
                             </div>
                         </div>
                     </div>
@@ -437,7 +498,7 @@ const submitPurchase = () => {
                             <SecondaryButton class="btn btn-lg flex-1"
                             :disabled="purchases.length == 0"
                             @click="cancelPurchaseModal = true">DELETE</SecondaryButton>
-                            <PrimaryButton class="btn btn-lg flex-1" ref="hideDropdownRef"
+                            <PrimaryButton class="btn btn-lg flex-1"
                             :disabled="purchases.length == 0" @click="reviewPurchaseModal=true">PAY</PrimaryButton>
                         </div>
                     </div>
@@ -701,7 +762,9 @@ const submitPurchase = () => {
             </h1>
             <p>Are you sure you want to cancel this purchase?</p>
             <div class="mt-6 flex justify-end gap-3">
-                <SecondaryButton class="btn" @click="cancelPurchaseModal = false">Close</SecondaryButton>
+                <SecondaryButton class="btn" @click="cancelPurchaseModal = false">
+                    Close
+                </SecondaryButton>
                 <DangerButton :disabled="purchases.length == 0" @click="purchases.length = 0; cancelPurchaseModal = false">
                     Cancel Purchase
                 </DangerButton>
@@ -719,8 +782,8 @@ const submitPurchase = () => {
                 :key="index" class="flex gap-3 justify-between text-sm border p-2 rounded items-end mt-1">
                 <p>
                     <span class="font-bold">{{ item.product }} </span>
-                    - {{  $page.props.auth.user.currency + " "+formatNumberWithCommas(item.price) }} X {{ item.qty }} {{ item.unit }}</p>
-                <p class="font-bold text-primary">{{  $page.props.auth.user.currency + " "+formatNumberWithCommas(item.total) }}</p>
+                    - {{  $page.props.auth.user.currency + " "+ formatNumberWithCommas(item.price) }} X {{ item.qty }} {{ item.unit }}</p>
+                <p class="font-bold text-primary">{{  $page.props.auth.user.currency + " "+ formatNumberWithCommas(item.total) }}</p>
 
             </div>
             <div class="border p-3 mt-2 rounded border-gray-100 bg-base-200">
@@ -730,7 +793,7 @@ const submitPurchase = () => {
                 </div>
                 <div class="flex justify-between  uppercase">
                     <div>Sub-total</div>
-                    <div>{{  $page.props.auth.user.currency + " " +calculateSubTotal }}</div>
+                    <div>{{  $page.props.auth.user.currency + " " + formatNumberWithCommas(calculateSubTotal) }}</div>
                 </div>
                 <div class="flex justify-between  uppercase">
                     <div>
@@ -738,7 +801,7 @@ const submitPurchase = () => {
                     </div>
                     <div>
                         <span class="text-red-500">
-                        {{  $page.props.auth.user.currency + " " +calculateTax }}
+                        {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(calculateTax) }}
                         </span>
                         </div>
                 </div>
@@ -748,14 +811,14 @@ const submitPurchase = () => {
                     </div>
                     <div>
                         <span class="text-red-500">
-                        {{  $page.props.auth.user.currency + " " +calculateDiscount }}
+                        {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(calculateDiscount) }}
                         </span>
                         </div>
                 </div>
                 <div class="flex justify-between uppercase">
                     <div class="text-2xl font-bold">Amount DUE</div>
                     <div class="text-2xl font-bold">
-                        {{  $page.props.auth.user.currency + " " +calculateTotal }}
+                        {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(calculateTotal) }}
                     </div>
                 </div>
             </div>
@@ -776,7 +839,13 @@ const submitPurchase = () => {
                 Confirm Purchase
             </h1>
             <p>Please enter payments and pay.</p>
-
+            <select v-model="purchaseForm.customer_id" ref="hideDropdownRef" class="select select-bordered select-sm w-full my-2">
+                <option selected value="">Select customer</option>
+                <option v-for="customer in customers" :value="customer.id" :key="customer.id">
+                    {{ customer.name }}
+                </option>
+            </select>
+            <InputError class="mt-2" :message="purchaseForm.errors.customer_id" />
             <div class="border p-3 mt-2 rounded border-gray-100 bg-base-200">
                 <div class="flex justify-between  uppercase">
                     <div>Items</div>
@@ -785,19 +854,20 @@ const submitPurchase = () => {
                 <div class="flex justify-between uppercase">
                     <div class="text-2xl font-bold">Amount DUE</div>
                     <div class="text-2xl font-bold">
-                        {{  $page.props.auth.user.currency + " " +calculateTotal }}
+                        {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(calculateTotal) }}
                     </div>
                 </div>
             </div>
             <div class="mt-2">
                 <InputLabel value="Payment Tender" />
                 <input type="number" value="0" class="border w-full border-gray-300 rounded text-4xl px-2 py-4 text-right"
-                v-model="purchaseForm.payment_tender" min="0" step="0.01" />
+                v-model="purchaseForm.payment_tender" min="0" step="0.01" @change="setPaymentAmount2(purchaseForm.payment_tender)"/>
                 <PaymentButtons :currency="$page.props.auth.user.currency" @set-payment="setPaymentAmount" />
 
                 <InputLabel value="Payment Changed" />
                 <input type="number" value="0" class="border w-full border-gray-300 rounded text-2xl px-2 py-2 text-right"
-                v-model="purchaseForm.payment_changed" />
+                v-model="purchaseForm.payment_changed" readonly>
+                <InputError class="mt-2" :message="purchaseForm.errors.payment_changed" />
             </div>
             <div class="mt-2">
                 <InputLabel value="Payment Method" />
@@ -815,6 +885,7 @@ const submitPurchase = () => {
                         E-wallet
                     </label>
                 </div>
+                <InputError class="mt-2" :message="purchaseForm.errors.payment_method" />
                 <div class="mt-3" v-if="purchaseForm.payment_method != 'cash'">
                     <InputLabel value="Reference No." />
                     <TextInput
@@ -825,6 +896,7 @@ const submitPurchase = () => {
                         placeholder="Enter reference number"
                     />
                 </div>
+
                 <div class="mt-3">
                     <InputLabel value="Notes (optional)" />
                     <textarea v-model="purchaseForm.notes" class="textarea w-full textarea-bordered" placeholder="Enter something regarding this purchase"></textarea>
@@ -832,11 +904,11 @@ const submitPurchase = () => {
                 </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
-                <SecondaryButton class="btn" @click="confirmPurchaseModal = false">Cancel</SecondaryButton>
-                <PrimaryButton
-                :class="{ 'opacity-25': submitPurchase.processing }"
+                <SecondaryButton class="btn" @click="confirmPurchaseModal = false; purchaseForm.payment_tender = 0; purchaseForm.payment_changed = 0;">Cancel</SecondaryButton>
+                <PrimaryButton form="purchaseForm"
+                :class="{ 'opacity-25': purchaseForm.processing }"
                 :disabled="checkPayment(purchaseForm.payment_tender)">
-                    <span v-if="submitPurchase.processing" class="loading loading-spinner"></span>
+                    <span v-if="purchaseForm.processing" class="loading loading-spinner"></span>
                     Confirm
                 </PrimaryButton>
             </div>

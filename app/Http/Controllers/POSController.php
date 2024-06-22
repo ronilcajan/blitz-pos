@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ConvertToNumber;
+use App\Classes\TransactionCodeGenerator;
+use App\Http\Requests\StoreSaleRequest;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductUnit;
+use App\Models\Sale;
+use App\Models\SoldItems;
 use App\Models\Store;
 use Illuminate\Http\Request;
 
@@ -54,4 +59,56 @@ class POSController extends Controller
             'filter' => $request->only(['search','store','page']),
         ]);
     }
+
+    public function store(StoreSaleRequest $request){
+
+        $request->validated();
+
+        $generator = new TransactionCodeGenerator();
+        $convertStringToNumber = new ConvertToNumber();
+
+        $sub_total = $convertStringToNumber->convertToNumber($request->sub_total);
+        $discount = $convertStringToNumber->convertToNumber($request->discount);
+        $tax = $convertStringToNumber->convertToNumber($request->tax);
+        $total = $convertStringToNumber->convertToNumber($request->total);
+        $payment_tender = $convertStringToNumber->convertToNumber($request->payment_tender);
+        $payment_changed = $convertStringToNumber->convertToNumber($request->payment_changed);
+
+        $salesttributes = [
+            'tx_no' => "INV" .$generator->generate(),
+            'quantity' => $request->quantity,
+            'sub_total' => $sub_total,
+            'discount' => $discount,
+            'tax' => $tax,
+            'total' => $total,
+            'payment_tender' => $payment_tender,
+            'payment_changed' => $payment_changed,
+            'referrence' => $request->referrence,
+            'notes' => $request->notes,
+            'customer_id' => $request->customer_id,
+            'store_id' => auth()->user()->store_id ?? 1,
+            'user_id' =>  auth()->user()->id,
+        ];
+
+        $sales = Sale::create($salesttributes);
+
+        $sold_items = [];
+
+        foreach($request->items as $sold_item){
+            $sold_items[] = [
+                'quantity' =>  $sold_item['qty'],
+                'store_id' =>  auth()->user()->store_id ?? 1,
+                'sale_id' =>  $sales->id,
+                'product_id' =>  $sold_item['product_id'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+
+        }
+        SoldItems::insert($sold_items);
+
+        return redirect()->back();
+
+    }
+
 }
