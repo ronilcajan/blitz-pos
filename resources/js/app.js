@@ -46,8 +46,19 @@ createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
-        return createApp({ render: () => h(App, props) })
-            .use(plugin)
+
+        const app = createApp({ render: () => h(App, props) });
+
+        app.config.warnHandler = function (msg, vm, trace) {
+            // Ignore specific warnings
+            if (msg.includes('Extraneous non-props attributes')) {
+                return;
+            }
+            // Log other warnings to the console
+            console.warn(`[Vue warn]: ${msg}${trace}`);
+        };
+
+        return app.use(plugin)
             .use(ZiggyVue)
             .use(ToastPlugin)
             .component('Head', Head)

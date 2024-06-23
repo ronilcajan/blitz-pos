@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\ConvertToNumber;
 use App\Classes\TransactionCodeGenerator;
 use App\Http\Requests\StoreSaleRequest;
 use App\Models\Customer;
@@ -12,7 +11,10 @@ use App\Models\ProductUnit;
 use App\Models\Sale;
 use App\Models\SoldItems;
 use App\Models\Store;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class POSController extends Controller
 {
@@ -62,53 +64,57 @@ class POSController extends Controller
 
     public function store(StoreSaleRequest $request){
 
-        $request->validated();
+        $validatedData = $request->validated();
 
         $generator = new TransactionCodeGenerator();
-        $convertStringToNumber = new ConvertToNumber();
-
-        $sub_total = $convertStringToNumber->convertToNumber($request->sub_total);
-        $discount = $convertStringToNumber->convertToNumber($request->discount);
-        $tax = $convertStringToNumber->convertToNumber($request->tax);
-        $total = $convertStringToNumber->convertToNumber($request->total);
-        $payment_tender = $convertStringToNumber->convertToNumber($request->payment_tender);
-        $payment_changed = $convertStringToNumber->convertToNumber($request->payment_changed);
 
         $salesttributes = [
             'tx_no' => "INV" .$generator->generate(),
             'quantity' => $request->quantity,
-            'sub_total' => $sub_total,
-            'discount' => $discount,
-            'tax' => $tax,
-            'total' => $total,
-            'payment_tender' => $payment_tender,
-            'payment_changed' => $payment_changed,
-            'referrence' => $request->referrence,
-            'notes' => $request->notes,
-            'customer_id' => $request->customer_id,
+            'sub_total' => $request->sub_total,
+            'discount' => $request->discount,
+            'tax' => $request->tax,
+            'total' => $request->total,
+            'payment_tender' => $request->payment_tender,
+            'payment_changed' => $request->payment_changed,
+            'referrence' => $validatedData['referrence'],
+            'notes' => $validatedData['notes'],
+            'customer_id' => $validatedData['customer_id'],
             'store_id' => auth()->user()->store_id ?? 1,
             'user_id' =>  auth()->user()->id,
         ];
+        DB::beginTransaction();
+        try{
 
-        $sales = Sale::create($salesttributes);
+            $sale = Sale::create($salesttributes);
 
-        $sold_items = [];
+             // Prepare sold items data
+            $soldItems = [];
+            $currentTimestamp = now();
 
-        foreach($request->items as $sold_item){
-            $sold_items[] = [
-                'quantity' =>  $sold_item['qty'],
-                'store_id' =>  auth()->user()->store_id ?? 1,
-                'sale_id' =>  $sales->id,
-                'product_id' =>  $sold_item['product_id'],
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
+            foreach ($request->items as $item) {
+                $soldItems[] = [
+                    'quantity' => $item['qty'],
+                    'store_id' => auth()->user()->store_id ?? 1,
+                    'sale_id' => $sale->id,
+                    'product_id' => $item['product_id'],
+                    'created_at' => $currentTimestamp,
+                    'updated_at' => $currentTimestamp,
+                ];
+            }
 
+            SoldItems::insert($soldItems);
+
+            DB::commit();
+
+            return redirect()->back()->with('message', 'Sale successfully recorded.');
+
+        }catch(Exception $e){
+            DB::rollBack();
+            Log::error('Error recording sales: ' .$e->getMessage());
+
+            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale. Please try again.']);
         }
-        SoldItems::insert($sold_items);
-
-        return redirect()->back();
-
     }
 
 }

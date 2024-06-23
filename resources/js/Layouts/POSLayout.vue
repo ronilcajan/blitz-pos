@@ -38,7 +38,7 @@ watch(darkMode, () => {
                     <ApplicationLogo class="fill-current" />
                 </Link>
                 </div>
-                <div class="navbar-end gap-3">
+                <div class="navbar-end gap-1">
                     <label class="swap swap-rotate">
 				        <!-- this hidden checkbox controls the state -->
                         <input type="checkbox" v-model="darkMode" :checked="darkMode === 'dark' ? true : false" class="theme-controller" value="dark" />

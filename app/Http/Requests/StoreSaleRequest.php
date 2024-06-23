@@ -23,10 +23,16 @@ class StoreSaleRequest extends FormRequest
     {
         return [
             'quantity' => 'required',
+            'sub_total' => '',
+            'discount' => '',
+            'tax' => '',
             'total' => 'required',
             'payment_tender' => 'required',
             'payment_changed' => 'required',
             'payment_method' => 'required',
+            'referrence' => '',
+            'notes' => '',
+            'customer_id' => '',
             'items.product_id.*' => 'required|numeric',
         ];
     }

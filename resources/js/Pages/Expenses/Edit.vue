@@ -69,7 +69,7 @@ const submitCategoryForm = () => {
 </script>
 
 <template>
-    <Head :title="title" />>
+    <Head :title="title" />
 
     <form @submit.prevent="submitUpdateForm" class="w-full">
         <div class="flex gap-4 md:flex-row flex-col">
