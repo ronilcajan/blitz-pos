@@ -20,7 +20,7 @@ const props = defineProps({
     products: Object,
     categories: Object,
     units: Object,
-	filter: Object
+	filter: Object,
 });
 
 const page = usePage();
@@ -156,6 +156,7 @@ const purchaseForm = useForm({
     payment_method : 'cash',
     referrence : '',
     notes : '',
+    print : true,
     items : [],
 });
 
@@ -336,6 +337,7 @@ const paymentChanged = () => {
 const submitPurchase = () => {
     purchaseForm.items = purchases.map(purchase => ({
                         product_id: purchase.id,
+                        price: purchase.price,
                         qty: purchase.qty
                     }));
 
@@ -343,21 +345,24 @@ const submitPurchase = () => {
 		replace: true,
 		preserveScroll: true,
         onSuccess: () => {
+            console.log(2);
+		},
+        onFinish: visit => {
             confirmPurchaseModal.value = false; // Close the modal
             purchaseForm.clearErrors(); // Clear any validation errors
             purchaseForm.reset(); // Reset the form fields to their initial values
-
             purchases.length = 0;
 
-			useToast().success('Success! Sale has been recorded successfully.', {
+            useToast().success('Success! Sale has been recorded successfully.', {
 				position: 'top-right',
 				duration: 3000,
 				dismissible: true
 			});
-		},
+
+            // window.open(route('pos'), '_blank')
+        },
         only: ['products']
 	})
-
 }
 </script>
 
@@ -393,7 +398,7 @@ const submitPurchase = () => {
                         </div>
                     </div>
 
-                    <h1 class="font-bold mt-3 hidden md:flex">PRODUCTS</h1>
+                    <h1 class="font-bold mt-3 hidden md:flex">PRODUCTS:</h1>
                     <!-- products -->
                     <div class="hidden md:flex flex-wrap gap-3 pb-5 justify-start mt-4 overflow-x-auto overflow-y-auto " style="height:620px">
                         <ProductCard
@@ -421,7 +426,7 @@ const submitPurchase = () => {
         <div class="col-span-5 md:col-span-2">
             <div class="card bg-base-100 shadow-sm rounded">
                 <div class="card-body p-3 md:p-5">
-                    <div class="w-full flex gap-2">
+                    <div class="w-full flex gap-1">
                         <form class="w-full" @submit.prevent="submitPurchase" id="purchaseForm">
                             <select v-model="purchaseForm.customer_id" ref="hideDropdownRef" class="select select-bordered select-sm w-full">
                                 <option selected value="">Select customer</option>
@@ -434,10 +439,19 @@ const submitPurchase = () => {
                         </form>
                         <PrimaryButton @click="createCustomerModal = true"  class="btn-circle btn-sm" title="Create customer">
                             <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor" stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                        </PrimaryButton>
+                        <div class="indicator">
+                            <span class="indicator-item badge badge-primary ">
+                                12
+                            </span>
+                            <PrimaryButton @click="createCustomerModal = true"  class="btn-circle btn-outline btn-sm" title="Draft orders">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-list"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l11 0" /><path d="M9 12l11 0" /><path d="M9 18l11 0" /><path d="M5 6l0 .01" /><path d="M5 12l0 .01" /><path d="M5 18l0 .01" /></svg>
                             </PrimaryButton>
+                        </div>
+
                     </div>
                     <h1 class="font-bold mt-3">ITEMS:</h1>
-                    <div style="height:420px" class="mt-2 overflow-x-auto overflow-y-auto ">
+                    <div style="height:440px" class="mt-2 overflow-x-auto overflow-y-auto ">
 
                         <PurchaseCard
                             v-for="(item, index) in purchases"
@@ -463,7 +477,7 @@ const submitPurchase = () => {
                             <div>Sub-total</div>
                             <div>{{  $page.props.auth.user.currency + " " + formatNumberWithCommas(purchaseForm.sub_total) }}</div>
                         </div>
-                        <div class="flex justify-between  uppercase">
+                        <!-- <div class="flex justify-between  uppercase">
                             <div>
                                 <button class="font-semibold text-red-500" type="button" @click="addTaxModal = true">
                                     TAX(+/-):
@@ -474,7 +488,7 @@ const submitPurchase = () => {
                                 {{  $page.props.auth.user.currency + " " + purchaseForm.tax }}
                                 </span>
                                 </div>
-                        </div>
+                        </div> -->
                         <div class="flex justify-between uppercase">
                             <div>
                                 <button class="font-semibold uppercase text-red-500" type="button" @click="addDiscountModal = true">
@@ -836,7 +850,7 @@ const submitPurchase = () => {
                     <div>Sub-total</div>
                     <div>{{  $page.props.auth.user.currency + " " + formatNumberWithCommas(purchaseForm.sub_total) }}</div>
                 </div>
-                <div class="flex justify-between  uppercase">
+                <!-- <div class="flex justify-between  uppercase">
                     <div>
                         <div>TAX</div>
                     </div>
@@ -845,7 +859,7 @@ const submitPurchase = () => {
                         {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(purchaseForm.tax) }}
                         </span>
                         </div>
-                </div>
+                </div> -->
                 <div class="flex justify-between  uppercase">
                     <div>
                         <div>Discount</div>
@@ -945,7 +959,7 @@ const submitPurchase = () => {
                 </div>
                 <div class="">
                     <label class="cursor-pointer flex gap-1 items-center">
-                        <input type="checkbox" checked="checked" class="checkbox checkbox-xs" />
+                        <input v-model="purchaseForm.print" type="checkbox" checked="checked" class="checkbox checkbox-xs" />
                         <span class="label-text">Auto-print sales acknowledgement</span>
                     </label>
                 </div>

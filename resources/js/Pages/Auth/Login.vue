@@ -12,7 +12,7 @@ defineProps({
 
 const form = useForm({
     email: '',
-    password: '', 
+    password: '',
     remember: false,
 });
 
@@ -82,15 +82,16 @@ const submit = () => {
                     Forgot your password?
                 </Link>
 
-              
+
             </div>
 
-            <div class="flex items-end py-4 mt-5">
+            <div class="flex items-end mt-12">
                 <PrimaryButton class="grow" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     <span v-if="form.processing" class="loading loading-spinner"></span>
                     Log in
                 </PrimaryButton>
             </div>
+            <div class="divider text-sm">or</div>
             <div class="flex items-end">
                 <a :href="route('google-auth')" class="btn grow">
                     <span>
@@ -118,6 +119,16 @@ const submit = () => {
                     </span>
                     Sign in with Google
                 </a>
+            </div>
+            <div class="text-center mt-5 text-xs">
+
+                    Don't have an account yet?
+                    <Link
+                    v-if="canResetPassword"
+                    :href="route('password.request')"
+                    class="link link-hover text-primary"
+                >Click here
+                </Link>
             </div>
         </form>
     </GuestLayout>

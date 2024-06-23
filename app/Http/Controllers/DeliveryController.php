@@ -15,7 +15,10 @@ use App\Models\Purchase;
 use App\Models\Store;
 use App\Models\Supplier;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Number;
 
 class DeliveryController extends Controller
@@ -160,24 +163,36 @@ class DeliveryController extends Controller
             'created_at' => $request->transaction_date,
         ];
 
-        $delivery = Delivery::create($purchaseAttributes);
+        DB::beginTransaction();
 
-        $products = [];
+        try{
+            $delivery = Delivery::create($purchaseAttributes);
 
-        foreach($request->items as $product){
-            $products[] = [
-                'quantity' =>  $product['qty'],
-                'price' =>  $product['price'],
-                'delivery_id' =>  $delivery->id,
-                'product_id' =>  $product['id'],
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
+            $products = [];
 
+            foreach($request->items as $product){
+                $products[] = [
+                    'quantity' =>  $product['qty'],
+                    'price' =>  $product['price'],
+                    'delivery_id' =>  $delivery->id,
+                    'product_id' =>  $product['id'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+
+            }
+            DeliveryItems::insert($products);
+
+            DB::commit();
+
+            return redirect()->back();
+
+        }catch(Exception $e){
+            DB::rollBack();
+            Log::error('Error recording delivery: ' .$e->getMessage());
+
+            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale. Please try again.']);
         }
-        DeliveryItems::insert($products);
-
-        return redirect()->back();
     }
 
     /**
@@ -331,28 +346,40 @@ class DeliveryController extends Controller
             'created_at' => $request->transaction_date,
         ];
 
-        $delivery->update($purchaseAttributes);
 
-        $products = [];
+        DB::beginTransaction();
 
-        foreach($request->items as $product){
-            $products[] = [
-                'quantity' =>  $product['qty'],
-                'price' =>  $product['price'],
-                'delivery_id' =>  $delivery->id,
-                'product_id' =>  $product['id'],
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
+        try{
+            $delivery->update($purchaseAttributes);
+
+            $products = [];
+
+            foreach($request->items as $product){
+                $products[] = [
+                    'quantity' =>  $product['qty'],
+                    'price' =>  $product['price'],
+                    'delivery_id' =>  $delivery->id,
+                    'product_id' =>  $product['id'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            }
+
+            $delivery->delivery_items()->forceDelete();
+            $delivery->delivery_items()->createMany($products);
+
+            // if status is completed, add products quantity to the inventory
+
+            DB::commit();
+
+            return redirect()->back();
+
+        }catch(Exception $e){
+            DB::rollBack();
+            Log::error('Error recording delivery: ' .$e->getMessage());
+
+            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale. Please try again.']);
         }
-
-        $delivery->delivery_items()->forceDelete();
-        $delivery->delivery_items()->createMany($products);
-
-        // if status is completed, add products quantity to the inventory
-
-        return redirect()->back();
-
     }
 
     public function downloadPDF(Delivery $delivery)
@@ -378,7 +405,6 @@ class DeliveryController extends Controller
         $delivery->discount = $delivery->store->currency.' '.Number::format($delivery->discount, precision:2);
         $delivery->amount = $delivery->store->currency.' '.Number::format($delivery->amount, precision:2);
         $delivery->total = $delivery->store->currency.' '.Number::format($delivery->total, precision:2);
-
 
         $pdf = Pdf::loadView('delivery.pdf', [
             'title' => "Delivery TX No: ".$delivery->tx_no,

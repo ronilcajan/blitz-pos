@@ -2,79 +2,109 @@
 import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
+import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
 
 const props = defineProps({
     title: String,
-	deliveries: Object,
+    sales: Object,
+    customers: Object,
     stores: Object,
-    suppliers: Object,
-	filter: Object
+	filters: Object
 });
 
-const page = usePage();
-let search = ref(props.filter.search);
+let customer = ref('');
+let search = ref(props.filters.search);
 let store = ref('');
-let supplier = ref('');
-let type = ref('');
-const url = '/deliveries';
+const url = '/sales';
 
+const deleteSale = ref(false);
+const editModal = ref(false);
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
+const page = usePage();
 
-let deliveryIds = ref([]);
+let salesId = ref([]);
 let selectAllCheckbox = ref(false);
+
+
+const editForm = useForm({id: '', name: ''});
 
 const deleteForm = useForm({id: ''});
 
-const deleteDeliveryForm = (delivery_id) => {
+const editModalForm = (category_id, category) => {
+	editForm.clearErrors()
+	editForm.id = category_id;
+    editForm.name = category.category;
+	editModal.value = true;
+};
+
+const deleteSalesForm = (sale_id) => {
 	deleteModal.value = true;
-	deleteForm.id = delivery_id
+	deleteForm.id = sale_id
 }
 
 const closeModal = () => {
 	deleteForm.clearErrors()
+	editForm.clearErrors()
     deleteModal.value = false;
+    editModal.value = false;
     deleteAllSelectedModal.value = false;
     deleteForm.reset();
+    editForm.reset();
 };
 
-const submitDeleteForm = () => {
-	deleteForm.delete(`/deliveries/${deleteForm.id}`,{
+const submitUpdateForm = () => {
+	editForm.post('product_units/update',
+	{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
-			closeModal();
-			useToast().success('Product has been deleted successfully!', {
+            closeModal();
+			useToast().success(`Produt unit has been updated successfully!`, {
 				position: 'top-right',
 				duration: 3000,
 				dismissible: true
 			});
 		},
-        only: ['deliveries'],
+	})
+}
+
+const submitDeleteForm = () => {
+	deleteForm.delete(`/sales/${deleteForm.id}`,{
+		replace: true,
+		preserveScroll: true,
+  		onSuccess: () => {
+			closeModal();
+			useToast().success('Sale information has been deleted successfully!', {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+		},
 	})
 }
 
 const submitBulkDeleteForm = () => {
-    router.post(route('delivery.bulkDelete'),
+    router.post(route('sales.bulkDelete'),
     {
-        delivery_id: deliveryIds.value
+        sales_id: salesId.value
     },
     {
         forceFormData: true,
         replace: true,
         preserveScroll: true,
         onSuccess: () => {
-            deliveryIds.value = [];
+            salesId.value = [];
             closeModal();
-            useToast().success('Multiple deliveries has been deleted successfully!', {
+            useToast().success('Multiple sales has been deleted successfully!', {
                 position: 'top-right',
                 duration: 3000,
                 dismissible: true
             });
-            selectAllCheckbox.value = false;
+            selectAllCheckbox.value = false
         },
     })
 }
@@ -82,25 +112,23 @@ const submitBulkDeleteForm = () => {
 const selectAll = () => {
 	if (selectAllCheckbox.value) {
         // If "Select All" checkbox is checked, select all users
-        deliveryIds.value = props.deliveries.data.map(delivery => delivery.id);
+        salesId.value = props.sales.data.map(unit => unit.id);
       } else {
         // If "Select All" checkbox is unchecked, deselect all users
-        deliveryIds.value = [];
+        salesId.value = [];
       }
 }
 
-watch(supplier, value => {
-	router.get('/deliveries',
-	{ supplier: value },
-	{ preserveState: true, replace:true })
-})
-watch(type, value => {
-	router.get('/products',
-	{ type: value },
+watch(customer, value => {
+	router.get('/sales',
+	{ customer: value },
 	{ preserveState: true, replace:true })
 })
 
-const isSuperAdmin = page.props.auth.user.isSuperAdmin
+
+const isSuperAdmin = computed(() =>
+    page.props.auth.user.isSuperAdmin ? true : false
+)
 const canDelete = page.props.auth.user.canDelete
 
 </script>
@@ -108,9 +136,12 @@ const canDelete = page.props.auth.user.canDelete
 <template>
     <Head :title="title" />
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
-        <CreateButtonLink href="/deliveries/create">New delivery</CreateButtonLink>
-        <!-- <DownloadButton :href="route('user.export')">Export</DownloadButton> -->
-        <!-- <StatusFilter v-model="type" /> -->
+        <PrimaryButton class="btn btn-sm"  @click="createModal = true">
+            <svg class="w-4 h-4 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
+                </svg>
+                New sales
+        </PrimaryButton>
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">
@@ -118,10 +149,10 @@ const canDelete = page.props.auth.user.canDelete
                 <div class="flex gap-2 flex-col sm:flex-row">
                     <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
                     <div class="w-full">
-                        <select v-model="supplier" class="select select-bordered select-sm w-full">
+                        <select v-model="customer" class="select select-bordered select-sm w-full">
                             <option selected value="">Filter by suppliers</option>
-                            <option v-for="supplier in suppliers" :value="supplier.name" :key="supplier.id">
-                                {{ supplier.name }}
+                            <option v-for="customer in customers" :value="customer.name" :key="customer.id">
+                                {{ customer.name }}
                             </option>
                         </select>
                     </div>
@@ -133,7 +164,7 @@ const canDelete = page.props.auth.user.canDelete
                 </div>
             </div>
             <div>
-                <DeleteButton v-if="canDelete" v-show="deliveryIds.length > 0" @click="deleteAllSelectedModal = true">
+                <DeleteButton v-if="canDelete" v-show="salesId.length > 0" @click="deleteAllSelectedModal = true">
                     Delete
                 </DeleteButton>
             </div>
@@ -142,120 +173,130 @@ const canDelete = page.props.auth.user.canDelete
             <table class="table table-zebra">
                 <thead class="uppercase">
                     <tr>
-                        <th v-if="canDelete">
+                        <th>
                             <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
                         </th>
                         <th>
-                            <div class="font-bold">TRANSACTION</div>
+                            <div class="font-bold">Transaction</div>
                         </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Purchase</div>
+                        <th>
+                            <div class="font-bold">Payment Method</div>
                         </th>
-
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Quantity</div>
+                        <th>
+                            <div class="font-bold">Items</div>
                         </th>
-                        <th class="hidden sm:table-cell">
+                        <th>
+                            <div class="font-bold">Discount</div>
+                        </th>
+                        <th>
                             <div class="font-bold">Amount</div>
                         </th>
-                        <th class="hidden sm:table-cell">
+                        <th>
                             <div class="font-bold">Status</div>
                         </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Supplier</div>
+                        <th>
+                            <div class="font-bold">Customer</div>
                         </th>
-
-                        <th class="hidden sm:table-cell" v-show="isSuperAdmin">
+                        <th>
+                            <div class="font-bold">User</div>
+                        </th>
+                        <th class="sm:table-cell" v-if="isSuperAdmin">
                             <div class="font-bold">Store</div>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="delivery in deliveries.data" :key="delivery.id">
-                        <td class="w-0" v-if="canDelete">
-                            <input :value="delivery.id" v-model="deliveryIds" type="checkbox" class="checkbox checkbox-sm">
+                    <tr v-for="sale in sales.data" :key="sale.id">
+                        <td class="w-0">
+                            <input :value="sale.id" v-model="salesId" type="checkbox" class="checkbox checkbox-sm">
                         </td>
                         <td>
                             <div class="text-sm font-bold">
-                                <Link :href="`/deliveries/${delivery.id}`" class="hover:text-primary">
-                                    {{ delivery.tx_no }}
-                                </Link>
+                                {{ sale.tx_no }}
                             </div>
                             <div>
                                 <div class="text-xs opacity-50">
-                                    {{ delivery.created_at }}
+                                    {{ sale.created_at }}
                                 </div>
                             </div>
                         </td>
-                        <td class="sm:table-cell">
-                                {{ delivery.purchase }}
-                        </td>
-                        <td class="sm:table-cell">
-                            {{ delivery.quantity }} Items</td>
-                        <td class="sm:table-cell">
-                            {{ delivery.amount }}</td>
-                        <td class="hidden sm:table-cell">
-                            <div class="badge gap-2 badge-warning"
-                            v-if="delivery.status === 'pending' || delivery.status === 'partial'">
-                            {{ delivery.status }}
-                            </div>
-                            <div class="badge gap-2 badge-success" v-if="delivery.status === 'completed' ||
-                            delivery.status === 'full'">
-                            {{ delivery.status }}
-                            </div>
-                            <div class="badge gap-2 badge-error" v-if="delivery.status === 'cancelled'">
-                            {{ delivery.status }}
-                            </div>
-                        </td>
-                        <td class="sm:table-cell">
-                                {{ delivery.supplier }}
-                        </td>
-
-                        <td class="sm:table-cell" v-show="isSuperAdmin">
-                            {{ delivery.store }}</td>
+                        <td class="sm:table-cell">{{ sale.payment_method }}</td>
+                        <td class="sm:table-cell">{{ sale.quantity }}</td>
+                        <td class="sm:table-cell">{{ sale.discount }}</td>
+                        <td class="sm:table-cell">{{ sale.total }}</td>
+                        <td class="sm:table-cell">{{ sale.status }}</td>
+                        <td class="sm:table-cell">{{ sale.customer }}</td>
+                        <td class="sm:table-cell">{{ sale.user }}</td>
+                        <td class="sm:table-cell">{{ sale.store }}</td>
                         <td>
-
-                            <div class="flex items-center space-x-2 justify-center">
-                                <Link v-if="delivery.status !== 'completed'" :href="`/deliveries/${delivery.id}/edit`"
-                                class="hover:text-green-500">
-                                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <div class="flex items-center space-x-2">
+                                <button class=" hover:text-green-500"
+                                    @click="editModalForm(sale.id,
+                                        { unit: unit.name })">
+                                    <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
                                     </svg>
-                                </Link>
-                                <a :href="route('delivery.downloadPDF', delivery.id)"
-                                class="hover:text-primary">
-                                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"/>
-                                    </svg>
-                                </a>
-                                <Link :href="`/deliveries/${delivery.id}`" class="hover:text-primary tooltip tooltip-top" data-tip="Delivery details">
-                                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10 3v4a1 1 0 0 1-1 1H5m8-2h3m-3 3h3m-4 3v6m4-3H8M19 4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 12v6h8v-6H8Z"/>
-                                    </svg>
-                                </Link>
-                                <DeleteIcon @modal-show="deleteDeliveryForm(delivery.id)"/>
+                                </button>
+                                <DeleteIcon @modal-show="deleteSalesForm(sale.id)"/>
+
                             </div>
                         </td>
+
                     </tr>
-                    <tr v-if="deliveries.data.length  <= 0">
-                        <td colspan="12" class="text-center">
+                    <tr v-if="sales.data.length <= 0">
+                        <td colspan="8" class="text-center">
                             No data found
                         </td>
+
                     </tr>
                 </tbody>
             </table>
+
         </div>
     </section>
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <PaginationResultRange :data="deliveries" />
+        <PaginationResultRange :data="sales" />
         <PaginationControlList :url="url" />
-        <Pagination :links="deliveries.links" />
+        <Pagination :links="sales.links" />
     </div>
+    <Modal :show="editModal" @close="closeModal">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Edit product units
+            </h1>
+
+            <form method="dialog" class="w-full" @submit.prevent="submitUpdateForm">
+                <div class="mb-3">
+                    <InputLabel for="name" value="Product unit" />
+                    <TextInput
+                        type="text"
+                        class="block w-full"
+                        v-model="editForm.name"
+                        required
+                        placeholder="product unit"
+                    />
+                    <InputError class="mt-2" :message="editForm.errors.name" />
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
+                    <SuccessButton
+                        class="ms-3"
+                        :class="{ 'opacity-25': editForm.processing }"
+                        :disabled="editForm.processing"
+                    >
+                        <span v-if="editForm.processing" class="loading loading-spinner"></span>
+                        Update
+                    </SuccessButton>
+                </div>
+            </form>
+        </div>
+    </Modal>
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
-                Delete delivery
+                Delete sales
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitDeleteForm">
@@ -278,7 +319,7 @@ const canDelete = page.props.auth.user.canDelete
     <Modal :show="deleteAllSelectedModal" @close="closeModal">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
-                Delete {{ deliveryIds.length }} products
+                Delete {{ salesId.length }} sales information
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">

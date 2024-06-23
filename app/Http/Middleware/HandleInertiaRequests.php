@@ -54,7 +54,8 @@ class HandleInertiaRequests extends Middleware
                     ] : null,
                 ],
             'flash' => [
-                'message' => fn () => $request->session()->get('message')
+                'message' => fn () => $request->session()->get('message'),
+                'sale_id' => fn () => $request->session()->get('sale_id')
             ],
             'logo' => Vite::asset('resources/images/logo.png'),
         ];

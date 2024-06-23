@@ -9,6 +9,7 @@ defineProps({ links: Array })
                   <Component :is="link.url ? 'Link' : 'span'"
                       :href="link.url"
                       preserve-state
+                      preserve-scroll
                       v-html="`${link.label}`"
                       class="flex items-center text-sm justify-center rounded px-3 py-1.5 font-medium"
                       :class="{'hover:bg-primary hover:text-white': link.url, 'bg-primary text-white' : link.active }"

@@ -14,6 +14,8 @@ use App\Models\Store;
 use App\Models\Supplier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Number;
 
 
@@ -125,24 +127,36 @@ class PurchaseController extends Controller
             'created_at' => $request->transaction_date,
         ];
 
-        $purchase_created = Purchase::create($purchaseAttributes);
+        DB::beginTransaction();
+        try{
 
-        $products = [];
+            $purchase_created = Purchase::create($purchaseAttributes);
 
-        foreach($request->items as $product){
-            $products[] = [
-                'quantity' =>  $product['qty'],
-                'price' =>  $product['price'],
-                'purchase_id' =>  $purchase_created->id,
-                'product_id' =>  $product['id'],
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
+            $products = [];
 
+            foreach($request->items as $product){
+                $products[] = [
+                    'quantity' =>  $product['qty'],
+                    'price' =>  $product['price'],
+                    'purchase_id' =>  $purchase_created->id,
+                    'product_id' =>  $product['id'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+
+            }
+            PurchaseItems::insert($products);
+
+            DB::commit();
+
+            return redirect()->back();
+
+        }catch(\Exception $e){
+            DB::rollBack();
+            Log::error('Error recording purchase order: ' .$e->getMessage());
+
+            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale. Please try again.']);
         }
-        PurchaseItems::insert($products);
-
-        return redirect()->back();
 
     }
 
@@ -290,24 +304,34 @@ class PurchaseController extends Controller
             'created_at' => $request->transaction_date,
         ];
 
-        $purchase->update($purchaseAttributes);
+        DB::beginTransaction();
+        try{
 
-        $products = [];
+            $purchase->update($purchaseAttributes);
 
-        foreach($request->items as $product){
-            $products[] = [
-                'quantity' =>  $product['qty'],
-                'price' =>  $product['price'],
-                'product_id' =>  $product['id'],
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
+            foreach($request->items as $product){
+                $products[] = [
+                    'quantity' =>  $product['qty'],
+                    'price' =>  $product['price'],
+                    'product_id' =>  $product['id'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            }
+
+            $purchase->items()->forceDelete();
+            $purchase->items()->createMany($products);
+
+            DB::commit();
+
+            return redirect()->back();
+
+        }catch(\Exception $e){
+            DB::rollBack();
+            Log::error('Error recording purchase order: ' .$e->getMessage());
+
+            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale. Please try again.']);
         }
-
-        $purchase->items()->forceDelete();
-        $purchase->items()->createMany($products);
-
-        return redirect()->back();
     }
 
     /**

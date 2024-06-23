@@ -41,6 +41,52 @@ class Sale extends Model
         return $this->hasMany(SoldItems::class);
     }
 
+    public function scopeFilter($query, array $filter){
+        if(!empty($filter['search'])){
+
+            $search = $filter['search'];
+
+            $query->whereAny([
+                'tx_no',
+                'created_at',
+                'sub_total',
+                'discount',
+                'total',
+            ], 'LIKE', "%{$search}%")
+            ->orWhereHas('customer', function($q) use ($search){
+                $q->where('name', $search);
+            })
+            ->orWhereHas('user', function($q) use ($search){
+                $q->where('name', $search);
+            })
+            ->orWhereHas('store', function($q) use ($search){
+                $q->where('name', $search);
+            });
+        }
+
+        if(!empty($filter['status'])){
+            $status = $filter['status'];
+            if($status != 'all'){
+                $query->where('status', $status);
+            }
+        }
+
+        if(!empty($filter['customer'])){
+            $store = $filter['customer'];
+
+            $query->whereHas('customer', function($q) use ($store){
+                $q->where('name', $store);
+            });
+        }
+        if(!empty($filter['store'])){
+            $store = $filter['store'];
+
+            $query->whereHas('store', function($q) use ($store){
+                $q->where('name', $store);
+            });
+        }
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

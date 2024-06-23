@@ -140,27 +140,24 @@ watch(store, value => {
                             <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
                         </th>
                         <th>
-                            <div class="font-bold">ORDER ID</div>
+                            <div class="font-bold">TRANSACTION</div>
                         </th>
-                        <th>
-                            <div class="font-bold">ORDER Date</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
+                        <th class="sm:table-cell">
                             <div class="font-bold">Items</div>
                         </th>
-                        <th class="hidden sm:table-cell">
+                        <th class="sm:table-cell">
                             <div class="font-bold uppercase">Discount</div>
                         </th>
-                        <th class="hidden sm:table-cell">
+                        <th class="sm:table-cell">
                             <div class="font-bold ">Amount</div>
                         </th>
-                        <th class="hidden sm:table-cell">
+                        <th class="sm:table-cell">
                             <div class="font-bold">Supplier</div>
                         </th>
-                        <th class="hidden sm:table-cell">
+                        <th class="sm:table-cell">
                             <div class="font-bold">Status</div>
                         </th>
-                        <th class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">
+                        <th class="sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">
                             <div class="font-bold">Store</div>
                         </th>
                     </tr>
@@ -170,18 +167,24 @@ watch(store, value => {
                         <td class="w-0" v-if="$page.props.auth.user.canDelete">
                             <input :value="order.id" v-model="orderIds" type="checkbox" class="checkbox checkbox-sm">
                         </td>
-                        <td class="sm:table-cell font-bold">
-                            <Link :href="`/purchase/${order.id}`" class="hover:text-primary">
+                        <td>
+                            <div class="text-sm font-bold">
+                                <Link :href="`/purchase/${order.id}`" class="hover:text-primary">
                                 {{ order.order_no }}
                             </Link>
+                            </div>
+                            <div>
+                                <div class="text-xs opacity-50">
+                                    {{ order.created_at }}
+                                </div>
+                            </div>
                         </td>
                         <!-- These columns will be hidden on small screens -->
-                        <td class="hidden sm:table-cell">{{ order.created_at }}</td>
-                        <td class="hidden sm:table-cell">{{ order.quantity }}</td>
-                        <td class="hidden sm:table-cell">{{ order.discount }}</td>
-                        <td class="hidden sm:table-cell">{{ order.amount }}</td>
-                        <td class="hidden sm:table-cell">{{ order.supplier }}</td>
-                        <td class="hidden sm:table-cell">
+                        <td class="sm:table-cell">{{ order.quantity }}</td>
+                        <td class="sm:table-cell">{{ order.discount }}</td>
+                        <td class="sm:table-cell">{{ order.amount }}</td>
+                        <td class="sm:table-cell">{{ order.supplier }}</td>
+                        <td class="sm:table-cell">
                             <div class="badge gap-2 badge-warning" v-if="order.status === 'pending'">
                             {{ order.status }}
                             </div>

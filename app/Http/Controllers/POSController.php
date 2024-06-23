@@ -83,6 +83,7 @@ class POSController extends Controller
             'store_id' => auth()->user()->store_id ?? 1,
             'user_id' =>  auth()->user()->id,
         ];
+
         DB::beginTransaction();
         try{
 
@@ -95,6 +96,7 @@ class POSController extends Controller
             foreach ($request->items as $item) {
                 $soldItems[] = [
                     'quantity' => $item['qty'],
+                    'price' => $item['price'],
                     'store_id' => auth()->user()->store_id ?? 1,
                     'sale_id' => $sale->id,
                     'product_id' => $item['product_id'],
@@ -107,7 +109,11 @@ class POSController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('message', 'Sale successfully recorded.');
+            if($request->print){
+                return redirect()->route('sale.show',$sale->id);
+            }
+
+            return redirect()->back();
 
         }catch(Exception $e){
             DB::rollBack();
