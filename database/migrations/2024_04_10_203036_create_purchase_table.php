@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
-            $table->string('tx_no');
+            $table->string('tx_no')->nullable();
             $table->decimal('quantity',8,2);
             $table->integer('discount');
             $table->decimal('amount',8,2);

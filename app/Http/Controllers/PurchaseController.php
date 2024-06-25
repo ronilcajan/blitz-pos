@@ -114,7 +114,6 @@ class PurchaseController extends Controller
         $total = $convertStringToNumber->convertToNumber($request->total);
 
         $purchaseAttributes = [
-            'tx_no' => "PO" .$generator->generate(),
             'quantity' => $request->quantity,
             'discount' => $discount,
             'amount' => $total - $discount,
@@ -130,7 +129,8 @@ class PurchaseController extends Controller
         DB::beginTransaction();
         try{
 
-            $purchase_created = Purchase::create($purchaseAttributes);
+            $purchase = Purchase::create($purchaseAttributes);
+            $purchase->update(['tx_no' => 'ORD' . str_pad($purchase->id, 5, '0', STR_PAD_LEFT)]);
 
             $products = [];
 
@@ -138,7 +138,7 @@ class PurchaseController extends Controller
                 $products[] = [
                     'quantity' =>  $product['qty'],
                     'price' =>  $product['price'],
-                    'purchase_id' =>  $purchase_created->id,
+                    'purchase_id' =>  $purchase->id,
                     'product_id' =>  $product['id'],
                     'created_at' => now(),
                     'updated_at' => now()

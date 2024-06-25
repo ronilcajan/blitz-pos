@@ -142,14 +142,12 @@ class DeliveryController extends Controller
         $user->can('create', Delivery::class);
 
         $request->validated();
-        $generator = new TransactionCodeGenerator();
         $convertStringToNumber = new ConvertToNumber();
 
         $discount = $convertStringToNumber->convertToNumber($request->discount);
         $total = $convertStringToNumber->convertToNumber($request->total);
 
         $purchaseAttributes = [
-            'tx_no' => "DE" .$generator->generate(),
             'quantity' => $request->quantity,
             'discount' => $discount,
             'amount' => $total - $discount,
@@ -167,6 +165,7 @@ class DeliveryController extends Controller
 
         try{
             $delivery = Delivery::create($purchaseAttributes);
+            $delivery->update(['tx_no' => 'DEL' . str_pad($delivery->id, 5, '0', STR_PAD_LEFT)]);
 
             $products = [];
 
