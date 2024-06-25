@@ -66,11 +66,8 @@ class POSController extends Controller
 
         $validatedData = $request->validated();
 
-        $generator = new TransactionCodeGenerator();
-
-
         $salesttributes = [
-            'tx_no' => "INV" .$generator->generate(),
+            'tx_no' => '1',
             'quantity' => $request->quantity,
             'sub_total' => $request->sub_total,
             'discount' => $request->discount,
@@ -90,6 +87,7 @@ class POSController extends Controller
         try{
 
             $sale = Sale::create($salesttributes);
+            $sale->update(['tx_no' => 'INV' . str_pad($sale->id, 5, '0', STR_PAD_LEFT)]);
 
             // Prepare sold items data
             $soldItems = [];

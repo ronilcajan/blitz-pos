@@ -49,14 +49,14 @@
         </div>
         <div class="text-center mt-3 mb-2">
             <p class="font-bold text-xl">{{ $sale->store->name }}</p>
-            <p class="text-sm">Address:{{ $sale->store->address }}</p>
-            <p class="text-sm">Email:{{ $sale->store->email }}</p>
+            <p class="text-sm">Address: {{ $sale->store->address }}</p>
+            <p class="text-sm">Email: {{ $sale->store->email }}</p>
             <p class="text-sm">Contact: {{ $sale->store->contact }}</p>
         </div>
         <hr>
         <div class="text-center mt-2 mb-3">
             <p class="font-bold">ACKNOWLEDGEMENT RECEIPT </p>
-            <p class="text-sm">Invoice No:{{ $sale->id }}</p>
+            <p class="text-sm">Invoice No: {{ $sale->tx_no }}</p>
             <p class="text-sm">Date: {{ date('m/d/Y h:i A', strtotime($sale->created_at)) }}</p>
             <p class="text-sm">Served By: {{ $sale->user->name }}</p>
 
@@ -85,25 +85,35 @@
             </div>
             <div class="flex justify-between">
                 <p>Discount</p>
-                <p class="text-right ">₱ {{ number_format($sale->discount, 2) ?? null }}</p>
+                <p class="text-right ">₱ -{{ number_format($sale->discount, 2) ?? null }}</p>
             </div>
             <div class="flex justify-between font-bold uppercase ">
                 <p class="text-2xl">Grand Total</p>
                 <p class="text-right text-2xl">₱ {{ number_format($sale->total, 2) ?? null }}</p>
             </div>
+
         </div>
 
         <hr style="border-top: 1px dashed black">
+        <div class="flex justify-between mt-2">
+            <p class="">Amount Tendered</p>
+            <p class="text-right">₱ {{ number_format($sale->payment_tender, 2) ?? null }}</p>
+        </div>
+        <div class="flex justify-between font-bold uppercase ">
+            <p class="text-lg">Changed</p>
+            <p class="text-right text-lg">₱ {{ number_format($sale->payment_changed, 2) ?? null }}</p>
+        </div>
         <div class="my-2">
-            <p class="text-sm">Payment Method:{{ $sale->payment_method }}</p>
+            <p class="text-sm">Payment method: {{ $sale->payment_method }}</p>
             @if ($sale->referrence)
-                <p class="text-sm">Referrence:{{ $sale->referrence }}</p>
+                <p class="text-sm">Referrence: {{ $sale->referrence }}</p>
             @endif
-            <p class="text-sm">Amount Tender:₱ {{ number_format($sale->payment_tender, 2) ?? null }}</p>
-            <p class="text-sm">Change: ₱
-                {{ number_format($sale->payment_changed, 2) ?? null }}</p>
-            <p class="text-sm">Powered: POSblend.</p>
-            {{-- <div class="centered" style="width: 100px; margin-top:10px;">{!! DNS1D::getBarcodeHTML($sales->reference, 'PHARMA') !!}</div> --}}
+            <p class="text-sm">Powered by: POSblend.</p>
+        </div>
+        <div class="flex justify-center my-3">
+            @php
+                echo DNS1D::getBarcodeHTML($sale->tx_no, 'C39', 1.4, 60);
+            @endphp
         </div>
         <hr>
 

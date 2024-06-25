@@ -3,8 +3,6 @@
 namespace App\Classes;
 
 use App\Models\Delivery;
-use App\Models\Purchase;
-
 class TransactionCodeGenerator
 {
     private const DATE_FORMAT = 'ymd';

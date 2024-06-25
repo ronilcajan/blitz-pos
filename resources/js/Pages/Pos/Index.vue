@@ -527,7 +527,7 @@ const submitPurchase = () => {
                                 Date: <span>{{ datetime }}</span>
                             </div>
                             <div>
-                                User: {{ $page.props.auth.user.name }}
+                                Served by: {{ $page.props.auth.user.name }}
                             </div>
                             <div>
                                 Powered by: PulseStock
