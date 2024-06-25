@@ -21,6 +21,7 @@ const props = defineProps({
     categories: Object,
     units: Object,
 	filter: Object,
+    sales_id: Number
 });
 
 const page = usePage();
@@ -344,10 +345,11 @@ const submitPurchase = () => {
 	purchaseForm.post('/pos',{
 		replace: true,
 		preserveScroll: true,
-        onSuccess: () => {
-            console.log(2);
-		},
-        onFinish: visit => {
+        onSuccess: (response) => {
+            if(purchaseForm.print){
+                window.open(`sales/${response.props.sales_id}`, '_blank')
+            }
+
             confirmPurchaseModal.value = false; // Close the modal
             purchaseForm.clearErrors(); // Clear any validation errors
             purchaseForm.reset(); // Reset the form fields to their initial values
@@ -358,10 +360,17 @@ const submitPurchase = () => {
 				duration: 3000,
 				dismissible: true
 			});
-
-            // window.open(route('pos'), '_blank')
+		},
+        onError: errors => {
+            console.log(errors);
+            useToast().error(`Errors! ${errors.error}`, {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
         },
-        only: ['products']
+
+        only: ['products','sales_id']
 	})
 }
 </script>

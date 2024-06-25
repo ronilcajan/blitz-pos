@@ -41,7 +41,6 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
 
     Route::resource('/sales', SaleController::class);
-    Route::get('/sales/{sale}', [SaleController::class, 'show'])->name('sale.show');
     Route::post('/sales/bulk/delete', [SaleController::class, 'bulkDelete'])->name('sales.bulkDelete');
 
     Route::get('/pos', [POSController::class, 'index'])->name('pos');

@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\TransactionCodeGenerator;
 use App\Http\Requests\StoreSaleRequest;
 use App\Http\Requests\UpdateSaleRequest;
 use App\Models\Customer;
 use App\Models\Sale;
+use App\Models\SoldItems;
 use App\Models\Store;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Number;
 
 class SaleController extends Controller
@@ -58,9 +63,68 @@ class SaleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreSaleRequest $request)
-    {
-        //
+    public function store(StoreSaleRequest $request){
+
+        $validatedData = $request->validated();
+
+        $generator = new TransactionCodeGenerator();
+
+        $salesttributes = [
+            'tx_no' => "INV" .$generator->generate(),
+            'quantity' => $request->quantity,
+            'sub_total' => $request->sub_total,
+            'discount' => $request->discount,
+            'tax' => $request->tax,
+            'total' => $request->total,
+            'payment_method' => $request->payment_method,
+            'payment_tender' => $request->payment_tender,
+            'payment_changed' => $request->payment_changed,
+            'referrence' => $validatedData['referrence'],
+            'notes' => $validatedData['notes'],
+            'customer_id' => $validatedData['customer_id'],
+            'store_id' => auth()->user()->store_id ?? 1,
+            'user_id' =>  auth()->user()->id,
+        ];
+
+        DB::beginTransaction();
+        try{
+
+            $sale = Sale::create($salesttributes);
+            // $sale = auth()->user()->sales->create($salesttributes);
+
+             // Prepare sold items data
+            $soldItems = [];
+            $currentTimestamp = now();
+
+            foreach ($request->items as $item) {
+                $soldItems[] = [
+                    'quantity' => $item['qty'],
+                    'price' => $item['price'],
+                    'store_id' => auth()->user()->store_id ?? 1,
+                    'sale_id' => $sale->id,
+                    'product_id' => $item['product_id'],
+                    'created_at' => $currentTimestamp,
+                    'updated_at' => $currentTimestamp,
+                ];
+            }
+
+            SoldItems::insert($soldItems);
+
+            DB::commit();
+
+            if($request->print){
+                return inertia('Pos/Index', [
+                    'sales_id' => $sale->id
+                ]);
+            }
+
+            return redirect()->back();
+
+        }catch(Exception $e){
+            DB::rollBack();
+            Log::error('Error recording sales: ' .$e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale. Please try again.']);
+        }
     }
 
     /**

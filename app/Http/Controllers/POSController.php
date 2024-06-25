@@ -68,6 +68,7 @@ class POSController extends Controller
 
         $generator = new TransactionCodeGenerator();
 
+
         $salesttributes = [
             'tx_no' => "INV" .$generator->generate(),
             'quantity' => $request->quantity,
@@ -75,6 +76,7 @@ class POSController extends Controller
             'discount' => $request->discount,
             'tax' => $request->tax,
             'total' => $request->total,
+            'payment_method' => $request->payment_method,
             'payment_tender' => $request->payment_tender,
             'payment_changed' => $request->payment_changed,
             'referrence' => $validatedData['referrence'],
@@ -89,7 +91,7 @@ class POSController extends Controller
 
             $sale = Sale::create($salesttributes);
 
-             // Prepare sold items data
+            // Prepare sold items data
             $soldItems = [];
             $currentTimestamp = now();
 
@@ -110,7 +112,9 @@ class POSController extends Controller
             DB::commit();
 
             if($request->print){
-                return redirect()->route('sale.show',$sale->id);
+                return inertia('Pos/Index', [
+                    'sales_id' => $sale->id
+                ]);
             }
 
             return redirect()->back();
