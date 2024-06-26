@@ -45,6 +45,7 @@ class POSController extends Controller
 
         $store = Store::find($user->store_id);
 
+        // $orders = DraftOrder::select('id','name')->orderBy('name','ASC')->get();
         $customers = Customer::select('id','name')->orderBy('name','ASC')->get();
         $units = ProductUnit::select('id','name')->orderBy('name', 'ASC')->get();
         $categories = ProductCategory::select('id','name')->orderBy('name', 'ASC')->get();

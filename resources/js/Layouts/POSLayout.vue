@@ -22,21 +22,14 @@ watch(darkMode, () => {
 		<main class="flex-1">
             <div class="navbar bg-base-100">
                 <div class="navbar-start">
-                    <div class="dropdown">
-                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
-                    </div>
-                    <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                        <li><a>Homepage</a></li>
-                        <li><a>Portfolio</a></li>
-                        <li><a>About</a></li>
-                    </ul>
-                    </div>
+                    <NavLink :href="route('dashboard')" class="btn btn-ghost btn-circle">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-home"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                    </NavLink>
                 </div>
                 <div class="navbar-center">
-                    <Link :href="route('dashboard')">
-                    <ApplicationLogo class="fill-current" />
-                </Link>
+                    <NavLink :href="route('dashboard')">
+                        <ApplicationLogo class="fill-current" />
+                    </NavLink>
                 </div>
                 <div class="navbar-end gap-1">
                     <label class="swap swap-rotate">

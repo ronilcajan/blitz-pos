@@ -40,7 +40,7 @@ const impersonating = computed(() =>
 
                 <footer class="footer footer-center mt-20 p-4 w-full">
                     <aside>
-                        <p class="text-center">Copyright © 2024 - All rights reserved by ACME Industries Ltd</p>
+                        <p class="text-center">Copyright © 2024 - All rights reserved by {{ $page.props.app_name }}</p>
                     </aside>
                 </footer>
             </div>

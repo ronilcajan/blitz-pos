@@ -8,6 +8,7 @@ import ProductDropdownItems from './partials/ProductDropdownItems.vue';
 import ProductCard from './partials/ProductCard.vue';
 import PurchaseCard from './partials/PurchaseCard.vue';
 import PaymentButtons from './partials/PaymentButtons.vue';
+import DraftOrdersDropdown from './partials/DraftOrdersDropdown.vue';
 import debounce from "lodash/debounce";
 
 defineOptions({ layout: POSLayout })
@@ -17,6 +18,7 @@ const props = defineProps({
     store: Object,
     stores: Object,
 	customers: Object,
+    orders: Object,
     products: Object,
     categories: Object,
     units: Object,
@@ -449,14 +451,7 @@ const submitPurchase = () => {
                         <PrimaryButton @click="createCustomerModal = true"  class="btn-circle btn-sm" title="Create customer">
                             <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor" stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                         </PrimaryButton>
-                        <div class="indicator">
-                            <span class="indicator-item badge badge-primary ">
-                                12
-                            </span>
-                            <PrimaryButton @click="createCustomerModal = true"  class="btn-circle btn-outline btn-sm" title="Draft orders">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-list"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l11 0" /><path d="M9 12l11 0" /><path d="M9 18l11 0" /><path d="M5 6l0 .01" /><path d="M5 12l0 .01" /><path d="M5 18l0 .01" /></svg>
-                            </PrimaryButton>
-                        </div>
+                        <!-- <DraftOrdersDropdown :orders="orders"/> -->
 
                     </div>
                     <h1 class="font-bold mt-3">ITEMS:</h1>
@@ -530,7 +525,7 @@ const submitPurchase = () => {
                                 Served by: {{ $page.props.auth.user.name }}
                             </div>
                             <div>
-                                Powered by: PulseStock
+                                Powered by: {{ $page.props.app_name }}
                             </div>
                         </div>
                         <div class="flex gap-3 justify-center lg:justify-end">

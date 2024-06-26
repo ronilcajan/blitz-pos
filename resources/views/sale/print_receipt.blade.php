@@ -108,7 +108,7 @@
             @if ($sale->referrence)
                 <p class="text-sm">Referrence: {{ $sale->referrence }}</p>
             @endif
-            <p class="text-sm">Powered by: POSblend.</p>
+            <p class="text-sm">Powered by: {{ config('app.name') }}</p>
         </div>
         <div class="flex justify-center my-3">
             @php
