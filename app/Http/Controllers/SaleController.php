@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\SoldItems;
 use App\Models\Store;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -137,6 +138,20 @@ class SaleController extends Controller
             'sale' => $sale,
             'items' => $sale->sold_items
         ]);
+    }
+
+    public function downloadPDF(Sale $sale)
+    {
+        // auth()->user()->can('view', $purchase);
+
+        $pdf = Pdf::loadView('sale.sales_pdf', [
+            'title' => 'Print Sales Acknowledgement',
+            'sale' => $sale,
+            'items' => $sale->sold_items
+        ]);
+
+        $filename = $sale->tx_no.date('Ymd').'.pdf';
+        return $pdf->download($filename);
     }
 
     /**

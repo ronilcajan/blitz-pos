@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Number;
-
+use Spatie\Browsershot\Browsershot;
 
 class PurchaseController extends Controller
 {
@@ -215,12 +215,13 @@ class PurchaseController extends Controller
         $pdf = Pdf::loadView('purchase.pdf', [
             'title' => "Download Purchase Order",
             'purchase' =>  $purchase->with('store','supplier')->first(),
+            'image' => $purchase->store->avatar,
             'purchase_items' =>  $items,
             'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
         ]);
 
-        $filename = 'purchase-'.$purchase->tx_no.'.pdf';
-        return $pdf->download($filename);
+        $filename = $purchase->tx_no.date('-Y-m-d').'.pdf';
+        return $pdf->setOptions(['isRemoteEnabled' => true])->stream($filename);
     }
 
     /**
