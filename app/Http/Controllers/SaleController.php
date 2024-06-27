@@ -134,24 +134,96 @@ class SaleController extends Controller
     public function show(Sale $sale)
     {
         return view('sale.print_receipt', [
-            'title' => 'Print Sales Acknowledgement',
+            'title' => 'Sales Acknowledgement',
             'sale' => $sale,
             'items' => $sale->sold_items
         ]);
     }
 
-    public function downloadPDF(Sale $sale)
+    public function downloadSalesInvoice(Sale $sale)
     {
-        // auth()->user()->can('view', $purchase);
+        $items = $sale->sold_items()->get()->map(function($item){
+            return [
+                'id' => $item->product_id,
+                'name' => $item->product->name,
+                'size' => $item->product->size,
+                'unit' => $item->product->unit,
+                'image' => $item->product->image,
+                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                'price' =>  $item->price,
+                'qty' =>  $item->quantity,
+            ];
+        });
 
-        $pdf = Pdf::loadView('sale.sales_pdf', [
-            'title' => 'Print Sales Acknowledgement',
+        $sale = Sale::with(['store','customer'])->find($sale->id);
+
+        $sale->quantity = Number::format($sale->quantity);
+        $sale->discount = $sale->store->currency.' '.Number::format($sale->discount, precision:2);
+        $sale->sub_total = $sale->store->currency.' '.Number::format($sale->sub_total, precision:2);
+        $sale->total = $sale->store->currency.' '.Number::format($sale->total, precision:2);
+
+
+        $pdf = Pdf::loadView('sale.sales_invoice', [
+            'title' => "Sales Invoice",
+            'sale' => $sale,
+            'sold_items' => $items,
+        ]);
+
+        $filename = $sale->tx_no.date('-Y-m-d').'.pdf';
+
+        return $pdf->setOptions(['isRemoteEnabled' => true])->stream($filename);
+    }
+
+    public function downloadSalesReceipt(Sale $sale)
+    {
+        $sale = Sale::with(['store','customer'])->find($sale->id);
+
+        $sale->quantity = Number::format($sale->quantity);
+        $sale->discount = $sale->store->currency.' '.Number::format($sale->discount, precision:2);
+        $sale->sub_total = $sale->store->currency.' '.Number::format($sale->sub_total, precision:2);
+        $sale->total = $sale->store->currency.' '.Number::format($sale->total, precision:2);
+
+        $pdf = Pdf::loadView('sale.pdf_receipt', [
+            'title' => "Sales Invoice",
             'sale' => $sale,
             'items' => $sale->sold_items
         ]);
 
-        $filename = $sale->tx_no.date('Ymd').'.pdf';
-        return $pdf->download($filename);
+        $filename = $sale->tx_no.date('-Y-m-d').'.pdf';
+
+        $paperSize = [0,0,227,800];
+
+        $GLOBALS['bodyHeight'] = 0;
+
+        $pdf->setPaper($paperSize);
+
+        // getting the height of the whole page
+        $pdf->getDomPDF()->setCallbacks([
+            'myCallbacks' => [
+               'event' => 'end_frame', 'f' => function ($frame) {
+                $node = $frame->get_node();
+
+                if (strtolower($node->nodeName) === "body") {
+                    $padding_box = $frame->get_content_box();
+                    $GLOBALS['bodyHeight'] += $padding_box['h'];
+                }
+            }]
+        ]);
+
+        $pdf->render();
+        unset($pdf);
+
+        $docHeight = $GLOBALS['bodyHeight'] + 20;
+
+        $pdf = Pdf::loadView('sale.pdf_receipt', [
+            'title' => "Sales Invoice",
+            'sale' => $sale,
+            'items' => $sale->sold_items
+        ]);
+        $pdf->setPaper(array(0,0,227,  $docHeight));
+
+        return $pdf
+            ->stream($filename,['Attachment'=> 1]);
     }
 
     /**

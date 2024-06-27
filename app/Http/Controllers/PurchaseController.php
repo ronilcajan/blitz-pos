@@ -212,10 +212,9 @@ class PurchaseController extends Controller
             ];
         });
 
-        $pdf = Pdf::loadView('purchase.pdf', [
+        $pdf = Pdf::loadView('purchase.downloadPdf', [
             'title' => "Download Purchase Order",
             'purchase' =>  $purchase->with('store','supplier')->first(),
-            'image' => $purchase->store->avatar,
             'purchase_items' =>  $items,
             'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
         ]);

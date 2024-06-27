@@ -42,7 +42,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/sales', SaleController::class);
     Route::post('/sales/bulk/delete', [SaleController::class, 'bulkDelete'])->name('sales.bulkDelete');
-    Route::get('/sales/pdfview/{sale}', [SaleController::class, 'downloadPDF'])->name('sales.downloadPDF');
+    Route::get('/sales/pdf/{sale}', [SaleController::class, 'downloadSalesInvoice'])->name('sales.downloadSalesInvoice');
+    Route::get('/sales/receipt/{sale}', [SaleController::class, 'downloadSalesReceipt'])->name('sales.downloadSalesReceipt');
 
     Route::get('/pos', [POSController::class, 'index'])->name('pos');
     Route::post('/pos', [POSController::class, 'store'])->name('pos.store');

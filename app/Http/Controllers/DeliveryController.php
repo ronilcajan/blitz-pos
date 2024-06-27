@@ -405,15 +405,15 @@ class DeliveryController extends Controller
         $delivery->amount = $delivery->store->currency.' '.Number::format($delivery->amount, precision:2);
         $delivery->total = $delivery->store->currency.' '.Number::format($delivery->total, precision:2);
 
-        $pdf = Pdf::loadView('delivery.pdf', [
-            'title' => "Delivery TX No: ".$delivery->tx_no,
+        $pdf = Pdf::loadView('delivery.downloadPdf', [
+            'title' => "Delivery Details",
             'delivery' =>  $delivery,
             'delivery_items' =>  $items,
             'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
         ]);
 
-        $filename = 'delivery-'.$delivery->tx_no.'-'.date('Y-m-d').'.pdf';
-        return $pdf->download($filename);
+        $filename = $delivery->tx_no.'-'.date('Y-m-d').'.pdf';
+        return $pdf->stream($filename);
     }
 
     /**

@@ -112,7 +112,7 @@
         </div>
         <div class="flex justify-center my-3">
             @php
-                echo DNS1D::getBarcodeHTML($sale->tx_no, 'C39', 1.4, 60);
+                echo DNS2D::getBarcodeHTML($sale->tx_no, 'QRCODE', 5, 5);
             @endphp
         </div>
         <hr>
@@ -120,8 +120,8 @@
         <p class="text-center my-4">Thank you and come again!</p>
     </div>
     <script>
-        window.print();
-        setTimeout(window.close, 2000);
+        // window.print();
+        // setTimeout(window.close, 2000);
     </script>
 </body>
 
