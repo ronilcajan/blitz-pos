@@ -44,10 +44,11 @@ class SaleController extends Controller
                     'sub_total' => Number::currency($sale->sub_total, in: $sale->store->currency),
                     'total' =>  Number::currency($sale->total, in: $sale->store->currency),
                     'payment_method' => $sale->payment_method,
-                    'status' => $sale->status,
                     'user' => $sale->user?->name,
                     'customer' => $sale->customer?->name,
                     'store' => $sale->store?->name,
+                    'status' => $sale->status->getLabelText(),
+                    'statusColor' => $sale->status->getLabelColor(),
                     'created_at' => $sale->created_at->format('M d, Y h:i: A'),
                 ];
         });
@@ -68,73 +69,6 @@ class SaleController extends Controller
             'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
             'filters' => $request->only(['search','store','per_page']),
         ]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreSaleRequest $request){
-
-        $validatedData = $request->validated();
-
-        $generator = new TransactionCodeGenerator();
-
-        $salesttributes = [
-            'tx_no' => "INV" .$generator->generate(),
-            'quantity' => $request->quantity,
-            'sub_total' => $request->sub_total,
-            'discount' => $request->discount,
-            'tax' => $request->tax,
-            'total' => $request->total,
-            'payment_method' => $request->payment_method,
-            'payment_tender' => $request->payment_tender,
-            'payment_changed' => $request->payment_changed,
-            'referrence' => $validatedData['referrence'],
-            'notes' => $validatedData['notes'],
-            'customer_id' => $validatedData['customer_id'],
-            'store_id' => auth()->user()->store_id ?? 1,
-            'user_id' =>  auth()->user()->id,
-        ];
-
-        DB::beginTransaction();
-        try{
-
-            $sale = Sale::create($salesttributes);
-            // $sale = auth()->user()->sales->create($salesttributes);
-
-             // Prepare sold items data
-            $soldItems = [];
-            $currentTimestamp = now();
-
-            foreach ($request->items as $item) {
-                $soldItems[] = [
-                    'quantity' => $item['qty'],
-                    'price' => $item['price'],
-                    'store_id' => auth()->user()->store_id ?? 1,
-                    'sale_id' => $sale->id,
-                    'product_id' => $item['product_id'],
-                    'created_at' => $currentTimestamp,
-                    'updated_at' => $currentTimestamp,
-                ];
-            }
-
-            SoldItems::insert($soldItems);
-
-            DB::commit();
-
-            if($request->print){
-                return inertia('Pos/Index', [
-                    'sales_id' => $sale->id
-                ]);
-            }
-
-            return redirect()->back();
-
-        }catch(Exception $e){
-            DB::rollBack();
-            Log::error('Error recording sales: ' .$e->getMessage());
-            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale. Please try again.']);
-        }
     }
 
     /**
@@ -241,6 +175,39 @@ class SaleController extends Controller
     public function update(UpdateSaleRequest $request, Sale $sale)
     {
         //
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $sale = Sale::find($request->id);
+
+        DB::beginTransaction();
+
+        try {
+            if($request->status->getLabelText() == 'void'){ // if status is void add stocks to the store
+                foreach($sale->sold_items as $item){
+                    $item->product->stock->update([
+                        'in_store' => $item->product->stock + $item->quantity
+                    ]);
+                }
+            }
+
+            if($request->status->getLabelText() == 'complete'){ // if status is complete deduct stocks to the store
+                foreach($sale->sold_items as $item){
+                    $item->product->stock->update([
+                        'in_store' => $item->product->stock - $item->quantity
+                    ]);
+                }
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating sales: ' .$e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale. Please try again.']);
+        }
+
+        $sale->update(['status' => $request->status]);
+
+        return redirect()->back();
     }
 
     /**

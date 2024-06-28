@@ -107,6 +107,23 @@ watch(customer, value => {
 	{ preserveState: true, replace:true })
 })
 
+const statusChange = (saleID, selectedStatus) => {
+    router.post(route('sales.updateStatus'), { id: saleID, status: selectedStatus },
+	{
+        preserveState: true,
+        replace:true,
+        preserveScroll: true,
+        onSuccess: () => {
+			closeModal();
+			useToast().success('Sale status been updated successfully!', {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+		},
+        // only: ['sales','userSummary']
+    })
+}
 
 const isSuperAdmin = computed(() =>
     page.props.auth.user.isSuperAdmin ? true : false
@@ -214,7 +231,13 @@ const canDelete = page.props.auth.user.canDelete
                         <td class="sm:table-cell">{{ sale.quantity }}</td>
                         <td class="sm:table-cell">{{ sale.discount }}</td>
                         <td class="sm:table-cell">{{ sale.total }}</td>
-                        <td class="sm:table-cell">{{ sale.status }}</td>
+                        <td class="sm:table-cell">
+                            <select @change="statusChange(sale.id, $event.target.value)" class="select select-xs"  :class="`text-${sale.statusColor}`">
+                                <option :selected="sale.status === 'pending'">pending</option>
+                                <option :selected="sale.status === 'complete'">complete</option>
+                                <option class="" :selected="sale.status === 'void'">void</option>
+                            </select>
+                        </td>
                         <td class="sm:table-cell">{{ sale.customer }}</td>
                         <td class="sm:table-cell">{{ sale.user }}</td>
                         <td class="sm:table-cell">{{ sale.store }}</td>

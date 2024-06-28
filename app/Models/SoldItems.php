@@ -35,6 +35,11 @@ class SoldItems extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function stock():BelongsTo
+    {
+        return $this->belongsTo(ProductStock::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

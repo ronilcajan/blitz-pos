@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enum\SalesStatus;
 use App\Models\Scopes\SaleScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
@@ -21,6 +22,10 @@ class Sale extends Model
     protected $table = 'sales';
 
     protected $guarded = [];
+
+    protected $casts = [
+        'status' => SalesStatus::class
+    ];
 
     public function store():BelongsTo
     {

@@ -108,7 +108,7 @@
                             Date: {{ date('F d, Y', strtotime($sale->created_at)) }}
                         </p>
                         <p style="color: #5E6470; margin:0">
-                            Status: {{ $sale->status }}
+                            Status: {{ $sale->status->getLabelText() }}
                         </p>
                     </td>
                 </tr>
@@ -212,7 +212,7 @@
                 </tr>
                 <tr class="itemfooter">
                     <td style="text-align: right" colspan="4">
-                        Discounts:
+                        Discount:
                     </td>
                     <td style="text-align: right">
                         <p style="text-align: right !important; font-weight:700">

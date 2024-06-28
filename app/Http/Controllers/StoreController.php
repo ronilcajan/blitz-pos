@@ -101,14 +101,14 @@ class StoreController extends Controller
             'tax' => $store->tax,
             'description' => $store->description,
             'address' => $store->address,
-            'avatar' => $store->avatar,
+            'avatar' => asset('storage/'.$store->avatar),
         ];
 
-       return inertia('Store/Show', [
+        return inertia('Store/Show', [
             'title' => 'Store Details',
             'store' => $store,
             'country' => $country,
-       ]);
+        ]);
     }
     /**
      * Update the specified resource in storage.

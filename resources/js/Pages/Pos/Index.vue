@@ -339,10 +339,10 @@ const paymentChanged = () => {
 }
 const submitPurchase = () => {
     purchaseForm.items = purchases.map(purchase => ({
-                        product_id: purchase.id,
-                        price: purchase.price,
-                        qty: purchase.qty
-                    }));
+                            product_id: purchase.id,
+                            price: purchase.price,
+                            qty: purchase.qty
+                        }));
 
 	purchaseForm.post('/pos',{
 		replace: true,
@@ -362,9 +362,11 @@ const submitPurchase = () => {
 				duration: 3000,
 				dismissible: true
 			});
+
+            router.reload({ only: ['users'] })
+
 		},
         onError: errors => {
-            console.log(errors);
             useToast().error(`Errors! ${errors.error}`, {
 				position: 'top-right',
 				duration: 3000,
@@ -372,7 +374,7 @@ const submitPurchase = () => {
 			});
         },
 
-        only: ['products','sales_id']
+        only: ['sales_id']
 	})
 }
 </script>
@@ -403,9 +405,9 @@ const submitPurchase = () => {
                             <PrimaryButton class="btn-circle btn-sm" @click="createProductModal = true" title="Add products">
                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="20" height="20" viewBox="0 0 24 24"  fill="none" stroke="currentColor"  stroke-width="2" stroke-linecap="round"  stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                             </PrimaryButton>
-                            <PrimaryButton class="btn-circle btn-sm" title="Barcode scan">
+                            <!-- <PrimaryButton class="btn-circle btn-sm" title="Barcode scan">
                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="20" height="20" viewBox="0 0 24 24"  fill="none" stroke="currentColor"  stroke-width="2" stroke-linecap="round"  stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
-                            </PrimaryButton>
+                            </PrimaryButton> -->
                         </div>
                     </div>
 
@@ -531,10 +533,10 @@ const submitPurchase = () => {
                         <div class="flex gap-3 justify-center lg:justify-end">
                             <SecondaryButton class="btn btn-lg flex-1"
                             :disabled="purchases.length == 0"
-                            @click="cancelPurchaseModal = true">DELETE</SecondaryButton>
-                            <SecondaryButton class="btn btn-lg flex-1"
+                            @click="cancelPurchaseModal = true">RESET</SecondaryButton>
+                            <!-- <SecondaryButton class="btn btn-lg flex-1"
                             :disabled="purchases.length == 0"
-                            @click="cancelPurchaseModal = true">DRAFT</SecondaryButton>
+                            @click="cancelPurchaseModal = true">DRAFT</SecondaryButton> -->
                             <PrimaryButton class="btn btn-lg flex-1"
                             :disabled="purchases.length == 0" @click="reviewPurchaseModal=true">PAY</PrimaryButton>
                         </div>
@@ -973,7 +975,8 @@ const submitPurchase = () => {
                 <SecondaryButton class="btn" @click="confirmPurchaseModal = false; purchaseForm.payment_tender = 0; purchaseForm.payment_changed = 0;">Cancel</SecondaryButton>
                 <PrimaryButton form="purchaseForm"
                 :class="{ 'opacity-25': purchaseForm.processing }"
-                :disabled="checkPayment(purchaseForm.payment_tender)">
+                :disabled="checkPayment(purchaseForm.payment_tender)"
+                :only="['products']">
                     <span v-if="purchaseForm.processing" class="loading loading-spinner"></span>
                     Confirm
                 </PrimaryButton>

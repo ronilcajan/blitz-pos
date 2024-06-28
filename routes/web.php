@@ -43,10 +43,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('/sales', SaleController::class);
     Route::post('/sales/bulk/delete', [SaleController::class, 'bulkDelete'])->name('sales.bulkDelete');
     Route::get('/sales/pdf/{sale}', [SaleController::class, 'downloadSalesInvoice'])->name('sales.downloadSalesInvoice');
+    Route::post('/sales/update/status', [SaleController::class, 'updateStatus'])->name('sales.updateStatus');
 
     Route::get('/pos', [POSController::class, 'index'])->name('pos');
     Route::post('/pos', [POSController::class, 'store'])->name('pos.store');
-
 
     Route::get('/profile/settings', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/purchase/pdfview/{purchase}', [PurchaseController::class, 'downloadPDF'])->name('purchase.downloadPDF');
 
     Route::resource('/deliveries', DeliveryController::class);
+    Route::get('/deliveries', [DeliveryController::class, 'index'])->name('delivery');
     Route::get('/deliveries/pdfview/{delivery}', [DeliveryController::class, 'downloadPDF'])->name('delivery.downloadPDF');
     Route::post('/deliveries/bulk/delete', [DeliveryController::class, 'bulkDelete'])->name('delivery.bulkDelete');
 

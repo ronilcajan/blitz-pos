@@ -15,6 +15,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class POSController extends Controller
 {
@@ -26,6 +27,11 @@ class POSController extends Controller
             ->with(['price','stock','category'])
             ->orderBy('name', 'ASC')
             ->where('visible','published')
+            ->where('product_type','sellable')
+            ->whereHas('stock', function($q){
+                $q->where('in_store','>',0)
+                    ->where('in_warehouse','>',0);
+            })
             ->filter(request(['search']))
             ->paginate(24)
             ->withQueryString()
@@ -45,7 +51,6 @@ class POSController extends Controller
 
         $store = Store::find($user->store_id);
 
-        // $orders = DraftOrder::select('id','name')->orderBy('name','ASC')->get();
         $customers = Customer::select('id','name')->orderBy('name','ASC')->get();
         $units = ProductUnit::select('id','name')->orderBy('name', 'ASC')->get();
         $categories = ProductCategory::select('id','name')->orderBy('name', 'ASC')->get();
@@ -56,7 +61,7 @@ class POSController extends Controller
             'store' => $store,
             'stores' => $stores,
             'customers' => $customers,
-            'products' => $products,
+            'products' =>  Inertia::always($products),
             'units' => $units,
             'categories' => $categories,
             'filter' => $request->only(['search','store','page']),
@@ -107,6 +112,22 @@ class POSController extends Controller
             }
 
             SoldItems::insert($soldItems);
+
+            foreach($sale->sold_items as $item){
+                if (isset($item->product->stock)) {
+                    // Calculate the new quantity
+                    $newQuantity = $item->product->stock->in_store - $item->quantity;
+
+                    // Update the stock quantity
+                    $item->product->stock->update([
+                        'in_store' => $newQuantity
+                    ]);
+                } else {
+                    // Handle the error (e.g., log the issue, throw an exception, etc.)
+                    // Log::error('Stock information not found for item: ' . $item->id);
+                    throw new Exception('Stock information not found for item: ' . $item->id);
+                }
+            }
 
             DB::commit();
 

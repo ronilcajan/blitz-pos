@@ -82,7 +82,7 @@
                             Date: {{ date('F d, Y h:i A', strtotime($sale->created_at)) }}
                         </p>
                         <p style="color: #5E6470; margin:0">
-                            Status: {{ $sale->status }}
+                            Status: {{ $sale->status->getLabelText() }}
                         </p>
                         <p style="color: #5E6470; margin:0">
                             Cashier: {{ $sale->user->name }}
@@ -114,7 +114,8 @@
                         </td>
                         <td style="padding: 2px 0; text-align: right; border-bottom:1px dashed #D7DAE0">
                             <p style="margin: 0">
-                                {{ $sale->store->currency . ' ' . Number::format($item->price, precision: 2) }}</p>
+                                {{ $sale->store->currency . ' ' . Number::format($item->price * $item->quantity, precision: 2) }}
+                            </p>
 
                         </td>
                     </tr>

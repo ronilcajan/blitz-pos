@@ -69,7 +69,8 @@ class DeliveryController extends Controller
      */
     public function create(Request $request)
     {
-        auth()->user()->can('create', Delivery::class);
+        $user = auth()->user();
+        $user->can('create', Delivery::class);
 
         $products =  Product::query()
             ->with(['store', 'price', 'stock','category'])
@@ -102,7 +103,7 @@ class DeliveryController extends Controller
                 ->with(['store','supplier','items'])
                 ->find($request->order_id);
 
-            $order =  $purchase->items()->get()->map(function($item){
+            $order =  $purchase->items()->get()->map(function($item, $user){
                 return [
                     'id' => $item->product_id,
                     'name' => $item->product->name,
@@ -110,7 +111,7 @@ class DeliveryController extends Controller
                     'unit' => $item->product->unit,
                     'image' => $item->product->image,
                     'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
-                    'price' => Number::currency($item->price, in: $item->store->currency),
+                    'price' => $item->price,
                     'qty' =>  Number::format($item->quantity),
                 ];
             });
@@ -182,9 +183,27 @@ class DeliveryController extends Controller
             }
             DeliveryItems::insert($products);
 
+            if($request->status == 'complete'){
+                foreach($delivery->delivery_items as $item){
+                    if (isset($item->product->stock)) {
+                        // Calculate the new quantity
+                        $newQuantity = $item->product->stock->in_store + $item->quantity;
+
+                        // Update the stock quantity
+                        $item->product->stock->update([
+                            'in_warehouse' => $newQuantity
+                        ]);
+                    } else {
+                        // Handle the error (e.g., log the issue, throw an exception, etc.)
+                        // Log::error('Stock information not found for item: ' . $item->id);
+                        throw new Exception('Stock quantity not found for item: ' . $item->id);
+                    }
+                }
+            }
+
             DB::commit();
 
-            return redirect()->back();
+            return redirect()->route('delivery');
 
         }catch(Exception $e){
             DB::rollBack();
@@ -368,10 +387,27 @@ class DeliveryController extends Controller
             $delivery->delivery_items()->createMany($products);
 
             // if status is completed, add products quantity to the inventory
+            if($request->status == 'completed' || $request->status == 'partial' || $request->status == 'full'){
+                foreach($delivery->delivery_items as $item){
+                    if (isset($item->product->stock)) {
+                        // Calculate the new quantity
+                        $newQuantity = $item->product->stock->in_warehouse + $item->quantity;
+
+                        // Update the stock quantity
+                        $item->product->stock->update([
+                            'in_warehouse' => $newQuantity
+                        ]);
+                    } else {
+                        // Handle the error (e.g., log the issue, throw an exception, etc.)
+                        // Log::error('Stock information not found for item: ' . $item->id);
+                        throw new Exception('Stock quantity not found for item: ' . $item->id);
+                    }
+                }
+            }
 
             DB::commit();
 
-            return redirect()->back();
+            return redirect()->route('delivery');
 
         }catch(Exception $e){
             DB::rollBack();
