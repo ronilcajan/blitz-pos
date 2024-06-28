@@ -89,8 +89,8 @@
                 <thead>
                     <tr>
                         <td style="text-align:left; padding:12px">
+                            <img width="100" src="{{ public_path('storage/' . $purchase->store->avatar) }}">
                             <h2 style="font-weight: 700; color: #1A1C21;"> {{ $purchase->store->name }}
-
                             </h2>
                             <p style="color: #5E6470;">Email: {{ $purchase->store->email }}</p>
                             <p style="color: #5E6470;">Contact: {{ $purchase->store->contact }}</p>
@@ -108,7 +108,7 @@
                 <thead>
                     <tr>
                         <td style="padding: 20px 16px 18px 16px;">
-                            <h1 style="font-weight: 700; color: #1A1C21;"> Purchase Order #0{{ $purchase->id }}</h1>
+                            <h1 style="font-weight: 700; color: #1A1C21;"> Purchase Order</h1>
                         </td>
                     </tr>
                 </thead>
@@ -159,7 +159,7 @@
                             </td>
                             <td style="padding-block: 12px; text-align: center">
                                 <p style="font-weight: 700; color: #1A1C21;">
-                                    {{ Number::format($item['qty']) }}</p>
+                                    {{ $item['qty'] }}</p>
                             </td>
                             <td style="padding-block: 12px; text-align: center;">
                                 <p style="font-weight: 700; color: #1A1C21;">
@@ -168,8 +168,7 @@
                             </td>
                             <td style="padding-block: 12px; text-align: right!important;">
                                 <p style="font-weight: 700; color: #1A1C21;">
-                                    {{ $purchase->store->currency }}
-                                    {{ Number::format($item['price'] * $item['qty'], precision: 2) }}</p>
+                                    {{ $item['total'] }}</p>
                             </td>
                         </tr>
                     @endforeach

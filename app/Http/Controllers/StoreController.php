@@ -33,7 +33,7 @@ class StoreController extends Controller
                     'address' => $store->address,
                     'contact' => $store->contact,
                     'email' => $store->email,
-                    'avatar' => $store->avatar,
+                    'avatar' => asset('storage/'.$store->avatar),
                     'created_at' => $store->created_at->format('M d, Y h:i: A'),
                 ];
         });
@@ -56,7 +56,7 @@ class StoreController extends Controller
 
         if($request->hasFile('file')){
             $avatar = $request->file('file')->store('store','public');
-            $validate['avatar'] = asset('storage/'. $avatar);
+            $validate['avatar'] = $avatar;
         }
 
         Store::create($validate);
@@ -123,7 +123,7 @@ class StoreController extends Controller
 
         if($request->hasFile('avatar')){
             $avatar = $request->file('avatar')->store('stores','public');
-            $validate['avatar'] = asset('storage/'.$avatar);
+            $validate['avatar'] = $avatar;
         }
 
         $store->update($validate);

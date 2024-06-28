@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\SaleScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -86,6 +87,51 @@ class Sale extends Model
             });
         }
     }
+
+    public static function getDailySalesTotal(){
+        $startOfDay = Carbon::now()->startOfDay();
+        $endOfDay = Carbon::now()->endOfDay();
+
+        $dailySalesTotal = static::whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->where('status','complete')
+            ->sum('total');
+
+        return $dailySalesTotal;
+    }
+
+    public static function getWeeklySalesTotal(){
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $endOfWeek = Carbon::now()->endOfWeek();
+
+        $weeklySalesTotal = static::whereBetween('created_at', [$startOfWeek, $endOfWeek])
+            ->where('status','complete')
+            ->sum('total');
+
+        return $weeklySalesTotal;
+    }
+
+    public static function getMonthlySalesTotal(){
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        $monthlySalesTotal = static::whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->where('status','complete')
+            ->sum('total');
+
+        return $monthlySalesTotal;
+    }
+
+    public static function getYearlySalesTotal(){
+        $startOfYear = Carbon::now()->startOfYear();
+        $endOfYear = Carbon::now()->endOfYear();
+
+        $yearlySalesTotal = static::whereBetween('created_at', [$startOfYear, $endOfYear])
+            ->where('status','complete')
+            ->sum('total');
+
+        return $yearlySalesTotal;
+    }
+
 
     public function getActivitylogOptions(): LogOptions
     {

@@ -52,9 +52,7 @@
             <thead>
                 <tr>
                     <td style="text-align:left; padding: 5px 16px; text-align:center">
-                        <img width="120"
-                            src="{{ public_path('storage/stores/EKh5O5QOmruK1Gs6484o9hAcgBPZLHmXbEZJoUAQ.png') }}">
-                        {{-- {{ $sale->store->avatar }} --}}
+                        <img width="120" src="{{ public_path('storage/' . $sale->store->avatar) }}">
                         <h1 style="font-size: 20px; font-weight: 700; color: #1A1C21; margin: 10px 0">
                             {{ $sale->store->name }}
                         </h1>
@@ -179,38 +177,21 @@
             <tbody>
                 <tr style="font-weight:bold">
                     <td style="padding: 2px 0; margin-top:20px;">
-                        <p style="margin: 0; font-size:14px">CUSTOMER</p>
-                    </td>
-                    <td style="padding: 2px 0; margin-top:20px; text-align: right;">
-                        <p style="margin: 0; font-size:14px">
-                            {{ $sale->customer->name ?? 'Walk-in' }}
-                        </p>
+                        <p style="margin: 0; font-size:14px">CUSTOMER: {{ $sale->customer->name ?? 'Walk-in' }}</p>
                     </td>
                 </tr>
-                {{-- @if ($sale->customer?->name) --}}
-                <tr>
-                    <td style="padding: 0;">
-                        <p style="margin: 0">Address</p>
-                    </td>
-                    <td style="padding: 0; text-align: right;">
-                        <p style="margin: 0">
-                            {{ $sale->customer?->address }}
-                        </p>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td style="padding: 0;">
-                        <p style="margin: 0">Contact</p>
-                    </td>
-                    <td style="padding: 0; text-align: right;">
-                        <p style="margin: 0">
-                            {{ $sale->customer?->contact }}
-                        </p>
-
-                    </td>
-                </tr>
-                {{-- @endif --}}
+                @if ($sale->customer?->name)
+                    <tr>
+                        <td style="padding: 0;">
+                            <p style="margin: 0">Address: {{ $sale->customer?->address }}</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0;">
+                            <p style="margin: 0">Contact: {{ $sale->customer?->phone }}</p>
+                        </td>
+                    </tr>
+                @endif
 
             </tbody>
         </table>
@@ -226,13 +207,9 @@
     </div>
 
     <div class="footer margin-top" style="margin: 8px 16px; text-align: center">
-        <div style="margin: 2px 0">Thank you for doing business with us!</div>
-        <div>2023 &copy; BizRoon Inventory</div>
+        <div style="margin: 2px 0">Thank you for doing business with us and come again!</div>
+        <div>{{ date('Y') }} &copy; BizRoon Inventory</div>
     </div>
-    <script>
-        window.print();
-        setTimeout(window.close, 2000);
-    </script>
 </body>
 
 </html>

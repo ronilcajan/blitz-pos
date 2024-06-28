@@ -245,8 +245,8 @@
                 <thead>
                     <tr>
                         <td style="text-align:left; padding:12px">
+                            <img width="100" src="{{ public_path('storage/' . $delivery->store->avatar) }}">
                             <h2 style="font-weight: 700; color: #1A1C21;"> {{ $delivery->store->name }}
-
                             </h2>
                             <p style="color: #5E6470;">Email: {{ $delivery->store->email }}</p>
                             <p style="color: #5E6470;">Contact: {{ $delivery->store->contact }}</p>
@@ -264,7 +264,7 @@
                 <thead>
                     <tr>
                         <td style="padding: 20px 16px 18px 16px;">
-                            <h1 style="font-weight: 700; color: #1A1C21;"> Delivery Details #0{{ $delivery->id }}</h1>
+                            <h1 style="font-weight: 700; color: #1A1C21;"> Delivery Details</h1>
                         </td>
                     </tr>
                 </thead>

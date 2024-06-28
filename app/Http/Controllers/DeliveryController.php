@@ -413,6 +413,7 @@ class DeliveryController extends Controller
         ]);
 
         $filename = $delivery->tx_no.'-'.date('Y-m-d').'.pdf';
+        $pdf->setPaper('a4', 'portrait');
         return $pdf->stream($filename);
     }
 

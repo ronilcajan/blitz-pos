@@ -91,6 +91,7 @@ const submitCreateForm = () => {
 }
 
 const submitUpdateForm = () => {
+    console.log(editForm);
 	editForm.post(route('store.update'),
 	{
 		replace: true,
@@ -371,7 +372,7 @@ const selectAll = () => {
                         <img width="60" class="rounded-md" :src="editForm.initialLogo" alt="Product">
                     </div>
                     <InputLabel value="Store logo" />
-                    <input accept="image/*" @input="editForm.avatar = $event.target.avatar[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
+                    <input accept="image/*" @input="editForm.avatar = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
                     <progress v-if="editForm.progress" :value="editForm.progress.percentage" class="progress" max="100">
                         {{ editForm.progress.percentage }}%
                     </progress>

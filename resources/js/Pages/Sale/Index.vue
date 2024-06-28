@@ -2,14 +2,20 @@
 import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
-import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
+import StatsCard from './partials/StatsCard.vue';
+import InvoiceButton from './partials/InvoiceButton.vue';
+import ReceiptButton from './partials/ReceiptButton.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
 const props = defineProps({
     title: String,
     sales: Object,
+    dailySalesTotal: String,
+    weeklySalesTotal: String,
+    monthlySalesTotal: String,
+    yearlySalesTotal: String,
     customers: Object,
     stores: Object,
 	filters: Object
@@ -20,7 +26,6 @@ let search = ref(props.filters.search);
 let store = ref('');
 const url = '/sales';
 
-const deleteSale = ref(false);
 const editModal = ref(false);
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -33,13 +38,6 @@ let selectAllCheckbox = ref(false);
 const editForm = useForm({id: '', name: ''});
 
 const deleteForm = useForm({id: ''});
-
-const editModalForm = (category_id, category) => {
-	editForm.clearErrors()
-	editForm.id = category_id;
-    editForm.name = category.category;
-	editModal.value = true;
-};
 
 const deleteSalesForm = (sale_id) => {
 	deleteModal.value = true;
@@ -55,22 +53,6 @@ const closeModal = () => {
     deleteForm.reset();
     editForm.reset();
 };
-
-const submitUpdateForm = () => {
-	editForm.post('product_units/update',
-	{
-		replace: true,
-		preserveScroll: true,
-  		onSuccess: () => {
-            closeModal();
-			useToast().success(`Produt unit has been updated successfully!`, {
-				position: 'top-right',
-				duration: 3000,
-				dismissible: true
-			});
-		},
-	})
-}
 
 const submitDeleteForm = () => {
 	deleteForm.delete(`/sales/${deleteForm.id}`,{
@@ -113,10 +95,10 @@ const selectAll = () => {
 	if (selectAllCheckbox.value) {
         // If "Select All" checkbox is checked, select all users
         salesId.value = props.sales.data.map(unit => unit.id);
-      } else {
+    } else {
         // If "Select All" checkbox is unchecked, deselect all users
         salesId.value = [];
-      }
+    }
 }
 
 watch(customer, value => {
@@ -136,13 +118,21 @@ const canDelete = page.props.auth.user.canDelete
 <template>
     <Head :title="title" />
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
-        <PrimaryButton class="btn btn-sm"  @click="createModal = true">
-            <svg class="w-4 h-4 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
-                </svg>
-                New sales
-        </PrimaryButton>
     </div>
+    <section class="stats stats-vertical col-span-12 mb-5 w-full shadow-sm xl:stats-horizontal">
+		<StatsCard title="Daily Sales" :sales="dailySalesTotal">
+            Track your daily sales performance
+        </StatsCard>
+		<StatsCard title="Weekly Sales" :sales="weeklySalesTotal">
+            Track your weekly sales performance
+        </StatsCard>
+		<StatsCard title="Monthly Sales" :sales="monthlySalesTotal">
+            Track your monthly sales performance
+        </StatsCard>
+		<StatsCard title="Yearly Sales" :sales="yearlySalesTotal">
+            Track your yearly sales performance
+        </StatsCard>
+	</section>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">
             <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
@@ -230,24 +220,9 @@ const canDelete = page.props.auth.user.canDelete
                         <td class="sm:table-cell">{{ sale.store }}</td>
                         <td>
                             <div class="flex items-center space-x-2">
-                                <button class=" hover:text-green-500"
-                                    @click="editModalForm(sale.id,
-                                        { unit: unit.name })">
-                                    <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
-                                    </svg>
-                                </button>
-                                <a :href="route('sales.downloadSalesInvoice', sale.id)"
-                                class="hover:text-primary" target=_blank>
-                                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"/>
-                                    </svg>
-                                </a>
-                                <a :href="route('sales.downloadSalesReceipt', sale.id)"
-                                class="hover:text-primary" target=_blank>
-                                    receipt
-                                </a>
-                                <DeleteIcon @modal-show="deleteSalesForm(sale.id)"/>
+                                <InvoiceButton :href="route('sales.downloadSalesInvoice', sale.id)" />
+                                <ReceiptButton :href="`/sales/${sale.id}`" />
+                                <DeleteIcon @modal-show="deleteSalesForm(sale.id)" />
 
                             </div>
                         </td>

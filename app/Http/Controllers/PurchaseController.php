@@ -208,7 +208,8 @@ class PurchaseController extends Controller
                 'image' => $item->product->image,
                 'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
                 'price' =>  $item->price,
-                'qty' =>  $item->quantity,
+                'qty' =>  Number::format($item->quantity).' '.$item->product->unit,
+                'total' =>  $item->purchase->store->currency.' '.Number::format($item->price * $item->quantity, precision:2),
             ];
         });
 
@@ -220,7 +221,8 @@ class PurchaseController extends Controller
         ]);
 
         $filename = $purchase->tx_no.date('-Y-m-d').'.pdf';
-        return $pdf->setOptions(['isRemoteEnabled' => true])->stream($filename);
+        $pdf->setPaper('a4', 'portrait');
+        return $pdf->stream($filename);
     }
 
     /**

@@ -83,10 +83,10 @@ const selectAll = () => {
 	if (selectAllCheckbox.value) {
         // If "Select All" checkbox is checked, select all users
         userIds.value = props.users.data.map(user => user.id);
-      } else {
+    } else {
         // If "Select All" checkbox is unchecked, deselect all users
         userIds.value = [];
-      }
+    }
 }
 
 const statusChange = (userId, selectedStatus) => {

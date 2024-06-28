@@ -52,9 +52,18 @@ class SaleController extends Controller
                 ];
         });
 
+        $dailySalesTotal = Sale::getDailySalesTotal();
+        $weeklySalesTotal = Sale::getWeeklySalesTotal();
+        $monthlySalesTotal = Sale::getMonthlySalesTotal();
+        $yearlySalesTotal = Sale::getYearlySalesTotal();
+
         return inertia('Sale/Index', [
             'title' => "Sales",
             'sales' => $sales,
+            'dailySalesTotal' => $dailySalesTotal,
+            'weeklySalesTotal' => $weeklySalesTotal,
+            'monthlySalesTotal' => $monthlySalesTotal,
+            'yearlySalesTotal' => $yearlySalesTotal,
             'customers' => Customer::select('id', 'name')->orderBy('name','ASC')->get(),
             'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
             'filters' => $request->only(['search','store','per_page']),
@@ -133,49 +142,6 @@ class SaleController extends Controller
      */
     public function show(Sale $sale)
     {
-        return view('sale.print_receipt', [
-            'title' => 'Sales Acknowledgement',
-            'sale' => $sale,
-            'items' => $sale->sold_items
-        ]);
-    }
-
-    public function downloadSalesInvoice(Sale $sale)
-    {
-        $items = $sale->sold_items()->get()->map(function($item){
-            return [
-                'id' => $item->product_id,
-                'name' => $item->product->name,
-                'size' => $item->product->size,
-                'unit' => $item->product->unit,
-                'image' => $item->product->image,
-                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
-                'price' =>  $item->price,
-                'qty' =>  $item->quantity,
-            ];
-        });
-
-        $sale = Sale::with(['store','customer'])->find($sale->id);
-
-        $sale->quantity = Number::format($sale->quantity);
-        $sale->discount = $sale->store->currency.' '.Number::format($sale->discount, precision:2);
-        $sale->sub_total = $sale->store->currency.' '.Number::format($sale->sub_total, precision:2);
-        $sale->total = $sale->store->currency.' '.Number::format($sale->total, precision:2);
-
-
-        $pdf = Pdf::loadView('sale.sales_invoice', [
-            'title' => "Sales Invoice",
-            'sale' => $sale,
-            'sold_items' => $items,
-        ]);
-
-        $filename = $sale->tx_no.date('-Y-m-d').'.pdf';
-
-        return $pdf->setOptions(['isRemoteEnabled' => true])->stream($filename);
-    }
-
-    public function downloadSalesReceipt(Sale $sale)
-    {
         $sale = Sale::with(['store','customer'])->find($sale->id);
 
         $sale->quantity = Number::format($sale->quantity);
@@ -184,7 +150,7 @@ class SaleController extends Controller
         $sale->total = $sale->store->currency.' '.Number::format($sale->total, precision:2);
 
         $pdf = Pdf::loadView('sale.pdf_receipt', [
-            'title' => "Sales Invoice",
+            'title' => "Sales Acknowledgement",
             'sale' => $sale,
             'items' => $sale->sold_items
         ]);
@@ -216,14 +182,49 @@ class SaleController extends Controller
         $docHeight = $GLOBALS['bodyHeight'] + 20;
 
         $pdf = Pdf::loadView('sale.pdf_receipt', [
-            'title' => "Sales Invoice",
+            'title' => "Sales Acknowledgement",
             'sale' => $sale,
             'items' => $sale->sold_items
         ]);
         $pdf->setPaper(array(0,0,227,  $docHeight));
 
         return $pdf
-            ->stream($filename,['Attachment'=> 1]);
+            ->stream($filename);
+    }
+
+    public function downloadSalesInvoice(Sale $sale)
+    {
+        $items = $sale->sold_items()->get()->map(function($item){
+            return [
+                'id' => $item->product_id,
+                'name' => $item->product->name,
+                'size' => $item->product->size,
+                'unit' => $item->product->unit,
+                'image' => $item->product->image,
+                'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                'price' =>  $item->price,
+                'qty' =>  Number::format($item->quantity).' '.$item->product->unit,
+                'total' =>  $item->sale->store->currency.' '.Number::format($item->price * $item->quantity, precision:2),
+            ];
+        });
+
+        $sale = Sale::with(['store','customer'])->find($sale->id);
+
+        $sale->quantity = Number::format($sale->quantity);
+        $sale->discount = $sale->store->currency.' '.Number::format($sale->discount, precision:2);
+        $sale->sub_total = $sale->store->currency.' '.Number::format($sale->sub_total, precision:2);
+        $sale->total = $sale->store->currency.' '.Number::format($sale->total, precision:2);
+
+
+        $pdf = Pdf::loadView('sale.sales_invoice', [
+            'title' => "Sales Invoice",
+            'sale' => $sale,
+            'sold_items' => $items,
+        ]);
+
+        $filename = $sale->tx_no.date('-Y-m-d').'.pdf';
+        $pdf->setPaper('a4', 'portrait');
+        return $pdf->stream($filename);
     }
 
     /**
