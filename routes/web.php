@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
+use App\Http\Controllers\ExportProductController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\POSController;
@@ -72,6 +73,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/products/update', [ProductController::class, 'update']);
     Route::patch('/products/update/{product}/status', [ProductController::class, 'change_status'])->name('products.change_status');
     Route::post('/products/bulk/delete', [ProductController::class, 'bulkDelete'])->name('products.bulkDelete');
+
+    Route::get('/export/products/', [ExportProductController::class, 'show'])->name('products.export');
+    Route::get('/export/products/template', [ExportProductController::class, 'export_template'])->name('products.donwloadTemplate');
+    Route::post('/products/import/products', [ProductController::class, 'importProducts'])->name('products.import');
 
     Route::resource('/product_categories', ProductCategoryController::class);
     Route::post('/product_categories/update', [ProductCategoryController::class, 'update']);

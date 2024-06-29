@@ -4,6 +4,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
 import StatusFilter from './partials/StatusFilter.vue';
+import ImportButton from './partials/ImportButton.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -24,10 +25,12 @@ const url = '/products';
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
+const importModal = ref(false);
 
 let productIds = ref([]);
 let selectAllCheckbox = ref(false);
 
+const importForm = useForm({file: ''});
 const deleteForm = useForm({id: ''});
 
 const deleteProductForm = (product_id) => {
@@ -40,6 +43,8 @@ const closeModal = () => {
     deleteModal.value = false;
     deleteAllSelectedModal.value = false;
     deleteForm.reset();
+
+    importModal.value=false
 };
 
 const submitDeleteForm = () => {
@@ -77,6 +82,24 @@ const submitBulkDeleteForm = () => {
             });
             selectAllCheckbox.value = false;
         },
+    })
+}
+
+const submitImportProducts = () => {
+    router.post(route('products.import'),
+    {
+        replace: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            productIds.value = [];
+            closeModal();
+            useToast().success('Multiple products has been deleted successfully!', {
+                position: 'top-right',
+                duration: 3000,
+                dismissible: true
+            });
+            selectAllCheckbox.value = false;
+        }, only: ['products']
     })
 }
 
@@ -128,7 +151,8 @@ const showRefresh = computed(() => {
     <Head :title="title" />
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
         <CreateButtonLink href="/products/create">New product</CreateButtonLink>
-        <!-- <DownloadButton :href="route('user.export')">Export</DownloadButton> -->
+        <DownloadButton :href="route('products.export')">Export Excel</DownloadButton>
+        <ImportButton @click="importModal=true">Import Excel</ImportButton>
         <StatusFilter v-model="type" />
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
@@ -327,6 +351,38 @@ const showRefresh = computed(() => {
                         <span v-if="submitBulkDeleteForm.processing" class="loading loading-spinner"></span>
                         Delete
                     </DangerButton>
+                </div>
+            </form>
+        </div>
+    </Modal>
+
+    <Modal :show="importModal" @close="closeModal" maxWidth="md">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Import Products
+            </h1>
+            <p>Please upload your product data using an Excel file.</p>
+            <form method="dialog" class="w-full" @submit.prevent="submitImportProducts">
+
+                <div class="mb-3">
+                    <InputLabel value="Select an Excel file" />
+                    <input type="file" class="file-input file-input-bordered file-input-sm w-full" @input="importForm.avatar = $event.target.files[0]" accept=".xlsx, .xls"
+                    required />
+
+                    <InputError class="mt-2" :message="importForm.errors.avatar" />
+                    <small>Note: Before uploading, make sure you use this <a :href="route('products.donwloadTemplate')" class="text-primary">template</a>.</small>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
+                    <PrimaryButton
+                        class="ms-3"
+                        :class="{ 'opacity-25': submitBulkDeleteForm.processing }"
+                        :disabled="submitBulkDeleteForm.processing"
+                    >
+                        <span v-if="submitBulkDeleteForm.processing" class="loading loading-spinner"></span>
+                        Import Now
+                    </PrimaryButton>
                 </div>
             </form>
         </div>
