@@ -115,8 +115,9 @@ const canDelete = page.props.auth.user.canDelete
     <Head :title="title" />
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
         <CreateButtonLink href="/products/create">New product</CreateButtonLink>
-        <!-- <DownloadButton :href="route('user.export')">Export</DownloadButton> -->
         <!-- <StatusFilter v-model="status" /> -->
+        <DownloadButton :href="route('products.export')">Export Excel</DownloadButton>
+
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
         <div class="card-body grow-0">

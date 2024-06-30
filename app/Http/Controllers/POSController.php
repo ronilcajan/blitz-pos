@@ -124,7 +124,7 @@ class POSController extends Controller
                     ]);
                 } else {
                     // Handle the error (e.g., log the issue, throw an exception, etc.)
-                    // Log::error('Stock information not found for item: ' . $item->id);
+                    Log::error('Stock information not found for item: ' . $item->id);
                     throw new Exception('Stock information not found for item: ' . $item->id);
                 }
             }

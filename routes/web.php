@@ -7,6 +7,7 @@ use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ExportProductController;
 use App\Http\Controllers\ImpersonateController;
+use App\Http\Controllers\ImportProductController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProductCategoryController;
@@ -76,7 +77,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/export/products/', [ExportProductController::class, 'show'])->name('products.export');
     Route::get('/export/products/template', [ExportProductController::class, 'export_template'])->name('products.donwloadTemplate');
-    Route::post('/products/import/products', [ProductController::class, 'importProducts'])->name('products.import');
+    Route::post('/import/products', ImportProductController::class)->name('products.import');
 
     Route::resource('/product_categories', ProductCategoryController::class);
     Route::post('/product_categories/update', [ProductCategoryController::class, 'update']);

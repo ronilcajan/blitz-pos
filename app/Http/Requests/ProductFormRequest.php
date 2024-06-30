@@ -25,7 +25,7 @@ class ProductFormRequest extends FormRequest
         $productId = $this->id;
         return [
             'name' => 'required',
-            'barcode' => [Rule::unique('products', 'barcode')->ignore($productId)],
+            'barcode' => 'sometimes:required',
             'unit' => 'required',
             'product_category_id' => 'required',
             'base_price' => 'required',

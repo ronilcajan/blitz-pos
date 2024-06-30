@@ -132,7 +132,7 @@ class ProductsExportTemplate implements FromCollection, WithHeadings, WithEvents
         $event->sheet->getProtection()->setPassword('your_password');
 
         // Make specific columns writable
-        $columnsToUnlock = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H', 'I','J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'];
+        $columnsToUnlock = range('A', 'T');
         foreach ($columnsToUnlock as $column) {
             for ($row = 2; $row <= 100; $row++) {
                 $event->sheet->getStyle("{$column}{$row}")->getProtection()->setLocked(\PhpOffice\PhpSpreadsheet\Style\Protection::PROTECTION_UNPROTECTED);

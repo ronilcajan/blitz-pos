@@ -27,6 +27,7 @@ import DefaultButtonLink from '@/Components/DefaultButtonLink.vue';
 import SaveButton from '@/Components/SaveButton.vue';
 import DeleteButton from '@/Components/DeleteButton.vue';
 import DeleteIcon from '@/Components/DeleteIcon.vue';
+import EditIconBtn from '@/Components/EditIconBtn.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import PrintButton from '@/Components/PrintButton.vue';
 import CancelButton from '@/Components/CancelButton.vue';
@@ -86,6 +87,7 @@ createInertiaApp({
             .component('DefaultButtonLink', DefaultButtonLink)
             .component('SaveButton', SaveButton)
             .component('DeleteButton', DeleteButton)
+            .component('EditIconBtn', EditIconBtn)
             .component('DeleteIcon', DeleteIcon)
             .component('SearchInput', SearchInput)
             .component('Pagination', Pagination)

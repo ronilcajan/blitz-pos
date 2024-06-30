@@ -85,10 +85,6 @@ class ProductController extends Controller
         ]);
     }
 
-    public function show(){
-
-    }
-
     /**
      * Store a newly created resource in storage.
      */
