@@ -13,10 +13,13 @@ const model = defineModel({
 });
 
 watch(model, value => {
-	router.get(props.url,
-	{ store: value },
-	{ preserveState: true, replace:true, preserveScroll: true })
-})
+  const newQuery = { ...route().params, store: value };
+  router.visit(props.url, {
+    method: 'get',
+    data: newQuery,
+    preserveState: true, replace:true, preserveScroll: true,
+  });
+});
 
 </script>
 

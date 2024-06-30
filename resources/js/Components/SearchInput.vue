@@ -10,12 +10,15 @@ const props = defineProps({
 const model = defineModel({
     type: String,
 });
-
 watch(model, debounce(function (value) {
-	router.get(props.url,
-	{ search: value },
-	{ preserveState: true, replace:true, preserveScroll: true})
+    const newQuery = { ...route().params, search: value };
+    router.visit(props.url, {
+        method: 'get',
+        data: newQuery,
+        preserveState: true, replace:true, preserveScroll: true
+    })
 }, 500));
+
 
 </script>
 

@@ -106,6 +106,7 @@ class ProductController extends Controller
             'manufacturer' => $request->manufacturer,
             'description' => $request->description,
             'product_category_id' => $request->product_category_id,
+            'image' =>  asset('product.png'),
             'store_id' => $request->store_id ?? auth()->user()->store_id,
         ];
 

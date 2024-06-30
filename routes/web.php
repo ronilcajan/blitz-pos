@@ -75,7 +75,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/products/update/{product}/status', [ProductController::class, 'change_status'])->name('products.change_status');
     Route::post('/products/bulk/delete', [ProductController::class, 'bulkDelete'])->name('products.bulkDelete');
 
-    Route::get('/export/products/', [ExportProductController::class, 'show'])->name('products.export');
+    Route::get('/export/products/', [ExportProductController::class, 'export_excel'])->name('products.export_excel');
+    Route::get('/export/products/pdf', [ExportProductController::class, 'export_pdf'])->name('products.export_pdf');
     Route::get('/export/products/template', [ExportProductController::class, 'export_template'])->name('products.donwloadTemplate');
     Route::post('/import/products', ImportProductController::class)->name('products.import');
 

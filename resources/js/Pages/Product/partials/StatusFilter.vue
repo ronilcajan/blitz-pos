@@ -7,10 +7,13 @@ const model = defineModel({
 });
 
 watch(model, value => {
-	router.get('/products',
-	{ type: value },
-	{ preserveState: true, replace:true, preserveScroll: true } )
-})
+    const newQuery = { ...route().params, type: value };
+    router.visit('/products', {
+        method: 'get',
+        data: newQuery,
+        preserveState: true, replace:true, preserveScroll: true,
+    });
+});
 
 </script>
 <template>

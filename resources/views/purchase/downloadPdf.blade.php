@@ -229,7 +229,7 @@
         </div>
         <div class="footer margin-top" style="margin: 8px 16px">
             <div>Thank you for doing business with us!</div>
-            <div>2023 &copy; BizRoon Inventory</div>
+            <div>{{ date('Y') }} &copy; BizRoon Inventory</div>
         </div>
     </body>
 

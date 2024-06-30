@@ -31,7 +31,7 @@ class ProductFactory extends Factory
             'brand' => fake()->company(),
             'manufacturer' => fake()->company(),
             'description' => fake()->text(),
-            'image' => fake()->imageUrl(),
+            'image' => asset('product.png'),
             'product_category_id' => function () {
                 return ProductCategory::inRandomOrder()->first()->id;
             },

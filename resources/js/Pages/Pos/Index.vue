@@ -422,9 +422,8 @@ const submitPurchase = () => {
                         />
 
                         <div class="w-full flex justify-center items-center border border-gray-100 rounded bg-gray-100" v-if="products.data.length === 0">
-                            <div class="text-center">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="200"  height="200"  viewBox="0 0 24 24"  fill="none"  stroke="#858080"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8.812 4.793l3.188 -1.793l8 4.5v8.5m-2.282 1.784l-5.718 3.216l-8 -4.5v-9l2.223 -1.25" /><path d="M14.543 10.57l5.457 -3.07" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-4.35 2.447m-2.564 1.442l-1.086 .611" /><path d="M3 3l18 18" /></svg>
-                                <p class="text-gray-500">No products found!</p>
+                            <div class="text-center text-gray-400">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="250"  height="250"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8.812 4.793l3.188 -1.793l8 4.5v8.5m-2.282 1.784l-5.718 3.216l-8 -4.5v-9l2.223 -1.25" /><path d="M14.543 10.57l5.457 -3.07" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-4.35 2.447m-2.564 1.442l-1.086 .611" /><path d="M3 3l18 18" /></svg>                                <p class="text-gray-500">No products found!</p>
 
                             </div>
                         </div>
@@ -467,10 +466,8 @@ const submitPurchase = () => {
                         />
 
                         <div class="w-full h-full flex justify-center items-center border border-gray-100 rounded bg-base-200" v-if="purchases.length === 0">
-                            <div class="text-center">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="200"  height="200"  viewBox="0 0 24 24"  fill="none"  stroke="#858080"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-list"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l11 0" /><path d="M9 12l11 0" /><path d="M9 18l11 0" /><path d="M5 6l0 .01" /><path d="M5 12l0 .01" /><path d="M5 18l0 .01" /></svg>
-                                <p class="text-gray-500">Select a product to buy!</p>
-
+                            <div class="text-center text-gray-400">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="250"  height="250"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-list-details"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M13 5h8" /><path d="M13 9h5" /><path d="M13 15h8" /><path d="M13 19h5" /><path d="M3 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M3 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /></svg>
                             </div>
                         </div>
                     </div>
@@ -531,14 +528,20 @@ const submitPurchase = () => {
                             </div>
                         </div>
                         <div class="flex gap-3 justify-center lg:justify-end">
-                            <SecondaryButton class="btn btn-lg flex-1"
+                            <DangerButton class="btn btn-lg"
                             :disabled="purchases.length == 0"
-                            @click="cancelPurchaseModal = true">RESET</SecondaryButton>
-                            <!-- <SecondaryButton class="btn btn-lg flex-1"
-                            :disabled="purchases.length == 0"
-                            @click="cancelPurchaseModal = true">DRAFT</SecondaryButton> -->
-                            <PrimaryButton class="btn btn-lg flex-1"
-                            :disabled="purchases.length == 0" @click="reviewPurchaseModal=true">PAY</PrimaryButton>
+                            @click="cancelPurchaseModal = true">
+                                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor"     stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
+                                </svg>
+                                RESET
+                            </DangerButton>
+                            <PrimaryButton class="btn btn-lg"
+                            :disabled="purchases.length == 0" @click="reviewPurchaseModal=true">
+                                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11.917 9.724 16.5 19 7.5"/>
+                                </svg>PAY NOW
+                            </PrimaryButton>
                         </div>
                     </div>
                 </div>

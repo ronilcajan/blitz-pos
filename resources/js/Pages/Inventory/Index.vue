@@ -4,6 +4,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
+import ActionDropdown from '../Product/partials/ActionDropdown.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -25,11 +26,14 @@ const url = '/inventory';
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
+const importModal = ref(false);
 
 let productIds = ref([]);
 let selectAllCheckbox = ref(false);
 
 const deleteForm = useForm({id: ''});
+const deleteSelectedForm = useForm({products_id: []});
+const importForm = useForm({import_file: ''});
 
 const deleteProductForm = (product_id) => {
 	deleteModal.value = true;
@@ -57,19 +61,41 @@ const submitDeleteForm = () => {
 		},
 	})
 }
-
-const submitBulkDeleteForm = () => {
-    router.post(route('products.bulkDelete'),
+const submitImportProducts = () => {
+    importForm.post(route('products.import'),
     {
-        products_id: productIds.value
-    },
+        replace: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            importForm.reset();
+            importModal.value=false
+            useToast().success('Products has been imported successfully!', {
+                position: 'top-right',
+                duration: 3000,
+                dismissible: true
+            });
+            router.reload({only: ['products']})
+        },
+        onError: () => {
+            useToast().error(importForm.errors.error, {
+                position: 'top-right',
+                duration: 3000,
+                dismissible: true
+            });
+        }
+    })
+}
+const submitBulkDeleteForm = () => {
+    deleteSelectedForm.products_id = productIds.value
+    deleteSelectedForm.post(route('products.bulkDelete'),
     {
         forceFormData: true,
         replace: true,
         preserveScroll: true,
         onSuccess: () => {
             productIds.value = [];
-            closeModal();
+            deleteSelectedForm.reset();
+            deleteAllSelectedModal.value = false;
             useToast().success('Multiple products has been deleted successfully!', {
                 position: 'top-right',
                 duration: 3000,
@@ -90,11 +116,6 @@ const selectAll = () => {
       }
 }
 
-watch(store, value => {
-	router.get('/inventory',
-	{ store: value },
-	{ preserveState: true, replace:true })
-})
 watch(category, value => {
 	router.get('/inventory',
 	{ category: value },
@@ -116,8 +137,13 @@ const canDelete = page.props.auth.user.canDelete
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
         <CreateButtonLink href="/products/create">New product</CreateButtonLink>
         <!-- <StatusFilter v-model="status" /> -->
-        <DownloadButton :href="route('products.export')">Export Excel</DownloadButton>
-
+        <ActionDropdown
+            :productIds="productIds"
+            :exportExcelRoute="route('products.export_excel')"
+            :exportPDFRoute="route('products.export_pdf')"
+            @open-import-modal="importModal = true"
+            @delete-all-selected="deleteAllSelectedModal = true"
+        />
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
         <div class="card-body grow-0">
@@ -150,11 +176,6 @@ const canDelete = page.props.auth.user.canDelete
                         <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
                     </div>
                 </div>
-            </div>
-            <div>
-                <DeleteButton v-if="canDelete" v-show="productIds.length > 0" @click="deleteAllSelectedModal = true">
-                    Delete
-                </DeleteButton>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -296,21 +317,58 @@ const canDelete = page.props.auth.user.canDelete
     <Modal :show="deleteAllSelectedModal" @close="closeModal">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
-                Delete {{ productIds.length }} products
+                Delete {{ productIds.length }} selected products
             </h1>
-            <p>Are you sure you want to delete this data? This action cannot be undone.</p>
+            <p>Are you sure you want to delete {{ productIds.length }} selected products? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">
 
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton
                         class="ms-3"
-                        :class="{ 'opacity-25': submitBulkDeleteForm.processing }"
-                        :disabled="submitBulkDeleteForm.processing"
+                        :class="{ 'opacity-25': deleteSelectedForm.processing }"
+                        :disabled="deleteSelectedForm.processing"
                     >
-                        <span v-if="submitBulkDeleteForm.processing" class="loading loading-spinner"></span>
+                        <span v-if="deleteSelectedForm.processing" class="loading loading-spinner"></span>
                         Delete
                     </DangerButton>
+                </div>
+            </form>
+        </div>
+    </Modal>
+    <Modal :show="importModal" @close="closeModal" maxWidth="md">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Import Products
+            </h1>
+            <p>Please upload your product data using an Excel file.</p>
+            <form method="dialog" class="w-full" @submit.prevent="submitImportProducts">
+
+                <div class="mb-3">
+                    <InputLabel value="Select an Excel file" />
+                    <input type="file" class="file-input file-input-bordered file-input-sm w-full" @input="importForm.import_file = $event.target.files[0]" accept=".xlsx, .xls"
+                    required />
+                    <progress class="progress" v-if="importForm.progress" :value="importForm.progress.percentage" max="100">
+                    {{ importForm.progress.percentage }}%
+                    </progress>
+                    <InputError class="mt-2" :message="importForm.errors.import_file" />
+
+                    <div>
+                        <small>Note: Before uploading, make sure you use this <a :href="route('products.donwloadTemplate')" class="text-primary">template</a>.</small>
+                    </div>
+
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
+                    <PrimaryButton
+                        class="ms-3"
+                        :class="{ 'opacity-25': importForm.processing }"
+                        :disabled="importForm.processing"
+                    >
+                        <span v-if="importForm.processing" class="loading loading-spinner"></span>
+                        Import Now
+                    </PrimaryButton>
                 </div>
             </form>
         </div>

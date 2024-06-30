@@ -4,7 +4,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
 import StatusFilter from './partials/StatusFilter.vue';
-import ImportButton from './partials/ImportButton.vue';
+import ActionDropdown from './partials/ActionDropdown.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -32,27 +32,51 @@ let selectAllCheckbox = ref(false);
 
 const importForm = useForm({import_file: ''});
 const deleteForm = useForm({id: ''});
+const deleteSelectedForm = useForm({products_id: []});
+
+const isSuperAdmin = page.props.auth.user.isSuperAdmin
+const canDelete = page.props.auth.user.canDelete
+
+const showRefresh = computed(() => {
+    return store.value !== '' || category.value !== '' || type.value !== '';
+})
 
 const deleteProductForm = (product_id) => {
 	deleteModal.value = true;
 	deleteForm.id = product_id
 }
 
-const closeModal = () => {
-	deleteForm.clearErrors()
-    deleteModal.value = false;
-    deleteAllSelectedModal.value = false;
-    deleteForm.reset();
+const selectAll = () => {
+	if (selectAllCheckbox.value) {
+        productIds.value = props.products.data.map(product => product.id);
+    } else {
+        productIds.value = [];
+    }
+}
 
-    importModal.value=false
-};
+const isVisible = (id,event) => {
+	router.patch(route('products.change_status',id), {
+            status: event.checked,
+        },
+	    { preserveState: true, replace:true,
+            onSuccess: () => {
+            useToast().success('Product visibility has been changed!', {
+                position: 'top-right',
+                duration: 3000,
+                dismissible: true
+            });
+        },  only: ['products'], })
+}
+
 
 const submitDeleteForm = () => {
 	deleteForm.delete(`/products/${deleteForm.id}`,{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
-			closeModal();
+            deleteForm.clearErrors()
+            deleteForm.reset();
+            deleteModal.value = false;
 			useToast().success('Product has been deleted successfully!', {
 				position: 'top-right',
 				duration: 3000,
@@ -63,35 +87,15 @@ const submitDeleteForm = () => {
 	})
 }
 
-const submitBulkDeleteForm = () => {
-    router.post(route('products.bulkDelete'),
-    {
-        products_id: productIds.value
-    },
-    {
-        forceFormData: true,
-        replace: true,
-        preserveScroll: true,
-        onSuccess: () => {
-            productIds.value = [];
-            closeModal();
-            useToast().success('Multiple products has been deleted successfully!', {
-                position: 'top-right',
-                duration: 3000,
-                dismissible: true
-            });
-            selectAllCheckbox.value = false;
-        },
-    })
-}
 
 const submitImportProducts = () => {
-    importForm.post(route('products.import'),
+    importForm.visit(route('products.import'),
     {
         replace: true,
         preserveScroll: true,
         onSuccess: () => {
-            closeModal();
+            importForm.reset();
+            importModal.value=false
             useToast().success('Products has been imported successfully!', {
                 position: 'top-right',
                 duration: 3000,
@@ -109,47 +113,36 @@ const submitImportProducts = () => {
     })
 }
 
-const selectAll = () => {
-	if (selectAllCheckbox.value) {
-        // If "Select All" checkbox is checked, select all users
-        productIds.value = props.products.data.map(product => product.id);
-      } else {
-        // If "Select All" checkbox is unchecked, deselect all users
-        productIds.value = [];
-      }
-}
-
-const isVisible = (id,event) => {
-	router.patch(route('products.change_status',id), {
-            status: event.checked,
-        },
-	    { preserveState: true, replace:true,
-            onSuccess: () => {
-            useToast().success('Product visibility has been changed!', {
+const submitBulkDeleteForm = () => {
+    deleteSelectedForm.products_id = productIds.value
+    deleteSelectedForm.post(route('products.bulkDelete'),
+    {
+        forceFormData: true,
+        replace: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            productIds.value = [];
+            deleteSelectedForm.reset();
+            deleteAllSelectedModal.value = false;
+            useToast().success('Multiple products has been deleted successfully!', {
                 position: 'top-right',
                 duration: 3000,
                 dismissible: true
             });
-        },  only: ['products'], })
+            selectAllCheckbox.value = false;
+        },
+    })
 }
 
 watch(category, value => {
-	router.get('/products',
-	{ category: value },
-	{ preserveState: true, replace:true })
-})
-watch(type, value => {
-	router.get('/products',
-	{ type: value },
-	{ preserveState: true, replace:true })
-})
-
-const isSuperAdmin = page.props.auth.user.isSuperAdmin
-const canDelete = page.props.auth.user.canDelete
-
-const showRefresh = computed(() => {
-    return store.value !== '' || category.value !== '' || type.value !== '';
-})
+    const newQuery = { ...route().params, category: value };
+    router.visit('/products', {
+        method: 'get',
+        data: newQuery,
+        preserveState: true,
+        replace: true,
+    });
+});
 
 </script>
 
@@ -157,9 +150,17 @@ const showRefresh = computed(() => {
     <Head :title="title" />
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
         <CreateButtonLink href="/products/create">New product</CreateButtonLink>
-        <DownloadButton :href="route('products.export')">Export Excel</DownloadButton>
-        <ImportButton @click="importModal=true">Import Excel</ImportButton>
+
+        <ActionDropdown
+            :productIds="productIds"
+            :exportExcelRoute="route('products.export_excel')"
+            :exportPDFRoute="route('products.export_pdf')"
+            @open-import-modal="importModal = true"
+            @delete-all-selected="deleteAllSelectedModal = true"
+        />
+
         <StatusFilter v-model="type" />
+
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">
@@ -180,11 +181,6 @@ const showRefresh = computed(() => {
                         <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
                     </div>
                 </div>
-            </div>
-            <div>
-                <DeleteButton v-if="canDelete" v-show="productIds.length > 0" @click="deleteAllSelectedModal = true">
-                    Delete
-                </DeleteButton>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -320,22 +316,22 @@ const showRefresh = computed(() => {
         </div>
     </Modal>
     <!-- delete all selected modal -->
-    <Modal :show="deleteAllSelectedModal" @close="closeModal">
+    <Modal :show="deleteAllSelectedModal" @close="deleteAllSelectedModal = false">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
-                Delete {{ productIds.length }} products
+                Delete {{ productIds.length }} selected products
             </h1>
-            <p>Are you sure you want to delete this data? This action cannot be undone.</p>
+            <p>Are you sure you want to delete {{ productIds.length }} selected products? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">
 
                 <div class="mt-6 flex justify-end">
-                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
+                    <SecondaryButton class="btn" @click="deleteAllSelectedModal = false"  :disabled="deleteSelectedForm.processing">Cancel</SecondaryButton>
                     <DangerButton
                         class="ms-3"
-                        :class="{ 'opacity-25': submitBulkDeleteForm.processing }"
-                        :disabled="submitBulkDeleteForm.processing"
+                        :class="{ 'opacity-25': deleteSelectedForm.processing }"
+                        :disabled="deleteSelectedForm.processing"
                     >
-                        <span v-if="submitBulkDeleteForm.processing" class="loading loading-spinner"></span>
+                        <span v-if="deleteSelectedForm.processing" class="loading loading-spinner"></span>
                         Delete
                     </DangerButton>
                 </div>
@@ -343,7 +339,7 @@ const showRefresh = computed(() => {
         </div>
     </Modal>
 
-    <Modal :show="importModal" @close="closeModal" maxWidth="md">
+    <Modal :show="importModal" @close="importModal = false" maxWidth="md">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
                 Import Products
@@ -367,7 +363,7 @@ const showRefresh = computed(() => {
                 </div>
 
                 <div class="mt-6 flex justify-end">
-                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
+                    <SecondaryButton class="btn" @click="importModal = false">Cancel</SecondaryButton>
                     <PrimaryButton
                         class="ms-3"
                         :class="{ 'opacity-25': importForm.processing }"

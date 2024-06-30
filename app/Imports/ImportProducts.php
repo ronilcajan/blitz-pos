@@ -31,6 +31,7 @@ class ImportProducts implements ToModel, WithHeadingRow
             'manufacturer' => $row['manufacturer'],
             'description' => $row['description'],
             'product_category_id' => $category->id,
+            'image' =>  asset('product.png'),
             'store_id' => auth()->user()->store_id,
         ];
 

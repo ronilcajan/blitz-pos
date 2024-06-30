@@ -6,7 +6,6 @@ use App\Models\Product;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Events\AfterSheet;
 
 class ProductsExport implements FromCollection, WithHeadings, WithColumnWidths
 {

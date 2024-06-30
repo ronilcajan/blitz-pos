@@ -30,7 +30,7 @@ class POSController extends Controller
             ->where('product_type','sellable')
             ->whereHas('stock', function($q){
                 $q->where('in_store','>',0)
-                    ->where('in_warehouse','>',0);
+                    ->orWhere('in_warehouse','>',0);
             })
             ->filter(request(['search']))
             ->paginate(24)
