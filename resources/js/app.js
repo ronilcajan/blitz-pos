@@ -40,6 +40,7 @@ import PaginationResultRange from '@/Components/PaginationResultRange.vue';
 import FilterByStoreDropdown from '@/Components/FilterByStoreDropdown.vue';
 import Modal from '@/Components/Modal.vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import ActionGroupDropdown from '@/Components/ActionGroupDropdown.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -95,6 +96,7 @@ createInertiaApp({
             .component('PaginationControlList', PaginationControlList)
             .component('PaginationResultRange', PaginationResultRange)
             .component('FilterByStoreDropdown', FilterByStoreDropdown)
+            .component('ActionGroupDropdown', ActionGroupDropdown)
             .component('Modal', Modal)
             .mount(el);
     },

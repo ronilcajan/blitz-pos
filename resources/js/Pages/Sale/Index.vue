@@ -42,6 +42,7 @@ const date_range = reactive({
 
 const editForm = useForm({id: '', name: ''});
 const deleteForm = useForm({id: ''});
+const deleteSelectedForm = useForm({sales_id: ''});
 
 const deleteSalesForm = (sale_id) => {
 	deleteModal.value = true;
@@ -79,12 +80,9 @@ const submitDeleteForm = () => {
 }
 
 const submitBulkDeleteForm = () => {
-    router.post(route('sales.bulkDelete'),
+    deleteSelectedForm.sales_id = salesId.value
+    deleteSelectedForm.post(route('sales.bulkDelete'),
     {
-        sales_id: salesId.value
-    },
-    {
-        forceFormData: true,
         replace: true,
         preserveScroll: true,
         onSuccess: () => {
@@ -95,7 +93,7 @@ const submitBulkDeleteForm = () => {
                 duration: 3000,
                 dismissible: true
             });
-            selectAllCheckbox.value = false
+            selectAllCheckbox.value = 0;
         },
     })
 }
@@ -133,11 +131,19 @@ watch(customer, value => {
 	{ customer: value },
 	{ preserveState: true, replace:true })
 })
+
 </script>
 
 <template>
     <Head :title="title" />
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
+        <ActionGroupDropdown
+            :dataIds="salesId"
+            :exportExcelRoute="route('products.export_excel')"
+            :exportPDFRoute="route('products.export_pdf')"
+            @delete-all-selected="deleteAllSelectedModal = true"
+        />
+
         <FilterDate />
     </div>
     <section class="stats stats-vertical col-span-12 mb-5 w-full shadow-sm xl:stats-horizontal">
@@ -173,11 +179,6 @@ watch(customer, value => {
                         <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
                     </div>
                 </div>
-            </div>
-            <div>
-                <DeleteButton v-if="canDelete" v-show="salesId.length > 0" @click="deleteAllSelectedModal = true">
-                    Delete
-                </DeleteButton>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -338,10 +339,10 @@ watch(customer, value => {
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton
                         class="ms-3"
-                        :class="{ 'opacity-25': submitBulkDeleteForm.processing }"
-                        :disabled="submitBulkDeleteForm.processing"
+                        :class="{ 'opacity-25': deleteSelectedForm.processing }"
+                        :disabled="deleteSelectedForm.processing"
                     >
-                        <span v-if="submitBulkDeleteForm.processing" class="loading loading-spinner"></span>
+                        <span v-if="deleteSelectedForm.processing" class="loading loading-spinner"></span>
                         Delete
                     </DangerButton>
                 </div>
