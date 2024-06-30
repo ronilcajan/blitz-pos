@@ -32,7 +32,7 @@ class SaleController extends Controller
         $sales = Sale::query()
             ->with(['store','customer','user','customer'])
             ->orderBy('created_at', 'DESC')
-            ->filter(request(['search','store','supplier','customer']))
+            ->filter(request(['search','store','supplier','customer','from_date','to_date']))
             ->paginate($perPage)
             ->withQueryString()
             ->through(function ($sale) {
@@ -184,28 +184,33 @@ class SaleController extends Controller
         DB::beginTransaction();
 
         try {
-            if($request->status->getLabelText() == 'void'){ // if status is void add stocks to the store
+            // if status is void add stocks back to the store
+            if($request->status == 'void'){
                 foreach($sale->sold_items as $item){
                     $item->product->stock->update([
-                        'in_store' => $item->product->stock + $item->quantity
+                        'in_store' => $item->product->in_store + $item->quantity
                     ]);
                 }
             }
 
-            if($request->status->getLabelText() == 'complete'){ // if status is complete deduct stocks to the store
+            // if status is complete deduct stocks to the store
+            if($request->status == 'complete'){
                 foreach($sale->sold_items as $item){
                     $item->product->stock->update([
-                        'in_store' => $item->product->stock - $item->quantity
+                        'in_store' => $item->product->in_store - $item->quantity
                     ]);
                 }
             }
+
+            $sale->update(['status' => $request->status]);
+
+            DB::commit();
+
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error updating sales: ' .$e->getMessage());
-            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale. Please try again.']);
+            Log::error('Error updating sales status: ' .$e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale status. Please try again.']);
         }
-
-        $sale->update(['status' => $request->status]);
 
         return redirect()->back();
     }

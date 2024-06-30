@@ -1,11 +1,12 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
 import StatsCard from './partials/StatsCard.vue';
 import InvoiceButton from './partials/InvoiceButton.vue';
 import ReceiptButton from './partials/ReceiptButton.vue';
+import FilterDate from './partials/FilterDate.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -21,6 +22,8 @@ const props = defineProps({
 	filters: Object
 });
 
+const page = usePage();
+
 let customer = ref('');
 let search = ref(props.filters.search);
 let store = ref('');
@@ -29,14 +32,15 @@ const url = '/sales';
 const editModal = ref(false);
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
-const page = usePage();
 
 let salesId = ref([]);
 let selectAllCheckbox = ref(false);
-
+const date_range = reactive({
+    from_date: '',
+    to_date: ''
+});
 
 const editForm = useForm({id: '', name: ''});
-
 const deleteForm = useForm({id: ''});
 
 const deleteSalesForm = (sale_id) => {
@@ -53,6 +57,11 @@ const closeModal = () => {
     deleteForm.reset();
     editForm.reset();
 };
+
+const isSuperAdmin = computed(() =>
+    page.props.auth.user.isSuperAdmin ? true : false
+)
+const canDelete = page.props.auth.user.canDelete
 
 const submitDeleteForm = () => {
 	deleteForm.delete(`/sales/${deleteForm.id}`,{
@@ -101,12 +110,6 @@ const selectAll = () => {
     }
 }
 
-watch(customer, value => {
-	router.get('/sales',
-	{ customer: value },
-	{ preserveState: true, replace:true })
-})
-
 const statusChange = (saleID, selectedStatus) => {
     router.post(route('sales.updateStatus'), { id: saleID, status: selectedStatus },
 	{
@@ -125,16 +128,17 @@ const statusChange = (saleID, selectedStatus) => {
     })
 }
 
-const isSuperAdmin = computed(() =>
-    page.props.auth.user.isSuperAdmin ? true : false
-)
-const canDelete = page.props.auth.user.canDelete
-
+watch(customer, value => {
+	router.get('/sales',
+	{ customer: value },
+	{ preserveState: true, replace:true })
+})
 </script>
 
 <template>
     <Head :title="title" />
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
+        <FilterDate />
     </div>
     <section class="stats stats-vertical col-span-12 mb-5 w-full shadow-sm xl:stats-horizontal">
 		<StatsCard title="Daily Sales" :sales="dailySalesTotal">
@@ -233,7 +237,6 @@ const canDelete = page.props.auth.user.canDelete
                         <td class="sm:table-cell">{{ sale.total }}</td>
                         <td class="sm:table-cell">
                             <select @change="statusChange(sale.id, $event.target.value)" class="select select-xs"  :class="`text-${sale.statusColor}`">
-                                <option :selected="sale.status === 'pending'">pending</option>
                                 <option :selected="sale.status === 'complete'">complete</option>
                                 <option class="" :selected="sale.status === 'void'">void</option>
                             </select>
@@ -246,7 +249,6 @@ const canDelete = page.props.auth.user.canDelete
                                 <InvoiceButton :href="route('sales.downloadSalesInvoice', sale.id)" />
                                 <ReceiptButton :href="`/sales/${sale.id}`" />
                                 <DeleteIcon @modal-show="deleteSalesForm(sale.id)" />
-
                             </div>
                         </td>
 

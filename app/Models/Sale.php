@@ -91,6 +91,13 @@ class Sale extends Model
                 $q->where('name', $store);
             });
         }
+
+        if(!empty($filter['from_date'])){
+            $from_date = $filter['from_date'];
+            $to_date = Carbon::parse($filter['to_date'])->endOfDay();
+
+            $query->whereBetween('created_at',[$from_date, $to_date]);
+        }
     }
 
     public static function getDailySalesTotal(){
