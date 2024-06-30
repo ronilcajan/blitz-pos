@@ -85,9 +85,10 @@
         <table style="font-size: 12px; line-height: 20px; width:100%; background-color: #dfe6fc">
             <thead>
                 <tr>
-                    <td style="text-align:left; padding:12px; line-height:18px">
+                    <td style="text-align:left; padding:12px; line-height:18px;width:20px">
                         <img width="100" src="{{ public_path('storage/' . $sale->store->avatar) }}">
-
+                    </td>
+                    <td>
                         <h2 style="font-weight: 700; color: #1A1C21;"> {{ $sale->store->name }}
                         </h2>
                         <p style="color: #5E6470; margin:0">
