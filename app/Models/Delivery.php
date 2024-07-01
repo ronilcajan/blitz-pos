@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\DeliveryScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -85,6 +86,13 @@ class Delivery extends Model
             $query->whereHas('store', function($q) use ($store){
                 $q->where('name', $store);
             });
+        }
+
+        if(!empty($filter['from_date'])){
+            $from_date = $filter['from_date'];
+            $to_date = Carbon::parse($filter['to_date'])->endOfDay();
+
+            $query->whereBetween('created_at',[$from_date, $to_date]);
         }
     }
 

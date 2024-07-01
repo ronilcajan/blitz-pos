@@ -37,7 +37,7 @@ class DeliveryController extends Controller
         $deliveries = Delivery::query()
             ->with(['store','supplier','purchase'])
             ->orderBy('id', 'DESC')
-            ->filter(request(['search','store','supplier']))
+            ->filter(request(['search','store','supplier','from_date','to_date']))
             ->paginate($perPage)
             ->withQueryString()
             ->through(function ($delivery) {

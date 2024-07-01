@@ -11,7 +11,7 @@ console.log(props.dateRange.from_date);
 const clearDates = () => {
     props.dateRange.from_date = '';
     props.dateRange.to_date = '';
-  router.visit('/sales');
+  router.visit('/deliveries');
 };
 
 watch(props.dateRange, (value) => {
@@ -29,7 +29,7 @@ watch(props.dateRange, (value) => {
         }
 
         const newQuery = { ...route.params, from_date: value.from_date, to_date: value.to_date };
-        router.visit('/sales', {
+        router.visit('/deliveries', {
             method: 'get',
             data: newQuery,
             preserveState: true,

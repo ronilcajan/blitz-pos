@@ -31,7 +31,7 @@ class PurchaseController extends Controller
         $orders = Purchase::query()
             ->with(['store','supplier'])
             ->orderBy('id', 'DESC')
-            ->filter(request(['search','store','supplier']))
+            ->filter(request(['search','store','supplier','from_date','to_date']))
             ->paginate($request->per_page ? ($request->per_page == 'All' ? Purchase::count(): $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($order) {

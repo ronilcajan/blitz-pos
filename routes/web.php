@@ -6,6 +6,7 @@ use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ExportProductController;
+use App\Http\Controllers\ExportSaleController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\ImportProductController;
 use App\Http\Controllers\InventoryController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductUnitController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SupplierController;
@@ -42,10 +44,14 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
 
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+
     Route::resource('/sales', SaleController::class);
     Route::post('/sales/bulk/delete', [SaleController::class, 'bulkDelete'])->name('sales.bulkDelete');
     Route::get('/sales/pdf/{sale}', [SaleController::class, 'downloadSalesInvoice'])->name('sales.downloadSalesInvoice');
     Route::post('/sales/update/status', [SaleController::class, 'updateStatus'])->name('sales.updateStatus');
+    Route::get('/export/sales/', [ExportSaleController::class, 'export_excel'])->name('sales.export_excel');
+    Route::get('/export/sales/pdf', [ExportSaleController::class, 'export_pdf'])->name('sales.export_pdf');
 
     Route::get('/pos', [POSController::class, 'index'])->name('pos');
     Route::post('/pos', [POSController::class, 'store'])->name('pos.store');

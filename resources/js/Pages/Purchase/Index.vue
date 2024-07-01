@@ -1,9 +1,10 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, reactive } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
+import FilterDate from './partials/FilterDate.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -32,6 +33,11 @@ const deletePurchaseForm = (purchase_id) => {
 	deleteModal.value = true;
 	deleteForm.id = purchase_id
 }
+
+const date_range = reactive({
+    from_date: '',
+    to_date: ''
+});
 
 const closeModal = () => {
 	deleteForm.clearErrors()
@@ -109,7 +115,9 @@ watch(store, value => {
     <Head :title="title" />
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
         <CreateButtonLink href="/purchase/create">New pruchase</CreateButtonLink>
-        <StatusFilter v-model="status" />
+        <!-- <StatusFilter v-model="status" /> -->
+        <FilterDate :dateRange="date_range"/>
+
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">
