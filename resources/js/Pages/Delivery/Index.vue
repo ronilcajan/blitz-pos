@@ -3,7 +3,6 @@ import { reactive, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-import FilterDate from './partials/FilterDate.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -117,7 +116,7 @@ const canDelete = page.props.auth.user.canDelete
         <CreateButtonLink href="/deliveries/create">New delivery</CreateButtonLink>
         <!-- <DownloadButton :href="route('user.export')">Export</DownloadButton> -->
         <!-- <StatusFilter v-model="type" /> -->
-        <FilterDate :dateRange="date_range"/>
+        <FilterDate :dateRange="date_range" :url="url"/>
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">

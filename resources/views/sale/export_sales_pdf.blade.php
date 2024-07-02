@@ -105,7 +105,7 @@
                 </thead>
             </table>
 
-            <h3 style="font-weight: 700; color: #1A1C21; margin-top:10px; margin-bottom:10px">ITEMS</h3>
+            <h5 style="font-weight: 700; color: #1A1C21; margin-top:10px; margin-bottom:10px">{{ $description }}</h5>
 
             <table class="products" style="font-size: 12px; line-height: 20px; width:100%">
                 <thead>

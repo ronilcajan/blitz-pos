@@ -6,7 +6,6 @@ import { useToast } from 'vue-toast-notification';
 import StatsCard from './partials/StatsCard.vue';
 import InvoiceButton from './partials/InvoiceButton.vue';
 import ReceiptButton from './partials/ReceiptButton.vue';
-import FilterDate from './partials/FilterDate.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -143,8 +142,7 @@ watch(customer, value => {
             :exportPDFRoute="route('sales.export_pdf', { from_date: date_range.from_date, to_date: date_range.to_date})"
             @delete-all-selected="deleteAllSelectedModal = true"
         />
-
-        <FilterDate :dateRange="date_range"/>
+        <FilterDate :dateRange="date_range" :url="url"/>
     </div>
     <section class="stats stats-vertical col-span-12 mb-5 w-full shadow-sm xl:stats-horizontal">
 		<StatsCard title="Daily Sales" :sales="dailySalesTotal">

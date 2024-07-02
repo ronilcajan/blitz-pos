@@ -24,7 +24,7 @@
 					</NavLink>
 				</li>
 				<li>
-					<details :open="$page.component.startsWith('Product') || $page.component.startsWith('Inventory')">
+					<details :open="$page.component.startsWith('Product')">
 						<summary >
                             <svg  xmlns="http://www.w3.org/2000/svg"  width="23"  height="23"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-box"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
 							Products
@@ -33,10 +33,6 @@
 							<li class="mb-2">
 								<NavLink href="/products" :active="$page.component.startsWith('Product/')">
 									Products</NavLink>
-							</li>
-							<li class="mb-2">
-								<NavLink href="/inventory" :active="$page.component.startsWith('Inventory/')">
-									Inventory</NavLink>
 							</li>
 							<li class="mb-2">
 								<NavLink href="/product_categories" :active="$page.component.startsWith('ProductCategory/')">
@@ -50,10 +46,27 @@
 					</details>
 				</li>
 				<li >
+					<details :open="$page.component.startsWith('Inventory')" >
+						<summary >
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package-export"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21l-8 -4.5v-9l8 -4.5l8 4.5v4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M15 18h7" /><path d="M19 15l3 3l-3 3" /></svg>
+                            Stocks
+						</summary>
+						<ul class="mt-2">
+							<li class="mb-2">
+								<NavLink href="/inventory" :active="$page.component.startsWith('Inventory/')">
+									Inventory</NavLink>
+							</li>
+							<!-- <li>
+								<NavLink href="/inventory/relocation" :active="$page.component.startsWith('ExpensesCategory/')">
+									Transfer</NavLink>
+							</li> -->
+						</ul>
+					</details>
+				</li>
+                <li >
 					<details :open="$page.component.startsWith('Expenses')" >
 						<summary >
 							<svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-wallet"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" /><path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" /></svg>
-
 							Expenses
 						</summary>
 						<ul class="mt-2">
@@ -86,12 +99,12 @@
 						Delivery
 					</NavLink>
 				</li>
-                <li>
+                <!-- <li>
 					<NavLink :active="$page.component.startsWith('Reports')" href="/reports">
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-report"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h5.697" /><path d="M18 14v4h4" /><path d="M18 11v-4a2 2 0 0 0 -2 -2h-2" /><path d="M8 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" /><path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M8 11h4" /><path d="M8 15h3" /></svg>
                         Reports
 					</NavLink>
-				</li>
+				</li> -->
 				<li>
 					<NavLink :active="$page.component.startsWith('Customers')" href="/customers">
 						<svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-users-group"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1" /><path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M17 10h2a2 2 0 0 1 2 2v1" /><path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M3 13v-1a2 2 0 0 1 2 -2h2" /></svg>

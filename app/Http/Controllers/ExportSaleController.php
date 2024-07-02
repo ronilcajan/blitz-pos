@@ -30,10 +30,11 @@ class ExportSaleController extends Controller
 
         $query = Sale::with(['customer', 'user']);
 
+        $description = "Sales Information";
         // Apply date filtering only if both dates are provided
         if ($from_date && $to_date) {
             $query->whereBetween('created_at', [$from_date, $to_date]);
-
+            $description .= " from ".date('m/d/Y', strtotime($from_date)).' to '.date('m/d/Y', strtotime($to_date)).'.';
         }
 
         $sales = $query->get()->map(function ($sale) {
@@ -53,6 +54,7 @@ class ExportSaleController extends Controller
 
         $pdf = Pdf::loadView('sale.export_sales_pdf', [
             'title' => "Sales Export Data",
+            'description' => $description,
             'store' => auth()->user()->store,
             'sales' => $sales,
         ]);

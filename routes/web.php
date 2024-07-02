@@ -74,6 +74,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/inventory', InventoryController::class);
     Route::post('/inventory/update', [InventoryController::class, 'update']);
+    Route::patch('/inventory/stocks/update/{product}', [InventoryController::class, 'update_stocks']);
+    Route::post('/inventory/stocks/bulk_update', [InventoryController::class, 'bulk_update']);
 
     Route::resource('/products', ProductController::class);
     Route::get('/products/api/fetch/{barcode}', [ProductController::class, 'barcode_api'])->name('products.barcode.api');

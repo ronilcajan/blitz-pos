@@ -41,6 +41,7 @@ import FilterByStoreDropdown from '@/Components/FilterByStoreDropdown.vue';
 import Modal from '@/Components/Modal.vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import ActionGroupDropdown from '@/Components/ActionGroupDropdown.vue';
+import FilterDate from '@/Components/FilterDate.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -82,6 +83,7 @@ createInertiaApp({
             .component('Dropdown', Dropdown)
             .component('DropdownLink', DropdownLink)
             .component('InputLabel', InputLabel)
+            .component('FilterDate', FilterDate)
             .component('ImageUpload', ImageUpload)
             .component('NavLink', NavLink)
             .component('CreateButtonLink', CreateButtonLink)

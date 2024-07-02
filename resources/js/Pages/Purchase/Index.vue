@@ -4,7 +4,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
-import FilterDate from './partials/FilterDate.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -116,7 +115,7 @@ watch(store, value => {
     <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
         <CreateButtonLink href="/purchase/create">New pruchase</CreateButtonLink>
         <!-- <StatusFilter v-model="status" /> -->
-        <FilterDate :dateRange="date_range"/>
+        <FilterDate :dateRange="date_range" :url="url"/>
 
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">

@@ -10,7 +10,9 @@ use App\Models\ProductUnit;
 use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Number;
 use Illuminate\Validation\Rule;
 
@@ -60,14 +62,6 @@ class InventoryController extends Controller
             'filter' => $request->only(['search']),
             'per_page' => $request->only(['per_page'])
         ]);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(ProductSupplier $inventory)
-    {
-
     }
 
     /**
@@ -164,5 +158,58 @@ class InventoryController extends Controller
         $product_supplier->update($product_supplier_data);
 
         return redirect()->back();
+    }
+
+    public function update_stocks(Product $product, Request $request)
+    {
+        Gate::authorize('update', $product);
+
+        $new_stocks = [
+            'in_warehouse' => $product->stock->in_warehouse - $request->qty,
+            'in_store' => $product->stock->in_store + $request->qty
+        ];
+
+        $product->stock()->update($new_stocks);
+
+        return redirect()->back();
+    }
+
+    public function bulk_update(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            foreach ($request->products_id as $product_id) {
+
+                // Retrieve the product with its associated stock information
+                $product = Product::with('stock')->find($product_id);
+
+                // Check if there are stocks in the warehouse
+                if ($product?->stock?->in_warehouse > 0) {
+
+                    // Calculate the quantity to transfer
+                    $transfer_stocks = min($product->stock->in_warehouse, $request->qty);
+
+                    // Define the updated stock values
+                    $new_stocks = [
+                        'in_warehouse' => $product->stock->in_warehouse - $transfer_stocks,
+                        'in_store' => $product->stock->in_store + $transfer_stocks
+                    ];
+
+                    // Update the stock values in the database
+                    $product->stock()->update($new_stocks);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->back();
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error recording multiple stocks transfer: ' .$e->getMessage());
+
+            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale. Please try again.']);
+        }
     }
 }
