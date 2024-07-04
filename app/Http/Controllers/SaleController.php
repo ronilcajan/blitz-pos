@@ -122,8 +122,15 @@ class SaleController extends Controller
         ]);
         $pdf->setPaper(array(0,0,227,  $docHeight));
 
-        return $pdf
-            ->stream($filename);
+        // return $pdf
+        //     ->stream($filename);
+
+        $pdf->render();
+
+        return response($pdf->output(), 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="filtered-data.pdf"');
+
     }
 
     public function downloadSalesInvoice(Sale $sale)

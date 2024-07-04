@@ -347,24 +347,44 @@ const submitPurchase = () => {
 	purchaseForm.post('/pos',{
 		replace: true,
 		preserveScroll: true,
-        onSuccess: (response) => {
-            if(purchaseForm.print){
-                window.open(`sales/${response.props.sales_id}`, '_blank')
+        onSuccess: async (response) => {
+            try {
+
+                const response1 = await fetch(`sales/${response.props.sales_id}`);
+                if (!response1.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const blob = await response1.blob();
+                const url = window.URL.createObjectURL(blob);
+                const newWindow = window.open(url, '_blank');
+
+                if (newWindow) {
+                    newWindow.onload = () => {
+                        newWindow.print();
+                    };
+                }
+
+                confirmPurchaseModal.value = false; // Close the modal
+                purchaseForm.clearErrors(); // Clear any validation errors
+                purchaseForm.reset(); // Reset the form fields to their initial values
+                purchases.length = 0;
+
+                useToast().success('Success! Sale has been recorded successfully.', {
+                    position: 'top-right',
+                    duration: 3000,
+                    dismissible: true
+                });
+
+                router.reload({ only: ['users'] })
+
+            } catch (error) {
+                    useToast().error(`Errors! ${error.message}`, {
+                        position: 'top-right',
+                        duration: 3000,
+                        dismissible: true
+                    });
             }
-
-            confirmPurchaseModal.value = false; // Close the modal
-            purchaseForm.clearErrors(); // Clear any validation errors
-            purchaseForm.reset(); // Reset the form fields to their initial values
-            purchases.length = 0;
-
-            useToast().success('Success! Sale has been recorded successfully.', {
-				position: 'top-right',
-				duration: 3000,
-				dismissible: true
-			});
-
-            router.reload({ only: ['users'] })
-
 		},
         onError: errors => {
             useToast().error(`Errors! ${errors.error}`, {
