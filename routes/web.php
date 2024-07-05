@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
@@ -38,11 +39,9 @@ Route::get('/', function () {
 Route::get('/auth/google', [GoogleAuthController::class, 'signInwithGoogle'])->name('google-auth');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callbackToGoogle']);
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
 
-Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
 
