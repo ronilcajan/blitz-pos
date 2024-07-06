@@ -1,5 +1,14 @@
 <script setup>
+import { router } from '@inertiajs/vue3'
+import { ref, onMounted } from 'vue'
+
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js'
+import { Bar, Doughnut } from 'vue-chartjs'
+
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement)
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -9,792 +18,238 @@ const props = defineProps({
     delivery: String,
     expenses: String,
     sales: String,
+    sales_recent: String,
+    sales_current_year: Object,
+    sales_previous_year: Object,
+    expenses_data_chart: Object,
+    stock_alert: Object
 })
 
+const bar_data =  {
+  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
+  datasets: [
+    {
+      label: 'Current',
+      backgroundColor: '#2B49FF',
+      data: props.sales_current_year
+    },
+    {
+      label: 'Previous Year',
+      backgroundColor: '#292D34',
+      data: props.sales_previous_year
+    }
+  ],
+  chartOptions: {
+        responsive: true
+      }
+}
+
+const doughnut_data = {
+  labels: ['Approved', 'Pending','Rejected'],
+  datasets: [
+    {
+      backgroundColor: ['#41B883', '#E46651', '#DD1B16'],
+      data: props.expenses_data_chart
+    }
+  ]
+}
+
+// onMounted(() => {
+//   setInterval(() => {
+//     router.reload({ only: ['sales_current_year', 'sales_previous_year'] })
+//   }, 3000)
+// })
 </script>
 
 <template>
     <Head title="Dashboard" />
+    <div class="flex justify-end">
+        <div class="dropdown dropdown-bottom dropdown-end">
+            <button class="btn btn-xs btn-primary mb-4">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M7 14h.013" /><path d="M10.01 14h.005" /><path d="M13.01 14h.005" /><path d="M16.015 14h.005" /><path d="M13.015 17h.005" /><path d="M7.01 17h.005" /><path d="M10.01 17h.005" /></svg>
+                Last 30 days
+            </button>
+            <div tabindex="0" class="dropdown-content z-[9] card card-compact w-44 p-1 shadow-lg mt-1 bg-base-100">
+                <div class="card-body">
+                    <div class="flex">
+                        <p class="font-bold">Select Date Range</p>
+                    </div>
+                    <div>
+                        <InputLabel>From date</InputLabel>
+                    </div>
+                    <div>
+                        <InputLabel>To date</InputLabel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
         <!-- stats -->
-	<section class="stats stats-vertical col-span-12 w-full shadow-sm xl:stats-horizontal">
-		<div class="stat">
-			<div class="stat-title">Total Page Views</div>
-			<div class="stat-value">{{ products }}</div>
-			<div class="stat-desc">21% more than last month</div>
+	<section class="stats stats-vertical col-span-12 w-full mb-5 shadow-sm xl:stats-horizontal">
+		<div class="stat flex flex-col gap-3">
+			<div class="stat-title uppercase text-sm">Total Products</div>
+			<div class="stat-value flex items-center gap-2">
+                <span class="p-2 bg-primary rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-box text-white"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
+                </span>
+
+                {{ products }}
+            </div>
+			<!-- <div class="stat-desc">21% more than last month</div> -->
 		</div>
 
 		<div class="stat">
-			<div class="stat-title">Total Page Views</div>
-			<div class="stat-value">{{ delivery }}</div>
-			<div class="stat-desc">21% more than last month</div>
+			<div class="stat-title uppercase text-sm">Total Deliveries</div>
+            <div class="stat-value flex items-center gap-2">
+                <span class="p-2 bg-orange-500 rounded-full">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-truck-delivery text-white"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M5 17h-2v-4m-1 -8h11v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" /><path d="M3 9l4 0" /></svg>
+                </span>
+                {{ delivery }}
+            </div>
+		</div>
+        <div class="stat">
+			<div class="stat-title uppercase text-sm">Total Expenses</div>
+            <div class="stat-value flex items-center gap-2">
+                <span class="p-2 bg-yellow-300 rounded-full">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-wallet text-white"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" /><path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" /></svg>
+                </span>
+                {{ expenses }}
+            </div>
 		</div>
 
-		<div class="stat">
-			<div class="stat-title">Total Page Views</div>
-			<div class="stat-value">{{ expenses }}</div>
-			<div class="stat-desc">21% more than last month</div>
-		</div>
-
-		<div class="stat">
-			<div class="stat-title">Total Page Views</div>
-			<div class="stat-value">{{ sales }}</div>
-			<div class="stat-desc">21% more than last month</div>
+        <div class="stat">
+			<div class="stat-title uppercase text-sm">Total Sales</div>
+            <div class="stat-value flex items-center gap-2">
+                <span class="p-2 bg-green-500 rounded-full">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-coins text-white"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 1.343 -6 3z" /><path d="M9 14v4c0 1.656 2.686 3 6 3s6 -1.344 6 -3v-4" /><path d="M3 6c0 1.072 1.144 2.062 3 2.598s4.144 .536 6 0c1.856 -.536 3 -1.526 3 -2.598c0 -1.072 -1.144 -2.062 -3 -2.598s-4.144 -.536 -6 0c-1.856 .536 -3 1.526 -3 2.598z" /><path d="M3 6v10c0 .888 .772 1.45 2 2" /><path d="M3 11c0 .888 .772 1.45 2 2" /></svg>
+                </span>
+                {{ sales }}
+            </div>
 		</div>
 	</section>
 	<!-- /stats -->
 	<!-- card -->
-	<section class="card col-span-12 overflow-hidden bg-base-100 shadow-sm xl:col-span-6">
-		<div class="card-body grow-0">
-			<h2 class="card-title">
-				<a class="link-hover link">Transactions</a>
-			</h2>
-		</div>
-		<div class="overflow-x-auto">
-			<table class="table table-zebra">
-				<tbody>
-					<tr>
-						<td>Cy Ganderton</td>
-						<td>Feb 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-up-right.svg"
-								class="inline-block h-5 w-5 text-success"></svg>
-							180 USD
-						</td>
-					</tr>
-					<tr>
-						<td>Hart Hagerty</td>
-						<td>Sep 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-up-right.svg"
-								class="inline-block h-5 w-5 text-success"></svg>
-							250 USD
-						</td>
-					</tr>
-					<tr>
-						<td>Jim Hagerty</td>
-						<td>Sep 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-up-right.svg"
-								class="inline-block h-5 w-5 text-success"></svg>
-							250 USD
-						</td>
-					</tr>
-					<tr>
-						<td>Hart Hagerty</td>
-						<td>Sep 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-down-right.svg"
-								class="inline-block h-5 w-5 text-error"></svg>
-							250 USD
-						</td>
-					</tr>
-					<tr>
-						<td>Hart Hagerty</td>
-						<td>Sep 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-down-right.svg"
-								class="inline-block h-5 w-5 text-error"></svg>
-							250 USD
-						</td>
-					</tr>
-					<tr>
-						<td>Brice Swyre</td>
-						<td>Jul 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-up-right.svg"
-								class="inline-block h-5 w-5 text-success"></svg>
-							320 USD
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-	</section>
-	<!-- /card -->
-	<!-- header -->
-	<header class="col-span-12 flex items-center gap-2 lg:gap-4">
-		<div class="grow">
-			<h1 class="font-light lg:text-2xl">Forms and inputs</h1>
-		</div>
-	</header>
-	<!-- /header -->
-	<!-- card -->
-	<section class="col-span-12 xl:col-span-4">
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">Product name</span>
-			</label>
-			<input type="text" placeholder="Type here" class="input input-bordered" />
-		</div>
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">Category</span>
-			</label>
-			<select class="select select-bordered">
-				<option disabled selected>Pick</option>
-				<option>T-shirts</option>
-				<option>Dresses</option>
-				<option>Hats</option>
-				<option>Accessories</option>
-			</select>
-		</div>
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">Size (cm)</span>
-			</label>
-			<div class="flex items-center gap-2">
-				<input type="text" placeholder="Width" class="input input-bordered w-1/2" />
-				×
-				<input type="text" placeholder="Height" class="input input-bordered w-1/2" />
-			</div>
-		</div>
-		<hr class="my-6 border-t-2 border-base-content/5" />
-		<div class="form-control">
-			<div class="label justify-start gap-2">
-				<svg
-					data-src="https://unpkg.com/heroicons/20/solid/eye.svg"
-					class="h-4 w-4 text-base-content/30"></svg>
-				<span class="label-text text-xs font-bold text-base-content/50">
-					Choose product visibility
-				</span>
-			</div>
-		</div>
-		<div class="form-control">
-			<label class="label cursor-pointer">
-				<span class="label-text">Visible only for managers</span>
-				<input name="visibility" type="radio" class="radio radio-sm" checked />
-			</label>
-			<label class="label cursor-pointer">
-				<span class="label-text">Visible for all users</span>
-				<input name="visibility" type="radio" class="radio radio-sm" checked />
-			</label>
-		</div>
-	</section>
-	<!-- /card -->
-	<!-- card -->
-	<section class="card col-span-12 bg-base-100 shadow-sm xl:col-span-5">
-		<div class="card-body pb-0">
-			<h2 class="card-title">32,800</h2>
-			<p>From 84 countries</p>
-		</div>
-		<svg
-			data-src="https://unpkg.com/@svg-maps/world@1.0.1/world.svg"
-			class="m-4 fill-base-content/80" />
-	</section>
-	<!-- /card -->
-	<!-- card -->
-	<section class="card col-span-12 bg-base-100 shadow-sm xl:col-span-3">
-		<div class="p-6 pb-0 text-center text-xs font-bold text-base-content/60">
-			Recent events
-		</div>
-		<ul class="menu">
-			<li>
-				<a class="gap-4">
-					<div class="avatar">
-						<div class="w-6 rounded-full">
-							<img src="https://picsum.photos/80/80?6" />
-						</div>
-					</div>
-					<span class="text-xs">
-						<b>New User</b>
-						<br />
-						2 minutes ago
-					</span>
-				</a>
-			</li>
-			<li>
-				<a class="gap-4">
-					<div class="avatar">
-						<div class="w-6 rounded-full">
-							<img src="https://picsum.photos/80/80?7" />
-						</div>
-					</div>
-					<span class="text-xs">
-						<b>New product added</b>
-						<br />
-						1 hour ago
-					</span>
-				</a>
-			</li>
-			<li>
-				<a class="gap-4">
-					<div class="avatar">
-						<div class="w-6 rounded-full">
-							<img src="https://picsum.photos/80/80?8" />
-						</div>
-					</div>
-					<span class="text-xs">
-						<b>Database update</b>
-						<br />
-						1 hour ago
-					</span>
-				</a>
-			</li>
-			<li>
-				<a class="gap-4">
-					<div class="avatar">
-						<div class="w-6 rounded-full">
-							<img src="https://picsum.photos/80/80?9" />
-						</div>
-					</div>
-					<span class="text-xs">
-						<b>Newsletter sent</b>
-						<br />
-						2 hour ago
-					</span>
-				</a>
-			</li>
-			<li>
-				<a class="gap-4">
-					<div class="avatar">
-						<div class="w-6 rounded-full">
-							<img src="https://picsum.photos/80/80?10" />
-						</div>
-					</div>
-					<span class="text-xs">
-						<b>New User</b>
-						<br />
-						2 hours ago
-					</span>
-				</a>
-			</li>
-			<li>
-				<a class="gap-4">
-					<div class="avatar">
-						<div class="w-6 rounded-full">
-							<img src="https://picsum.photos/80/80?11" />
-						</div>
-					</div>
-					<span class="text-xs">
-						<b>New product added</b>
-						<br />
-						yesterday
-					</span>
-				</a>
-			</li>
-			<li>
-				<a class="gap-4">
-					<div class="avatar">
-						<div class="w-6 rounded-full">
-							<img src="https://picsum.photos/80/80?12" />
-						</div>
-					</div>
-					<span class="text-xs">
-						<b>New product added</b>
-						<br />
-						yesterday
-					</span>
-				</a>
-			</li>
-		</ul>
-	</section>
-	<!-- /card -->
-	<!-- header -->
-	<header class="col-span-12 flex items-center gap-2 lg:gap-4">
-		<div class="grow">
-			<h1 class="font-light lg:text-2xl">Form sections</h1>
-		</div>
-	</header>
-	<!-- /header -->
-	<!-- card -->
-	<section class="col-span-12 xl:col-span-4">
-		<label class="label">
-			<span class="label-text">Product management</span>
-		</label>
-		<ul class="flex flex-col gap-4 p-1">
-			<li class="flex items-start gap-4">
-				<img
-					class="h-14 w-14 shrink-0 rounded-btn"
-					width="56"
-					height="56"
-					src="https://picsum.photos/80/80?id=1"
-					alt="Product" />
-				<div class="flex grow flex-col gap-1">
-					<div class="text-sm">Portable fidget spinner</div>
-					<div class="text-xs text-base-content/50">Space Gray</div>
-					<div class="font-mono text-xs text-base-content/50">$299</div>
-				</div>
-				<div class="join justify-self-end bg-base-100">
-					<button class="btn btn-ghost join-item btn-xs">–</button>
-					<input class="input join-item input-ghost input-xs w-10 text-center" value="1" />
-					<button class="btn btn-ghost join-item btn-xs">+</button>
-				</div>
-			</li>
-			<li class="flex items-start gap-4">
-				<img
-					class="h-14 w-14 shrink-0 rounded-btn"
-					width="56"
-					height="56"
-					src="https://picsum.photos/80/80?id=2"
-					alt="Product" />
-				<div class="flex grow flex-col gap-1">
-					<div class="text-sm">Wooden VR holder</div>
-					<div class="text-xs text-base-content/50">Casual Red</div>
-					<div class="font-mono text-xs text-base-content/50">$199</div>
-				</div>
-				<div class="join justify-self-end bg-base-100">
-					<button class="btn btn-ghost join-item btn-xs">–</button>
-					<input class="input join-item input-ghost input-xs w-10 text-center" value="1" />
-					<button class="btn btn-ghost join-item btn-xs">+</button>
-				</div>
-			</li>
-			<li class="flex items-start gap-4">
-				<img
-					class="h-14 w-14 shrink-0 rounded-btn"
-					width="56"
-					height="56"
-					src="https://picsum.photos/80/80?id=3"
-					alt="Product" />
-				<div class="flex grow flex-col gap-1">
-					<div class="text-sm">Portable keychain</div>
-					<div class="text-xs text-base-content/50">Normal Yellow</div>
-					<div class="font-mono text-xs text-base-content/50">$299</div>
-				</div>
-				<div class="join justify-self-end bg-base-100">
-					<button class="btn btn-ghost join-item btn-xs">–</button>
-					<input class="input join-item input-ghost input-xs w-10 text-center" value="1" />
-					<button class="btn btn-ghost join-item btn-xs">+</button>
-				</div>
-			</li>
-		</ul>
-	</section>
-	<!-- /card -->
-	<!-- card -->
-	<section class="col-span-12 xl:col-span-4">
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">Product name</span>
-			</label>
-			<input type="text" placeholder="Type here" class="input input-bordered" />
-		</div>
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">Category</span>
-			</label>
-			<select class="select select-bordered">
-				<option disabled selected>Pick</option>
-				<option>T-shirts</option>
-				<option>Dresses</option>
-				<option>Hats</option>
-				<option>Accessories</option>
-			</select>
-		</div>
 
-		<div class="form-control">
-			<label class="label cursor-pointer">
-				<span class="label-text">Public</span>
-				<input type="checkbox" class="toggle toggle-sm" checked />
-			</label>
-		</div>
-		<div class="form-control">
-			<label class="label cursor-pointer">
-				<span class="label-text">Featured product</span>
-				<input type="checkbox" class="toggle toggle-sm" checked />
-			</label>
-		</div>
-	</section>
-	<!-- /card -->
-	<!-- card -->
-	<section class="col-span-12 xl:col-span-4">
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">Size (cm)</span>
-			</label>
-			<div class="flex items-center gap-2">
-				<input type="text" placeholder="Width" class="input input-bordered w-1/2" />
-				×
-				<input type="text" placeholder="Height" class="input input-bordered w-1/2" />
-			</div>
-		</div>
-		<div class="form-control">
-			<div class="py-4 text-xs text-base-content/70">
-				Set a audience range for this product.
-				<br />
-				This is optional
-			</div>
-			<input type="range" min="0" max="100" value="25" class="range range-xs" step="25" />
-			<div class="flex w-full justify-between px-2 py-2 text-xs">
-				<span>0</span>
-				<span>25</span>
-				<span>50</span>
-				<span>75</span>
-				<span>100</span>
-			</div>
-		</div>
-		<div class="form-control">
-			<div class="flex gap-4 py-4">
-				<button class="btn btn-outline">Save draft</button>
-				<button class="btn btn-primary grow">Save and publish</button>
-			</div>
-		</div>
-	</section>
-	<!-- /card -->
-	<!-- header -->
-	<header class="col-span-12 flex items-center gap-2 lg:gap-4">
-		<div class="grow">
-			<h1 class="font-light lg:text-2xl">Payment information</h1>
-		</div>
-	</header>
-	<!-- /header -->
-	<!-- card -->
-	<section class="card col-span-12 bg-base-100 xl:col-span-5">
-		<form class="card-body" action="">
-			<div class="alert alert-success">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="h-6 w-6 shrink-0 stroke-current"
-					fill="none"
-					viewBox="0 0 24 24">
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-				</svg>
-				<span>Your payment was successful</span>
-			</div>
-			<div class="form-control">
-				<label class="label">
-					<span class="label-text">Card Number</span>
-				</label>
-				<input
-					type="text"
-					class="input input-bordered font-mono"
-					pattern="\d{16}"
-					title="16 digits card number"
-					minlength="16"
-					maxlength="16"
-					required />
-			</div>
-			<div class="grid grid-cols-2 gap-2">
-				<div class="form-control">
-					<label class="label">
-						<span class="label-text">CVV</span>
-					</label>
-					<input
-						type="text"
-						placeholder="XXX"
-						pattern="\d{3,4}"
-						title="3 or 4 digits CVV number"
-						minlength="3"
-						maxlength="4"
-						required
-						class="input input-bordered text-center font-mono" />
-				</div>
-				<div class="form-control">
-					<label class="label">
-						<span class="label-text">Expiration date</span>
-					</label>
-					<div class="input input-bordered grid grid-cols-2 gap-2">
-						<input
-							placeholder="MM"
-							type="text"
-							pattern="\d{2}"
-							title="2 digits month number"
-							minlength="2"
-							maxlength="2"
-							class="text-center font-mono"
-							required />
-						<input
-							placeholder="YY"
-							type="text"
-							pattern="\d{2}"
-							title="2 digits year number"
-							minlength="2"
-							maxlength="2"
-							class="text-center font-mono"
-							required />
-					</div>
-				</div>
-			</div>
-			<div class="form-control">
-				<label class="label">
-					<span class="label-text">Name</span>
-				</label>
-				<input type="text" class="input input-bordered" />
-			</div>
-			<div class="form-control mt-4 gap-4">
-				<label class="flex cursor-pointer gap-4">
-					<input type="checkbox" class="checkbox checkbox-sm" checked />
-					<span class="label-text">Save my card information for future payments</span>
-				</label>
-				<label class="flex cursor-pointer gap-4">
-					<input required type="checkbox" class="checkbox checkbox-sm" checked />
-					<span class="label-text">Accept terms of use and privac policy</span>
-				</label>
-			</div>
-			<div class="form-control">
-				<div class="flex items-end py-4">
-					<button class="btn btn-primary grow">Confirm Payment</button>
-				</div>
-			</div>
-		</form>
-	</section>
-	<!-- /card -->
-	<!-- card -->
-	<section class="card col-span-12 overflow-hidden bg-base-100 shadow-sm xl:col-span-7">
-		<div class="card-body grow-0">
-			<div class="flex justify-between gap-2">
-				<h2 class="card-title grow">
-					<a class="link-hover link">Recent user transactions</a>
-				</h2>
-				<button class="btn btn-sm">See all users</button>
-				<button class="btn btn-sm">Settings</button>
-			</div>
-		</div>
-		<div class="overflow-x-auto">
-			<table class="table table-zebra">
-				<tbody>
-					<tr>
-						<td class="w-0"><input type="checkbox" class="checkbox" /></td>
-						<td>
-							<div class="flex items-center gap-4">
-								<div class="avatar">
-									<div class="mask mask-squircle h-10 w-10">
-										<img
-											src="https://picsum.photos/80/80?1"
-											alt="Avatar Tailwind CSS Component" />
-									</div>
-								</div>
-								<div>
-									<div class="text-sm font-bold">Hart Hagerty</div>
-									<div class="text-xs opacity-50">United States</div>
-								</div>
-							</div>
-						</td>
-						<td>Feb 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-up-right.svg"
-								class="inline-block h-5 w-5 text-success"
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-								aria-hidden="true"
-								data-id="svg-loader_3">
-								<path
-									fill-rule="evenodd"
-									d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-									clip-rule="evenodd"></path>
-							</svg>
-							180 USD
-						</td>
-					</tr>
-					<tr>
-						<td class="w-0"><input type="checkbox" class="checkbox" /></td>
-						<td>
-							<div class="flex items-center gap-4">
-								<div class="avatar">
-									<div class="mask mask-squircle h-10 w-10">
-										<img
-											src="https://picsum.photos/80/80?2"
-											alt="Avatar Tailwind CSS Component" />
-									</div>
-								</div>
-								<div>
-									<div class="text-sm font-bold">Brice Swyre</div>
-									<div class="text-xs opacity-50">China</div>
-								</div>
-							</div>
-						</td>
-						<td>Sep 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-up-right.svg"
-								class="inline-block h-5 w-5 text-success"
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-								aria-hidden="true"
-								data-id="svg-loader_4">
-								<path
-									fill-rule="evenodd"
-									d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-									clip-rule="evenodd"></path>
-							</svg>
-							250 USD
-						</td>
-					</tr>
-					<tr>
-						<td class="w-0"><input type="checkbox" class="checkbox" /></td>
-						<td>
-							<div class="flex items-center gap-4">
-								<div class="avatar">
-									<div class="mask mask-squircle h-10 w-10">
-										<img
-											src="https://picsum.photos/80/80?3"
-											alt="Avatar Tailwind CSS Component" />
-									</div>
-								</div>
-								<div>
-									<div class="text-sm font-bold">Marjy Ferencz</div>
-									<div class="text-xs opacity-50">Russia</div>
-								</div>
-							</div>
-						</td>
-						<td>Sep 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-up-right.svg"
-								class="inline-block h-5 w-5 text-success"
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-								aria-hidden="true"
-								data-id="svg-loader_5">
-								<path
-									fill-rule="evenodd"
-									d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-									clip-rule="evenodd"></path>
-							</svg>
-							250 USD
-						</td>
-					</tr>
-					<tr>
-						<td class="w-0"><input type="checkbox" class="checkbox" /></td>
-						<td>
-							<div class="flex items-center gap-4">
-								<div class="avatar">
-									<div class="mask mask-squircle h-10 w-10">
-										<img
-											src="https://picsum.photos/80/80?4"
-											alt="Avatar Tailwind CSS Component" />
-									</div>
-								</div>
-								<div>
-									<div class="text-sm font-bold">Yancy Tear</div>
-									<div class="text-xs opacity-50">Brazil</div>
-								</div>
-							</div>
-						</td>
-						<td>Sep 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-down-right.svg"
-								class="inline-block h-5 w-5 text-error"
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-								aria-hidden="true"
-								data-id="svg-loader_6">
-								<path
-									d="M6.28 5.22a.75.75 0 00-1.06 1.06l7.22 7.22H6.75a.75.75 0 000 1.5h7.5a.747.747 0 00.75-.75v-7.5a.75.75 0 00-1.5 0v5.69L6.28 5.22z"></path>
-							</svg>
-							250 USD
-						</td>
-					</tr>
-					<tr>
-						<td class="w-0"><input type="checkbox" class="checkbox" /></td>
-						<td>
-							<div class="flex items-center gap-4">
-								<div class="avatar">
-									<div class="mask mask-squircle h-10 w-10">
-										<img
-											src="https://picsum.photos/80/80?5"
-											alt="Avatar Tailwind CSS Component" />
-									</div>
-								</div>
-								<div>
-									<div class="text-sm font-bold">Marjy Ferencz</div>
-									<div class="text-xs opacity-50">Russia</div>
-								</div>
-							</div>
-						</td>
-						<td>Sep 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-down-right.svg"
-								class="inline-block h-5 w-5 text-error"
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-								aria-hidden="true"
-								data-id="svg-loader_7">
-								<path
-									d="M6.28 5.22a.75.75 0 00-1.06 1.06l7.22 7.22H6.75a.75.75 0 000 1.5h7.5a.747.747 0 00.75-.75v-7.5a.75.75 0 00-1.5 0v5.69L6.28 5.22z"></path>
-							</svg>
-							250 USD
-						</td>
-					</tr>
-					<tr>
-						<td class="w-0"><input type="checkbox" class="checkbox" /></td>
-						<td>
-							<div class="flex items-center gap-4">
-								<div class="avatar">
-									<div class="mask mask-squircle h-10 w-10">
-										<img
-											src="https://picsum.photos/80/80?6"
-											alt="Avatar Tailwind CSS Component" />
-									</div>
-								</div>
-								<div>
-									<div class="text-sm font-bold">Hart Hagerty</div>
-									<div class="text-xs opacity-50">United States</div>
-								</div>
-							</div>
-						</td>
-						<td>Jul 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-up-right.svg"
-								class="inline-block h-5 w-5 text-success"
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-								aria-hidden="true"
-								data-id="svg-loader_8">
-								<path
-									fill-rule="evenodd"
-									d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-									clip-rule="evenodd"></path>
-							</svg>
-							320 USD
-						</td>
-					</tr>
+    <div class="flex gap-4 md:flex-row flex-col">
+        <div class="w-full md:w-2/3">
+            <div class="card bg-base-100 shadow mt-5">
+                <div class="card-body">
+                    <h2 class="font-bold">Sales Overview</h2>
+                    <p class="text-xs">This chart represents the total sales from January to December for the current year and previous year.</p>
+                    <Bar :data="bar_data" />
+                </div>
+            </div>
+        </div>
+        <div class="w-full md:w-1/3">
+            <div class="card bg-base-100 shadow mt-5">
+                <div class="card-body">
+                    <h2 class="font-bold">Expenses Breakdown</h2>
+                    <p class="text-xs">This chart represents the total expenses categorized by their status: approved, pending, and rejected.</p>
+                    <Doughnut :data="doughnut_data" />
+                </div>
+            </div>
+        </div>
+    </div>
 
-					<tr>
-						<td class="w-0"><input type="checkbox" class="checkbox" /></td>
-						<td>
-							<div class="flex items-center gap-4">
-								<div class="avatar">
-									<div class="mask mask-squircle h-10 w-10">
-										<img
-											src="https://picsum.photos/80/80?1"
-											alt="Avatar Tailwind CSS Component" />
-									</div>
-								</div>
-								<div>
-									<div class="text-sm font-bold">Hart Hagerty</div>
-									<div class="text-xs opacity-50">United States</div>
-								</div>
-							</div>
-						</td>
-						<td>Feb 2nd</td>
-						<td>
-							<svg
-								data-src="https://unpkg.com/heroicons/20/solid/arrow-up-right.svg"
-								class="inline-block h-5 w-5 text-success"
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-								aria-hidden="true"
-								data-id="svg-loader_3">
-								<path
-									fill-rule="evenodd"
-									d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-									clip-rule="evenodd"></path>
-							</svg>
-							180 USD
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-	</section>
+    <div class="flex gap-4 md:flex-row flex-col">
+        <div class="w-full md:w-2/3">
+            <div class="card bg-base-100 shadow mt-5">
+                <div class="card-body">
+                    <h2 class="font-bold">Recent Sales</h2>
+                    <p class="text-xs">Most recent sales transactions, providing insights into recent business activities.</p>
+
+                    <div class="overflow-x-auto">
+                        <table class="table table-zebra">
+                            <thead class="uppercase">
+                                <tr>
+                                    <th>
+                                        <div class="font-bold">Transaction</div>
+                                    </th>
+                                    <th>
+                                        <div class="font-bold">Amount</div>
+                                    </th>
+                                    <th>
+                                        <div class="font-bold">Payment Method</div>
+                                    </th>
+                                    <th>
+                                        <div class="font-bold">Items</div>
+                                    </th>
+
+                                    <th>
+                                        <div class="font-bold">Status</div>
+                                    </th>
+                                    <th>
+                                        <div class="font-bold">Customer</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="sale in sales_recent" :key="sale.id">
+                                    <td>
+                                        <div class="text-sm font-bold">
+                                            {{ sale.tx_no }}
+                                        </div>
+                                        <div>
+                                            <div class="text-xs opacity-50">
+                                                {{ sale.created_at }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="sm:table-cell">{{ sale.total }}</td>
+                                    <td class="sm:table-cell">{{ sale.payment_method }}</td>
+                                    <td class="sm:table-cell">{{ sale.quantity }}</td>
+                                    <td class="sm:table-cell">
+                                        <div class="badge" :class="sale.status == 'complete' ? 'bg-green-600 text-white' : 'bg-orange-600 text-white'">{{ sale.status }}</div>
+                                    </td>
+                                    <td class="sm:table-cell">{{ sale.customer }}</td>
+                                    <td>
+                                        <div class="flex items-center space-x-2">
+                                            <!-- <InvoiceButton :href="route('sales.downloadSalesInvoice', sale.id)" />
+                                            <ReceiptButton :href="`/sales/${sale.id}`" />
+                                            <DeleteIcon @modal-show="deleteSalesForm(sale.id)" /> -->
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-full md:w-1/3">
+            <div class="card bg-base-100 shadow mt-5">
+                <div class="card-body">
+                    <h2 class="font-bold">Stock Alert</h2>
+                    <p class="text-xs">Lists of products that have low stock levels compared to their minimum required quantity, indicating the need for restocking.</p>
+
+                    <div class="overflow-x-auto">
+                        <table class="table table-zebra">
+                            <thead class="uppercase">
+                                <tr>
+                                    <th>
+                                        <div class="font-bold">Products</div>
+                                    </th>
+                                    <th>
+                                        <div class="font-bold">In Warehouse</div>
+                                    </th>
+                                    <th>
+                                        <div class="font-bold">In Store</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in stock_alert" :key="item.id">
+                                    <td class="sm:table-cell">{{ item.name }}</td>
+                                    <td class="sm:table-cell">{{ item.stock.in_warehouse }}</td>
+                                    <td class="sm:table-cell">{{ item.stock.in_store }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>

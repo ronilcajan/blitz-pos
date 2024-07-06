@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -142,6 +143,40 @@ class Sale extends Model
             ->sum('total');
 
         return $yearlySalesTotal;
+    }
+
+    public static function getCurrentSales(){
+        $currentYear = Carbon::now()->year;
+
+        $salesData = static::select(DB::raw('MONTH(created_at) as month'),   DB::raw('SUM(total) as total_sales'))
+            ->whereYear('created_at', $currentYear)
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->pluck('total_sales', 'month');
+
+        $salesArray = [];
+        for ($month = 1; $month <= 12; $month++) {
+            $salesArray[] = $salesData->get($month, 0);
+        }
+
+        return $salesArray;
+
+    }
+
+    public static function getPreviousSales(){
+        $currentYear = Carbon::now()->year - 1;
+
+        $salesData = static::select(DB::raw('MONTH(created_at) as month'),   DB::raw('SUM(total) as total_sales'))
+            ->whereYear('created_at', $currentYear)
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->pluck('total_sales', 'month');
+
+            $salesArray = [];
+            for ($month = 1; $month <= 12; $month++) {
+                $salesArray[] = $salesData->get($month, 0);
+            }
+
+        return $salesArray;
+
     }
 
 

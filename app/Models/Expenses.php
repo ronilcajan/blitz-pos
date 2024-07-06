@@ -4,11 +4,13 @@ namespace App\Models;
 
 use App\Enum\ExpensesStatus;
 use App\Models\Scopes\ExpensesScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -99,6 +101,20 @@ class Expenses extends Model
                 $q->where('name', $store);
             });
         }
+    }
+
+    public static function getTotalExpenses() {
+        $expensesData = static::select('status', DB::raw('SUM(amount) as total_expenses'))
+            ->groupBy('status')
+            ->pluck('total_expenses', 'status');
+
+        $formattedData = [
+            $expensesData->get('approved', 0),
+            $expensesData->get('pending', 0),
+            $expensesData->get('rejected', 0),
+        ];
+
+        return $formattedData;
     }
 
     public function getActivitylogOptions(): LogOptions

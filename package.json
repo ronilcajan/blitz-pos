@@ -20,7 +20,7 @@
     },
     "dependencies": {
         "@inertiajs/vue3": "^1.0.15",
-        "chart.js": "^4.4.2",
+        "chart.js": "^4.4.3",
         "lodash": "^4.17.21",
         "puppeteer": "^22.7.1",
         "vue-chartjs": "^5.3.1",
