@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Delivery;
 use App\Models\Expenses;
 use App\Models\Product;
@@ -14,7 +15,7 @@ class DashboardController extends Controller
     public function index(){
 
         $products = Product::count();
-        $delivery = Delivery::whereNot('status','pending')->count();
+        $customers = Customer::count();
         $expenses = Expenses::where('status','approved')->sum('amount');
         $sales = Sale::where('status','complete')->sum('total');
 
@@ -57,7 +58,7 @@ class DashboardController extends Controller
         return inertia('Dashboard',[
             'title' => "Dashboard",
             'products' => Number::format($products),
-            'delivery' => Number::format($delivery),
+            'customers' => Number::format($customers),
             'expenses' => number_format($expenses,2),
             'sales' => number_format($sales,2),
             'sales_current_year' => $sales_current_year,

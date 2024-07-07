@@ -103,6 +103,42 @@ class Expenses extends Model
         }
     }
 
+    public static function getDailyExpensesTotal(){
+        $startOfDay = Carbon::now()->startOfDay();
+        $endOfDay = Carbon::now()->endOfDay();
+
+        $dailyExpensesTotal = static::whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->where('status','approved')
+            ->sum('amount');
+
+        return $dailyExpensesTotal;
+    }
+
+    public static function getApprovedExpenses(){
+
+        $approveExpensesTotal = static::where('status','approved')
+            ->sum('amount');
+
+        return $approveExpensesTotal;
+    }
+
+    public static function getPendingExpenses(){
+
+        $pendingExpensesTotal = static::where('status','pending')
+            ->sum('amount');
+
+        return $pendingExpensesTotal;
+    }
+
+    public static function getRejectedExpenses(){
+
+        $rejectedExpensesTotal = static::where('status','rejected')
+            ->sum('amount');
+
+        return $rejectedExpensesTotal;
+    }
+
+
     public static function getTotalExpenses() {
         $expensesData = static::select('status', DB::raw('SUM(amount) as total_expenses'))
             ->groupBy('status')

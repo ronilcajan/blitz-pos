@@ -15,7 +15,7 @@ defineOptions({ layout: AuthenticatedLayout })
 const props = defineProps({
     title: String,
     products: String,
-    delivery: String,
+    customers: String,
     expenses: String,
     sales: String,
     sales_recent: String,
@@ -85,7 +85,7 @@ const doughnut_data = {
         </div>
     </div>
         <!-- stats -->
-	<section class="stats stats-vertical col-span-12 w-full mb-5 shadow-sm xl:stats-horizontal">
+	<section class="stats stats-vertical col-span-12 w-full shadow-sm xl:stats-horizontal">
 		<div class="stat flex flex-col gap-3">
 			<div class="stat-title uppercase text-sm">Total Products</div>
 			<div class="stat-value flex items-center gap-2">
@@ -99,12 +99,13 @@ const doughnut_data = {
 		</div>
 
 		<div class="stat">
-			<div class="stat-title uppercase text-sm">Total Deliveries</div>
+			<div class="stat-title uppercase text-sm">Total Customers</div>
             <div class="stat-value flex items-center gap-2">
                 <span class="p-2 bg-orange-500 rounded-full">
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-truck-delivery text-white"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M5 17h-2v-4m-1 -8h11v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" /><path d="M3 9l4 0" /></svg>
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-users-group text-white"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1" /><path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M17 10h2a2 2 0 0 1 2 2v1" /><path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M3 13v-1a2 2 0 0 1 2 -2h2" /></svg>
+
                 </span>
-                {{ delivery }}
+                {{ customers }}
             </div>
 		</div>
         <div class="stat">

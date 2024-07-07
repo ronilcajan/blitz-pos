@@ -49,10 +49,19 @@ class ExpensesController extends Controller
             ->with(['category','user','store'])
             ->get();
 
+        $dailyExpensesTotal = Expenses::getDailyExpensesTotal();
+        $approvedExpenses = Expenses::getApprovedExpenses();
+        $pendingExpenses = Expenses::getPendingExpenses();
+        $rejectedExpenses= Expenses::getRejectedExpenses();
+
         return inertia('Expenses/Index', [
             'title' => "Expenses",
             'expenses' => $allExpenses,
             'totalExpenses' => $expenses,
+            'dailyExpensesTotal' => $dailyExpensesTotal,
+            'approvedExpenses' => $approvedExpenses,
+            'pendingExpenses' => $pendingExpenses,
+            'rejectedExpenses' => $rejectedExpenses,
             'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
             'categories' => ExpensesCategory::select('id', 'name')->orderBy('id', 'DESC')->get(),
             'filter' => $request->only(['search','store','per_page','category','status']),

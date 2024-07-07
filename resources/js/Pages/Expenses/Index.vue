@@ -4,18 +4,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js'
-import { Line } from 'vue-chartjs'
 import StatusFilter from './partials/StatusFilter.vue';
+import StatsCard from './partials/StatsCard.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -25,44 +15,15 @@ const props = defineProps({
     categories: Object,
     stores: Object,
 	filter: Object,
+    dailyExpensesTotal: String,
+    approvedExpenses: String,
+    pendingExpenses: String,
+    rejectedExpenses: String,
     totalExpenses: Object,
     approveExpenses: String,
     rejectedExpenses: String,
 });
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-)
-
-const data = {
-  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [
-    {
-      label: 'Data One',
-      backgroundColor: '#2B49FF',
-      data: [40, 39, 10, 40, 39, 80, 40]
-    },
-    {
-      label: 'Data two',
-      backgroundColor: '#292D34',
-      data: [2, 3, 8, 5, 50, 9, 15]
-    }
-  ],
-  chartOptions: {
-        responsive: true
-      }
-}
-
-const options = {
- //responsive: true,
-   //maintainAspectRatio: false
- }
 
 let search = ref(props.filter.search);
 let store = ref('');
@@ -219,57 +180,20 @@ const formatNumberWithCommas = (number) => {
         <StatusFilter v-model="status" />
     </div>
     <div class="flex gap-5 mb-5 flex-col-reverse md:flex-row">
-        <div class="w-full md:w-1/2">
-            <div class="w-full stats shadow mb-4">
-                <div class="stat">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="stat-value">{{ formatNumberWithCommas(approveExpenses) }}</div>
-                        <small>15 up vs last month</small>
-                    </div>
-                    <div class="stat-desc">Total spend</div>
-                </div>
-            </div>
-            <div class="w-full stats shadow mb-4">
-                <div class="stat">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="stat-value">P {{ formatNumberWithCommas(pendingExpenses) }}</div>
-                        <small>1 pending expenses</small>
-                    </div>
-
-                    <div class="stat-desc">Payment due this month</div>
-                </div>
-            </div>
-            <div class="w-full stats shadow mb-4">
-                <div class="stat">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="stat-value">P {{ formatNumberWithCommas(rejectedExpenses) }}</div>
-                        <small>15 up vs last month</small>
-                    </div>
-                    <div class="stat-desc">Total spend this month</div>
-                </div>
-            </div>
-            <div class="w-full stats shadow mb-4">
-                <div class="stat">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="stat-value">P 89,400</div>
-                        <small>15 up vs last month</small>
-                    </div>
-                    <div class="stat-desc">Total spend this month</div>
-                </div>
-            </div>
-        </div>
-        <div class="w-ful md:w-1/2">
-            <div class="card bg-base-100 shadow">
-                <div class="card-body grow-0">
-                    <h2 class="card-title grow text-sm mb-3">
-                        <span class="uppercase">Customer Profile</span>
-                    </h2>
-
-                    <Line :data="data" :options="options" />
-
-                </div>
-            </div>
-        </div>
+        <section class="stats stats-vertical col-span-12 mb-5 w-full shadow-sm xl:stats-horizontal">
+		<StatsCard title="Daily expenses" :expenses="dailyExpensesTotal">
+            Track your daily expenses performance
+        </StatsCard>
+		<StatsCard title="Approved expenses" :expenses="approvedExpenses">
+            Track your approved expenses performance
+        </StatsCard>
+		<StatsCard title="Pending expenses" :expenses="pendingExpenses">
+            Track your pending expenses performance
+        </StatsCard>
+		<StatsCard title="Rejected expenses" :expenses="rejectedExpenses">
+            Track your rejected expenses performance
+        </StatsCard>
+	</section>
     </div>
     <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
         <div class="card-body grow-0">
