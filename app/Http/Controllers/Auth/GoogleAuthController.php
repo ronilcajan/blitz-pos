@@ -20,22 +20,22 @@ class GoogleAuthController extends Controller
         try {
             $user = Socialite::driver('google')->user();
             $findUser = User::where('gauth_id', $user->id)->first();
-        
+
             if($findUser){
-    
+
                 Auth::login($findUser);
                 return redirect()->route('dashboard')
                 ->with('message', 'Welcome back! All system are running smoothly.');
 
-        
+
             }else{
                 return redirect('login')->withErrors([
                     'email' => 'The provided credentials do not match our records.',
                 ])->onlyInput('email');
             }
-            
+
         } catch (Exception $e) {
-            
+
             return redirect('login')->withErrors([
                 'email' => 'The provided credentials do not match our records.',
             ])->onlyInput('email');
