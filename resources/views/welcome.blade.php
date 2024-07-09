@@ -6,12 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
-        Play | Free Tailwind CSS Template for Startup and SaaS By TailGrids
+        BizRoon Inventory
     </title>
-    <link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="{{ asset('logo.png') }}" type="image/x-icon" />
     <link rel="stylesheet" href="{{ asset('assets/css/animate.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/tailwind.css') }}" />
-
     {{-- @vite(['resources/css/app.css']) --}}
     <!-- ==== WOW JS ==== -->
     <script src="{{ asset('assets/js/wow.min.js') }}"></script>
@@ -22,226 +21,133 @@
 
 <body>
     <!-- ====== Navbar Section Start -->
-    <div class="ud-header bg-transparent absolute top-0 left-0 z-40 w-full flex items-center">
+    <div class="absolute top-0 left-0 z-40 flex items-center w-full bg-transparent ud-header">
         <div class="container">
-            <div class="flex -mx-4 items-center justify-between relative">
-                <div class="px-4 w-60 max-w-full">
-                    <a href="/" class="navbar-logo w-full block py-5">
+            <div class="relative flex items-center justify-between -mx-4">
+                <div class="max-w-full px-4 w-60">
+                    <a href="/" class="block w-full py-5 navbar-logo">
                         <img src="{{ asset('logo.png') }}" alt="logo" class="w-full header-logo" />
                     </a>
                 </div>
-                <div class="flex px-4 justify-between items-center w-full">
+                <div class="flex items-center justify-between w-full px-4">
                     <div>
                         <button id="navbarToggler"
-                            class="block absolute right-4 top-1/2
-                  -translate-y-1/2
-                  lg:hidden
-                  focus:ring-2
-                  ring-primary
-                  px-3
-                  py-[6px]
-                  rounded-lg
-                ">
+                            class="block absolute right-4 top-1/2 -translate-y-1/2 lg:hidden focus:ring-2 ring-primary px-3 py-[6px] rounded-lg">
                             <span class="relative w-[30px] h-[2px] my-[6px] block bg-white"></span>
                             <span class="relative w-[30px] h-[2px] my-[6px] block bg-white"></span>
                             <span class="relative w-[30px] h-[2px] my-[6px] block bg-white"></span>
                         </button>
                         <nav id="navbarCollapse"
-                            class="
-                  absolute
-                  py-5
-                  lg:py-0 lg:px-4
-                  xl:px-6
-                  bg-white
-                  lg:bg-transparent
-                  shadow-lg
-                  rounded-lg
-                  max-w-[250px]
-                  w-full
-                  lg:max-w-full lg:w-full
-                  right-4
-                  top-full
-                  hidden
-                  lg:block lg:static lg:shadow-none
-                ">
-
+                            class="absolute
+                        py-5
+                        lg:py-0 lg:px-4
+                        xl:px-6
+                        bg-white
+                        lg:bg-transparent
+                        shadow-lg
+                        rounded-lg
+                        max-w-[250px]
+                        w-full
+                        lg:max-w-full lg:w-full
+                        right-4
+                        top-full
+                        hidden
+                        lg:block lg:static lg:shadow-none
+                        ">
                             <ul class="blcok lg:flex">
                                 <li class="relative group">
                                     <a href="#home"
-                                        class="
-                        ud-menu-scroll
-                        text-base text-dark
-                        lg:text-white
-                        lg:group-hover:opacity-70
-                        lg:group-hover:text-white
-                        group-hover:text-primary
-                        py-2
-                        lg:py-6 lg:inline-flex lg:px-0
-                        flex
-                        mx-8
-                        lg:mr-0
-                      ">
+                                        class="flex py-2 mx-8 text-base ud-menu-scroll text-dark lg:text-white lg:group-hover:opacity-70 lg:group-hover:text-white group-hover:text-primary lg:py-6 lg:inline-flex lg:px-0 lg:mr-0">
                                         Home
                                     </a>
                                 </li>
                                 <li class="relative group">
                                     <a href="#about"
-                                        class="
-                        ud-menu-scroll
-                        text-base text-dark
-                        lg:text-white
-                        lg:group-hover:opacity-70
-                        lg:group-hover:text-white
-                        group-hover:text-primary
-                        py-2
-                        lg:py-6 lg:inline-flex lg:px-0
-                        flex
-                        mx-8
-                        lg:mr-0 lg:ml-7
-                        xl:ml-12
-                      ">
+                                        class="flex py-2 mx-8 text-base ud-menu-scroll text-dark lg:text-white lg:group-hover:opacity-70 lg:group-hover:text-white group-hover:text-primary lg:py-6 lg:inline-flex lg:px-0 lg:mr-0 lg:ml-7 xl:ml-12">
                                         About
                                     </a>
                                 </li>
                                 <li class="relative group">
                                     <a href="#pricing"
-                                        class="
-                        ud-menu-scroll
-                        text-base text-dark
-                        lg:text-white
-                        lg:group-hover:opacity-70
-                        lg:group-hover:text-white
-                        group-hover:text-primary
-                        py-2
-                        lg:py-6 lg:inline-flex lg:px-0
-                        flex
-                        mx-8
-                        lg:mr-0 lg:ml-7
-                        xl:ml-12
-                      ">
+                                        class="flex py-2 mx-8 text-base ud-menu-scroll text-dark lg:text-white lg:group-hover:opacity-70 lg:group-hover:text-white group-hover:text-primary lg:py-6 lg:inline-flex lg:px-0 lg:mr-0 lg:ml-7 xl:ml-12">
                                         Pricing
                                     </a>
                                 </li>
-
                                 <li class="relative group">
                                     <a href="#contact"
-                                        class="
-                        ud-menu-scroll
-                        text-base text-dark
-                        lg:text-white
-                        lg:group-hover:opacity-70
-                        lg:group-hover:text-white
-                        group-hover:text-primary
-                        py-2
-                        lg:py-6 lg:inline-flex lg:px-0
-                        flex
-                        mx-8
-                        lg:mr-0 lg:ml-7
-                        xl:ml-12
-                      ">
+                                        class="flex py-2 mx-8 text-base ud-menu-scroll text-dark lg:text-white lg:group-hover:opacity-70 lg:group-hover:text-white group-hover:text-primary lg:py-6 lg:inline-flex lg:px-0 lg:mr-0 lg:ml-7 xl:ml-12">
                                         Contact
                                     </a>
                                 </li>
-
                             </ul>
                         </nav>
                     </div>
-                    <div class="sm:flex justify-end hidden pr-16 lg:pr-0">
-                        @auth
-                            <a href="{{ route('login') }}"
-                                class="text-base font-mediumtext-white hover:opacity-70 py-3 px-7 loginBtn">
-                                Sign In
-                            </a>
+                    <div class="justify-end hidden pr-16 sm:flex lg:pr-0">
 
-                            <a href="{{ route('register') }}"
-                                class="text-base font-mediumtext-white hover:opacity-70 py-3 px-7 loginBtn">
-                                Sign Up
-                            </a>
-                        @else
-                            <a href="{{ route('login') }}"
-                                class="text-base font-medium text-white hover:opacity-70 py-3 px-7 loginBtn">
-                                Sign In
-                            </a>
-                            <a href="{{ route('register') }}"
-                                class="text-base font-medium text-white hover:opacity-70 py-3 px-7 loginBtn">
-                                Sign Up
-                            </a>
-                        @endauth
-
-
+                        <a href="{{ route('login') }}"
+                            class="py-3 text-base font-medium text-white hover:opacity-70 px-7 loginBtn">
+                            Sign In
+                        </a>
+                        <a href="#pricing"
+                            class="px-6 py-3 text-base font-medium text-white duration-300 ease-in-out bg-white rounded-lg bg-opacity-20 hover:bg-opacity-100 hover:text-dark signUpBtn">
+                            Get Started
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <!-- ====== Navbar Section End -->
-
     <!-- ====== Hero Section Start -->
     <div id="home" class="relative pt-[120px] md:pt-[130px] lg:pt-[160px] bg-primary">
         <div class="container">
             <div class="flex flex-wrap items-center -mx-4">
                 <div class="w-full px-4">
                     <div class="
-                hero-content
-                text-center
-                max-w-[780px]
-                mx-auto
-                wow
-                fadeInUp
-              "
+                     hero-content
+                     text-center
+                     max-w-[780px]
+                     mx-auto
+                     wow
+                     fadeInUp
+                     "
                         data-wow-delay=".2s">
                         <h1
                             class="text-white font-bold text-3xl sm:text-4xl
-                  md:text-[45px]
-                  leading-snug
-                  sm:leading-snug
-                  md:leading-snug
-                  mb-8
-                ">
+                        md:text-[45px]
+                        leading-snug
+                        sm:leading-snug
+                        md:leading-snug
+                        mb-8
+                        ">
                             Simplify Your Inventory Management with BizRoon Inventory
                         </h1>
                         <p
                             class="
-                  text-base
-                  sm:text-lg sm:leading-relaxed
-                  md:text-xl md:leading-relaxed
-                  mx-auto
-                  mb-10
-                  text-[#e4e4e4]
-                  max-w-[600px]
-                ">
+                        text-base
+                        sm:text-lg sm:leading-relaxed
+                        md:text-xl md:leading-relaxed
+                        mx-auto
+                        mb-10
+                        text-[#e4e4e4]
+                        max-w-[600px]
+                        ">
                             All-in-one solution for efficient and hassle-free inventory control.
                         </p>
                         <ul class="flex flex-wrap items-center justify-center mb-5">
                             <li>
                                 <a href="#pricing"
-                                    class="
-                      py-4
-                      px-6
-                      sm:px-10
-                      inline-flex
-                      items-center
-                      justify-center
-                      text-center text-dark text-base
-                      bg-white
-                      hover:text-primary hover:shadow-lg
-                      font-medium
-                      rounded-lg
-                      transition
-                      duration-300
-                      ease-in-out
-                    ">
+                                    class="inline-flex items-center justify-center px-6 py-4 text-base font-medium text-center transition duration-300 ease-in-out bg-white rounded-lg sm:px-10 text-dark hover:text-primary hover:shadow-lg">
                                     Try for Free
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </div>
-
                 <div class="w-full px-4">
                     <div class="mx-auto max-w-[845px] relative z-10 wow fadeInUp" data-wow-delay=".25s">
                         <div class="mt-16">
-                            <img src="assets/images/hero/hero-image.jpg" alt="hero"
+                            <img src="{{ asset('demo.gif') }}" alt="hero"
                                 class="max-w-full mx-auto rounded-t-xl rounded-tr-xl" />
                         </div>
                         <div class="absolute z-[-1] bottom-0 -left-9">
@@ -580,75 +486,70 @@
         </div>
     </div>
     <!-- ====== Hero Section End -->
-
     <!-- ====== Features Section Start -->
     <section class="pt-20 lg:pt-[120px] pb-8 lg:pb-[70px]">
         <div class="container">
             <div class="flex flex-wrap -mx-4">
                 <div class="w-full px-4">
                     <div class="mb-12 lg:mb-20 max-w-[620px]">
-                        <span class="font-semibold text-lg text-primary mb-2 block">
+                        <span class="block mb-2 text-lg font-semibold text-primary">
                             Features
                         </span>
                         <h2
                             class="
-                  font-bold
-                  text-3xl
-                  sm:text-4xl
-                  md:text-[42px]
-                  text-dark
-                  mb-4
-                ">
-                            Main Features Of Play
+                        font-bold
+                        text-3xl
+                        sm:text-4xl
+                        md:text-[42px]
+                        text-dark
+                        mb-4
+                        ">
+                            Features That Make Inventory Management Easy
                         </h2>
-                        <p
-                            class="
-                  text-lg
-                  sm:text-xl
-                  leading-relaxed
-                  sm:leading-relaxed
-                  text-body-color
-                ">
-                            There are many variations of passages of Lorem Ipsum available
-                            but the majority have suffered alteration in some form.
+                        <p class="text-lg leading-relaxed sm:text-xl sm:leading-relaxed text-body-color">
+                            Discover a range of features designed to simplify and enhance your inventory management
+                            process. Our platform combines powerful tools with an intuitive interface to ensure you can
+                            manage your inventory efficiently and effectively. Whether you’re a small business or a
+                            large enterprise, our features provide the flexibility and control you need to stay
+                            organized and productive.
                         </p>
                     </div>
                 </div>
             </div>
             <div class="flex flex-wrap -mx-4">
-                <div class="w-full md:w-1/2 lg:w-1/4 px-4">
-                    <div class="bg-white mb-12 group wow fadeInUp" data-wow-delay=".1s">
+                <div class="w-full px-4 md:w-1/2 lg:w-1/4">
+                    <div class="mb-12 bg-white group wow fadeInUp" data-wow-delay=".1s">
                         <div
                             class="
-                  w-[70px]
-                  h-[70px]
-                  flex
-                  items-center
-                  justify-center
-                  bg-primary
-                  rounded-2xl
-                  mb-8
-                  relative
-                  z-10
-                ">
+                        w-[70px]
+                        h-[70px]
+                        flex
+                        items-center
+                        justify-center
+                        bg-primary
+                        rounded-2xl
+                        mb-8
+                        relative
+                        z-10
+                        ">
                             <span
                                 class="
-                    w-[70px]
-                    h-[70px]
-                    flex
-                    items-center
-                    justify-center
-                    bg-primary bg-opacity-20
-                    rounded-2xl
-                    mb-8
-                    absolute
-                    z-[-1]
-                    top-0
-                    left-0
-                    rotate-[25deg]
-                    group-hover:rotate-45
-                    duration-300
-                  "></span>
+                           w-[70px]
+                           h-[70px]
+                           flex
+                           items-center
+                           justify-center
+                           bg-primary bg-opacity-20
+                           rounded-2xl
+                           mb-8
+                           absolute
+                           z-[-1]
+                           top-0
+                           left-0
+                           rotate-[25deg]
+                           group-hover:rotate-45
+                           duration-300
+                           "></span>
                             <svg width="35" height="35" viewBox="0 0 52 52" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -656,50 +557,51 @@
                                     fill="white" />
                             </svg>
                         </div>
-                        <h4 class="font-bold text-xl text-dark mb-3">
-                            Free and Open-Source
+                        <h4 class="mb-3 text-xl font-bold text-dark">
+                            Free to Use
                         </h4>
-                        <p class="text-body-color mb-8 lg:mb-11">
-                            Lorem Ipsum is simply dummy text of the printing and industry.
+                        <p class="mb-8 text-body-color lg:mb-11">
+                            Get started without any financial commitment. Our platform offers a free tier that includes
+                            all the essential features you need to manage your inventory effectively. This allows you to
+                            explore and utilize our system at no cost, making it accessible for businesses of all sizes.
+                            As your needs grow, you can easily upgrade to a paid plan for additional features and
+                            capabilities.
                         </p>
-                        <a href="javascript:void(0)" class="font-medium text-base text-body-color hover:text-primary">
-                            Learn More
-                        </a>
                     </div>
                 </div>
-                <div class="w-full md:w-1/2 lg:w-1/4 px-4">
-                    <div class="bg-white mb-12 group wow fadeInUp" data-wow-delay=".15s">
+                <div class="w-full px-4 md:w-1/2 lg:w-1/4">
+                    <div class="mb-12 bg-white group wow fadeInUp" data-wow-delay=".15s">
                         <div
                             class="
-                  w-[70px]
-                  h-[70px]
-                  flex
-                  items-center
-                  justify-center
-                  bg-primary
-                  rounded-2xl
-                  mb-8
-                  relative
-                  z-10
-                ">
+                        w-[70px]
+                        h-[70px]
+                        flex
+                        items-center
+                        justify-center
+                        bg-primary
+                        rounded-2xl
+                        mb-8
+                        relative
+                        z-10
+                        ">
                             <span
                                 class="
-                    w-[70px]
-                    h-[70px]
-                    flex
-                    items-center
-                    justify-center
-                    bg-primary bg-opacity-20
-                    rounded-2xl
-                    mb-8
-                    absolute
-                    z-[-1]
-                    top-0
-                    left-0
-                    rotate-[25deg]
-                    group-hover:rotate-45
-                    duration-300
-                  "></span>
+                           w-[70px]
+                           h-[70px]
+                           flex
+                           items-center
+                           justify-center
+                           bg-primary bg-opacity-20
+                           rounded-2xl
+                           mb-8
+                           absolute
+                           z-[-1]
+                           top-0
+                           left-0
+                           rotate-[25deg]
+                           group-hover:rotate-45
+                           duration-300
+                           "></span>
                             <svg width="35" height="35" viewBox="0 0 52 52" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -707,50 +609,50 @@
                                     fill="white" />
                             </svg>
                         </div>
-                        <h4 class="font-bold text-xl text-dark mb-3">
-                            Multipurpose Template
+                        <h4 class="mb-3 text-xl font-bold text-dark">
+                            Inventory Tracking
                         </h4>
-                        <p class="text-body-color mb-8 lg:mb-11">
-                            Lorem Ipsum is simply dummy text of the printing and industry.
+                        <p class="mb-8 text-body-color lg:mb-11">
+                            Keep real-time tabs on your inventory with our powerful tracking system. Our intuitive
+                            interface allows you to monitor stock levels, manage product locations, and track inventory
+                            movements seamlessly. With detailed logs and audit trails, you can always know where your
+                            inventory stands, reducing the risk of overstocking or stockouts.
                         </p>
-                        <a href="javascript:void(0)" class="font-medium text-base text-body-color hover:text-primary">
-                            Learn More
-                        </a>
                     </div>
                 </div>
-                <div class="w-full md:w-1/2 lg:w-1/4 px-4">
-                    <div class="bg-white mb-12 group wow fadeInUp" data-wow-delay=".2s">
+                <div class="w-full px-4 md:w-1/2 lg:w-1/4">
+                    <div class="mb-12 bg-white group wow fadeInUp" data-wow-delay=".2s">
                         <div
                             class="
-                  w-[70px]
-                  h-[70px]
-                  flex
-                  items-center
-                  justify-center
-                  bg-primary
-                  rounded-2xl
-                  mb-8
-                  relative
-                  z-10
-                ">
+                        w-[70px]
+                        h-[70px]
+                        flex
+                        items-center
+                        justify-center
+                        bg-primary
+                        rounded-2xl
+                        mb-8
+                        relative
+                        z-10
+                        ">
                             <span
                                 class="
-                    w-[70px]
-                    h-[70px]
-                    flex
-                    items-center
-                    justify-center
-                    bg-primary bg-opacity-20
-                    rounded-2xl
-                    mb-8
-                    absolute
-                    z-[-1]
-                    top-0
-                    left-0
-                    rotate-[25deg]
-                    group-hover:rotate-45
-                    duration-300
-                  "></span>
+                           w-[70px]
+                           h-[70px]
+                           flex
+                           items-center
+                           justify-center
+                           bg-primary bg-opacity-20
+                           rounded-2xl
+                           mb-8
+                           absolute
+                           z-[-1]
+                           top-0
+                           left-0
+                           rotate-[25deg]
+                           group-hover:rotate-45
+                           duration-300
+                           "></span>
                             <svg width="35" height="35" viewBox="0 0 35 35" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -767,50 +669,51 @@
                                     fill="white" />
                             </svg>
                         </div>
-                        <h4 class="font-bold text-xl text-dark mb-3">
-                            High-quality Design
+                        <h4 class="mb-3 text-xl font-bold text-dark">
+                            Easy to Learn
                         </h4>
-                        <p class="text-body-color mb-8 lg:mb-11">
-                            Lorem Ipsum is simply dummy text of the printing and industry.
+                        <p class="mb-8 text-body-color lg:mb-11">
+                            Our platform is designed with simplicity in mind, making it easy to learn and use. Whether
+                            you're a seasoned professional or new to inventory management, our user-friendly interface
+                            ensures a smooth onboarding experience. With comprehensive tutorials, guides, and customer
+                            support, you'll be up and running in no time, efficiently managing your inventory with
+                            confidence.
                         </p>
-                        <a href="javascript:void(0)" class="font-medium text-base text-body-color hover:text-primary">
-                            Learn More
-                        </a>
                     </div>
                 </div>
-                <div class="w-full md:w-1/2 lg:w-1/4 px-4">
-                    <div class="bg-white mb-12 group wow fadeInUp" data-wow-delay=".25s">
+                <div class="w-full px-4 md:w-1/2 lg:w-1/4">
+                    <div class="mb-12 bg-white group wow fadeInUp" data-wow-delay=".25s">
                         <div
                             class="
-                  w-[70px]
-                  h-[70px]
-                  flex
-                  items-center
-                  justify-center
-                  bg-primary
-                  rounded-2xl
-                  mb-8
-                  relative
-                  z-10
-                ">
+                        w-[70px]
+                        h-[70px]
+                        flex
+                        items-center
+                        justify-center
+                        bg-primary
+                        rounded-2xl
+                        mb-8
+                        relative
+                        z-10
+                        ">
                             <span
                                 class="
-                    w-[70px]
-                    h-[70px]
-                    flex
-                    items-center
-                    justify-center
-                    bg-primary bg-opacity-20
-                    rounded-2xl
-                    mb-8
-                    absolute
-                    z-[-1]
-                    top-0
-                    left-0
-                    rotate-[25deg]
-                    group-hover:rotate-45
-                    duration-300
-                  "></span>
+                           w-[70px]
+                           h-[70px]
+                           flex
+                           items-center
+                           justify-center
+                           bg-primary bg-opacity-20
+                           rounded-2xl
+                           mb-8
+                           absolute
+                           z-[-1]
+                           top-0
+                           left-0
+                           rotate-[25deg]
+                           group-hover:rotate-45
+                           duration-300
+                           "></span>
                             <svg width="35" height="35" viewBox="0 0 35 35" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -818,106 +721,71 @@
                                     fill="white" />
                             </svg>
                         </div>
-                        <h4 class="font-bold text-xl text-dark mb-3">
-                            All Essential Elements
+                        <h4 class="mb-3 text-xl font-bold text-dark">
+                            Detailed Reporting
                         </h4>
-                        <p class="text-body-color mb-8 lg:mb-11">
-                            Lorem Ipsum is simply dummy text of the printing and industry.
+                        <p class="mb-8 text-body-color lg:mb-11">
+                            Gain actionable insights into your inventory operations with our comprehensive reporting
+                            tools. Generate detailed reports on stock levels, sales trends, and inventory turnover,
+                            helping you make informed decisions. Customize reports to focus on specific metrics that
+                            matter to your business, ensuring you have the data needed to optimize your inventory
+                            management strategies.
                         </p>
-                        <a href="javascript:void(0)" class="font-medium text-base text-body-color hover:text-primary">
-                            Learn More
-                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
     <!-- ====== Features Section End -->
-
     <!-- ====== About Section Start -->
     <section id="about" class="pt-20 lg:pt-[120px] pb-20 lg:pb-[120px] bg-[#f3f4fe]">
         <div class="container">
             <div class="bg-white wow fadeInUp" data-wow-delay=".2s">
                 <div class="flex flex-wrap -mx-4">
                     <div class="w-full px-4">
-                        <div
-                            class="
-                  lg:flex
-                  items-center
-                  justify-between
-                  border
-                  overflow-hidden
-                ">
+                        <div class="items-center justify-between overflow-hidden border lg:flex">
                             <div
                                 class="
-                    lg:max-w-[565px]
-                    xl:max-w-[640px]
-                    w-full
-                    py-12
-                    px-7
-                    sm:px-12
-                    md:p-16
-                    lg:py-9 lg:px-16
-                    xl:p-[70px]
-                  ">
-                                <span
-                                    class="
-                      text-sm
-                      font-medium
-                      text-white
-                      py-2
-                      px-5
-                      bg-primary
-                      inline-block
-                      mb-5
-                    ">
+                           lg:max-w-[565px]
+                           xl:max-w-[640px]
+                           w-full
+                           py-12
+                           px-7
+                           sm:px-12
+                           md:p-16
+                           lg:py-9 lg:px-16
+                           xl:p-[70px]
+                           ">
+                                <span class="inline-block px-5 py-2 mb-5 text-sm font-medium text-white bg-primary">
                                     About Us
                                 </span>
                                 <h2
                                     class="
-                      font-bold
-                      text-3xl
-                      sm:text-4xl
-                      2xl:text-[40px]
-                      sm:leading-snug
-                      text-dark
-                      mb-6
-                    ">
-                                    Brilliant Toolkit to Build Nextgen Website Faster.
+                              font-bold
+                              text-3xl
+                              sm:text-4xl
+                              2xl:text-[40px]
+                              sm:leading-snug
+                              text-dark
+                              mb-6
+                              ">
+                                    Innovating Inventory Management for Businesses of All Sizes.
                                 </h2>
-                                <p class="text-base text-body-color mb-9 leading-relaxed">
-                                    The main ‘thrust' is to focus on educating attendees on how
-                                    to best protect highly vulnerable business applications with
-                                    interactive panel discussions and roundtables led by subject
-                                    matter experts.
+                                <p class="text-base leading-relaxed text-body-color mb-9">
+                                    Our mission is to simplify and enhance inventory management for businesses worldwide
+                                    through innovative technology and exceptional customer service.
                                 </p>
-                                <p class="text-base text-body-color mb-9 leading-relaxed">
-                                    The main ‘thrust' is to focus on educating attendees on how
-                                    to best protect highly vulnerable business applications with
-                                    interactive panel.
+                                <p class="text-base leading-relaxed text-body-color mb-9">
+                                    Our vision is to be the leading provider of inventory management solutions,
+                                    empowering businesses to achieve greater efficiency and success.
                                 </p>
                                 <a href="javascript:void(0)"
-                                    class="
-                      inline-flex
-                      items-center
-                      justify-center
-                      py-4
-                      px-6
-                      rounded
-                      text-white
-                      bg-primary
-                      text-base
-                      font-medium
-                      hover:bg-opacity-90 hover:shadow-lg
-                      transition
-                      duration-300
-                      ease-in-out
-                    ">
+                                    class="inline-flex items-center justify-center px-6 py-4 text-base font-medium text-white transition duration-300 ease-in-out rounded bg-primary hover:bg-opacity-90 hover:shadow-lg">
                                     Learn More
                                 </a>
                             </div>
                             <div class="text-center">
-                                <div class="relative inline-block z-10">
+                                <div class="relative z-10 inline-block">
                                     <img src="assets/images/about/about-image.svg" alt="image"
                                         class="mx-auto lg:ml-auto" />
                                 </div>
@@ -929,391 +797,230 @@
         </div>
     </section>
     <!-- ====== About Section End -->
-
     <!-- ====== Pricing Section Start -->
     <section id="pricing"
         class="
-        bg-white
-        pt-20
-        lg:pt-[120px]
-        pb-12
-        lg:pb-[90px]
-        relative
-        z-20
-        overflow-hidden
-      ">
+         bg-white
+         pt-20
+         lg:pt-[120px]
+         pb-12
+         lg:pb-[90px]
+         relative
+         z-20
+         overflow-hidden
+         ">
         <div class="container">
             <div class="flex flex-wrap -mx-4">
                 <div class="w-full px-4">
                     <div class="text-center mx-auto mb-[60px] lg:mb-20 max-w-[620px]">
-                        <span class="font-semibold text-lg text-primary mb-2 block">
+                        <span class="block mb-2 text-lg font-semibold text-primary">
                             Pricing Table
                         </span>
                         <h2
                             class="
-                  font-bold
-                  text-3xl
-                  sm:text-4xl
-                  md:text-[40px]
-                  text-dark
-                  mb-4
-                ">
-                            Our Pricing Plan
+                        font-bold
+                        text-3xl
+                        sm:text-4xl
+                        md:text-[40px]
+                        text-dark
+                        mb-4
+                        ">
+                            Choose the Plan That’s Right for You
                         </h2>
-                        <p
-                            class="
-                  text-lg
-                  sm:text-xl
-                  leading-relaxed
-                  sm:leading-relaxed
-                  text-body-color
-                ">
-                            There are many variations of passages of Lorem Ipsum available
-                            but the majority have suffered alteration in some form.
+                        <p class="text-lg leading-relaxed sm:text-xl sm:leading-relaxed text-body-color">
+                            Select from our flexible pricing plans designed to meet the needs of businesses of all sizes
+                            and stages.
                         </p>
                     </div>
                 </div>
             </div>
-
             <div class="flex flex-wrap items-center justify-center">
                 <div class="w-full md:w-1/2 lg:w-1/3">
-                    <div class="
-                bg-white
-                rounded-xl
-                relative
-                z-10
-                overflow-hidden
-                border border-primary border-opacity-20
-                shadow-pricing
-                py-10
-                px-8
-                sm:p-12
-                lg:py-10 lg:px-6
-                xl:p-12
-                mb-10
-                text-center
-                wow
-                fadeInUp
-              "
+                    <div class="relative z-10 px-8 py-10 mb-10 overflow-hidden text-center bg-white border rounded-xl border-primary border-opacity-20 shadow-pricing sm:p-12 lg:py-10 lg:px-6 xl:p-12 wow fadeInUp"
                         data-wow-delay=".15s
-              ">
-                        <span class="text-dark font-medium text-base uppercase block mb-2">
-                            STARTING FROM
+                     ">
+                        <span class="block mb-2 text-base font-medium uppercase text-dark">
+                            Free Plan
                         </span>
                         <h2 class="font-semibold text-primary mb-9 text-[28px]">
-                            $ 19.99/mo
+                            0.00/mo
                         </h2>
-
                         <div class="mb-10">
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
+                            <p class="mb-1 text-base font-medium leading-loose text-body-color">
                                 1 User
                             </p>
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
-                                All UI components
+                            <p class="mb-1 text-base font-medium leading-loose text-body-color">
+                                Limited Features (Products, Expenses, Sales)
                             </p>
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
+                            <p class="mb-1 text-base font-medium leading-loose text-body-color">
                                 Lifetime access
                             </p>
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
+                            <p class="mb-1 text-base font-medium leading-loose text-body-color">
                                 Free updates
                             </p>
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
-                                Use on 1 (one) project
-                            </p>
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
-                                3 Months support
+                            <p class="mb-1 text-base font-medium leading-loose text-body-color">
+                                Use on 1 (one) store
                             </p>
                         </div>
                         <div class="w-full">
                             <a href="javascript:void(0)"
                                 class="
-                    inline-block
-                    text-base
-                    font-medium
-                    text-primary
-                    bg-transparent
-                    border border-[#D4DEFF]
-                    rounded-full
-                    text-center
-                    py-4
-                    px-11
-                    hover:text-white hover:bg-primary hover:border-primary
-                    transition
-                    duration-300
-                    ease-in-out
-                  ">
-                                Purchase Now
+                           inline-block
+                           text-base
+                           font-medium
+                           text-primary
+                           bg-transparent
+                           border border-[#D4DEFF]
+                           rounded-full
+                           text-center
+                           py-4
+                           px-11
+                           hover:text-white hover:bg-primary hover:border-primary
+                           transition
+                           duration-300
+                           ease-in-out
+                           ">
+                                Get Started for Free
                             </a>
                         </div>
                         <span
                             class="
-                  absolute
-                  left-0
-                  bottom-0
-                  z-[-1]
-                  w-14
-                  h-14
-                  rounded-tr-full
-                  block
-                  bg-primary
-                ">
+                        absolute
+                        left-0
+                        bottom-0
+                        z-[-1]
+                        w-14
+                        h-14
+                        rounded-tr-full
+                        block
+                        bg-primary
+                        ">
                         </span>
                     </div>
                 </div>
                 <div class="w-full md:w-1/2 lg:w-1/3">
                     <div class="
-                bg-primary bg-gradient-to-b
-                from-primary
-                to-[#179BEE]
-                rounded-xl
-                relative
-                z-10
-                overflow-hidden
-                shadow-pricing
-                py-10
-                px-8
-                sm:p-12
-                lg:py-10 lg:px-6
-                xl:p-12
-                mb-10
-                text-center
-                wow
-                fadeInUp
-              "
+                     bg-primary bg-gradient-to-b
+                     from-primary
+                     to-[#179BEE]
+                     rounded-xl
+                     relative
+                     z-10
+                     overflow-hidden
+                     shadow-pricing
+                     py-10
+                     px-8
+                     sm:p-12
+                     lg:py-10 lg:px-6
+                     xl:p-12
+                     mb-10
+                     text-center
+                     wow
+                     fadeInUp
+                     "
                         data-wow-delay=".1s
-              ">
+                     ">
                         <span
-                            class="
-                  inline-block
-                  py-2
-                  px-6
-                  border border-white
-                  rounded-full
-                  text-base
-                  font-semibold
-                  text-primary
-                  bg-white
-                  uppercase
-                  mb-5
-                ">
-                            POPULAR
+                            class="inline-block px-6 py-2 mb-5 text-base font-semibold uppercase bg-white border border-white rounded-full text-primary">
+                            Popular
                         </span>
-                        <span class="text-white font-medium text-base uppercase block mb-2">
-                            STARTING FROM
+                        <span class="block mb-2 text-base font-medium text-white uppercase">
+                            Basic Plan
                         </span>
                         <h2 class="font-semibold text-white mb-9 text-[28px]">
-                            $ 19.99/mo
+                            $ 4.99/mo
                         </h2>
-
                         <div class="mb-10">
-                            <p class="text-base font-medium text-white leading-loose mb-1">
-                                5 User
+                            <p class="mb-1 text-base font-medium leading-loose text-white">
+                                1 User
                             </p>
-                            <p class="text-base font-medium text-white leading-loose mb-1">
-                                All UI components
+                            <p class="mb-1 text-base font-medium leading-loose text-white">
+                                Access features (Products, Inventory, Expenses, Sales, Supplier, Customers)
                             </p>
-                            <p class="text-base font-medium text-white leading-loose mb-1">
+                            <p class="mb-1 text-base font-medium leading-loose text-white">
                                 Lifetime access
                             </p>
-                            <p class="text-base font-medium text-white leading-loose mb-1">
+                            <p class="mb-1 text-base font-medium leading-loose text-white">
                                 Free updates
                             </p>
-                            <p class="text-base font-medium text-white leading-loose mb-1">
-                                Use on 1 (one) project
+                            <p class="mb-1 text-base font-medium leading-loose text-white">
+                                Use on 1 (one) store
                             </p>
-                            <p class="text-base font-medium text-white leading-loose mb-1">
-                                4 Months support
+                            <p class="mb-1 text-base font-medium leading-loose text-white">
+                                Lifetime support
                             </p>
                         </div>
                         <div class="w-full">
                             <a href="javascript:void(0)"
-                                class="
-                    inline-block
-                    text-base
-                    font-medium
-                    text-dark
-                    bg-white
-                    border border-white
-                    rounded-full
-                    text-center
-                    py-4
-                    px-11
-                    hover:text-white hover:bg-dark hover:border-dark
-                    transition
-                    duration-300
-                    ease-in-out
-                  ">
-                                Purchase Now
+                                class="inline-block py-4 text-base font-medium text-center transition duration-300 ease-in-out bg-white border border-white rounded-full text-dark px-11 hover:text-white hover:bg-dark hover:border-dark">
+                                Upgrade to Basic
                             </a>
                         </div>
                     </div>
                 </div>
                 <div class="w-full md:w-1/2 lg:w-1/3">
-                    <div class="
-                bg-white
-                rounded-xl
-                relative
-                z-10
-                overflow-hidden
-                border border-primary border-opacity-20
-                shadow-pricing
-                py-10
-                px-8
-                sm:p-12
-                lg:py-10 lg:px-6
-                xl:p-12
-                mb-10
-                text-center
-                wow
-                fadeInUp
-              "
+                    <div class="relative z-10 px-8 py-10 mb-10 overflow-hidden text-center bg-white border rounded-xl border-primary border-opacity-20 shadow-pricing sm:p-12 lg:py-10 lg:px-6 xl:p-12 wow fadeInUp"
                         data-wow-delay=".15s
-              ">
-                        <span class="text-dark font-medium text-base uppercase block mb-2">
-                            STARTING FROM
+                     ">
+                        <span class="block mb-2 text-base font-medium uppercase text-dark">
+                            Standard Plan
                         </span>
                         <h2 class="font-semibold text-primary mb-9 text-[28px]">
-                            $ 70.99/mo
+                            $ 14.99/mo
                         </h2>
-
                         <div class="mb-10">
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
-                                1 User
+                            <p class="mb-1 text-base font-medium leading-loose text-body-color">
+                                Unlimited User
                             </p>
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
-                                All UI components
+                            <p class="mb-1 text-base font-medium leading-loose text-body-color">
+                                Access all features
                             </p>
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
+                            <p class="mb-1 text-base font-medium leading-loose text-body-color">
                                 Lifetime access
                             </p>
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
+                            <p class="mb-1 text-base font-medium leading-loose text-body-color">
                                 Free updates
                             </p>
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
-                                Use on unlimited project
+                            <p class="mb-1 text-base font-medium leading-loose text-body-color">
+                                Use on 1 (one) store
                             </p>
-                            <p
-                                class="
-                    text-base
-                    font-medium
-                    text-body-color
-                    leading-loose
-                    mb-1
-                  ">
-                                4 Months support
+                            <p class="mb-1 text-base font-medium leading-loose text-body-color">
+                                Lifetime support
                             </p>
                         </div>
                         <div class="w-full">
                             <a href="javascript:void(0)"
                                 class="
-                    inline-block
-                    text-base
-                    font-medium
-                    text-primary
-                    bg-transparent
-                    border border-[#D4DEFF]
-                    rounded-full
-                    text-center
-                    py-4
-                    px-11
-                    hover:text-white hover:bg-primary hover:border-primary
-                    transition
-                    duration-300
-                    ease-in-out
-                  ">
+                           inline-block
+                           text-base
+                           font-medium
+                           text-primary
+                           bg-transparent
+                           border border-[#D4DEFF]
+                           rounded-full
+                           text-center
+                           py-4
+                           px-11
+                           hover:text-white hover:bg-primary hover:border-primary
+                           transition
+                           duration-300
+                           ease-in-out
+                           ">
                                 Purchase Now
                             </a>
                         </div>
-
                         <span
                             class="
-                  absolute
-                  right-0
-                  top-0
-                  z-[-1]
-                  w-14
-                  h-14
-                  rounded-bl-full
-                  block
-                  bg-secondary
-                ">
+                        absolute
+                        right-0
+                        top-0
+                        z-[-1]
+                        w-14
+                        h-14
+                        rounded-bl-full
+                        block
+                        bg-secondary
+                        ">
                         </span>
                     </div>
                 </div>
@@ -1321,83 +1028,55 @@
         </div>
     </section>
     <!-- ====== Pricing Section End -->
-
     <!-- ====== Faq Section Start -->
     <section
         class="
-        bg-[#f3f4ff]
-        pt-20
-        lg:pt-[120px]
-        pb-12
-        lg:pb-[90px]
-        relative
-        z-20
-        overflow-hidden
-      ">
+         bg-[#f3f4ff]
+         pt-20
+         lg:pt-[120px]
+         pb-12
+         lg:pb-[90px]
+         relative
+         z-20
+         overflow-hidden
+         ">
         <div class="container">
             <div class="flex flex-wrap -mx-4">
                 <div class="w-full px-4">
                     <div class="text-center mx-auto mb-[60px] lg:mb-20 max-w-[620px]">
-                        <span class="font-semibold text-lg text-primary mb-2 block">
+                        <span class="block mb-2 text-lg font-semibold text-primary">
                             FAQ
                         </span>
                         <h2
                             class="
-                  font-bold
-                  text-3xl
-                  sm:text-4xl
-                  md:text-[42px]
-                  text-dark
-                  mb-4
-                ">
+                        font-bold
+                        text-3xl
+                        sm:text-4xl
+                        md:text-[42px]
+                        text-dark
+                        mb-4
+                        ">
                             Any Questions? Answered
                         </h2>
-                        <p
-                            class="
-                  text-lg
-                  sm:text-xl
-                  leading-relaxed
-                  sm:leading-relaxed
-                  text-body-color
-                ">
+                        <p class="text-lg leading-relaxed sm:text-xl sm:leading-relaxed text-body-color">
                             There are many variations of passages of Lorem Ipsum available
                             but the majority have suffered alteration in some form.
                         </p>
                     </div>
                 </div>
             </div>
-
             <div class="flex flex-wrap -mx-4">
-                <div class="w-full lg:w-1/2 px-4">
-                    <div class="
-                single-faq
-                w-full
-                bg-white
-                border border-[#F3F4FE]
-                rounded-lg
-                p-5
-                sm:p-8
-                mb-8
-                wow
-                fadeInUp
-              "
-                        data-wow-delay=".1s
-              ">
-                        <button class="faq-btn flex items-center w-full text-left">
+                <div class="w-full px-4 lg:w-1/2">
+                    <div class="single-faq w-full bg-white border border-[#F3F4FE] rounded-lg
+                     p-5
+                     sm:p-8
+                     mb-8
+                     wow
+                     fadeInUp"
+                        data-wow-delay=".1s">
+                        <button class="flex items-center w-full text-left faq-btn">
                             <div
-                                class="
-                    w-full
-                    max-w-[40px]
-                    h-10
-                    flex
-                    items-center
-                    justify-center
-                    rounded-lg
-                    bg-primary
-                    text-primary
-                    bg-opacity-5
-                    mr-5
-                  ">
+                                class="w-full max-w-[40px] h-10 flex items-center justify-center rounded-lg bg-primary text-primary bg-opacity-5 mr-5">
                                 <svg width="17" height="10" viewBox="0 0 17 10" class="fill-current icon">
                                     <path
                                         d="M7.28687 8.43257L7.28679 8.43265L7.29496 8.43985C7.62576 8.73124 8.02464 8.86001 8.41472 8.86001C8.83092 8.86001 9.22376 8.69083 9.53447 8.41713L9.53454 8.41721L9.54184 8.41052L15.7631 2.70784L15.7691 2.70231L15.7749 2.69659C16.0981 2.38028 16.1985 1.80579 15.7981 1.41393C15.4803 1.1028 14.9167 1.00854 14.5249 1.38489L8.41472 7.00806L2.29995 1.38063L2.29151 1.37286L2.28271 1.36548C1.93092 1.07036 1.38469 1.06804 1.03129 1.41393L1.01755 1.42738L1.00488 1.44184C0.69687 1.79355 0.695778 2.34549 1.0545 2.69659L1.05999 2.70196L1.06565 2.70717L7.28687 8.43257Z"
@@ -1405,49 +1084,43 @@
                                 </svg>
                             </div>
                             <div class="w-full">
-                                <h4 class="text-base sm:text-lg font-semibold text-black">
-                                    How to use TailGrids?
+                                <h4 class="text-base font-semibold text-black sm:text-lg">
+                                    What is BizRoon Inventory?
                                 </h4>
                             </div>
                         </button>
                         <div class="faq-content pl-[62px] hidden">
-                            <p class="text-base text-body-color leading-relaxed py-3">
-                                It takes 2-3 weeks to get your first blog post ready. That
-                                includes the in-depth research & creation of your monthly
-                                content marketing strategy that we do before writing your
-                                first blog post, Ipsum available .
+                            <p class="py-3 text-base leading-relaxed text-body-color">
+                                BizRoon Inventory is a comprehensive inventory management software designed to help
+                                businesses track their inventory, manage suppliers, handle expenses, and more.
                             </p>
                         </div>
                     </div>
-                    <div class="
-                single-faq
-                w-full
-                bg-white
-                border border-[#F3F4FE]
-                rounded-lg
-                p-5
-                sm:p-8
-                mb-8
-                wow
-                fadeInUp
-              "
+                    <div class="single-faq w-full bg-white border border-[#F3F4FE]
+                     rounded-lg
+                     p-5
+                     sm:p-8
+                     mb-8
+                     wow
+                     fadeInUp
+                     "
                         data-wow-delay=".15s
-              ">
-                        <button class="faq-btn flex items-center w-full text-left">
+                     ">
+                        <button class="flex items-center w-full text-left faq-btn">
                             <div
                                 class="
-                    w-full
-                    max-w-[40px]
-                    h-10
-                    flex
-                    items-center
-                    justify-center
-                    rounded-lg
-                    bg-primary
-                    text-primary
-                    bg-opacity-5
-                    mr-5
-                  ">
+                           w-full
+                           max-w-[40px]
+                           h-10
+                           flex
+                           items-center
+                           justify-center
+                           rounded-lg
+                           bg-primary
+                           text-primary
+                           bg-opacity-5
+                           mr-5
+                           ">
                                 <svg width="17" height="10" viewBox="0 0 17 10" class="fill-current icon">
                                     <path
                                         d="M7.28687 8.43257L7.28679 8.43265L7.29496 8.43985C7.62576 8.73124 8.02464 8.86001 8.41472 8.86001C8.83092 8.86001 9.22376 8.69083 9.53447 8.41713L9.53454 8.41721L9.54184 8.41052L15.7631 2.70784L15.7691 2.70231L15.7749 2.69659C16.0981 2.38028 16.1985 1.80579 15.7981 1.41393C15.4803 1.1028 14.9167 1.00854 14.5249 1.38489L8.41472 7.00806L2.29995 1.38063L2.29151 1.37286L2.28271 1.36548C1.93092 1.07036 1.38469 1.06804 1.03129 1.41393L1.01755 1.42738L1.00488 1.44184C0.69687 1.79355 0.695778 2.34549 1.0545 2.69659L1.05999 2.70196L1.06565 2.70717L7.28687 8.43257Z"
@@ -1455,49 +1128,47 @@
                                 </svg>
                             </div>
                             <div class="w-full">
-                                <h4 class="text-base sm:text-lg font-semibold text-black">
-                                    How to download icons from LineIcons?
+                                <h4 class="text-base font-semibold text-black sm:text-lg">
+                                    How do I get started with BizRoon Inventory?
                                 </h4>
                             </div>
                         </button>
                         <div class="faq-content pl-[62px] hidden">
-                            <p class="text-base text-body-color leading-relaxed py-3">
-                                It takes 2-3 weeks to get your first blog post ready. That
-                                includes the in-depth research & creation of your monthly
-                                content marketing strategy that we do before writing your
-                                first blog post, Ipsum available .
+                            <p class="py-3 text-base leading-relaxed text-body-color">
+                                To get started, simply sign up for a free account on our website and follow the setup
+                                instructions provided. You can begin managing your inventory right away.
                             </p>
                         </div>
                     </div>
                     <div class="
-                single-faq
-                w-full
-                bg-white
-                border border-[#F3F4FE]
-                rounded-lg
-                p-5
-                sm:p-8
-                mb-8
-                wow
-                fadeInUp
-              "
+                     single-faq
+                     w-full
+                     bg-white
+                     border border-[#F3F4FE]
+                     rounded-lg
+                     p-5
+                     sm:p-8
+                     mb-8
+                     wow
+                     fadeInUp
+                     "
                         data-wow-delay=".2s
-              ">
-                        <button class="faq-btn flex items-center w-full text-left">
+                     ">
+                        <button class="flex items-center w-full text-left faq-btn">
                             <div
                                 class="
-                    w-full
-                    max-w-[40px]
-                    h-10
-                    flex
-                    items-center
-                    justify-center
-                    rounded-lg
-                    bg-primary
-                    text-primary
-                    bg-opacity-5
-                    mr-5
-                  ">
+                           w-full
+                           max-w-[40px]
+                           h-10
+                           flex
+                           items-center
+                           justify-center
+                           rounded-lg
+                           bg-primary
+                           text-primary
+                           bg-opacity-5
+                           mr-5
+                           ">
                                 <svg width="17" height="10" viewBox="0 0 17 10" class="fill-current icon">
                                     <path
                                         d="M7.28687 8.43257L7.28679 8.43265L7.29496 8.43985C7.62576 8.73124 8.02464 8.86001 8.41472 8.86001C8.83092 8.86001 9.22376 8.69083 9.53447 8.41713L9.53454 8.41721L9.54184 8.41052L15.7631 2.70784L15.7691 2.70231L15.7749 2.69659C16.0981 2.38028 16.1985 1.80579 15.7981 1.41393C15.4803 1.1028 14.9167 1.00854 14.5249 1.38489L8.41472 7.00806L2.29995 1.38063L2.29151 1.37286L2.28271 1.36548C1.93092 1.07036 1.38469 1.06804 1.03129 1.41393L1.01755 1.42738L1.00488 1.44184C0.69687 1.79355 0.695778 2.34549 1.0545 2.69659L1.05999 2.70196L1.06565 2.70717L7.28687 8.43257Z"
@@ -1505,51 +1176,98 @@
                                 </svg>
                             </div>
                             <div class="w-full">
-                                <h4 class="text-base sm:text-lg font-semibold text-black">
-                                    Is GrayGrids part of UIdeck?
+                                <h4 class="text-base font-semibold text-black sm:text-lg">
+                                    Is BizRoon Inventory secure?
                                 </h4>
                             </div>
                         </button>
                         <div class="faq-content pl-[62px] hidden">
-                            <p class="text-base text-body-color leading-relaxed py-3">
-                                It takes 2-3 weeks to get your first blog post ready. That
-                                includes the in-depth research & creation of your monthly
-                                content marketing strategy that we do before writing your
-                                first blog post, Ipsum available .
+                            <p class="py-3 text-base leading-relaxed text-body-color">
+                                Yes, BizRoon Inventory takes security seriously. We use industry-standard encryption and
+                                security measures to protect your data.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="
+                    single-faq
+                    w-full
+                    bg-white
+                    border border-[#F3F4FE]
+                    rounded-lg
+                    p-5
+                    sm:p-8
+                    mb-8
+                    wow
+                    fadeInUp
+                    "
+                        data-wow-delay=".2s
+                    ">
+                        <button class="flex items-center w-full text-left faq-btn">
+                            <div
+                                class="
+                          w-full
+                          max-w-[40px]
+                          h-10
+                          flex
+                          items-center
+                          justify-center
+                          rounded-lg
+                          bg-primary
+                          text-primary
+                          bg-opacity-5
+                          mr-5
+                          ">
+                                <svg width="17" height="10" viewBox="0 0 17 10" class="fill-current icon">
+                                    <path
+                                        d="M7.28687 8.43257L7.28679 8.43265L7.29496 8.43985C7.62576 8.73124 8.02464 8.86001 8.41472 8.86001C8.83092 8.86001 9.22376 8.69083 9.53447 8.41713L9.53454 8.41721L9.54184 8.41052L15.7631 2.70784L15.7691 2.70231L15.7749 2.69659C16.0981 2.38028 16.1985 1.80579 15.7981 1.41393C15.4803 1.1028 14.9167 1.00854 14.5249 1.38489L8.41472 7.00806L2.29995 1.38063L2.29151 1.37286L2.28271 1.36548C1.93092 1.07036 1.38469 1.06804 1.03129 1.41393L1.01755 1.42738L1.00488 1.44184C0.69687 1.79355 0.695778 2.34549 1.0545 2.69659L1.05999 2.70196L1.06565 2.70717L7.28687 8.43257Z"
+                                        fill="#3056D3" stroke="#3056D3" />
+                                </svg>
+                            </div>
+                            <div class="w-full">
+                                <h4 class="text-base font-semibold text-black sm:text-lg">
+                                    What are the system requirements for using BizRoon Inventory?
+                                </h4>
+                            </div>
+                        </button>
+                        <div class="faq-content pl-[62px] hidden">
+                            <p class="py-3 text-base leading-relaxed text-body-color">
+                                BizRoon Inventory is a web-based application and can be accessed using any modern web
+                                browser (Chrome, Firefox, Safari, Edge, etc.). There are no specific system requirements
+                                beyond having internet access.
                             </p>
                         </div>
                     </div>
                 </div>
-                <div class="w-full lg:w-1/2 px-4">
+                <div class="w-full px-4 lg:w-1/2">
                     <div class="
-                single-faq
-                w-full
-                bg-white
-                border border-[#F3F4FE]
-                rounded-lg
-                p-5
-                sm:p-8
-                mb-8
-                wow
-                fadeInUp
-              "
+                     single-faq
+                     w-full
+                     bg-white
+                     border border-[#F3F4FE]
+                     rounded-lg
+                     p-5
+                     sm:p-8
+                     mb-8
+                     wow
+                     fadeInUp
+                     "
                         data-wow-delay=".1s
-              ">
-                        <button class="faq-btn flex items-center w-full text-left">
+                     ">
+                        <button class="flex items-center w-full text-left faq-btn">
                             <div
                                 class="
-                    w-full
-                    max-w-[40px]
-                    h-10
-                    flex
-                    items-center
-                    justify-center
-                    rounded-lg
-                    bg-primary
-                    text-primary
-                    bg-opacity-5
-                    mr-5
-                  ">
+                           w-full
+                           max-w-[40px]
+                           h-10
+                           flex
+                           items-center
+                           justify-center
+                           rounded-lg
+                           bg-primary
+                           text-primary
+                           bg-opacity-5
+                           mr-5
+                           ">
                                 <svg width="17" height="10" viewBox="0 0 17 10" class="fill-current icon">
                                     <path
                                         d="M7.28687 8.43257L7.28679 8.43265L7.29496 8.43985C7.62576 8.73124 8.02464 8.86001 8.41472 8.86001C8.83092 8.86001 9.22376 8.69083 9.53447 8.41713L9.53454 8.41721L9.54184 8.41052L15.7631 2.70784L15.7691 2.70231L15.7749 2.69659C16.0981 2.38028 16.1985 1.80579 15.7981 1.41393C15.4803 1.1028 14.9167 1.00854 14.5249 1.38489L8.41472 7.00806L2.29995 1.38063L2.29151 1.37286L2.28271 1.36548C1.93092 1.07036 1.38469 1.06804 1.03129 1.41393L1.01755 1.42738L1.00488 1.44184C0.69687 1.79355 0.695778 2.34549 1.0545 2.69659L1.05999 2.70196L1.06565 2.70717L7.28687 8.43257Z"
@@ -1557,49 +1275,47 @@
                                 </svg>
                             </div>
                             <div class="w-full">
-                                <h4 class="text-base sm:text-lg font-semibold text-black">
-                                    Can I use this template for commercial project?
+                                <h4 class="text-base font-semibold text-black sm:text-lg">
+                                    How can I upgrade my plan?
                                 </h4>
                             </div>
                         </button>
                         <div class="faq-content pl-[62px] hidden">
-                            <p class="text-base text-body-color leading-relaxed py-3">
-                                It takes 2-3 weeks to get your first blog post ready. That
-                                includes the in-depth research & creation of your monthly
-                                content marketing strategy that we do before writing your
-                                first blog post, Ipsum available .
+                            <p class="py-3 text-base leading-relaxed text-body-color">
+                                You can upgrade your plan at any time by logging into your BizRoon Inventory account,
+                                navigating to the billing section, and selecting the plan you wish to upgrade to.
                             </p>
                         </div>
                     </div>
                     <div class="
-                single-faq
-                w-full
-                bg-white
-                border border-[#F3F4FE]
-                rounded-lg
-                p-5
-                sm:p-8
-                mb-8
-                wow
-                fadeInUp
-              "
+                     single-faq
+                     w-full
+                     bg-white
+                     border border-[#F3F4FE]
+                     rounded-lg
+                     p-5
+                     sm:p-8
+                     mb-8
+                     wow
+                     fadeInUp
+                     "
                         data-wow-delay=".15s
-              ">
-                        <button class="faq-btn flex items-center w-full text-left">
+                     ">
+                        <button class="flex items-center w-full text-left faq-btn">
                             <div
                                 class="
-                    w-full
-                    max-w-[40px]
-                    h-10
-                    flex
-                    items-center
-                    justify-center
-                    rounded-lg
-                    bg-primary
-                    text-primary
-                    bg-opacity-5
-                    mr-5
-                  ">
+                           w-full
+                           max-w-[40px]
+                           h-10
+                           flex
+                           items-center
+                           justify-center
+                           rounded-lg
+                           bg-primary
+                           text-primary
+                           bg-opacity-5
+                           mr-5
+                           ">
                                 <svg width="17" height="10" viewBox="0 0 17 10" class="fill-current icon">
                                     <path
                                         d="M7.28687 8.43257L7.28679 8.43265L7.29496 8.43985C7.62576 8.73124 8.02464 8.86001 8.41472 8.86001C8.83092 8.86001 9.22376 8.69083 9.53447 8.41713L9.53454 8.41721L9.54184 8.41052L15.7631 2.70784L15.7691 2.70231L15.7749 2.69659C16.0981 2.38028 16.1985 1.80579 15.7981 1.41393C15.4803 1.1028 14.9167 1.00854 14.5249 1.38489L8.41472 7.00806L2.29995 1.38063L2.29151 1.37286L2.28271 1.36548C1.93092 1.07036 1.38469 1.06804 1.03129 1.41393L1.01755 1.42738L1.00488 1.44184C0.69687 1.79355 0.695778 2.34549 1.0545 2.69659L1.05999 2.70196L1.06565 2.70717L7.28687 8.43257Z"
@@ -1607,49 +1323,47 @@
                                 </svg>
                             </div>
                             <div class="w-full">
-                                <h4 class="text-base sm:text-lg font-semibold text-black">
-                                    Do you have plan to releasing Play Pro?
+                                <h4 class="text-base font-semibold text-black sm:text-lg">
+                                    What payment methods do you accept?
                                 </h4>
                             </div>
                         </button>
                         <div class="faq-content pl-[62px] hidden">
-                            <p class="text-base text-body-color leading-relaxed py-3">
-                                It takes 2-3 weeks to get your first blog post ready. That
-                                includes the in-depth research & creation of your monthly
-                                content marketing strategy that we do before writing your
-                                first blog post, Ipsum available .
+                            <p class="py-3 text-base leading-relaxed text-body-color">
+                                We accept major credit cards (Visa, Mastercard, American Express) for payment.
+                                Additionally, we offer alternative payment methods in some regions.
                             </p>
                         </div>
                     </div>
                     <div class="
-                single-faq
-                w-full
-                bg-white
-                border border-[#F3F4FE]
-                rounded-lg
-                p-5
-                sm:p-8
-                mb-8
-                wow
-                fadeInUp
-              "
+                     single-faq
+                     w-full
+                     bg-white
+                     border border-[#F3F4FE]
+                     rounded-lg
+                     p-5
+                     sm:p-8
+                     mb-8
+                     wow
+                     fadeInUp
+                     "
                         data-wow-delay=".2s
-              ">
-                        <button class="faq-btn flex items-center w-full text-left">
+                     ">
+                        <button class="flex items-center w-full text-left faq-btn">
                             <div
                                 class="
-                    w-full
-                    max-w-[40px]
-                    h-10
-                    flex
-                    items-center
-                    justify-center
-                    rounded-lg
-                    bg-primary
-                    text-primary
-                    bg-opacity-5
-                    mr-5
-                  ">
+                           w-full
+                           max-w-[40px]
+                           h-10
+                           flex
+                           items-center
+                           justify-center
+                           rounded-lg
+                           bg-primary
+                           text-primary
+                           bg-opacity-5
+                           mr-5
+                           ">
                                 <svg width="17" height="10" viewBox="0 0 17 10" class="fill-current icon">
                                     <path
                                         d="M7.28687 8.43257L7.28679 8.43265L7.29496 8.43985C7.62576 8.73124 8.02464 8.86001 8.41472 8.86001C8.83092 8.86001 9.22376 8.69083 9.53447 8.41713L9.53454 8.41721L9.54184 8.41052L15.7631 2.70784L15.7691 2.70231L15.7749 2.69659C16.0981 2.38028 16.1985 1.80579 15.7981 1.41393C15.4803 1.1028 14.9167 1.00854 14.5249 1.38489L8.41472 7.00806L2.29995 1.38063L2.29151 1.37286L2.28271 1.36548C1.93092 1.07036 1.38469 1.06804 1.03129 1.41393L1.01755 1.42738L1.00488 1.44184C0.69687 1.79355 0.695778 2.34549 1.0545 2.69659L1.05999 2.70196L1.06565 2.70717L7.28687 8.43257Z"
@@ -1657,24 +1371,69 @@
                                 </svg>
                             </div>
                             <div class="w-full">
-                                <h4 class="text-base sm:text-lg font-semibold text-black">
-                                    Where and how to host this template?
+                                <h4 class="text-base font-semibold text-black sm:text-lg">
+                                    Can I cancel my subscription?
                                 </h4>
                             </div>
                         </button>
                         <div class="faq-content pl-[62px] hidden">
-                            <p class="text-base text-body-color leading-relaxed py-3">
-                                It takes 2-3 weeks to get your first blog post ready. That
-                                includes the in-depth research & creation of your monthly
-                                content marketing strategy that we do before writing your
-                                first blog post, Ipsum available .
+                            <p class="py-3 text-base leading-relaxed text-body-color">
+                                Yes, you can cancel your subscription at any time. Your subscription will remain active
+                                until the end of the current billing cycle.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="
+                     single-faq
+                     w-full
+                     bg-white
+                     border border-[#F3F4FE]
+                     rounded-lg
+                     p-5
+                     sm:p-8
+                     mb-8
+                     wow
+                     fadeInUp
+                     "
+                        data-wow-delay=".2s
+                     ">
+                        <button class="flex items-center w-full text-left faq-btn">
+                            <div
+                                class="
+                           w-full
+                           max-w-[40px]
+                           h-10
+                           flex
+                           items-center
+                           justify-center
+                           rounded-lg
+                           bg-primary
+                           text-primary
+                           bg-opacity-5
+                           mr-5
+                           ">
+                                <svg width="17" height="10" viewBox="0 0 17 10" class="fill-current icon">
+                                    <path
+                                        d="M7.28687 8.43257L7.28679 8.43265L7.29496 8.43985C7.62576 8.73124 8.02464 8.86001 8.41472 8.86001C8.83092 8.86001 9.22376 8.69083 9.53447 8.41713L9.53454 8.41721L9.54184 8.41052L15.7631 2.70784L15.7691 2.70231L15.7749 2.69659C16.0981 2.38028 16.1985 1.80579 15.7981 1.41393C15.4803 1.1028 14.9167 1.00854 14.5249 1.38489L8.41472 7.00806L2.29995 1.38063L2.29151 1.37286L2.28271 1.36548C1.93092 1.07036 1.38469 1.06804 1.03129 1.41393L1.01755 1.42738L1.00488 1.44184C0.69687 1.79355 0.695778 2.34549 1.0545 2.69659L1.05999 2.70196L1.06565 2.70717L7.28687 8.43257Z"
+                                        fill="#3056D3" stroke="#3056D3" />
+                                </svg>
+                            </div>
+                            <div class="w-full">
+                                <h4 class="text-base font-semibold text-black sm:text-lg">
+                                    What features are included in the free plan?
+                                </h4>
+                            </div>
+                        </button>
+                        <div class="faq-content pl-[62px] hidden">
+                            <p class="py-3 text-base leading-relaxed text-body-color">
+                                The free plan includes basic inventory management features such as product tracking,
+                                expense management, customer management, and supplier management.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="absolute bottom-0 right-0 z-[-1]">
             <svg width="1440" height="886" viewBox="0 0 1440 886" fill="none"
                 xmlns="http://www.w3.org/2000/svg">
@@ -1693,56 +1452,40 @@
         </div>
     </section>
     <!-- ====== Faq Section End -->
-
     <!-- ====== Testimonials Start ====== -->
-    <section id="testimonials" class="pt-20 md:pt-[120px]">
+    {{-- <section id="testimonials" class="pt-20 md:pt-[120px]">
         <div class="container px-4">
             <div class="flex flex-wrap">
                 <div class="w-full mx-4">
                     <div class="text-center mx-auto mb-[60px] lg:mb-20 max-w-[620px]">
-                        <span class="font-semibold text-lg text-primary mb-2 block">
+                        <span class="block mb-2 text-lg font-semibold text-primary">
                             Testimonials
                         </span>
                         <h2
                             class="
-                  font-bold
-                  text-3xl
-                  sm:text-4xl
-                  md:text-[42px]
-                  text-dark
-                  mb-4
-                ">
+                        font-bold
+                        text-3xl
+                        sm:text-4xl
+                        md:text-[42px]
+                        text-dark
+                        mb-4
+                        ">
                             What our Client Say
                         </h2>
                         <p
-                            class="
-                  text-lg
-                  sm:text-xl
-                  leading-relaxed
-                  sm:leading-relaxed
-                  text-body-color
-                ">
+                            class="text-lg leading-relaxed sm:text-xl sm:leading-relaxed text-body-color">
                             There are many variations of passages of Lorem Ipsum available
                             but the majority have suffered alteration in some form.
                         </p>
                     </div>
                 </div>
             </div>
-
             <div class="flex flex-wrap">
-                <div class="w-full md:w-1/2 lg:w-1/3 px-4">
-                    <div class="
-                ud-single-testimonial
-                p-8
-                bg-white
-                mb-12
-                shadow-testimonial
-                wow
-                fadeInUp
-              "
+                <div class="w-full px-4 md:w-1/2 lg:w-1/3">
+                    <div class="p-8 mb-12 bg-white ud-single-testimonial shadow-testimonial wow fadeInUp"
                         data-wow-delay=".1s
-              ">
-                        <div class="ud-testimonial-ratings flex items-center mb-3">
+                     ">
+                        <div class="flex items-center mb-3 ud-testimonial-ratings">
                             <span class="text-[#fbb040] mr-1">
                                 <svg width="18" height="16" viewBox="0 0 18 16" class="fill-current">
                                     <path
@@ -1774,22 +1517,22 @@
                                 </svg>
                             </span>
                         </div>
-                        <div class="ud-testimonial-content mb-6">
+                        <div class="mb-6 ud-testimonial-content">
                             <p class="text-base tracking-wide text-body-color">
                                 “Our members are so impressed. It's intuitive. It's clean.
                                 It's distraction free. If you're building a community.
                             </p>
                         </div>
-                        <div class="ud-testimonial-info flex items-center">
+                        <div class="flex items-center ud-testimonial-info">
                             <div
                                 class="
-                    ud-testimonial-image
-                    w-[50px]
-                    h-[50px]
-                    rounded-full
-                    overflow-hidden
-                    mr-5
-                  ">
+                           ud-testimonial-image
+                           w-[50px]
+                           h-[50px]
+                           rounded-full
+                           overflow-hidden
+                           mr-5
+                           ">
                                 <img src="assets/images/testimonials/author-01.png" alt="author" />
                             </div>
                             <div class="ud-testimonial-meta">
@@ -1799,19 +1542,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full md:w-1/2 lg:w-1/3 px-4">
-                    <div class="
-                ud-single-testimonial
-                p-8
-                bg-white
-                mb-12
-                shadow-testimonial
-                wow
-                fadeInUp
-              "
+                <div class="w-full px-4 md:w-1/2 lg:w-1/3">
+                    <div class="p-8 mb-12 bg-white ud-single-testimonial shadow-testimonial wow fadeInUp"
                         data-wow-delay=".15s
-              ">
-                        <div class="ud-testimonial-ratings flex items-center mb-3">
+                     ">
+                        <div class="flex items-center mb-3 ud-testimonial-ratings">
                             <span class="text-[#fbb040] mr-1">
                                 <svg width="18" height="16" viewBox="0 0 18 16" class="fill-current">
                                     <path
@@ -1843,22 +1578,22 @@
                                 </svg>
                             </span>
                         </div>
-                        <div class="ud-testimonial-content mb-6">
+                        <div class="mb-6 ud-testimonial-content">
                             <p class="text-base tracking-wide text-body-color">
                                 “Our members are so impressed. It's intuitive. It's clean.
                                 It's distraction free. If you're building a community.
                             </p>
                         </div>
-                        <div class="ud-testimonial-info flex items-center">
+                        <div class="flex items-center ud-testimonial-info">
                             <div
                                 class="
-                    ud-testimonial-image
-                    w-[50px]
-                    h-[50px]
-                    rounded-full
-                    overflow-hidden
-                    mr-5
-                  ">
+                           ud-testimonial-image
+                           w-[50px]
+                           h-[50px]
+                           rounded-full
+                           overflow-hidden
+                           mr-5
+                           ">
                                 <img src="assets/images/testimonials/author-02.png" alt="author" />
                             </div>
                             <div class="ud-testimonial-meta">
@@ -1868,19 +1603,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full md:w-1/2 lg:w-1/3 px-4">
-                    <div class="
-                ud-single-testimonial
-                p-8
-                bg-white
-                mb-12
-                shadow-testimonial
-                wow
-                fadeInUp
-              "
+                <div class="w-full px-4 md:w-1/2 lg:w-1/3">
+                    <div class="p-8 mb-12 bg-white ud-single-testimonial shadow-testimonial wow fadeInUp"
                         data-wow-delay=".2s
-              ">
-                        <div class="ud-testimonial-ratings flex items-center mb-3">
+                     ">
+                        <div class="flex items-center mb-3 ud-testimonial-ratings">
                             <span class="text-[#fbb040] mr-1">
                                 <svg width="18" height="16" viewBox="0 0 18 16" class="fill-current">
                                     <path
@@ -1912,22 +1639,22 @@
                                 </svg>
                             </span>
                         </div>
-                        <div class="ud-testimonial-content mb-6">
+                        <div class="mb-6 ud-testimonial-content">
                             <p class="text-base tracking-wide text-body-color">
                                 “Our members are so impressed. It's intuitive. It's clean.
                                 It's distraction free. If you're building a community.
                             </p>
                         </div>
-                        <div class="ud-testimonial-info flex items-center">
+                        <div class="flex items-center ud-testimonial-info">
                             <div
                                 class="
-                    ud-testimonial-image
-                    w-[50px]
-                    h-[50px]
-                    rounded-full
-                    overflow-hidden
-                    mr-5
-                  ">
+                           ud-testimonial-image
+                           w-[50px]
+                           h-[50px]
+                           rounded-full
+                           overflow-hidden
+                           mr-5
+                           ">
                                 <img src="assets/images/testimonials/author-03.png" alt="author" />
                             </div>
                             <div class="ud-testimonial-meta">
@@ -1941,50 +1668,43 @@
             <div class="flex flex-wrap">
                 <div class="w-full mx-4">
                     <div class="wow fadeInUp" data-wow-delay=".2s">
-                        <div class="ud-title mb-8">
+                        <div class="mb-8 ud-title">
                             <h6
-                                class="
-                    text-xs
-                    font-normal
-                    text-body-color
-                    relative
-                    inline-flex
-                    items-center
-                  ">
+                                class="relative inline-flex items-center text-xs font-normal text-body-color">
                                 Some Of Our Clients
                                 <span class="w-8 h-[1px] inline-block bg-[#afb2b5] ml-4">
                                 </span>
                             </h6>
                         </div>
-                        <div class="ud-brands-logo flex items-center flex-wrap">
+                        <div class="flex flex-wrap items-center ud-brands-logo">
                             <div class="ud-single-logo mr-10 mb-5 max-w-[140px]">
                                 <a href="https://tailgrids.com" target="_blank" rel="nofollow noopner">
                                     <img src="assets/images/brands/tailgrids.svg" alt="tailgrids"
-                                        class="grayscale hover:filter-none duration-300" />
+                                        class="duration-300 grayscale hover:filter-none" />
                                 </a>
                             </div>
                             <div class="ud-single-logo mr-10 mb-5 max-w-[140px]">
                                 <a href="https://ayroui.com" target="_blank" rel="nofollow noopner">
                                     <img src="assets/images/brands/ayroui.svg" alt="ayroui"
-                                        class="grayscale hover:filter-none duration-300" />
+                                        class="duration-300 grayscale hover:filter-none" />
                                 </a>
                             </div>
                             <div class="ud-single-logo mr-10 mb-5 max-w-[140px]">
                                 <a href="https://uideck.com" target="_blank" rel="nofollow noopner">
                                     <img src="assets/images/brands/uideck.svg" alt="uideck"
-                                        class="grayscale hover:filter-none duration-300" />
+                                        class="duration-300 grayscale hover:filter-none" />
                                 </a>
                             </div>
                             <div class="ud-single-logo mr-10 mb-5 max-w-[140px]">
                                 <a href="https://graygrids.com" target="_blank" rel="nofollow noopner">
                                     <img src="assets/images/brands/graygrids.svg" alt="graygrids"
-                                        class="grayscale hover:filter-none duration-300" />
+                                        class="duration-300 grayscale hover:filter-none" />
                                 </a>
                             </div>
                             <div class="ud-single-logo mr-10 mb-5 max-w-[140px]">
                                 <a href="https://lineicons.com" target="_blank" rel="nofollow noopner">
                                     <img src="assets/images/brands/lineicons.svg" alt="lineicons"
-                                        class="grayscale hover:filter-none duration-300" />
+                                        class="duration-300 grayscale hover:filter-none" />
                                 </a>
                             </div>
                         </div>
@@ -1992,57 +1712,49 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
     <!-- ====== Testimonials End ====== -->
-
     <!-- ====== Team Section Start -->
-    <section id="team" class="pt-20 lg:pt-[120px] pb-10 lg:pb-20">
+    {{-- <section id="team" class="pt-20 lg:pt-[120px] pb-10 lg:pb-20">
         <div class="container">
             <div class="flex flex-wrap -mx-4">
                 <div class="w-full px-4">
                     <div class="text-center mx-auto mb-[60px] max-w-[620px]">
-                        <span class="font-semibold text-lg text-primary mb-2 block">
+                        <span class="block mb-2 text-lg font-semibold text-primary">
                             Our Team
                         </span>
                         <h2
                             class="
-                  font-bold
-                  text-3xl
-                  sm:text-4xl
-                  md:text-[42px]
-                  text-dark
-                  mb-4
-                ">
+                        font-bold
+                        text-3xl
+                        sm:text-4xl
+                        md:text-[42px]
+                        text-dark
+                        mb-4
+                        ">
                             Meet Our Team
                         </h2>
                         <p
-                            class="
-                  text-lg
-                  sm:text-xl
-                  leading-relaxed
-                  sm:leading-relaxed
-                  text-body-color
-                ">
+                            class="text-lg leading-relaxed sm:text-xl sm:leading-relaxed text-body-color">
                             There are many variations of passages of Lorem Ipsum available
                             but the majority have suffered alteration in some form.
                         </p>
                     </div>
                 </div>
             </div>
-
             <div class="flex flex-wrap justify-center -mx-4">
-                <div class="w-full sm:w-1/2 lg:w-1/4 px-4">
+                <div class="w-full px-4 sm:w-1/2 lg:w-1/4">
                     <div class="mb-10 wow fadeInUp" data-wow-delay=".1s">
                         <div
                             class="
-                  relative
-                  w-[170px]
-                  h-170px]
-                  rounded-full
-                  z-10
-                  mx-auto
-                  mb-6
-                ">
+                        relative
+                        w-[170px]
+                        h-170px]
+                        rounded-full
+                        z-10
+                        mx-auto
+                        mb-6
+                        ">
                             <img src="assets/images/team/team-01.png" alt="image"
                                 class="w-full rounded-full" />
                             <span class="absolute top-0 left-0 z-[-1]">
@@ -2162,7 +1874,7 @@
                                         transform="rotate(-90 57.9443 1.29354)" fill="#3056D3" />
                                 </svg>
                             </span>
-                            <span class="absolute right-0 bottom-0">
+                            <span class="absolute bottom-0 right-0">
                                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -2172,24 +1884,24 @@
                             </span>
                         </div>
                         <div class="text-center">
-                            <h4 class="font-medium text-lg text-dark mb-2">
+                            <h4 class="mb-2 text-lg font-medium text-dark">
                                 Adveen Desuza
                             </h4>
-                            <p class="font-medium text-sm text-body-color mb-5">
+                            <p class="mb-5 text-sm font-medium text-body-color">
                                 UI Designer
                             </p>
                             <div class="flex items-center justify-center">
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="10" height="18" viewBox="0 0 10 18" class="fill-current">
                                         <path
                                             d="M9.29878 7.2H7.74898H7.19548V6.61935V4.81936V4.23871H7.74898H8.91133C9.21575 4.23871 9.46483 4.00645 9.46483 3.65806V0.580645C9.46483 0.26129 9.24343 0 8.91133 0H6.89106C4.70474 0 3.18262 1.62581 3.18262 4.03548V6.56129V7.14194H2.62912H0.747223C0.359774 7.14194 0 7.46129 0 7.92581V10.0161C0 10.4226 0.304424 10.8 0.747223 10.8H2.57377H3.12727V11.3806V17.2161C3.12727 17.6226 3.43169 18 3.87449 18H6.47593C6.64198 18 6.78036 17.9129 6.89106 17.7968C7.00176 17.6806 7.08478 17.4774 7.08478 17.3032V11.4097V10.829H7.66596H8.91133C9.2711 10.829 9.54785 10.5968 9.6032 10.2484V10.2194V10.1903L9.99065 8.1871C10.0183 7.98387 9.99065 7.75161 9.8246 7.51935C9.76925 7.37419 9.52018 7.22903 9.29878 7.2Z" />
@@ -2197,15 +1909,15 @@
                                 </a>
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="18" height="14" viewBox="0 0 18 14" class="fill-current">
                                         <path
                                             d="M15.9968 2.41096L17.1 1.09589C17.4194 0.739726 17.5065 0.465753 17.5355 0.328767C16.6645 0.821918 15.8516 0.986301 15.329 0.986301H15.1258L15.0097 0.876712C14.3129 0.30137 13.4419 0 12.5129 0C10.4806 0 8.88387 1.58904 8.88387 3.42466C8.88387 3.53425 8.88387 3.69863 8.9129 3.80822L9 4.35616L8.39032 4.32877C4.67419 4.21918 1.62581 1.20548 1.13226 0.684932C0.319355 2.05479 0.783871 3.36986 1.27742 4.19178L2.26452 5.72603L0.696774 4.90411C0.725806 6.05479 1.19032 6.9589 2.09032 7.61644L2.87419 8.16438L2.09032 8.46575C2.58387 9.86301 3.6871 10.4384 4.5 10.6575L5.57419 10.9315L4.55806 11.589C2.93226 12.6849 0.9 12.6027 0 12.5205C1.82903 13.726 4.00645 14 5.51613 14C6.64839 14 7.49032 13.8904 7.69355 13.8082C15.8226 12 16.2 5.15068 16.2 3.78082V3.58904L16.3742 3.47945C17.3613 2.60274 17.7677 2.13699 18 1.86301C17.9129 1.89041 17.7968 1.94521 17.6806 1.9726L15.9968 2.41096Z" />
@@ -2213,15 +1925,15 @@
                                 </a>
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="18" height="18" viewBox="0 0 18 18" class="fill-current">
                                         <path
                                             d="M8.90245 12.1939C10.7363 12.1939 12.2229 10.7073 12.2229 8.87352C12.2229 7.0397 10.7363 5.5531 8.90245 5.5531C7.06863 5.5531 5.58203 7.0397 5.58203 8.87352C5.58203 10.7073 7.06863 12.1939 8.90245 12.1939Z" />
@@ -2235,18 +1947,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full sm:w-1/2 lg:w-1/4 px-4">
+                <div class="w-full px-4 sm:w-1/2 lg:w-1/4">
                     <div class="mb-10 wow fadeInUp" data-wow-delay=".15s">
                         <div
                             class="
-                  relative
-                  w-[170px]
-                  h-170px]
-                  rounded-full
-                  z-10
-                  mx-auto
-                  mb-6
-                ">
+                        relative
+                        w-[170px]
+                        h-170px]
+                        rounded-full
+                        z-10
+                        mx-auto
+                        mb-6
+                        ">
                             <img src="assets/images/team/team-02.png" alt="image"
                                 class="w-full rounded-full" />
                             <span class="absolute top-0 left-0 z-[-1]">
@@ -2366,7 +2078,7 @@
                                         transform="rotate(-90 57.9443 1.29354)" fill="#3056D3" />
                                 </svg>
                             </span>
-                            <span class="absolute right-0 bottom-0">
+                            <span class="absolute bottom-0 right-0">
                                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -2376,22 +2088,22 @@
                             </span>
                         </div>
                         <div class="text-center">
-                            <h4 class="font-medium text-lg text-dark mb-2">Jezmin uniya</h4>
-                            <p class="font-medium text-sm text-body-color mb-5">
+                            <h4 class="mb-2 text-lg font-medium text-dark">Jezmin uniya</h4>
+                            <p class="mb-5 text-sm font-medium text-body-color">
                                 Product Designer
                             </p>
                             <div class="flex items-center justify-center">
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="10" height="18" viewBox="0 0 10 18" class="fill-current">
                                         <path
                                             d="M9.29878 7.2H7.74898H7.19548V6.61935V4.81936V4.23871H7.74898H8.91133C9.21575 4.23871 9.46483 4.00645 9.46483 3.65806V0.580645C9.46483 0.26129 9.24343 0 8.91133 0H6.89106C4.70474 0 3.18262 1.62581 3.18262 4.03548V6.56129V7.14194H2.62912H0.747223C0.359774 7.14194 0 7.46129 0 7.92581V10.0161C0 10.4226 0.304424 10.8 0.747223 10.8H2.57377H3.12727V11.3806V17.2161C3.12727 17.6226 3.43169 18 3.87449 18H6.47593C6.64198 18 6.78036 17.9129 6.89106 17.7968C7.00176 17.6806 7.08478 17.4774 7.08478 17.3032V11.4097V10.829H7.66596H8.91133C9.2711 10.829 9.54785 10.5968 9.6032 10.2484V10.2194V10.1903L9.99065 8.1871C10.0183 7.98387 9.99065 7.75161 9.8246 7.51935C9.76925 7.37419 9.52018 7.22903 9.29878 7.2Z" />
@@ -2399,15 +2111,15 @@
                                 </a>
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="18" height="14" viewBox="0 0 18 14" class="fill-current">
                                         <path
                                             d="M15.9968 2.41096L17.1 1.09589C17.4194 0.739726 17.5065 0.465753 17.5355 0.328767C16.6645 0.821918 15.8516 0.986301 15.329 0.986301H15.1258L15.0097 0.876712C14.3129 0.30137 13.4419 0 12.5129 0C10.4806 0 8.88387 1.58904 8.88387 3.42466C8.88387 3.53425 8.88387 3.69863 8.9129 3.80822L9 4.35616L8.39032 4.32877C4.67419 4.21918 1.62581 1.20548 1.13226 0.684932C0.319355 2.05479 0.783871 3.36986 1.27742 4.19178L2.26452 5.72603L0.696774 4.90411C0.725806 6.05479 1.19032 6.9589 2.09032 7.61644L2.87419 8.16438L2.09032 8.46575C2.58387 9.86301 3.6871 10.4384 4.5 10.6575L5.57419 10.9315L4.55806 11.589C2.93226 12.6849 0.9 12.6027 0 12.5205C1.82903 13.726 4.00645 14 5.51613 14C6.64839 14 7.49032 13.8904 7.69355 13.8082C15.8226 12 16.2 5.15068 16.2 3.78082V3.58904L16.3742 3.47945C17.3613 2.60274 17.7677 2.13699 18 1.86301C17.9129 1.89041 17.7968 1.94521 17.6806 1.9726L15.9968 2.41096Z" />
@@ -2415,15 +2127,15 @@
                                 </a>
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="18" height="18" viewBox="0 0 18 18" class="fill-current">
                                         <path
                                             d="M8.90245 12.1939C10.7363 12.1939 12.2229 10.7073 12.2229 8.87352C12.2229 7.0397 10.7363 5.5531 8.90245 5.5531C7.06863 5.5531 5.58203 7.0397 5.58203 8.87352C5.58203 10.7073 7.06863 12.1939 8.90245 12.1939Z" />
@@ -2437,18 +2149,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full sm:w-1/2 lg:w-1/4 px-4">
+                <div class="w-full px-4 sm:w-1/2 lg:w-1/4">
                     <div class="mb-10 wow fadeInUp" data-wow-delay=".2s">
                         <div
                             class="
-                  relative
-                  w-[170px]
-                  h-170px]
-                  rounded-full
-                  z-10
-                  mx-auto
-                  mb-6
-                ">
+                        relative
+                        w-[170px]
+                        h-170px]
+                        rounded-full
+                        z-10
+                        mx-auto
+                        mb-6
+                        ">
                             <img src="assets/images/team/team-03.png" alt="image"
                                 class="w-full rounded-full" />
                             <span class="absolute top-0 left-0 z-[-1]">
@@ -2568,7 +2280,7 @@
                                         transform="rotate(-90 57.9443 1.29354)" fill="#3056D3" />
                                 </svg>
                             </span>
-                            <span class="absolute right-0 bottom-0">
+                            <span class="absolute bottom-0 right-0">
                                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -2578,24 +2290,24 @@
                             </span>
                         </div>
                         <div class="text-center">
-                            <h4 class="font-medium text-lg text-dark mb-2">
+                            <h4 class="mb-2 text-lg font-medium text-dark">
                                 Andrieo Gloree
                             </h4>
-                            <p class="font-medium text-sm text-body-color mb-5">
+                            <p class="mb-5 text-sm font-medium text-body-color">
                                 App Developer
                             </p>
                             <div class="flex items-center justify-center">
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="10" height="18" viewBox="0 0 10 18" class="fill-current">
                                         <path
                                             d="M9.29878 7.2H7.74898H7.19548V6.61935V4.81936V4.23871H7.74898H8.91133C9.21575 4.23871 9.46483 4.00645 9.46483 3.65806V0.580645C9.46483 0.26129 9.24343 0 8.91133 0H6.89106C4.70474 0 3.18262 1.62581 3.18262 4.03548V6.56129V7.14194H2.62912H0.747223C0.359774 7.14194 0 7.46129 0 7.92581V10.0161C0 10.4226 0.304424 10.8 0.747223 10.8H2.57377H3.12727V11.3806V17.2161C3.12727 17.6226 3.43169 18 3.87449 18H6.47593C6.64198 18 6.78036 17.9129 6.89106 17.7968C7.00176 17.6806 7.08478 17.4774 7.08478 17.3032V11.4097V10.829H7.66596H8.91133C9.2711 10.829 9.54785 10.5968 9.6032 10.2484V10.2194V10.1903L9.99065 8.1871C10.0183 7.98387 9.99065 7.75161 9.8246 7.51935C9.76925 7.37419 9.52018 7.22903 9.29878 7.2Z" />
@@ -2603,15 +2315,15 @@
                                 </a>
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="18" height="14" viewBox="0 0 18 14" class="fill-current">
                                         <path
                                             d="M15.9968 2.41096L17.1 1.09589C17.4194 0.739726 17.5065 0.465753 17.5355 0.328767C16.6645 0.821918 15.8516 0.986301 15.329 0.986301H15.1258L15.0097 0.876712C14.3129 0.30137 13.4419 0 12.5129 0C10.4806 0 8.88387 1.58904 8.88387 3.42466C8.88387 3.53425 8.88387 3.69863 8.9129 3.80822L9 4.35616L8.39032 4.32877C4.67419 4.21918 1.62581 1.20548 1.13226 0.684932C0.319355 2.05479 0.783871 3.36986 1.27742 4.19178L2.26452 5.72603L0.696774 4.90411C0.725806 6.05479 1.19032 6.9589 2.09032 7.61644L2.87419 8.16438L2.09032 8.46575C2.58387 9.86301 3.6871 10.4384 4.5 10.6575L5.57419 10.9315L4.55806 11.589C2.93226 12.6849 0.9 12.6027 0 12.5205C1.82903 13.726 4.00645 14 5.51613 14C6.64839 14 7.49032 13.8904 7.69355 13.8082C15.8226 12 16.2 5.15068 16.2 3.78082V3.58904L16.3742 3.47945C17.3613 2.60274 17.7677 2.13699 18 1.86301C17.9129 1.89041 17.7968 1.94521 17.6806 1.9726L15.9968 2.41096Z" />
@@ -2619,15 +2331,15 @@
                                 </a>
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="18" height="18" viewBox="0 0 18 18" class="fill-current">
                                         <path
                                             d="M8.90245 12.1939C10.7363 12.1939 12.2229 10.7073 12.2229 8.87352C12.2229 7.0397 10.7363 5.5531 8.90245 5.5531C7.06863 5.5531 5.58203 7.0397 5.58203 8.87352C5.58203 10.7073 7.06863 12.1939 8.90245 12.1939Z" />
@@ -2641,18 +2353,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full sm:w-1/2 lg:w-1/4 px-4">
+                <div class="w-full px-4 sm:w-1/2 lg:w-1/4">
                     <div class="mb-10 wow fadeInUp" data-wow-delay=".25s">
                         <div
                             class="
-                  relative
-                  w-[170px]
-                  h-170px]
-                  rounded-full
-                  z-10
-                  mx-auto
-                  mb-6
-                ">
+                        relative
+                        w-[170px]
+                        h-170px]
+                        rounded-full
+                        z-10
+                        mx-auto
+                        mb-6
+                        ">
                             <img src="assets/images/team/team-01.png" alt="image"
                                 class="w-full rounded-full" />
                             <span class="absolute top-0 left-0 z-[-1]">
@@ -2772,7 +2484,7 @@
                                         transform="rotate(-90 57.9443 1.29354)" fill="#3056D3" />
                                 </svg>
                             </span>
-                            <span class="absolute right-0 bottom-0">
+                            <span class="absolute bottom-0 right-0">
                                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -2782,24 +2494,24 @@
                             </span>
                         </div>
                         <div class="text-center">
-                            <h4 class="font-medium text-lg text-dark mb-2">
+                            <h4 class="mb-2 text-lg font-medium text-dark">
                                 Jackie Sanders
                             </h4>
-                            <p class="font-medium text-sm text-body-color mb-5">
+                            <p class="mb-5 text-sm font-medium text-body-color">
                                 Content Writer
                             </p>
                             <div class="flex items-center justify-center">
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="10" height="18" viewBox="0 0 10 18" class="fill-current">
                                         <path
                                             d="M9.29878 7.2H7.74898H7.19548V6.61935V4.81936V4.23871H7.74898H8.91133C9.21575 4.23871 9.46483 4.00645 9.46483 3.65806V0.580645C9.46483 0.26129 9.24343 0 8.91133 0H6.89106C4.70474 0 3.18262 1.62581 3.18262 4.03548V6.56129V7.14194H2.62912H0.747223C0.359774 7.14194 0 7.46129 0 7.92581V10.0161C0 10.4226 0.304424 10.8 0.747223 10.8H2.57377H3.12727V11.3806V17.2161C3.12727 17.6226 3.43169 18 3.87449 18H6.47593C6.64198 18 6.78036 17.9129 6.89106 17.7968C7.00176 17.6806 7.08478 17.4774 7.08478 17.3032V11.4097V10.829H7.66596H8.91133C9.2711 10.829 9.54785 10.5968 9.6032 10.2484V10.2194V10.1903L9.99065 8.1871C10.0183 7.98387 9.99065 7.75161 9.8246 7.51935C9.76925 7.37419 9.52018 7.22903 9.29878 7.2Z" />
@@ -2807,15 +2519,15 @@
                                 </a>
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="18" height="14" viewBox="0 0 18 14" class="fill-current">
                                         <path
                                             d="M15.9968 2.41096L17.1 1.09589C17.4194 0.739726 17.5065 0.465753 17.5355 0.328767C16.6645 0.821918 15.8516 0.986301 15.329 0.986301H15.1258L15.0097 0.876712C14.3129 0.30137 13.4419 0 12.5129 0C10.4806 0 8.88387 1.58904 8.88387 3.42466C8.88387 3.53425 8.88387 3.69863 8.9129 3.80822L9 4.35616L8.39032 4.32877C4.67419 4.21918 1.62581 1.20548 1.13226 0.684932C0.319355 2.05479 0.783871 3.36986 1.27742 4.19178L2.26452 5.72603L0.696774 4.90411C0.725806 6.05479 1.19032 6.9589 2.09032 7.61644L2.87419 8.16438L2.09032 8.46575C2.58387 9.86301 3.6871 10.4384 4.5 10.6575L5.57419 10.9315L4.55806 11.589C2.93226 12.6849 0.9 12.6027 0 12.5205C1.82903 13.726 4.00645 14 5.51613 14C6.64839 14 7.49032 13.8904 7.69355 13.8082C15.8226 12 16.2 5.15068 16.2 3.78082V3.58904L16.3742 3.47945C17.3613 2.60274 17.7677 2.13699 18 1.86301C17.9129 1.89041 17.7968 1.94521 17.6806 1.9726L15.9968 2.41096Z" />
@@ -2823,15 +2535,15 @@
                                 </a>
                                 <a href="javascript:void(0)"
                                     class="
-                      text-[#cdced6]
-                      hover:text-primary
-                      w-8
-                      h-8
-                      mx-2
-                      flex
-                      items-center
-                      justify-center
-                    ">
+                              text-[#cdced6]
+                              hover:text-primary
+                              w-8
+                              h-8
+                              mx-2
+                              flex
+                              items-center
+                              justify-center
+                              ">
                                     <svg width="18" height="18" viewBox="0 0 18 18" class="fill-current">
                                         <path
                                             d="M8.90245 12.1939C10.7363 12.1939 12.2229 10.7073 12.2229 8.87352C12.2229 7.0397 10.7363 5.5531 8.90245 5.5531C7.06863 5.5531 5.58203 7.0397 5.58203 8.87352C5.58203 10.7073 7.06863 12.1939 8.90245 12.1939Z" />
@@ -2847,30 +2559,29 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
     <!-- ====== Team Section End -->
-
     <!-- ====== Contact Start ====== -->
     <section id="contact" class="py-20 md:py-[120px] relative">
         <div
             class="
-          absolute
-          z-[-1]
-          w-full
-          h-1/2
-          lg:h-[45%]
-          xl:h-1/2
-          bg-[#f3f4fe]
-          top-0
-          left-0
-        ">
+            absolute
+            z-[-1]
+            w-full
+            h-1/2
+            lg:h-[45%]
+            xl:h-1/2
+            bg-[#f3f4fe]
+            top-0
+            left-0
+            ">
         </div>
         <div class="container px-4">
             <div class="flex flex-wrap items-center -mx-4">
-                <div class="px-4 w-full lg:w-7/12 xl:w-8/12">
+                <div class="w-full px-4 lg:w-7/12 xl:w-8/12">
                     <div class="ud-contact-content-wrapper">
                         <div class="ud-contact-title mb-12 lg:mb-[150px]">
-                            <span class="text-dark font-semibold text-base mb-5">
+                            <span class="mb-5 text-base font-semibold text-dark">
                                 CONTACT US
                             </span>
                             <h2 class="text-[35px] font-semibold">
@@ -2889,9 +2600,9 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h5 class="text-lg font-semibold mb-6">Our Location</h5>
+                                    <h5 class="mb-6 text-lg font-semibold">Our Location</h5>
                                     <p class="text-base text-body-color">
-                                        401 Broadway, 24th Floor, Orchard Cloud View, London
+                                        Looc Proper, Plaridel, Misamis Occidental, PH
                                     </p>
                                 </div>
                             </div>
@@ -2903,33 +2614,33 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h5 class="text-lg font-semibold mb-6">How Can We Help?</h5>
-                                    <p class="text-base text-body-color">info@yourdomain.com</p>
+                                    <h5 class="mb-6 text-lg font-semibold">How Can We Help?</h5>
+                                    <p class="text-base text-body-color">info@bizroon.com</p>
                                     <p class="text-base text-body-color">
-                                        contact@yourdomain.com
+                                        contact@bizroon.com
                                     </p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="px-4 w-full lg:w-5/12 xl:w-4/12">
+                <div class="w-full px-4 lg:w-5/12 xl:w-4/12">
                     <div class="
-                shadow-testimonial
-                rounded-lg
-                bg-white
-                py-10
-                px-8
-                md:p-[60px]
-                lg:p-10
-                2xl:p-[60px]
-                sm:py-12 sm:px-10
-                lg:py-12 lg:px-10
-                wow
-                fadeInUp
-              "
+                     shadow-testimonial
+                     rounded-lg
+                     bg-white
+                     py-10
+                     px-8
+                     md:p-[60px]
+                     lg:p-10
+                     2xl:p-[60px]
+                     sm:py-12 sm:px-10
+                     lg:py-12 lg:px-10
+                     wow
+                     fadeInUp
+                     "
                         data-wow-delay=".2s
-              ">
+                     ">
                         <h3 class="font-semibold mb-8 text-2xl md:text-[26px]">
                             Send us a Message
                         </h3>
@@ -2938,61 +2649,56 @@
                                 <label for="fullName" class="block text-xs text-dark">Full Name*</label>
                                 <input type="text" name="fullName" placeholder="Adam Gelius"
                                     class="
-                      w-full
-                      border-0 border-b border-[#f1f1f1]
-                      focus:border-primary focus:outline-none
-                      py-4
-                    " />
+                              w-full
+                              border-0 border-b border-[#f1f1f1]
+                              focus:border-primary focus:outline-none
+                              py-4
+                              " />
                             </div>
                             <div class="mb-6">
                                 <label for="email" class="block text-xs text-dark">Email*</label>
                                 <input type="email" name="email" placeholder="example@yourmail.com"
                                     class="
-                      w-full
-                      border-0 border-b border-[#f1f1f1]
-                      focus:border-primary focus:outline-none
-                      py-4
-                    " />
+                              w-full
+                              border-0 border-b border-[#f1f1f1]
+                              focus:border-primary focus:outline-none
+                              py-4
+                              " />
                             </div>
                             <div class="mb-6">
                                 <label for="phone" class="block text-xs text-dark">Phone*</label>
                                 <input type="text" name="phone" placeholder="+885 1254 5211 552"
                                     class="
-                      w-full
-                      border-0 border-b border-[#f1f1f1]
-                      focus:border-primary focus:outline-none
-                      py-4
-                    " />
+                              w-full
+                              border-0 border-b border-[#f1f1f1]
+                              focus:border-primary focus:outline-none
+                              py-4
+                              " />
+                            </div>
+                            <div class="mb-6">
+                                <label for="phone" class="block text-xs text-dark">Subject*</label>
+                                <input type="text" name="subject" placeholder="Type your subject here"
+                                    class="
+                              w-full
+                              border-0 border-b border-[#f1f1f1]
+                              focus:border-primary focus:outline-none
+                              py-4
+                              " />
                             </div>
                             <div class="mb-6">
                                 <label for="message" class="block text-xs text-dark">Message*</label>
                                 <textarea name="message" rows="1" placeholder="type your message here"
                                     class="
-                      w-full
-                      border-0 border-b border-[#f1f1f1]
-                      focus:border-primary focus:outline-none
-                      py-4
-                      resize-none
-                    "></textarea>
+                              w-full
+                              border-0 border-b border-[#f1f1f1]
+                              focus:border-primary focus:outline-none
+                              py-4
+                              resize-none
+                              "></textarea>
                             </div>
                             <div class="mb-0">
                                 <button type="submit"
-                                    class="
-                      inline-flex
-                      items-center
-                      justify-center
-                      py-4
-                      px-6
-                      rounded
-                      text-white
-                      bg-primary
-                      text-base
-                      font-medium
-                      hover:bg-dark
-                      transition
-                      duration-300
-                      ease-in-out
-                    ">
+                                    class="inline-flex items-center justify-center px-6 py-4 text-base font-medium text-white transition duration-300 ease-in-out rounded bg-primary hover:bg-dark">
                                     Send Message
                                 </button>
                             </div>
@@ -3003,19 +2709,17 @@
         </div>
     </section>
     <!-- ====== Contact End ====== -->
-
     <!-- ====== Footer Section Start -->
     <footer class="bg-black pt-20 lg:pt-[120px] relative z-10 wow fadeInUp" data-wow-delay=".15s">
         <div class="container">
             <div class="flex flex-wrap -mx-4">
-                <div class="w-full sm:w-1/2 md:w-1/2 lg:w-4/12 xl:w-3/12 px-4">
+                <div class="w-full px-4 sm:w-1/2 md:w-1/2 lg:w-4/12 xl:w-4/12">
                     <div class="w-full mb-10">
                         <a href="javascript:void(0)" class="inline-block max-w-[160px] mb-6">
-                            <img src="assets/images/logo/logo-white.svg" alt="logo" class="max-w-full" />
+                            <img src="{{ asset('logo.png') }}" alt="logo" class="max-w-full" />
                         </a>
                         <p class="text-base text-[#f3f4fe] mb-7">
-                            We create digital experiences for brands and companies by using
-                            technology.
+                            All-in-one solution for efficient and hassle-free inventory control.
                         </p>
                         <div class="flex items-center -mx-3">
                             <a href="javascript:void(0)" class="px-3 text-[#dddddd] hover:text-white">
@@ -3049,213 +2753,213 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full sm:w-1/2 md:w-1/2 lg:w-2/12 xl:w-2/12 px-4">
+                <div class="w-full px-4 sm:w-1/2 md:w-1/2 lg:w-4/12 xl:w-4/12">
                     <div class="w-full mb-10">
-                        <h4 class="text-white text-lg font-semibold mb-9">About Us</h4>
+                        <h4 class="text-lg font-semibold text-white mb-9">About Us</h4>
                         <ul>
                             <li>
-                                <a href="javascript:void(0)"
+                                <a href="#home"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
                                     Home
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript:void(0)"
+                                <a href="#features"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
                                     Features
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript:void(0)"
+                                <a href="#about"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
                                     About
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript:void(0)"
+                                <a href="#pricing"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
-                                    Testimonial
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
+                                    Pricing
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <div class="w-full sm:w-1/2 md:w-1/2 lg:w-3/12 xl:w-2/12 px-4">
+                <div class="w-full px-4 sm:w-1/2 md:w-1/2 lg:w-4/12 xl:w-4/12">
                     <div class="w-full mb-10">
-                        <h4 class="text-white text-lg font-semibold mb-9">Features</h4>
+                        <h4 class="text-lg font-semibold text-white mb-9">Features</h4>
                         <ul>
                             <li>
                                 <a href="javascript:void(0)"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
                                     How it works
                                 </a>
                             </li>
                             <li>
                                 <a href="javascript:void(0)"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
                                     Privacy policy
                                 </a>
                             </li>
                             <li>
                                 <a href="javascript:void(0)"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
                                     Terms of Service
                                 </a>
                             </li>
                             <li>
                                 <a href="javascript:void(0)"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
                                     Refund policy
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <div class="w-full sm:w-1/2 md:w-1/2 lg:w-3/12 xl:w-2/12 px-4">
+                {{-- <div class="w-full px-4 sm:w-1/2 md:w-1/2 lg:w-3/12 xl:w-2/12">
                     <div class="w-full mb-10">
-                        <h4 class="text-white text-lg font-semibold mb-9">
+                        <h4 class="text-lg font-semibold text-white mb-9">
                             Our Products
                         </h4>
                         <ul>
                             <li>
                                 <a href="javascript:void(0)"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
                                     LineIcons
                                 </a>
                             </li>
                             <li>
                                 <a href="javascript:void(0)"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
                                     Ecommerce HTML
                                 </a>
                             </li>
                             <li>
                                 <a href="javascript:void(0)"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
                                     Ayro UI
                                 </a>
                             </li>
                             <li>
                                 <a href="javascript:void(0)"
                                     class="
-                      inline-block
-                      text-base text-[#f3f4fe]
-                      hover:text-primary
-                      leading-loose
-                      mb-2
-                    ">
+                              inline-block
+                              text-base text-[#f3f4fe]
+                              hover:text-primary
+                              leading-loose
+                              mb-2
+                              ">
                                     PlainAdmin
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <div class="w-full md:w-2/3 lg:w-6/12 xl:w-3/12 px-4">
+                <div class="w-full px-4 md:w-2/3 lg:w-6/12 xl:w-3/12">
                     <div class="w-full mb-10">
-                        <h4 class="text-white text-lg font-semibold mb-9">Partners</h4>
+                        <h4 class="text-lg font-semibold text-white mb-9">Partners</h4>
                         <ul class="flex flex-wrap items-center">
                             <li>
                                 <a href="https://tailgrids.com" rel="nofollow noopner" target="_blank"
                                     class="
-                      block
-                      mb-6
-                      mr-5
-                      max-w-[120px]
-                      xl:max-w-[100px]
-                      2xl:max-w-[120px]
-                    ">
+                              block
+                              mb-6
+                              mr-5
+                              max-w-[120px]
+                              xl:max-w-[100px]
+                              2xl:max-w-[120px]
+                              ">
                                     <img src="assets/images/footer/brands/tailgrids.svg" alt="tailgrids" />
                                 </a>
                             </li>
                             <li>
                                 <a href="https://ayroui.com" rel="nofollow noopner" target="_blank"
                                     class="
-                      block
-                      mb-6
-                      mr-5
-                      max-w-[120px]
-                      xl:max-w-[100px]
-                      2xl:max-w-[120px]
-                    ">
+                              block
+                              mb-6
+                              mr-5
+                              max-w-[120px]
+                              xl:max-w-[100px]
+                              2xl:max-w-[120px]
+                              ">
                                     <img src="assets/images/footer/brands/ayroui.svg" alt="ayroui" />
                                 </a>
                             </li>
                             <li>
                                 <a href="https://ecommercehtml.com" rel="nofollow noopner" target="_blank"
                                     class="
-                      block
-                      mb-6
-                      mr-5
-                      max-w-[120px]
-                      xl:max-w-[100px]
-                      2xl:max-w-[120px]
-                    ">
+                              block
+                              mb-6
+                              mr-5
+                              max-w-[120px]
+                              xl:max-w-[100px]
+                              2xl:max-w-[120px]
+                              ">
                                     <img src="assets/images/footer/brands/ecommerce-html.svg"
                                         alt="ecommerce-html" />
                                 </a>
@@ -3263,61 +2967,53 @@
                             <li>
                                 <a href="https://graygrids.com" rel="nofollow noopner" target="_blank"
                                     class="
-                      block
-                      mb-6
-                      mr-5
-                      max-w-[120px]
-                      xl:max-w-[100px]
-                      2xl:max-w-[120px]
-                    ">
+                              block
+                              mb-6
+                              mr-5
+                              max-w-[120px]
+                              xl:max-w-[100px]
+                              2xl:max-w-[120px]
+                              ">
                                     <img src="assets/images/footer/brands/graygrids.svg" alt="graygrids" />
                                 </a>
                             </li>
                             <li>
                                 <a href="https://lineicons.com" rel="nofollow noopner" target="_blank"
                                     class="
-                      block
-                      mb-6
-                      mr-5
-                      max-w-[120px]
-                      xl:max-w-[100px]
-                      2xl:max-w-[120px]
-                    ">
+                              block
+                              mb-6
+                              mr-5
+                              max-w-[120px]
+                              xl:max-w-[100px]
+                              2xl:max-w-[120px]
+                              ">
                                     <img src="assets/images/footer/brands/lineicons.svg" alt="lineicons" />
                                 </a>
                             </li>
                             <li>
                                 <a href="https://uideck.com" rel="nofollow noopner" target="_blank"
                                     class="
-                      block
-                      mb-6
-                      mr-5
-                      max-w-[120px]
-                      xl:max-w-[100px]
-                      2xl:max-w-[120px]
-                    ">
+                              block
+                              mb-6
+                              mr-5
+                              max-w-[120px]
+                              xl:max-w-[100px]
+                              2xl:max-w-[120px]
+                              ">
                                     <img src="assets/images/footer/brands/uideck.svg" alt="uideck" />
                                 </a>
                             </li>
                         </ul>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
-
         <div class="border-t border-opacity-40 py-8 mt-12 lg:mt-[60px]">
             <div class="container">
                 <div class="flex flex-wrap -mx-4">
-                    <div class="w-full md:w-2/3 lg:w-1/2 px-4">
+                    <div class="w-full px-4 md:w-2/3 lg:w-1/2">
                         <div class="my-1">
-                            <div
-                                class="
-                    flex
-                    items-center
-                    justify-center
-                    md:justify-start
-                    -mx-3
-                  ">
+                            <div class="flex items-center justify-center -mx-3 md:justify-start">
                                 <a href="javascript:void(0)"
                                     class="text-base text-[#f3f4fe] hover:text-primary px-3">
                                     Privacy policy
@@ -3333,13 +3029,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="w-full md:w-1/3 lg:w-1/2 px-4">
-                        <div class="flex justify-center md:justify-end my-1">
+                    <div class="w-full px-4 md:w-1/3 lg:w-1/2">
+                        <div class="flex justify-center my-1 md:justify-end">
                             <p class="text-base text-[#f3f4fe]">
-                                Designed and Developed by
+                                Copyright © 2024 - All rights reserved. Developed by
                                 <a href="https://tailgrids.com" rel="nofollow noopner" target="_blank"
                                     class="text-primary hover:underline">
-                                    TailGrids and UIdeck
+                                    BizRoon Inc.
                                 </a>
                             </p>
                         </div>
@@ -3347,16 +3043,13 @@
                 </div>
             </div>
         </div>
-
         <div>
             <span class="absolute left-0 top-0 z-[-1]">
                 <img src="assets/images/footer/shape-1.svg" alt="" />
             </span>
-
             <span class="absolute bottom-0 right-0 z-[-1]">
                 <img src="assets/images/footer/shape-3.svg" alt="" />
             </span>
-
             <span class="absolute top-0 right-0 z-[-1]">
                 <svg width="102" height="102" viewBox="0 0 102 102" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
@@ -3512,36 +3205,33 @@
         </div>
     </footer>
     <!-- ====== Footer Section End -->
-
     <!-- ====== Back To Top Start -->
     <a href="javascript:void(0)"
         class="
-        hidden
-        items-center
-        justify-center
-        bg-primary
-        text-white
-        w-10
-        h-10
-        rounded-md
-        fixed
-        bottom-8
-        right-8
-        left-auto
-        z-[999]
-        hover:bg-dark
-        back-to-top
-        shadow-md
-        transition
-        duration-300
-        ease-in-out
-      ">
+         hidden
+         items-center
+         justify-center
+         bg-primary
+         text-white
+         w-10
+         h-10
+         rounded-md
+         fixed
+         bottom-8
+         right-8
+         left-auto
+         z-[999]
+         hover:bg-dark
+         back-to-top
+         shadow-md
+         transition
+         duration-300
+         ease-in-out
+         ">
         <span class="w-3 h-3 border-t border-l border-white rotate-45 mt-[6px]"></span>
     </a>
     <!-- ====== Back To Top End -->
-
     <!-- ====== All Scripts -->
-
     <script src="assets/js/main.js"></script>
     <script>
         // ==== for menu scroll

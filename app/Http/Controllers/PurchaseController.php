@@ -65,10 +65,17 @@ class PurchaseController extends Controller
         $user = auth()->user();
         $user->can('create', Purchase::class);
 
+        $search = request(['search']);
         $products =  Product::query()
             ->with(['store', 'price', 'stock','category'])
+            ->when( !$search, function($q) use ($search) {
+                $q->whereHas('stock', function($q){
+                    $q->whereColumn('in_store','<','min_quantity')
+                        ->whereColumn('in_warehouse','<','min_quantity');
+                });
+            })
             ->filter(request(['search']))
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString()
             ->through(function ($product) {
                 return [
