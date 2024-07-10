@@ -18,7 +18,11 @@ class SupplierController extends Controller
         Gate::authorize('viewAny', Supplier::class);
 
         $perPage = $request->per_page
-        ? ($request->per_page == 'All' ? Store::count() : $request->per_page)
+        ? (
+            $request->per_page == 'All'
+            ? Store::count()
+            : $request->per_page
+        )
         : 10;
 
         $suppliers = Supplier::query()

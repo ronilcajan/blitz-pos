@@ -8,7 +8,7 @@
     <title>
         BizRoon Inventory
     </title>
-    <link rel="shortcut icon" href="{{ asset('logo.png') }}" type="image/x-icon" />
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" type="image/x-icon" />
     <link rel="stylesheet" href="{{ asset('assets/css/animate.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/tailwind.css') }}" />
     {{-- @vite(['resources/css/app.css']) --}}
@@ -2644,7 +2644,8 @@
                         <h3 class="font-semibold mb-8 text-2xl md:text-[26px]">
                             Send us a Message
                         </h3>
-                        <form>
+                        <form method="POST" action="{{ route('feedback.store') }}">
+                            @csrf
                             <div class="mb-6">
                                 <label for="fullName" class="block text-xs text-dark">Full Name*</label>
                                 <input type="text" name="fullName" placeholder="Adam Gelius"
@@ -2716,7 +2717,8 @@
                 <div class="w-full px-4 sm:w-1/2 md:w-1/2 lg:w-4/12 xl:w-4/12">
                     <div class="w-full mb-10">
                         <a href="javascript:void(0)" class="inline-block max-w-[160px] mb-6">
-                            <img src="{{ asset('logo.png') }}" alt="logo" class="max-w-full" />
+                            <img src="{{ asset('assets/images/logo-white.png') }}" alt="logo"
+                                class="max-w-full" />
                         </a>
                         <p class="text-base text-[#f3f4fe] mb-7">
                             All-in-one solution for efficient and hassle-free inventory control.

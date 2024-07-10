@@ -27,7 +27,7 @@ const submit = () => {
     <GuestLayout>
         <Head title="Log in" />
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
             {{ status }}
         </div>
 
@@ -70,13 +70,13 @@ const submit = () => {
                 <div>
                     <label class="flex items-center">
                         <Checkbox name="remember" v-model:checked="form.remember" />
-                        <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+                        <span class="text-sm text-gray-600 ms-2 dark:text-gray-400">Remember me</span>
                     </label>
                 </div>
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="link link-hover text-sm"
+                    class="text-sm link link-hover"
                 >
                     Forgot your password?
                 </Link>
@@ -90,7 +90,7 @@ const submit = () => {
                     Log in
                 </PrimaryButton>
             </div>
-            <div class="divider text-sm">or</div>
+            <div class="text-sm divider">or</div>
             <div class="flex items-end">
                 <a :href="route('google-auth')" class="btn grow">
                     <span>
@@ -119,15 +119,15 @@ const submit = () => {
                     Sign in with Google
                 </a>
             </div>
-            <div class="text-center mt-5 text-xs">
+            <div class="mt-5 text-xs text-center">
 
                     Don't have an account yet?
-                    <Link
+                    <a
                     v-if="canResetPassword"
-                    :href="route('password.request')"
+                    :href="route('home')"
                     class="link link-hover text-primary"
                 >Click here
-                </Link>
+                </a>
             </div>
         </form>
     </GuestLayout>

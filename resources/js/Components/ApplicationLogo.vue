@@ -6,6 +6,6 @@ const page = usePage();
 </script>
 <template>
     <div class="flex items-center">
-        <img :src="$page.props.logo" alt="Laravel" class="h-8" />
+        <img :src="$page.props.logo" alt="Laravel" class="h-20" />
     </div>
 </template>

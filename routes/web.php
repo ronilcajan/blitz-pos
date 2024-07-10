@@ -10,6 +10,7 @@ use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ExportProductController;
 use App\Http\Controllers\ExportSaleController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\ImportProductController;
 use App\Http\Controllers\InventoryController;
@@ -39,12 +40,12 @@ Route::get('/', function () {
     //     'laravelVersion' => Application::VERSION,
     //     'phpVersion' => PHP_VERSION,
     // ]);
-});
-Route::get('/auth/login', [AuthenticatedSessionController::class, 'create'])->name('login');
-Route::get('/auth/register', [RegisteredUserController::class, 'create'])->name('register');
+})->name('home');
 
 Route::get('/auth/google', [GoogleAuthController::class, 'signInwithGoogle'])->name('google-auth');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callbackToGoogle']);
+
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
