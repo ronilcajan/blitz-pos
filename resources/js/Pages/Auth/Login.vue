@@ -124,7 +124,7 @@ const submit = () => {
                     Don't have an account yet?
                     <a
                     v-if="canResetPassword"
-                    :href="route('home')"
+                    :href="route('register')"
                     class="link link-hover text-primary"
                 >Click here
                 </a>

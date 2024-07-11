@@ -101,7 +101,7 @@ class StoreController extends Controller
             'tax' => $store->tax,
             'description' => $store->description,
             'address' => $store->address,
-            'avatar' => asset('storage/'.$store->avatar),
+            'avatar' => $store->avatar ?asset('storage/'.$store->avatar) : '',
         ];
 
         return inertia('Store/Show', [

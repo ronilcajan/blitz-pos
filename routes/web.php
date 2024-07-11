@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CustomerController;
@@ -26,18 +25,18 @@ use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 
 
 Route::get('/', function () {
-    // return view('welcome');
     return Inertia::render('Landing_page/Welcome', [
         'canLogin' => Route::has('login'),
     ]);
 })->name('home');
+
+Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
 
 Route::get('/auth/google', [GoogleAuthController::class, 'signInwithGoogle'])->name('google-auth');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callbackToGoogle']);
@@ -45,8 +44,8 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callbackToGoo
 Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
-Route::get('/buy', function (Request $request) {
-    return $request->user()->checkout('variant-id');
+Route::get('/subscribe', function (Request $request) {
+    return $request->user()->subscribe('446841');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

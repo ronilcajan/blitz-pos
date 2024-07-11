@@ -15,7 +15,7 @@ const props = defineProps({
 
 const tin = ref(null);
 // const country = ref('');
-const image_preview = ref(props.store.avatar);
+const image_preview = ref(props.store?.avatar ?? '');
 
 const form = useForm({
     id: props.store.id,
@@ -66,15 +66,15 @@ const onFileChange = (e) => {
 <template>
     <Head :title="title" />
     <form @submit.prevent="submitUpdateForm">
-        <div class="flex gap-5 flex-col md:flex-row">
+        <div class="flex flex-col gap-5 md:flex-row">
             <div class="w-full sm:w-2/3">
-                <div class="card bg-base-100 shadow">
+                <div class="shadow card bg-base-100">
                     <div class="card-body grow-0">
-                        <div class="flex justify-between gap-2 flex-col lg:flex-row">
-                            <h2 class="card-title grow text-sm mb-5">
+                        <div class="flex flex-col justify-between gap-2 lg:flex-row">
+                            <h2 class="mb-5 text-sm card-title grow">
                                 <span class="uppercase">Store Information</span>
                             </h2>
-                            <div class="flex justify-end gap-3 flex-col md:flex-row">
+                            <div class="flex flex-col justify-end gap-3 md:flex-row">
                                 <SaveButton v-model="form" />
                             </div>
                         </div>
@@ -151,7 +151,7 @@ const onFileChange = (e) => {
                             </div>
                             <div class="form-control">
                                 <InputLabel for="phone" value="Industry" />
-                                <select v-model="form.industry" class="select select-bordered w-full">
+                                <select v-model="form.industry" class="w-full select select-bordered">
                                     <option value="">Select an industry...</option>
                                     <option value="Agriculture">Agriculture</option>
                                     <option value="Automotive">Automotive</option>
@@ -187,7 +187,7 @@ const onFileChange = (e) => {
 
                             <div class="form-control">
                                 <InputLabel for="name" value="Country" />
-                                <div class="join w-full">
+                                <div class="w-full join">
                                     <div class="indicator">
                                         <span class="btn join-item">
                                             <img :src="form.flag" class="w-8" alt="">
@@ -196,7 +196,7 @@ const onFileChange = (e) => {
                                         <div>
                                             <TextInput
                                                 type="text"
-                                                class="join-item w-full"
+                                                class="w-full join-item"
                                                 v-model="form.country"
                                                 placeholder="Select a country"
                                                 required
@@ -231,15 +231,15 @@ const onFileChange = (e) => {
                 </div>
             </div>
             <div class="w-full sm:w-1/3">
-                <div class="card bg-base-100 shadow">
+                <div class="shadow card bg-base-100">
 
-                    <div class="card bg-base-100 shadow">
+                    <div class="shadow card bg-base-100">
                         <div class="card-body grow-0 ">
-                            <h2 class="card-title grow text-sm mb-5">
+                            <h2 class="mb-5 text-sm card-title grow">
                                 <span class="uppercase">Store Logo</span>
                             </h2>
                             <div class="flex relative mb-5.5 w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5 justify-center">
-                                <input type="file" @input="form.avatar = $event.target.files[0]" accept="image/*" class="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none" @change="onFileChange">
+                                <input type="file" @input="form.avatar = $event.target.files[0]" accept="image/*" class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer" @change="onFileChange">
 
                                 <ImagePreview v-model="image_preview" />
                             </div>

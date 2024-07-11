@@ -27,7 +27,7 @@
                     <li><a href="#faq" class="ud-menu-scroll">FAQs</a></li>
                     <li><a href="#contact" class="ud-menu-scroll">Contacts</a></li>
                     <li><Link :href="route('login')"
-                        class="px-4 py-2 font-medium text-white transition duration-300 ease-in-out border rounded-lg bg-primary hover:bg-opacity-100 hover:text-dark">
+                        class="px-4 py-2 font-medium text-white transition duration-300 ease-in-out border rounded-lg signUpBtn bg-primary hover:bg-opacity-100 hover:text-dark">
                         Sign In
                     </Link></li>
                     </ul>
@@ -50,6 +50,10 @@
                 </ul>
             </div>
             <div class="navbar-end">
+                <Link :href="route('login')"
+                    class="hidden py-3 text-base font-medium text-white  sm:block hover:opacity-70 px-7 loginBtn">
+                    Sign In
+                </Link>
                 <a href="#pricing"
                     class="px-6 py-3 text-base font-medium text-white duration-300 ease-in-out bg-white rounded-lg bg-opacity-20 hover:bg-opacity-100 hover:text-dark signUpBtn ud-menu-scroll">
                     Get Started
