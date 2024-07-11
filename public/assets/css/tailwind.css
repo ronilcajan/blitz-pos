@@ -1135,6 +1135,11 @@ Ensure the default browser behavior of the `hidden` attribute.
   background-color: rgb(48 86 211 / var(--tw-bg-opacity));
 }
 
+.bg-error{
+    --tw-bg-opacity: 1;
+    background-color: red / var(--tw-bg-opacity);
+  }
+
 .bg-\[\#f5f8ff\]{
   --tw-bg-opacity: 1;
   background-color: rgb(245 248 255 / var(--tw-bg-opacity));
@@ -1566,6 +1571,11 @@ Ensure the default browser behavior of the `hidden` attribute.
   --tw-text-opacity: 1;
   color: rgb(48 86 211 / var(--tw-text-opacity));
 }
+
+.text-error{
+    --tw-text-opacity: 1;
+    color:red / var(--tw-text-opacity) !important;
+  }
 
 .text-\[\#cdced6\]{
   --tw-text-opacity: 1;

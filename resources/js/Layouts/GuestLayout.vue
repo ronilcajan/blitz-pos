@@ -5,9 +5,9 @@ import { Link } from '@inertiajs/vue3';
 <template>
     <div class="flex flex-col items-center min-h-screen pt-6 bg-base-300 sm:justify-center sm:pt-0">
         <div>
-            <a href="/">
+            <Link href="/">
                 <ApplicationLogo class="fill-current" />
-            </a>
+            </Link>
         </div>
 
         <div class="w-full col-span-12 px-8 py-6 mt-6 shadow-md sm:max-w-md card bg-base-100 xl:col-span-3">

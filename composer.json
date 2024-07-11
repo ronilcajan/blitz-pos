@@ -13,6 +13,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.12",
         "laravel/tinker": "^2.9",
+        "lemonsqueezy/laravel": "^1.6",
         "maatwebsite/excel": "^3.1",
         "milon/barcode": "^11.0",
         "phpoffice/phpspreadsheet": "^1.29",

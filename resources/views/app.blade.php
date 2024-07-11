@@ -17,6 +17,16 @@
     @routes
     @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
     @inertiaHead
+
+    <link rel="stylesheet" href="{{ asset('assets/css/animate.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/tailwind.css') }}" />
+    {{-- @vite(['resources/css/app.css']) --}}
+    <!-- ==== WOW JS ==== -->
+    <script src="{{ asset('assets/js/wow.min.js') }}"></script>
+    <script>
+        new WOW().init();
+    </script>
+    @lemonJS
 </head>
 
 <body>

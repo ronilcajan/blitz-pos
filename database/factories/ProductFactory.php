@@ -28,10 +28,8 @@ class ProductFactory extends Factory
             'unit'=> function () {
                 return ProductUnit::inRandomOrder()->first()->name;
             },
-            'brand' => fake()->company(),
             'manufacturer' => fake()->company(),
             'description' => fake()->text(),
-            'image' => asset('product.png'),
             'product_category_id' => function () {
                 return ProductCategory::inRandomOrder()->first()->id;
             },

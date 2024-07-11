@@ -18,11 +18,12 @@ use Illuminate\Notifications\Notifiable;
 use Laratrust\Traits\HasRolesAndPermissions;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use LemonSqueezy\Laravel\Billable;
 
 #[ScopedBy([UserScope::class])]
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, HasRolesAndPermissions, LogsActivity, Authorizable;
+    use Billable, HasFactory, Notifiable, SoftDeletes, HasRolesAndPermissions, LogsActivity, Authorizable;
     /**
      * The attributes that are mass assignable.
      *

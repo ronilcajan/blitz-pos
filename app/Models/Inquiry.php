@@ -1,30 +1,28 @@
 <?php
 
-namespace {{ namespace }};
+namespace App\Models;
 
-use App\Models\Scopes\{{ class }}Scope;
+use App\Models\Scopes\InquiryScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-#[ScopedBy([{{ class }}Scope::class])]
-class {{ class }} extends Model
+#[ScopedBy([InquiryScope::class])]
+class Inquiry extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
+    protected $table = 'inquiries';
 
-    public function store():BelongsTo
-    {
-        return $this->belongsTo(Store::class);
-    }
+    protected $guarded = [];
 
-    public function getActivitylogOptions(): LogOptions
+
+     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('{{ class }}')
+            ->useLogName('Inquiry')
             ->logOnly(['name'])
             ->logOnlyDirty()
             ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");

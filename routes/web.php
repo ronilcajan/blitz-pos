@@ -13,6 +13,7 @@ use App\Http\Controllers\ExportSaleController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\ImportProductController;
+use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProductCategoryController;
@@ -28,24 +29,25 @@ use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-
+use Illuminate\Http\Request;
 
 
 Route::get('/', function () {
-    return view('welcome');
-    // return Inertia::render('Welcome', [
-    //     'canLogin' => Route::has('login'),
-    //     // 'canRegister' => Route::has('register'),
-    //     'laravelVersion' => Application::VERSION,
-    //     'phpVersion' => PHP_VERSION,
-    // ]);
+    // return view('welcome');
+    return Inertia::render('Landing_page/Welcome', [
+        'canLogin' => Route::has('login'),
+    ]);
 })->name('home');
 
 Route::get('/auth/google', [GoogleAuthController::class, 'signInwithGoogle'])->name('google-auth');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callbackToGoogle']);
 
+Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+
+Route::get('/buy', function (Request $request) {
+    return $request->user()->checkout('variant-id');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
