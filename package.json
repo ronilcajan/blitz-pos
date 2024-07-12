@@ -23,6 +23,7 @@
         "chart.js": "^4.4.3",
         "lodash": "^4.17.21",
         "puppeteer": "^22.7.1",
+        "theme-change": "^2.5.0",
         "vue-chartjs": "^5.3.1",
         "vue-toast-notification": "^3.1.2"
     }

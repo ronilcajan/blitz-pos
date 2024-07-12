@@ -153,15 +153,15 @@ onMounted(() => {
 <template>
 
     <Head title="Home" />
-
-    <Header />
-    <Hero/>
-    <Feature />
-    <About />
-    <Pricing />
-    <FAQs />
-    <Contact :inquiryForm="inquiryForm" />
-    <Footer />
-    <BackToTopButton />
-
+    <div data-theme="light">
+        <Header />
+        <Hero/>
+        <Feature />
+        <About />
+        <Pricing />
+        <FAQs />
+        <Contact :inquiryForm="inquiryForm" />
+        <Footer />
+        <BackToTopButton />
+    </div>
 </template>

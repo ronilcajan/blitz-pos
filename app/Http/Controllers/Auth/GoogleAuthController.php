@@ -20,7 +20,6 @@ class GoogleAuthController extends Controller
     public function callbackToGoogle()
     {
 
-        DB::beginTransaction();
         try {
             $user = Socialite::driver('google')->user();
             $findUser = User::where('gauth_id', $user->id)->first();
@@ -28,39 +27,50 @@ class GoogleAuthController extends Controller
             if($findUser){
 
                 Auth::login($findUser);
+
                 return redirect()->route('dashboard')
                 ->with('message', 'Welcome to your dashboard!');
+
             }else{
 
-                $store = Store::create([
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'contact' => '',
-                    'address' => '',
-                ]);
+                DB::beginTransaction();
 
-                $newUser = User::create([
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'gauth_id'=> $user->id,
-                    'password'=> $user->id,
-                    'profile_photo_url'=> $user->avatar,
-                    'store_id' =>  $store->id
-                ]);
+                try {
+                    $store = Store::create([
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'contact' => '',
+                        'address' => '',
+                    ]);
 
-                $newUser->addRole('owner');
+                    $newUser = User::create([
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'gauth_id'=> $user->id,
+                        'password'=> $user->id,
+                        'profile_photo_url'=> $user->avatar,
+                        'store_id' =>  $store->id
+                    ]);
 
-                DB::commit();
+                    $newUser->addRole('owner');
 
-                Auth::login($newUser);
+                    DB::commit();
 
-                return redirect('stores/'.$store->id)
-                    ->with('message', 'Please update your store details!');
+                    Auth::login($newUser);
+
+                    return redirect('stores/'.$store->id)
+                        ->with('message', 'Please update your store details!');
+                } catch (\Throwable $th) {
+                    DB::rollBack();
+
+                    return redirect()->back()->withErrors([
+                        'email' => 'The provided credentials do not match our records.',
+                    ])->onlyInput('email');
+                }
+
             }
 
         } catch (Exception $e) {
-
-            DB::rollBack();
 
             return redirect()->back()->withErrors([
                 'email' => 'The provided credentials do not match our records.',

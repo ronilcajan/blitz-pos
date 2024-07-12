@@ -10,9 +10,9 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    <script>
+    {{-- <script>
         document.documentElement.setAttribute("data-theme", localStorage.getItem("theme"))
-    </script>
+    </script> --}}
     <!-- Scripts -->
     @routes
     @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
@@ -27,6 +27,7 @@
         new WOW().init();
     </script>
     @lemonJS
+
 </head>
 
 <body>
