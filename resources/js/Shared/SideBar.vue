@@ -1,16 +1,23 @@
+<script setup>
+import { usePage } from '@inertiajs/vue3'
+
+const page = usePage();
+
+
+</script>
 <template>
-    <aside class="drawer-side z-10" >
+    <aside class="z-10 drawer-side" >
 		<label for="my-drawer" class="drawer-overlay"></label>
 		<!-- sidebar menu -->
-		<nav class="flex min-h-screen w-72 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
+		<nav class="flex flex-col min-h-screen gap-2 px-6 py-10 overflow-y-auto w-72 bg-base-100">
 
-			<div class="mx-4 flex items-center gap-2 font-black">
+			<div class="flex items-center gap-2 mx-4 font-black">
                 <Link :href="route('dashboard')">
                     <ApplicationLogo class="fill-current" />
                 </Link>
 			</div>
 
-			<ul class="menu gap-2 mt-4">
+			<ul class="gap-2 mt-4 menu">
 				<li>
 					<NavLink :active="$page.component.startsWith('Dashboard')" :href="route('dashboard')">
 						<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-home"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
@@ -118,7 +125,7 @@
 					</NavLink>
 				</li>
 				<li v-show="$page.props.auth.user.isSuperAdmin">
-					<NavLink :active="$page.component.startsWith('Store')" href="/stores">
+					<NavLink :active="$page.component.startsWith('Store')" href="/admin/stores">
 						<svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-building-store"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21l18 0" /><path d="M3 7v1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1h-18l2 -4h14l2 4" /><path d="M5 21l0 -10.15" /><path d="M19 21l0 -10.15" /><path d="M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4" /></svg>
 						Store
 					</NavLink>

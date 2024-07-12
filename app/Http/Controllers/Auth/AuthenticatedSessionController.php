@@ -33,17 +33,31 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         if (Auth::user()->status->getLabelText() === 'active') {
+
+
+            if(Auth::user()->hasRole('super-admin')) {
+
+                return redirect()
+                ->intended(route('admin.dashboard', absolute: true))
+                ->with('message', "Welcome back, ".
+                    auth()->user()->name.". Everything is up and running smoothly.");
+
+            }
+
             return redirect()
-            ->intended(route('dashboard', absolute: false))
-            ->with('message', "Welcome back, ".auth()->user()->name.". Everything is up and running smoothly.");
+                ->intended(route('dashboard', absolute: false))
+                ->with('message', "Hello, ".
+                    auth()->user()->name."! We're glad to see you. Your dashboard is ready.");
 
         } else {
+
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+
             // Redirect to a different route or show an error message
             return redirect('login')->withErrors([
-                'email' => 'You are authorized to login.',
+                'email' => 'You are not authorized to login.',
             ])->onlyInput('email');
         }
     }

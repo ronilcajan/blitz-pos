@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted, reactive } from 'vue'
 import { Head } from '@inertiajs/vue3';
-import { useForm } from '@inertiajs/vue3';
 import Header from './partials/Header.vue';
 import Hero from './partials/Hero.vue';
 import About from './partials/About.vue';
@@ -151,8 +150,8 @@ onMounted(() => {
 </script>
 
 <template>
-
     <Head title="Home" />
+
     <div data-theme="light">
         <Header />
         <Hero/>

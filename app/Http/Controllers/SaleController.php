@@ -89,7 +89,6 @@ class SaleController extends Controller
             'items' => $sale->sold_items
         ]);
 
-        $filename = $sale->tx_no.date('-Y-m-d').'.pdf';
 
         $paperSize = [0,0,227,800];
 
@@ -121,9 +120,6 @@ class SaleController extends Controller
             'items' => $sale->sold_items
         ]);
         $pdf->setPaper(array(0,0,227,  $docHeight));
-
-        // return $pdf
-        //     ->stream($filename);
 
         $pdf->render();
 

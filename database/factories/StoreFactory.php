@@ -22,6 +22,8 @@ class StoreFactory extends Factory
             'contact' => fake()->phoneNumber(),
             'address' => fake()->address(),
             'avatar' => fake()->imageUrl(),
+            'currency' => 'PHP',
+            'currency_symbol' => '₱',
         ];
     }
 }

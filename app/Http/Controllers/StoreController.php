@@ -15,7 +15,7 @@ class StoreController extends Controller
      */
     public function index(Request $request)
     {
-        auth()->user()->can('viewAny', Store::class);
+        Gate::authorize('viewAny', Store::class);
 
         $perPage = $request->per_page
         ? ($request->per_page == 'All' ? Store::count() : $request->per_page)
@@ -50,7 +50,8 @@ class StoreController extends Controller
      */
     public function store(StoreFormRequest $request)
     {
-        auth()->user()->can('create', Store::class);
+
+        Gate::authorize('create',Store::class);
 
         $validate = $request->validated();
 
@@ -69,7 +70,7 @@ class StoreController extends Controller
      */
     public function show(Store $store)
     {
-        auth()->user()->can('update', $store);
+        Gate::authorize('update', $store);
 
         $response = Http::get('https://api.ipgeolocation.io/ipgeo',[
             'apiKey' => '8aa952f04a194d639a762c8e66425c46',
@@ -117,7 +118,7 @@ class StoreController extends Controller
     {
         $store = Store::find($request->id);
 
-        auth()->user()->can('update', $store);
+        Gate::authorize('update', $store);
 
         $validate = $request->validated();
 
@@ -144,6 +145,7 @@ class StoreController extends Controller
     public function destroy(Store $store)
     {
         Gate::authorize('delete', $store);
+
         $store->delete();
         return redirect()->back();
     }

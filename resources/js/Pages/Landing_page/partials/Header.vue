@@ -51,7 +51,7 @@
             </div>
             <div class="navbar-end">
                 <Link :href="route('login')"
-                    class="hidden py-3 text-base font-medium text-white  sm:block hover:opacity-70 px-7 loginBtn">
+                    class="hidden py-3 text-base font-medium text-white lg:block hover:opacity-70 px-7 loginBtn">
                     Sign In
                 </Link>
                 <a href="#pricing"

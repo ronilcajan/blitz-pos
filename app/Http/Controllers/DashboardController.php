@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use App\Models\Delivery;
 use App\Models\Expenses;
 use App\Models\Product;
 use App\Models\Sale;
-use Illuminate\Http\Request;
 use Illuminate\Support\Number;
 
 class DashboardController extends Controller
 {
+
     public function index(){
 
         $products = Product::count();
@@ -33,9 +32,9 @@ class DashboardController extends Controller
                     'id' => $sale->id,
                     'tx_no' => $sale->tx_no,
                     'quantity' => Number::format($sale->quantity).'  Items',
-                    'discount' => Number::currency($sale->discount, in: $sale->store->currency),
-                    'sub_total' => Number::currency($sale->sub_total, in: $sale->store->currency),
-                    'total' =>  Number::currency($sale->total, in: $sale->store->currency),
+                    'discount' => Number::currency($sale->discount, in: $sale?->store?->currency),
+                    'sub_total' => Number::currency($sale->sub_total, in: $sale?->store?->currency),
+                    'total' =>  Number::currency($sale->total, in: $sale?->store?->currency),
                     'payment_method' => $sale->payment_method,
                     'user' => $sale->user?->name,
                     'customer' => $sale->customer?->name,

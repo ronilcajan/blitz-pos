@@ -1,11 +1,11 @@
 <script setup>
 import { ref, watch } from 'vue';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { useForm, router } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
 
-defineOptions({ layout: AuthenticatedLayout })
+defineOptions({ layout: AdminLayout })
 
 const props = defineProps({
     title: String,
@@ -161,16 +161,16 @@ const selectAll = () => {
     <div class="flex justify-end mb-4">
         <PrimaryButton class="btn btn-sm"  @click="createModal = true">New store</PrimaryButton>
     </div>
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
+    <section class="col-span-12 overflow-hidden shadow bg-base-100 rounded-xl">
 
         <div class="card-body grow-0">
-            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
+            <div class="flex flex-col-reverse justify-between gap-2 sm:flex-row">
                 <div>
                     <DeleteButton v-show="storeIds.length > 0" @click="deleteAllSelectedModal = true">
                         Delete
                     </DeleteButton>
                 </div>
-                <div class="flex gap-2 flex-col sm:flex-row">
+                <div class="flex flex-col gap-2 sm:flex-row">
                     <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
                 </div>
             </div>
@@ -204,7 +204,7 @@ const selectAll = () => {
                         <td class="w-5">
                             <div class="flex items-center gap-2">
                                 <div class="avatar" v-show="store.avatar">
-                                    <div class="mask mask-squircle h-10 w-10">
+                                    <div class="w-10 h-10 mask mask-squircle">
                                         <img :src="store.avatar" alt="Store logo">
                                     </div>
                                 </div>
@@ -247,7 +247,7 @@ const selectAll = () => {
 
         </div>
     </section>
-    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+    <div class="flex flex-col justify-between gap-3 mt-5 item-center sm:flex-row">
         <PaginationResultRange :data="stores" />
         <PaginationControlList :url="url" />
         <Pagination :links="stores.links" />
@@ -256,7 +256,7 @@ const selectAll = () => {
     <!-- create modal -->
     <Modal :show="createModal" @close="closeModal">
         <div class="p-6">
-            <h1 class="text-xl mb-4 font-medium">
+            <h1 class="mb-4 text-xl font-medium">
                 Add new store
             </h1>
 
@@ -295,12 +295,12 @@ const selectAll = () => {
                 </div>
                 <div class="mb-3">
                     <InputLabel value="Address" />
-                    <textarea v-model="createForm.address" class="textarea w-full textarea-bordered" placeholder="Address"></textarea>
+                    <textarea v-model="createForm.address" class="w-full textarea textarea-bordered" placeholder="Address"></textarea>
                     <InputError class="mt-2" :message="createForm.errors.address" />
                 </div>
                 <div class="mb-3">
                     <InputLabel value="Store logo" />
-                    <input accept="image/*" @input="createForm.avatar = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
+                    <input accept="image/*" @input="createForm.avatar = $event.target.files[0]" type="file" class="w-full max-w-xs file-input file-input-bordered file-input-sm" />
                     <progress v-if="createForm.progress" :value="createForm.progress.percentage" class="progress" max="100">
                         {{ createForm.progress.percentage }}%
                     </progress>
@@ -308,7 +308,7 @@ const selectAll = () => {
                 </div>
 
 
-                <div class="mt-6 flex justify-end">
+                <div class="flex justify-end mt-6">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <PrimaryButton
                         class="ms-3"
@@ -325,7 +325,7 @@ const selectAll = () => {
     <!-- edit modal -->
     <Modal :show="editModal" @close="closeModal">
         <div class="p-6">
-            <h1 class="text-xl mb-4 font-medium">
+            <h1 class="mb-4 text-xl font-medium">
                 Edit store
             </h1>
 
@@ -364,7 +364,7 @@ const selectAll = () => {
                 </div>
                 <div class="mb-3">
                     <InputLabel value="Address" />
-                    <textarea v-model="editForm.address" class="textarea w-full textarea-bordered" placeholder="Address"></textarea>
+                    <textarea v-model="editForm.address" class="w-full textarea textarea-bordered" placeholder="Address"></textarea>
                     <InputError class="mt-2" :message="editForm.errors.address" />
                 </div>
                 <div class="mb-3">
@@ -372,7 +372,7 @@ const selectAll = () => {
                         <img width="60" class="rounded-md" :src="editForm.initialLogo" alt="Product">
                     </div>
                     <InputLabel value="Store logo" />
-                    <input accept="image/*" @input="editForm.avatar = $event.target.files[0]" type="file" class="file-input file-input-bordered file-input-sm w-full max-w-xs" />
+                    <input accept="image/*" @input="editForm.avatar = $event.target.files[0]" type="file" class="w-full max-w-xs file-input file-input-bordered file-input-sm" />
                     <progress v-if="editForm.progress" :value="editForm.progress.percentage" class="progress" max="100">
                         {{ editForm.progress.percentage }}%
                     </progress>
@@ -380,7 +380,7 @@ const selectAll = () => {
                 </div>
 
 
-                <div class="mt-6 flex justify-end">
+                <div class="flex justify-end mt-6">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <SuccessButton
                         class="ms-3"
@@ -397,13 +397,13 @@ const selectAll = () => {
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">
         <div class="p-6">
-            <h1 class="text-xl mb-4 font-medium">
+            <h1 class="mb-4 text-xl font-medium">
                 Delete store
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitDeleteForm">
 
-                <div class="mt-6 flex justify-end">
+                <div class="flex justify-end mt-6">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton
                         class="ms-3"
@@ -420,13 +420,13 @@ const selectAll = () => {
     <!-- delete all selected modal -->
     <Modal :show="deleteAllSelectedModal" @close="closeModal">
         <div class="p-6">
-            <h1 class="text-xl mb-4 font-medium">
+            <h1 class="mb-4 text-xl font-medium">
                 Delete {{ storeIds.length }} store
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">
 
-                <div class="mt-6 flex justify-end">
+                <div class="flex justify-end mt-6">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton
                         class="ms-3"

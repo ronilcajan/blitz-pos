@@ -348,6 +348,22 @@ const submitPurchase = () => {
 		replace: true,
 		preserveScroll: true,
         onSuccess: async (response) => {
+
+            if(!purchaseForm.print){
+                confirmPurchaseModal.value = false; // Close the modal
+                purchaseForm.clearErrors(); // Clear any validation errors
+                purchaseForm.reset(); // Reset the form fields to their initial values
+                purchases.length = 0;
+
+                useToast().success('Success! Sale has been recorded successfully.', {
+                    position: 'top-right',
+                    duration: 3000,
+                    dismissible: true
+                });
+
+                return;
+            }
+
             try {
 
                 const response1 = await fetch(`sales/${response.props.sales_id}`);
@@ -441,7 +457,7 @@ const submitPurchase = () => {
                             @add-products="newPurchase(product)"
                         />
 
-                        <div class="w-full flex justify-center items-center border border-gray-100 rounded bg-gray-100" v-if="products.data.length === 0">
+                        <div class="w-full flex justify-center items-center border border-gray-100 rounded bg-base-200" v-if="products.data.length === 0">
                             <div class="text-center text-gray-400">
                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="250"  height="250"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8.812 4.793l3.188 -1.793l8 4.5v8.5m-2.282 1.784l-5.718 3.216l-8 -4.5v-9l2.223 -1.25" /><path d="M14.543 10.57l5.457 -3.07" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-4.35 2.447m-2.564 1.442l-1.086 .611" /><path d="M3 3l18 18" /></svg>                                <p class="text-gray-500">No products found!</p>
 

@@ -28,7 +28,8 @@ class StorePolicy
      */
     public function update(User $user, Store $model): bool
     {
-        return $user->hasRole('super-admin|owner') || $user->store_id === $model->id;
+        return $user->hasRole('super-admin|owner')
+        && $user->store_id == $model->id;
     }
 
     /**
@@ -42,21 +43,5 @@ class StorePolicy
     public function bulk_delete(User $user): bool
     {
         return $user->hasRole('super-admin');
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Store $store): bool
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Store $store): bool
-    {
-        //
     }
 }

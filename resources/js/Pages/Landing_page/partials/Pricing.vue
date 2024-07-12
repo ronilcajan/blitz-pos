@@ -64,7 +64,7 @@
                         </p>
                     </div>
                     <div class="w-full">
-                        <button type="submit"
+                        <a :href="route('register')"
                             class="
                        inline-block
                        text-base
@@ -82,7 +82,7 @@
                        ease-in-out
                        ">
                             Get Started for Free
-                        </button>
+                        </a>
                     </div>
                     <span
                         class="

@@ -1,20 +1,14 @@
 
 <script setup>
-import { ref, onMounted , watch } from "vue";
+import { onMounted } from "vue";
 import { usePage } from '@inertiajs/vue3'
 import { themeChange } from 'theme-change'
 
-const darkMode = ref(localStorage.getItem("theme"));
 const page = usePage();
 
-// watch(darkMode, () => {
-// 	localStorage.setItem('theme', darkMode.value ? 'dark' : 'light');
-// 	document.documentElement.setAttribute("data-theme", localStorage.getItem("theme"))
-// })
-
 onMounted(() => {
-      themeChange(false)
-    })
+    themeChange(false)
+})
 </script>
 
 <template>
@@ -32,7 +26,7 @@ onMounted(() => {
 			</h1>
 		</div>
         <select data-choose-theme class="select select-xs">
-            <option value="">Themes</option>
+            <option value="">Default</option>
             <option value="dark">Dark</option>
             <option value="cupcake">Cupcake</option>
             <option value="bumblebee">Bumblebee</option>
@@ -70,13 +64,6 @@ onMounted(() => {
                 <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cash-register"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 15h-2.5c-.398 0 -.779 .158 -1.061 .439c-.281 .281 -.439 .663 -.439 1.061c0 .398 .158 .779 .439 1.061c.281 .281 .663 .439 1.061 .439h1c.398 0 .779 .158 1.061 .439c.281 .281 .439 .663 .439 1.061c0 .398 -.158 .779 -.439 1.061c-.281 .281 -.663 .439 -1.061 .439h-2.5" /><path d="M19 21v1m0 -8v1" /><path d="M13 21h-7c-.53 0 -1.039 -.211 -1.414 -.586c-.375 -.375 -.586 -.884 -.586 -1.414v-10c0 -.53 .211 -1.039 .586 -1.414c.375 -.375 .884 -.586 1.414 -.586h2m12 3.12v-1.12c0 -.53 -.211 -1.039 -.586 -1.414c-.375 -.375 -.884 -.586 -1.414 -.586h-2" /><path d="M16 10v-6c0 -.53 -.211 -1.039 -.586 -1.414c-.375 -.375 -.884 -.586 -1.414 -.586h-4c-.53 0 -1.039 .211 -1.414 .586c-.375 .375 -.586 .884 -.586 1.414v6m8 0h-8m8 0h1m-9 0h-1" /><path d="M8 14v.01" /><path d="M8 17v.01" /><path d="M12 13.99v.01" /><path d="M12 17v.01" /></svg>
             </Link>
         </div>
-		<!-- <div>
-			<input
-				type="text"
-				placeholder="Search"
-				class="rounded-full input input-sm max-sm:w-24" />
-		</div> -->
-					<!-- dropdown -->
 		<div class="z-10 dropdown dropdown-end">
 			<div tabindex="0" class="btn btn-circle btn-ghost">
 				<div class="indicator">
@@ -173,12 +160,12 @@ onMounted(() => {
 						</span>
 					</span>
 				</li>
-                <li>
+                <li v-if="!$page.props.auth.user.isSuperAdmin">
                     <Link :href="route('profile.show')">
 						Profile
 					</Link>
                 </li>
-                <li>
+                <li v-if="!$page.props.auth.user.isSuperAdmin">
                     <Link :href="route('profile.edit')">
 						Settings
 					</Link>

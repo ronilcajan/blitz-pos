@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CustomerController;
@@ -47,6 +48,13 @@ Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.s
 Route::get('/subscribe', function (Request $request) {
     return $request->user()->subscribe('446841');
 });
+
+Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:super-admin']], function() {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::resource('/stores', StoreController::class);
+
+});
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -121,7 +129,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/suppliers/update', [SupplierController::class, 'update']);
     Route::post('/suppliers/bulk/delete', [SupplierController::class, 'bulkDelete'])->name('suppliers.bulkDelete');
 
-    Route::resource('/stores', StoreController::class);
+    Route::get('/stores/{store}', [StoreController::class, 'show'])->name('store.show');
     Route::post('/stores/update', [StoreController::class, 'update'])->name('store.update');
     Route::post('/stores/bulk/delete', [StoreController::class, 'bulkDelete'])->name('store.bulkDelete');
 
