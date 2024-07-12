@@ -203,9 +203,9 @@ const selectAll = () => {
                         </td>
                         <td class="w-5">
                             <div class="flex items-center gap-2">
-                                <div class="avatar" v-show="store.avatar">
-                                    <div class="w-10 h-10 mask mask-squircle">
-                                        <img :src="store.avatar" alt="Store logo">
+                                <div class="avatar btn btn-circle btn-ghost online" v-show="store.avatar">
+                                    <div class="w-10 rounded-full">
+                                        <img :src="store.avatar" />
                                     </div>
                                 </div>
                                 <div>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CustomerController;
@@ -52,6 +53,7 @@ Route::get('/subscribe', function (Request $request) {
 Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:super-admin']], function() {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::resource('/stores', StoreController::class);
+    Route::resource('/users', AdminUserController::class);
 
 });
 

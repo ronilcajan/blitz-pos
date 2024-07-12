@@ -42,7 +42,7 @@ class POSController extends Controller
                     'barcode' => $product->barcode,
                     'size' => $product->size,
                     'unit' => $product->unit,
-                    'image' => $product->image,
+                    'image' => $product?->image ?? asset('product.png'),
                     'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
                     'price' =>  $product->price->discount_price ?? 0,
                 ];

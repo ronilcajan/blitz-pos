@@ -102,10 +102,10 @@ createInertiaApp({
             .component('Modal', Modal)
             .mount(el);
     },
-    progress: {
-        // delay: 100,
-        color: '#29d',
-        includeCSS: true,
-        showSpinner: true,
-    },
+    // progress: {
+    //     // delay: 100,
+    //     color: '#29d',
+    //     includeCSS: true,
+    //     showSpinner: true,
+    // },
 });

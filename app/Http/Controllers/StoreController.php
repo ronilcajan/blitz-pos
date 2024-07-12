@@ -38,7 +38,7 @@ class StoreController extends Controller
                 ];
         });
 
-        return inertia('Store/Index', [
+        return inertia('Admin/Store/Index', [
             'title' => "Store",
             'stores' => $transformedStore,
             'filters' => $request->only(['search']),

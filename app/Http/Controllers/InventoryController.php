@@ -46,7 +46,7 @@ class InventoryController extends Controller
                 'min_quantity' => $product->stock?->min_quantity,
                 'in_store' => $product->stock?->in_store ? Number::format($product->stock->in_store, precision: 2) : null,
                 'in_warehouse' => $product->stock?->in_warehouse ? Number::format($product->stock->in_warehouse, precision: 2) : null,
-                'image' => $product->image,
+                'image' => $product?->image ?? asset('product.png'),
                 'store' => $product->store->name,
                 'price' =>  $product->price?->discount_price ? Number::currency($product->price->discount_price, in: 'PHP') : null,
             ];

@@ -45,7 +45,7 @@ class ProductController extends Controller
                     'brand' => $product->brand,
                     'manufacturer' => $product->manufacturer,
                     'description' => $product->description,
-                    'image' => $product->image,
+                    'image' => $product?->image ?? asset('product.png'),
                     'visible' => $product->visible === 'published',
                     'store' => $product->store->name,
                     'category' => $product->category?->name,
