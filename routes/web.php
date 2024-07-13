@@ -39,9 +39,10 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+Route::post('/register', [RegisteredUserController::class, 'store'])->name('register.store');
 
 Route::get('/auth/google', [GoogleAuthController::class, 'signInwithGoogle'])->name('google-auth');
-Route::get('/auth/google/callback', [GoogleAuthController::class, 'callbackToGoogle']);
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleLoginCallback']);
 
 Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');

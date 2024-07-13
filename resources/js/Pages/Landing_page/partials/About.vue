@@ -21,8 +21,7 @@
                                     About Us
                                 </span>
                                 <h2
-                                    class="
-                              font-bold
+                                    class="font-bold
                               text-3xl
                               sm:text-4xl
                               2xl:text-[40px]

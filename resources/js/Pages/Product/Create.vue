@@ -141,7 +141,7 @@ const submitCreateForm = () => {
 		},
 	})
 }
-const image_preview = ref('');
+const image_preview = ref([]);
 const onFileChange = (e) => {
     const file = e.target.files[0];
     if (!file.type.startsWith('image/')) {
@@ -155,16 +155,16 @@ const onFileChange = (e) => {
 <template>
     <Head :title="title" />
     <form @submit.prevent="submitCreateForm" class="w-full">
-    <div class="flex gap-5 flex-col md:flex-row">
+    <div class="flex flex-col gap-5 md:flex-row">
 
         <div class="w-full md:w-2/3">
-            <div class="card bg-base-100 shadow">
+            <div class="shadow card bg-base-100">
                 <div class="card-body">
-                    <div class="flex justify-between gap-2 flex-col lg:flex-row">
-                        <h2 class="card-title grow text-sm mb-5">
+                    <div class="flex flex-col justify-between gap-2 lg:flex-row">
+                        <h2 class="mb-5 text-sm card-title grow">
                             <span class="uppercase">General Information</span>
                         </h2>
-                        <div class="flex justify-end gap-3 flex-col md:flex-row">
+                        <div class="flex flex-col justify-end gap-3 md:flex-row">
                             <NavLink href="/products" class="btn btn-sm">
                                 <svg class="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
@@ -205,7 +205,7 @@ const onFileChange = (e) => {
                                 <InputError class="mt-2" :message="form.errors.size" />
                             </div>
 
-                    <div class="flex gap-5 flex-col md:flex-row">
+                    <div class="flex flex-col gap-5 md:flex-row">
                         <div class="w-full md:w-1/2">
                             <InputLabel for="phone" value="Color (optional)" />
                             <TextInput
@@ -220,7 +220,7 @@ const onFileChange = (e) => {
                             <div class="flex items-end gap-2">
                                 <div class="w-full">
                                     <InputLabel for="name" value="Category" />
-                                    <select v-model="form. product_category_id" required class="select select-bordered w-full">
+                                    <select v-model="form. product_category_id" required class="w-full select select-bordered">
                                         <option disabled selected value="">Select a product category</option>
                                         <option v-for="category in categories" :value="category.id" :key="category.id">
                                             {{ category.name }}
@@ -240,11 +240,11 @@ const onFileChange = (e) => {
                         </div>
                     </div>
 
-                    <div class="flex gap-5 flex-col md:flex-row">
+                    <div class="flex flex-col gap-5 md:flex-row">
                         <div class="w-full md:w-1/2 ">
-                            <div class="form-control mb-4">
+                            <div class="mb-4 form-control">
                                 <InputLabel for="product_type" value="Product Type" />
-                                <select v-model="form.product_type" class="select select-bordered w-full">
+                                <select v-model="form.product_type" class="w-full select select-bordered">
                                     <option disabled value="">Select a product type</option>
                                     <option>
                                         sellable
@@ -261,7 +261,7 @@ const onFileChange = (e) => {
                             <div class="flex items-end gap-2">
                                 <div class="w-full">
                                     <InputLabel for="name" value="Unit" />
-                                    <select v-model="form.unit" class="select select-bordered w-full" required>
+                                    <select v-model="form.unit" class="w-full select select-bordered" required>
                                         <option disabled selected value="">Select a product unit</option>
                                         <option v-for="unit in units" :value="unit.name" :key="unit.id">
                                             {{ unit.name }}
@@ -281,7 +281,7 @@ const onFileChange = (e) => {
                         </div>
                     </div>
 
-                    <div class="flex gap-5 flex-col md:flex-row">
+                    <div class="flex flex-col gap-5 md:flex-row">
                         <div class="w-full md:w-1/2">
                             <InputLabel for="name" value="Brand (optional)" />
                             <TextInput
@@ -304,7 +304,7 @@ const onFileChange = (e) => {
                         </div>
                     </div>
 
-                    <div class="flex gap-5 flex-col md:flex-row">
+                    <div class="flex flex-col gap-5 md:flex-row">
                         <div class="w-full md:w-1/2">
                             <InputLabel for="phone" value="Dimension (optional)" />
                             <TextInput
@@ -331,13 +331,13 @@ const onFileChange = (e) => {
 
                     <div class="mb-3">
                         <InputLabel value="Description" />
-                        <textarea v-model="form.description" class="textarea w-full textarea-bordered" placeholder="Enter description"></textarea>
+                        <textarea v-model="form.description" class="w-full textarea textarea-bordered" placeholder="Enter description"></textarea>
                         <InputError class="mt-2" :message="form.errors.description" />
                     </div>
                     <div>
                         <div class="mb-3" v-show="$page.props.auth.user.isSuperAdmin">
                             <InputLabel for="phone" value="Store" />
-                            <select v-model="form.store_id" class="select select-bordered w-full">
+                            <select v-model="form.store_id" class="w-full select select-bordered">
                                 <option disabled selected value="">Select a store</option>
                                 <option v-for="store in stores" :value="store.id" :key="store.id">
                                     {{ store.name }}
@@ -350,9 +350,9 @@ const onFileChange = (e) => {
                 </div>
             </div>
 
-            <div class="card bg-base-100 shadow mt-5">
+            <div class="mt-5 shadow card bg-base-100">
                 <div class="card-body">
-                    <h2 class="card-title grow text-sm mb-2">
+                    <h2 class="mb-2 text-sm card-title grow">
                             <span class="uppercase">Pricing Details</span>
                         </h2>
                     <div>
@@ -364,7 +364,7 @@ const onFileChange = (e) => {
                                 </div>
                                 <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
                                     <div tabindex="0" class="card-body">
-                                        <h2 class="uppercase font-bold">You needed more info?</h2>
+                                        <h2 class="font-bold uppercase">You needed more info?</h2>
                                         <p>This is the original price of the product before any modifications or adjustments.</p>
                                     </div>
                                 </div>
@@ -379,7 +379,7 @@ const onFileChange = (e) => {
                         />
                         <InputError class="mt-2" :message="form.errors.base_price" />
                     </div>
-                    <div class="flex gap-5 flex-col md:flex-row">
+                    <div class="flex flex-col gap-5 md:flex-row">
                         <div class="w-full md:w-1/2">
                             <div class="flex items-center">
                                 <InputLabel for="name" value="Markup Price" />
@@ -389,7 +389,7 @@ const onFileChange = (e) => {
                                     </div>
                                     <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
                                         <div tabindex="0" class="card-body">
-                                            <h2 class="uppercase font-bold">You needed more info?</h2>
+                                            <h2 class="font-bold uppercase">You needed more info?</h2>
                                             <p>The markup price is the additional amount added to the base price to cover costs.</p>
                                         </div>
                                     </div>
@@ -414,7 +414,7 @@ const onFileChange = (e) => {
                                 </div>
                                 <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
                                     <div tabindex="0" class="card-body">
-                                        <h2 class="uppercase font-bold">You needed more info?</h2>
+                                        <h2 class="font-bold uppercase">You needed more info?</h2>
                                         <p>The sale price that the customer pays before any discounts are applied.</p>
                                     </div>
                                 </div>
@@ -433,9 +433,9 @@ const onFileChange = (e) => {
                         </div>
                     </div>
 
-                    <div class="flex gap-5 flex-col md:flex-row">
+                    <div class="flex flex-col gap-5 md:flex-row">
                         <div class="w-full md:w-1/2">
-                            <div class="flex gap-2 items-center">
+                            <div class="flex items-center gap-2">
                                 <InputLabel for="name" value="Discount: (if applicable)" />
                                 <div>
                                     <input type="radio" aria-label="manual"
@@ -473,9 +473,9 @@ const onFileChange = (e) => {
                 </div>
             </div>
 
-            <div class="card bg-base-100 shadow mt-5">
+            <div class="mt-5 shadow card bg-base-100">
                 <div class="card-body">
-                    <h2 class="card-title grow text-sm mb-2">
+                    <h2 class="mb-2 text-sm card-title grow">
                         <span class="uppercase">Manage Stocks</span>
                     </h2>
                     <div>
@@ -489,7 +489,7 @@ const onFileChange = (e) => {
                             />
                             <InputError class="mt-2" :message="form.errors.barcode" />
                     </div>
-                    <div class="flex gap-5 flex-col md:flex-row">
+                    <div class="flex flex-col gap-5 md:flex-row">
                         <div class="w-full md:w-1/2">
                             <InputLabel for="phone" value="Stock Keeping Unit (optional)" />
                             <TextInput
@@ -502,7 +502,7 @@ const onFileChange = (e) => {
                         </div>
                         <div class="w-full md:w-1/2">
                             <InputLabel for="name" value="Minimum Stocks (alert level)" />
-                        <select v-model="form.min_quantity" class="select select-bordered w-full">
+                        <select v-model="form.min_quantity" class="w-full select select-bordered">
                             <option>5</option>
                             <option>10</option>
                             <option>20</option>
@@ -512,7 +512,7 @@ const onFileChange = (e) => {
                         <InputError class="mt-2" :message="form.errors.min_quantity" />
                         </div>
                         </div>
-                    <div class="flex gap-5 flex-col md:flex-row">
+                    <div class="flex flex-col gap-5 md:flex-row">
 
                         <div class="w-full md:w-1/2">
                             <InputLabel for="phone" value="In Warehouse" />
@@ -540,13 +540,13 @@ const onFileChange = (e) => {
         </div>
 
         <div class="w-full md:w-1/3">
-            <div class="card bg-base-100 shadow">
+            <div class="shadow card bg-base-100">
                 <div class="card-body grow-0 ">
-                    <h2 class="card-title grow text-sm mb-5">
+                    <h2 class="mb-5 text-sm card-title grow">
                         <span class="uppercase">Product Image</span>
                     </h2>
                     <div class="flex relative mb-5.5 w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5 justify-center">
-                        <input type="file" @input="form.image = $event.target.files[0]" accept="image/*" class="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none" @change="onFileChange">
+                        <input type="file" @input="form.image = $event.target.files[0]" accept="image/*" class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer" @change="onFileChange">
 
                         <ImagePreview v-model="image_preview" />
                     </div>
@@ -556,18 +556,18 @@ const onFileChange = (e) => {
                 </div>
             </div>
 
-            <div class="card bg-base-100 shadow mt-5">
+            <div class="mt-5 shadow card bg-base-100">
                 <div class="card-body">
-                    <h2 class="card-title grow text-sm mb-2">
+                    <h2 class="mb-2 text-sm card-title grow">
                         <span class="uppercase">Product Status</span>
                     </h2>
 
                     <div>
                         <InputLabel for="phone" value="Product Visibility" />
-                        <div class="text-sm px-4 py-3 my-2 border w-full rounded-lg">
+                        <div class="w-full px-4 py-3 my-2 text-sm border rounded-lg">
                                 {{ form.visible }}
                             </div>
-                        <div class="form-control mt-3 flex flex-row gap-3 items-center">
+                        <div class="flex flex-row items-center gap-3 mt-3 form-control">
                             <input type="checkbox" id="hide" v-model="isHide" class="checkbox checkbox-sm" />
                             <label for="hide">Hide this product</label>
                         </div>
@@ -585,7 +585,7 @@ const onFileChange = (e) => {
 
     <Modal :show="createUnitModal" @close="closeModal">
         <div class="p-6">
-            <h1 class="text-xl mb-4 font-medium">
+            <h1 class="mb-4 text-xl font-medium">
                 Create new product unit
             </h1>
 
@@ -601,7 +601,7 @@ const onFileChange = (e) => {
                     />
                     <InputError class="mt-2" :message="unitForm.errors.name" />
                 </div>
-                <div class="mt-6 flex justify-end">
+                <div class="flex justify-end mt-6">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <PrimaryButton
                         class="ms-3"
@@ -618,7 +618,7 @@ const onFileChange = (e) => {
 
     <Modal :show="createCategoryModal" @close="closeModal">
         <div class="p-6">
-            <h1 class="text-xl mb-4 font-medium">
+            <h1 class="mb-4 text-xl font-medium">
                 Create new category
             </h1>
 
@@ -636,10 +636,10 @@ const onFileChange = (e) => {
                 </div>
                 <div class="mb-3">
                     <InputLabel value="Description" />
-                    <textarea v-model="categoryForm.description" class="textarea w-full textarea-bordered" placeholder="Description"></textarea>
+                    <textarea v-model="categoryForm.description" class="w-full textarea textarea-bordered" placeholder="Description"></textarea>
                     <InputError class="mt-2" :message="categoryForm.errors.description" />
                 </div>
-                <div class="mt-6 flex justify-end">
+                <div class="flex justify-end mt-6">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <PrimaryButton
                         class="ms-3"

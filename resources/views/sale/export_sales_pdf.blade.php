@@ -84,102 +84,97 @@
 </head>
 
 <body>
+    <div style="padding: 16px; #eee;font-size: 16px;line-height: 24px;font-family: 'Inter', sans-serif;color: #555; ">
+        <table style="font-size: 12px; line-height: 20px; width:100%; background-color: #dfe6fc">
+            <thead>
+                <tr>
+                    <td style="text-align:left; padding:12px; width:20px">
+                        <img width="100" src="{{ public_path('storage/' . $store->avatar) }}">
+                    </td>
+                    <td style="text-align:left; padding:12px">
+                        <h2 style="font-weight: 700; color: #1A1C21;"> {{ $store->name }}
+                        </h2>
+                        <p style="color: #5E6470;">Email: {{ $store->email }}</p>
+                        <p style="color: #5E6470;">Contact: {{ $store->contact }}</p>
+                        <p style="color: #5E6470;">Address: {{ $store->address }}</p>
+                    </td>
+                </tr>
+            </thead>
+        </table>
 
-    <body>
-        <div
-            style="padding: 16px; #eee;font-size: 16px;line-height: 24px;font-family: 'Inter', sans-serif;color: #555; ">
-            <table style="font-size: 12px; line-height: 20px; width:100%; background-color: #dfe6fc">
-                <thead>
-                    <tr>
-                        <td style="text-align:left; padding:12px; width:20px">
-                            <img width="100" src="{{ public_path('storage/' . $store->avatar) }}">
+        <h5 style="font-weight: 700; color: #1A1C21; margin-top:10px; margin-bottom:10px">{{ $description }}</h5>
+
+        <table class="products" style="font-size: 12px; line-height: 20px; width:100%">
+            <thead>
+                <tr style="text-align: left">
+                    <th>
+                        Transaction
+                    </th>
+                    <th>
+                        Payment Method
+                    </th>
+                    <th>
+                        Items
+                    </th>
+                    <th>
+                        Discount ({{ $store->currency }})
+                    </th>
+                    <th>
+                        Amount ({{ $store->currency }})
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>
+                        Customer
+                    </th>
+                    <th>
+                        User
+                    </th>
+                    <th>
+                        Date
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($sales as $sale)
+                    <tr class="items">
+                        <td>
+                            {{ $sale['transaction'] }}
                         </td>
-                        <td style="text-align:left; padding:12px">
-                            <h2 style="font-weight: 700; color: #1A1C21;"> {{ $store->name }}
-                            </h2>
-                            <p style="color: #5E6470;">Email: {{ $store->email }}</p>
-                            <p style="color: #5E6470;">Contact: {{ $store->contact }}</p>
-                            <p style="color: #5E6470;">Address: {{ $store->address }}</p>
+                        <td>
+                            {{ $sale['payment_method'] }}
+                        </td>
+                        <td>
+                            {{ $sale['items'] }}
+                        </td>
+                        <td>
+                            {{ $sale['discount'] }}
+                        </td>
+                        <td>
+                            {{ $sale['amount'] }}
+                        </td>
+                        <td>
+                            {{ $sale['status'] }}
+                        </td>
+                        <td>
+                            {{ $sale['customer'] }}
+                        </td>
+                        <td>
+                            {{ $sale['cashier'] }}
+                        </td>
+                        <td>
+                            {{ $sale['created_at'] }}
                         </td>
                     </tr>
-                </thead>
-            </table>
+                @endforeach
 
-            <h5 style="font-weight: 700; color: #1A1C21; margin-top:10px; margin-bottom:10px">{{ $description }}</h5>
-
-            <table class="products" style="font-size: 12px; line-height: 20px; width:100%">
-                <thead>
-                    <tr style="text-align: left">
-                        <th>
-                            Transaction
-                        </th>
-                        <th>
-                            Payment Method
-                        </th>
-                        <th>
-                            Items
-                        </th>
-                        <th>
-                            Discount ({{ $store->currency }})
-                        </th>
-                        <th>
-                            Amount ({{ $store->currency }})
-                        </th>
-                        <th>
-                            Status
-                        </th>
-                        <th>
-                            Customer
-                        </th>
-                        <th>
-                            User
-                        </th>
-                        <th>
-                            Date
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($sales as $sale)
-                        <tr class="items">
-                            <td>
-                                {{ $sale['transaction'] }}
-                            </td>
-                            <td>
-                                {{ $sale['payment_method'] }}
-                            </td>
-                            <td>
-                                {{ $sale['items'] }}
-                            </td>
-                            <td>
-                                {{ $sale['discount'] }}
-                            </td>
-                            <td>
-                                {{ $sale['amount'] }}
-                            </td>
-                            <td>
-                                {{ $sale['status'] }}
-                            </td>
-                            <td>
-                                {{ $sale['customer'] }}
-                            </td>
-                            <td>
-                                {{ $sale['cashier'] }}
-                            </td>
-                            <td>
-                                {{ $sale['created_at'] }}
-                            </td>
-                        </tr>
-                    @endforeach
-
-                </tbody>
-            </table>
-        </div>
-        <div class="footer margin-top" style="margin: 8px 16px">
-            <div>{{ date('Y') }} &copy; BizRoon Inventory</div>
-        </div>
-    </body>
-
+            </tbody>
+        </table>
+    </div>
+    <div class="footer margin-top" style="margin: 8px 16px">
+        <div>{{ date('Y') }} &copy; BizRoon Inventory</div>
+    </div>
 </body>
 
 </html>

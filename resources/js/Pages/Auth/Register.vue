@@ -14,7 +14,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('register'), {
+    form.post(route('register.store'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
@@ -22,7 +22,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Register" />
+    <Head title="Register" />
 
         <form @submit.prevent="submit">
             <div>

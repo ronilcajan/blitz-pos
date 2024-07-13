@@ -53,12 +53,6 @@ const doughnut_data = {
     }
   ]
 }
-
-// onMounted(() => {
-//   setInterval(() => {
-//     router.reload({ only: ['sales_current_year', 'sales_previous_year'] })
-//   }, 3000)
-// })
 </script>
 
 <template>

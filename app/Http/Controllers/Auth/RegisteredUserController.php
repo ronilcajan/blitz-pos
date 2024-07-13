@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use App\Models\Store;
+use Inertia\Response;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Http;
 
 class RegisteredUserController extends Controller
 {
@@ -36,13 +38,34 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $response = Http::get('https://api.ipgeolocation.io/ipgeo',[
+            'apiKey' => '8aa952f04a194d639a762c8e66425c46',
+        ])->json();
+
+        $details = [
+            'name' => $request->name,
+            'founder' => $request->name,
+            'email' => $request->email,
+            'country' => $response['country_name'],
+            'country_code' =>  $response['country_code3'],
+            'timezone' => $response['time_zone']['name'],
+            'currency' => $response['currency']['code'],
+            'currency_symbol' => $response['currency']['symbol'],
+            'flag' => $response['country_flag'],
+        ];
+
+        $store = Store::create($details);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'store_id' => $store->id,
         ]);
 
         event(new Registered($user));
+
+        $user->addRole('owner');
 
         Auth::login($user);
 
