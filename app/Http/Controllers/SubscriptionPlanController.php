@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SubscriptionPlan;
 use Illuminate\Http\Request;
 
-class CheckoutController extends Controller
+class SubscriptionPlanController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-
-
+        //
     }
 
     /**
@@ -34,7 +34,7 @@ class CheckoutController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(SubscriptionPlan $subscriptionPlan)
     {
         //
     }
@@ -42,7 +42,7 @@ class CheckoutController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(SubscriptionPlan $subscriptionPlan)
     {
         //
     }
@@ -50,7 +50,7 @@ class CheckoutController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, SubscriptionPlan $subscriptionPlan)
     {
         //
     }
@@ -58,7 +58,7 @@ class CheckoutController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(SubscriptionPlan $subscriptionPlan)
     {
         //
     }
