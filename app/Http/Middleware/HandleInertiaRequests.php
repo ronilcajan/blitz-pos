@@ -57,6 +57,7 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn () => $request->session()->get('message'),
             ],
             'logo' => Vite::asset('resources/images/logo.png'),
+            'logo_white' => Vite::asset('resources/images/logo-white.png'),
             'app_name' => config('app.name'),
         ];
     }

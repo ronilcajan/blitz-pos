@@ -14,14 +14,22 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        $middleware->web(append: [
+            HandleInertiaRequests::class,
+        ]);
+
+        // $middleware->validateCsrfTokens(except: [
+        //     'lemon-squeezy/*',
+        // ]);
     })
+
     ->withExceptions(function (Exceptions $exceptions) {
         // $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
         //     if (! app()->environment(['local', 'testing']) && in_array($response->getStatusCode(), [500, 503, 404, 403])) {
@@ -37,14 +45,5 @@ return Application::configure(basePath: dirname(__DIR__))
         //     return $response;
         // });
     })
-    ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
-            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
-        ]);
-
-        $middleware->web(append: [
-            HandleInertiaRequests::class,
-        ]);
-    })
+    
     ->create();

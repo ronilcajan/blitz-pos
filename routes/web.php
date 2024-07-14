@@ -12,6 +12,7 @@ use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ExportProductController;
 use App\Http\Controllers\ExportSaleController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\ImportProductController;
 use App\Http\Controllers\InquiryController;
@@ -28,18 +29,15 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 use Illuminate\Http\Request;
 
 
-Route::get('/', function () {
-    return Inertia::render('Landing_page/Welcome', [
-        'canLogin' => Route::has('login'),
-    ]);
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+Route::get('/register/{plan}', [RegisteredUserController::class, 'create'])->name('register');
 Route::post('/register', [RegisteredUserController::class, 'store'])->name('register.store');
+Route::get('/buy', [RegisteredUserController::class, 'buy'])->name('buy');
+Route::get('/subscribe', [RegisteredUserController::class, 'subscribe'])->name('buy');
 
 Route::get('/auth/google', [GoogleAuthController::class, 'signInwithGoogle'])->name('google-auth');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleLoginCallback']);

@@ -1,4 +1,352 @@
-<template>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In | Play Tailwind</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" type="image/x-icon" />
+    <link rel="stylesheet" href="{{ asset('assets/css/tailwind.css') }}" />
+
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
+    @lemonJS
+</head>
+
+<body>
+    <!-- ====== Navbar Section Start -->
+    <div
+        class="
+        ud-header
+        bg-transparent
+        absolute
+        top-0
+        left-0
+        z-40
+        w-full
+        flex
+        items-center
+      ">
+        <div class="container">
+            <div class="flex -mx-4 items-center justify-between relative">
+                <div class="px-4 w-60 max-w-full">
+                    <a href="index.html" class="navbar-logo w-full block py-5">
+                        <img src="assets/images/logo/logo-white.svg" alt="logo" class="w-full header-logo" />
+                    </a>
+                </div>
+                <div class="flex px-4 justify-between items-center w-full">
+                    <div>
+                        <button id="navbarToggler"
+                            class="
+                  block
+                  absolute
+                  right-4
+                  top-1/2
+                  -translate-y-1/2
+                  lg:hidden
+                  focus:ring-2
+                  ring-primary
+                  px-3
+                  py-[6px]
+                  rounded-lg
+                ">
+                            <span class="relative w-[30px] h-[2px] my-[6px] block bg-white"></span>
+                            <span class="relative w-[30px] h-[2px] my-[6px] block bg-white"></span>
+                            <span class="relative w-[30px] h-[2px] my-[6px] block bg-white"></span>
+                        </button>
+
+                    </div>
+                    <div class="sm:flex justify-end hidden pr-16 lg:pr-0">
+
+                        <a href="signup.html"
+                            class="
+                  text-base
+                  font-medium
+                  text-white
+                  bg-white bg-opacity-20
+                  rounded-lg
+                  py-3
+                  px-6
+                  hover:bg-opacity-100 hover:text-dark
+                  signUpBtn
+                  duration-300
+                  ease-in-out
+                ">
+                            Sign In
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ====== Navbar Section End -->
+
+    <!-- ====== Banner Section Start -->
+    <div
+        class="
+        relative
+        z-10
+        pt-[120px]
+        md:pt-[130px]
+        lg:pt-[160px]
+        pb-[100px]
+        bg-primary
+        overflow-hidden
+      ">
+        <div class="container">
+            <div class="flex flex-wrap items-center -mx-4">
+                <div class="w-full px-4">
+                    <div class="text-center">
+                        <h1 class="font-semibold text-white text-4xl">You’re almost there! Complete your order</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <span class="absolute top-0 left-0 z-[-1]">
+                <svg width="495" height="470" viewBox="0 0 495 470" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="55" cy="442" r="138" stroke="white" stroke-opacity="0.04"
+                        stroke-width="50" />
+                    <circle cx="446" r="39" stroke="white" stroke-opacity="0.04" stroke-width="20" />
+                    <path d="M245.406 137.609L233.985 94.9852L276.609 106.406L245.406 137.609Z" stroke="white"
+                        stroke-opacity="0.08" stroke-width="12" />
+                </svg>
+            </span>
+            <span class="absolute top-0 right-0 z-[-1]">
+                <svg width="493" height="470" viewBox="0 0 493 470" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="462" cy="5" r="138" stroke="white" stroke-opacity="0.04"
+                        stroke-width="50" />
+                    <circle cx="49" cy="470" r="39" stroke="white" stroke-opacity="0.04"
+                        stroke-width="20" />
+                    <path d="M222.393 226.701L272.808 213.192L259.299 263.607L222.393 226.701Z" stroke="white"
+                        stroke-opacity="0.06" stroke-width="13" />
+                </svg>
+            </span>
+        </div>
+    </div>
+    <!-- ====== Banner Section End -->
+
+    <!-- ====== Forms Section Start -->
+
+    <div class="container mx-auto px-4 my-10 max-w-[780px]">
+        <div class="flex gap-3">
+            <p>Selected plan:</p>
+            <span class="font-semibold">
+                {{ $product['data']['attributes']['name'] }}</span>
+        </div>
+
+        <form action="{{ route('register.store') }}" method="POST">
+            @csrf
+            <div class="flex gap-3 flex-col mt-6">
+                <h1 class="text-4xl font-bold ">1. Check your order </h1>
+
+                <div class="mt-4 gap-4 flex mt-6 flex-col md:flex-row">
+                    @foreach ($variants['data'] as $key => $item)
+                        @if (!$loop->first)
+                            <label for="variant-{{ $key }}"
+                                class="p-5 px-10 bg-gray-100 shadow-sm rounded cursor-pointer"
+                                onclick="changePlan({{ $item['attributes']['price'] }})">
+                                <div class="flex flex-col items-center">
+                                    <div class="flex gap-3 justify-center">
+                                        <input type="radio" id="variant-{{ $key }}" name="variant_id"
+                                            class="radio radio-primary radio-sm" value="{{ $item['id'] }}"
+                                            @checked($item['attributes']['name'] == 'Monthly') />
+                                        <p class="font-semibold">
+                                            {{ $item['attributes']['name'] }}
+                                        </p>
+
+                                        @if ($item['attributes']['name'] == 'Monthly')
+                                            <input type="hidden" id="price_plan"
+                                                value="{{ $item['attributes']['price'] }}">
+                                        @endif
+                                    </div>
+                                    <p class="text-5xl font-semibold mt-6">
+                                        ₱{{ number_format($item['attributes']['price'] / 100, 2) }}
+                                    </p>
+                                    <p class="text-sm mt-3 font-bold">PHP / month</p>
+                                    <p class="text-sm mt-2">14 days free trial</p>
+                                    @if ($item['attributes']['name'] == 'Yearly')
+                                        <p class="text-xs md:text-sm mt-2 badge badge-primary">Save two months when
+                                            you pay annually.
+                                        </p>
+                                    @endif
+                                </div>
+                            </label>
+                        @endif
+                    @endforeach
+
+
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-24 flex-col">
+                <h1 class="text-4xl font-bold ">2. Create your account </h1>
+                <div class="flex flex-col sm:justify-center sm:pt-0 gap-5">
+                    <div>
+                        <label for="name">Name</label>
+                        <input type="text" placeholder="Type your name here" name="name"
+                            class="input input-bordered w-full" required />
+
+                        @error('name')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="name">Email</label>
+                        <input type="email" placeholder="Type email here" class="input input-bordered w-full"
+                            name="email" required />
+
+                        @error('email')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="name">Password</label>
+                        <div class="relative">
+                            <input type="password" name="password" placeholder="Type password here" id="password"
+                                class="input input-bordered w-full" required />
+
+                            <button type="button" class="absolute inset-y-0 end-0 flex items-center pe-3"
+                                onclick="togglePasswordVisibility()">
+
+                                <!-- Eye icon (visible) -->
+                                <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-eye ">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                                    <path
+                                        d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                                </svg>
+
+                                <!-- Eye closed icon (hidden) -->
+                                <svg id="eye-closed-icon" xmlns="http://www.w3.org/2000/svg" width="24"
+                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-eye-closed"
+                                    style="display: none;">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M21 9c-2.4 2.667 -5.4 4 -9 4c-3.6 0 -6.6 -1.333 -9 -4" />
+                                    <path d="M3 15l2.5 -3.8" />
+                                    <path d="M21 14.976l-2.492 -3.776" />
+                                    <path d="M9 17l.5 -4" />
+                                    <path d="M15 17l-.5 -4" />
+                                </svg>
+
+                            </button>
+                        </div>
+                        @error('password')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="name">Confirm Password</label>
+                        <input type="password" id="password_confirmation" class="input input-bordered w-full"
+                            name="password_confirmation" autocomplete="new-password" placeholder="Confirm password"
+                            required />
+
+                        @error('password_confirmation')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="flex gap-3 mt-24 flex-col">
+                <h1 class="text-4xl font-bold ">3. Create your store </h1>
+                <div class="flex flex-col sm:justify-center sm:pt-0 gap-5">
+
+                    <div>
+                        <label for="name">Store</label>
+                        <input type="text" name="store" placeholder="Type here"
+                            class="input input-bordered w-full" required />
+
+                        @error('store')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="name">Email</label>
+                        <input type="email" name="store_email" placeholder="Type here"
+                            class="input input-bordered w-full" required />
+
+                        @error('store')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="name">Country</label>
+
+                        <select class="select select-bordered w-full " id="countries" name="country">
+                            <option disabled selected value="">Select your country</option>
+
+                        </select>
+                        @error('country')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="name">Timezone</label>
+
+                        <select class="select select-bordered w-full " id="timezones" name="timezone">
+                            <option disabled selected value="">Select your timezone</option>
+
+                        </select>
+                        @error('timezone')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="name">Currency</label>
+
+                        <select class="select select-bordered w-full " id="currencies" name="currency">
+                            <option disabled selected value="">Select your currency</option>
+
+                        </select>
+                        @error('currency')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-24 flex-col">
+                <h1 class="text-4xl font-bold ">4. Proceed to payment </h1>
+
+                <div class="flex gap-3 justify-between text-2xl bg-gray-100 p-3 shadow-sm font-bold mt-4">
+                    <p>Total amount</p>
+                    <span class="font-bold" id="total"></span>
+                </div>
+
+                <button class="bg-primary text-white px-6 py-2 rounded hover:text-primary-600 mt-5 btn-lg">Pay
+                    Now</button>
+
+                <p class="mt-4">
+                    By checking out you agree with our
+                    <a href="#" class="text-primary">Terms of Service</a>
+                    and confirm that
+                    you have read our
+                    <a href="#" class="text-primary">Privacy Policy</a>.
+                    You can cancel recurring payments at any time.
+                </p>
+            </div>
+            <input type="hidden" name="product_id" value="{{ $product['data']['attributes']['price'] }}">
+        </form>
+    </div>
+
+    <!-- ====== Forms Section End -->
+
+    <!-- ====== Footer Section Start -->
     <footer class="bg-black pt-20 lg:pt-[120px] relative z-10 wow fadeInUp" data-wow-delay=".15s">
         <div class="container">
             <div class="flex flex-wrap -mx-4">
@@ -47,7 +395,8 @@
                         <h4 class="text-lg font-semibold text-white mb-9">About Us</h4>
                         <ul>
                             <li>
-                                <a href="#home" class="
+                                <a href="#home"
+                                    class="
                               inline-block
                               text-base text-[#f3f4fe]
                               hover:text-primary
@@ -58,7 +407,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="#features" class="
+                                <a href="#features"
+                                    class="
                               inline-block
                               text-base text-[#f3f4fe]
                               hover:text-primary
@@ -69,7 +419,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="#about" class="
+                                <a href="#about"
+                                    class="
                               inline-block
                               text-base text-[#f3f4fe]
                               hover:text-primary
@@ -80,7 +431,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="#pricing" class="
+                                <a href="#pricing"
+                                    class="
                               inline-block
                               text-base text-[#f3f4fe]
                               hover:text-primary
@@ -98,7 +450,8 @@
                         <h4 class="text-lg font-semibold text-white mb-9">Features</h4>
                         <ul>
                             <li>
-                                <a href="javascript:void(0)" class="
+                                <a href="javascript:void(0)"
+                                    class="
                               inline-block
                               text-base text-[#f3f4fe]
                               hover:text-primary
@@ -109,7 +462,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript:void(0)" class="
+                                <a href="javascript:void(0)"
+                                    class="
                               inline-block
                               text-base text-[#f3f4fe]
                               hover:text-primary
@@ -120,7 +474,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript:void(0)" class="
+                                <a href="javascript:void(0)"
+                                    class="
                               inline-block
                               text-base text-[#f3f4fe]
                               hover:text-primary
@@ -131,7 +486,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript:void(0)" class="
+                                <a href="javascript:void(0)"
+                                    class="
                               inline-block
                               text-base text-[#f3f4fe]
                               hover:text-primary
@@ -187,7 +543,8 @@
                 <img src="assets/images/footer/shape-3.svg" alt="" />
             </span>
             <span class="absolute top-0 right-0 z-[-1]">
-                <svg width="102" height="102" viewBox="0 0 102 102" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="102" height="102" viewBox="0 0 102 102" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M1.8667 33.1956C2.89765 33.1956 3.7334 34.0318 3.7334 35.0633C3.7334 36.0947 2.89765 36.9309 1.8667 36.9309C0.835744 36.9309 4.50645e-08 36.0947 0 35.0633C-4.50645e-08 34.0318 0.835744 33.1956 1.8667 33.1956Z"
                         fill="white" fill-opacity="0.08"></path>
@@ -339,4 +696,124 @@
             </span>
         </div>
     </footer>
-</template>
+    <!-- ====== Footer Section End -->
+
+    <!-- ====== Back To Top Start -->
+    <a href="javascript:void(0)"
+        class="
+        hidden
+        items-center
+        justify-center
+        bg-primary
+        text-white
+        w-10
+        h-10
+        rounded-md
+        fixed
+        bottom-8
+        right-8
+        left-auto
+        z-[999]
+        hover:bg-dark
+        back-to-top
+        shadow-md
+        transition
+        duration-300
+        ease-in-out
+      ">
+        <span class="w-3 h-3 border-t border-l border-white rotate-45 mt-[6px]"></span>
+    </a>
+    <!-- ====== Back To Top End -->
+
+    <!-- ====== All Scripts -->
+    {{-- <script src="{{ asset('assets/js/main.js') }}"></script> --}}
+    <script>
+        let countries = {};
+        fetch('/json/country.json')
+            .then(res => res.json())
+            .then(data => {
+                countries = data;
+
+                populateCountries(countries);
+                populateTimezones(countries);
+                populateCurrencies(countries);
+
+            })
+            .catch(error => console.error('Error fetching countries:', error));
+
+        function populateCountries(countries) {
+            const selectElement = document.getElementById('countries');
+
+            // Check if countries is an array or object and loop accordingly
+            countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.name;
+                option.textContent = country.name;
+                selectElement.appendChild(option);
+            });
+        }
+
+        function populateTimezones(countries) {
+            const selectElement = document.getElementById('timezones');
+
+            // Check if countries is an array or object and loop accordingly
+            countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.timezones[0].name;
+                option.textContent = country.name + ' - ' + country.timezones[0].name;
+                selectElement.appendChild(option);
+            });
+        }
+
+        function populateCurrencies(countries) {
+            const selectElement = document.getElementById('currencies');
+
+            // Check if countries is an array or object and loop accordingly
+            countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.currency;
+                option.textContent = country.name + ' - ' + country.currency;
+                selectElement.appendChild(option);
+            });
+        }
+
+        const togglePasswordVisibility = () => {
+            const passwordInput = document.getElementById("password");
+            const confirm_passwordInput = document.getElementById("confirm-password");
+
+            const eyeIcon = document.getElementById("eye-icon");
+            const eyeClosedIcon = document.getElementById("eye-closed-icon");
+
+            if (passwordInput) {
+                // Toggle password visibility
+                passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+
+                confirm_passwordInput.type = passwordInput.type === "text" ? "text" : "password";
+
+                // Toggle eye icons
+                if (passwordInput.type === "text") {
+                    eyeIcon.style.display = "none";
+                    eyeClosedIcon.style.display = "block";
+                } else {
+                    eyeIcon.style.display = "block";
+                    eyeClosedIcon.style.display = "none";
+                }
+            }
+        };
+
+        const formatNumberWithCommas = (number) => {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        const changePlan = (price) => {
+            const totalElement = document.getElementById('total'); // Get the element
+            const total = price / 100; // Calculate the total
+            totalElement.innerHTML = "₱ " + formatNumberWithCommas(total.toFixed(2)); // Update the element's inner HTML
+        };
+
+        let plan = "{{ $variants['data'][0]['attributes']['price'] }}";
+        changePlan(plan);
+    </script>
+</body>
+
+</html>

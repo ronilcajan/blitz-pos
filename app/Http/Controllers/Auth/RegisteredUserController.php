@@ -3,26 +3,52 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
-use Inertia\Inertia;
 use App\Models\Store;
 use Inertia\Response;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class RegisteredUserController extends Controller
 {
     /**
      * Display the registration view.
      */
-    public function create(): Response
+    public function create(string $plan)
     {
-        return inertia('Auth/Register');
+        $response_product = Http::withHeaders([
+            'Accept' => 'application/vnd.api+json',
+            'Content-Type' => 'application/vnd.api+json',
+            'Authorization' => 'Bearer ' . env('LEMON_SQUEEZY_API_KEY')
+        ])->get('https://api.lemonsqueezy.com/v1/products/'.$plan);
+
+        $response_variant = Http::withHeaders([
+            'Accept' => 'application/vnd.api+json',
+            'Content-Type' => 'application/vnd.api+json',
+            'Authorization' => 'Bearer ' . env('LEMON_SQUEEZY_API_KEY')
+        ])->get('https://api.lemonsqueezy.com/v1/variants', [
+            'filter[product_id]' => $plan
+        ]);
+
+        $variants = $response_variant->json();
+        $product = $response_product->json();
+
+        return view('registration.register',[
+            'title' => "Order Registration",
+            'variants' => $variants,
+            'product' => $product,
+        ]);
+
+        // return inertia('Auth/Register',[
+        //     'title' => "Order Registration",
+        //     'variants' => $variants,
+        //     'product' => $product
+        // ]);
     }
 
     /**
@@ -30,45 +56,57 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
 
-        $response = Http::get('https://api.ipgeolocation.io/ipgeo',[
-            'apiKey' => '8aa952f04a194d639a762c8e66425c46',
-        ])->json();
+        try {
 
-        $details = [
-            'name' => $request->name,
-            'founder' => $request->name,
-            'email' => $request->email,
-            'country' => $response['country_name'],
-            'country_code' =>  $response['country_code3'],
-            'timezone' => $response['time_zone']['name'],
-            'currency' => $response['currency']['code'],
-            'currency_symbol' => $response['currency']['symbol'],
-            'flag' => $response['country_flag'],
-        ];
+            $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required', 'confirmed'],
+                'store' => ['required', 'string'],
+                'country' => ['required', 'string'],
+                'variant_id' => ['required', 'string'],
+                'product_id' => ['required', 'string'],
+            ]);
 
-        $store = Store::create($details);
+            $details = [
+                'name' => $request->store,
+                'founder' => $request->name,
+                'email' => $request->store_email,
+                'country' => $request->country,
+                'timezone' => $request->timezone,
+                'currency' => $request->currency,
+            ];
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'store_id' => $store->id,
-        ]);
+            $store = Store::create($details);
+    
 
-        event(new Registered($user));
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'store_id' => $store->id,
+                'email_verified_at' => now(),
+            ]);
 
-        $user->addRole('owner');
+            $user->addRole('owner');
 
-        Auth::login($user);
+            event(new Registered($user));
 
-        return redirect(route('dashboard', absolute: false));
+            Auth::login($user);
+
+
+        } catch (\Throwable $th) {
+            return redirect()->back();
+        }
+
+        return $request->user()->checkout($request->variant_id)
+            ->withName($request->name)
+            ->withEmail($request->email)
+            ->withThankYouNote('Thanks for your subscription!')
+            ->redirectTo(route('dashboard'));
+        
     }
 }

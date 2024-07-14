@@ -2,17 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SubscriptionPlan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
-class SubscriptionPlanController extends Controller
+class HomeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $response = Http::withHeaders([
+            'Accept' => 'application/vnd.api+json',
+            'Content-Type' => 'application/vnd.api+json',
+            'Authorization' => 'Bearer ' . env('LEMON_SQUEEZY_API_KEY')
+        ])->get('https://api.lemonsqueezy.com/v1/products');
+
+        return inertia('Landing_page/Welcome', [
+            'title' => "Home",
+            'products' => $response->json(),
+        ]);
     }
 
     /**
@@ -34,7 +43,7 @@ class SubscriptionPlanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(SubscriptionPlan $subscriptionPlan)
+    public function show(string $id)
     {
         //
     }
@@ -42,7 +51,7 @@ class SubscriptionPlanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(SubscriptionPlan $subscriptionPlan)
+    public function edit(string $id)
     {
         //
     }
@@ -50,7 +59,7 @@ class SubscriptionPlanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, SubscriptionPlan $subscriptionPlan)
+    public function update(Request $request, string $id)
     {
         //
     }
@@ -58,7 +67,7 @@ class SubscriptionPlanController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SubscriptionPlan $subscriptionPlan)
+    public function destroy(string $id)
     {
         //
     }

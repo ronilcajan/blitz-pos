@@ -1,9 +1,11 @@
 <script setup>
 import { onMounted } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import Header from '@/Pages/Landing_page/partials/Header.vue';
 import Footer from '@/Pages/Landing_page/partials/Footer.vue';
 import BackToTopButton from '@/Pages/Landing_page/partials/BackToTopButton.vue';
 
+const page = usePage();
 
 onMounted(() => {
 
@@ -20,9 +22,9 @@ onMounted(() => {
         }
         // === logo change
         if (ud_header.classList.contains("sticky")) {
-            logo.src = "assets/images/logo.png";
+            logo.src = page.props?.logo;
         } else {
-            logo.src = "assets/images/logo-white.png";
+            logo.src = page.props?.logo_white;
         }
 
         const backToTop = document.querySelector(".back-to-top");

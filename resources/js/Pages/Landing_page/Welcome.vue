@@ -11,13 +11,8 @@ import Pricing from './partials/Pricing.vue';
 
 defineOptions({ layout: GuestLayout });
 
-defineProps({
-    canLogin: {
-        type: Boolean,
-    },
-    canRegister: {
-        type: Boolean,
-    }
+const props = defineProps({
+    products: Object
 });
 
 
@@ -29,16 +24,18 @@ const inquiryForm = reactive({
     message: '',
 })
 
+const plans = reactive({});
 
 </script>
 
 <template>
 
     <Head title="Home" />
+
     <Hero />
     <Feature />
     <About />
-    <Pricing />
+    <Pricing :plans="products" />
     <FAQs />
     <Contact :inquiryForm="inquiryForm" />
 </template>
