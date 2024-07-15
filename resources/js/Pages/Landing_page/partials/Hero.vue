@@ -34,7 +34,7 @@
                         <ul class="flex flex-wrap items-center justify-center mb-5">
                             <li>
                                 <a href="#pricing"
-                                    class="inline-flex items-center justify-center px-6 py-4 text-base font-medium text-center transition duration-300 ease-in-out bg-white rounded-lg sm:px-10 text-dark hover:text-primary hover:shadow-lg ud-menu-scroll">
+                                    class="inline-flex animate-bounce font-bold items-center justify-center px-6 py-4 text-base text-center transition duration-300 ease-in-out bg-white rounded-lg sm:px-10 text-dark hover:text-white hover:bg-dark hover:shadow-lg ud-menu-scroll">
                                     Try for Free
                                 </a>
                             </li>

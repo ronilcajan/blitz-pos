@@ -85,7 +85,7 @@ console.log(props.plans);
                         </div>
                         <div class="w-full">
                             <button type="button" @click="selectPlan('free')"
-                                class="inline-block text-base font-medium text-primary bg-transparent border border-[#D4DEFF] rounded-full text-center py-4 px-11 hover:text-white hover:bg-primary hover:border-primary transition duration-300 ease-in-out">
+                                class="btn btn-lg btn-primary btn-outline inline-block text-base font-medium text-primary bg-transparent border border-[#D4DEFF] rounded-full text-center py-4 px-11 hover:text-white hover:bg-primary hover:border-primary transition duration-300 ease-in-out">
                                 Get Started for Free
                             </button>
                         </div>
@@ -122,7 +122,7 @@ console.log(props.plans);
                         </div>
                         <div class="w-full">
                             <a type="button" :href="route('register', plan.id)"
-                                class="inline-block py-4 text-base font-medium text-center transition duration-300 ease-in-out bg-white border border-white rounded-full text-dark px-11 hover:text-white hover:bg-dark hover:border-dark">
+                                class="btn btn-lg btn-primary btn-outline inline-block py-5 text-base font-medium text-center transition duration-300 ease-in-out bg-white border border-white rounded-full text-dark px-11 hover:text-white hover:bg-dark hover:border-dark">
                                 Upgrade to Basic
                             </a>
                         </div>
@@ -153,8 +153,8 @@ console.log(props.plans);
 
                         <div class="w-full">
                             <a type="button" :href="route('register', plan.id)"
-                                class="inline-block text-base font-medium text-primary bg-transparent border border-[#D4DEFF] rounded-full text-center py-4 px-11 hover:text-white hover:bg-primary hover:border-primary transition duration-300 ease-in-out">
-                                Purchase Now
+                                class="btn btn-lg btn-primary btn-outline inline-block text-base font-medium text-primary bg-transparent border border-[#D4DEFF] rounded-full text-center py-5 px-11 hover:text-white hover:bg-primary hover:border-primary transition duration-300 ease-in-out">
+                                Upgrade to Standard
                             </a>
                         </div>
                         <span class="
