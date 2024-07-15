@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Classes\ConvertToNumber;
-use App\Classes\TransactionCodeGenerator;
 use App\Http\Requests\StoreDeliveryRequest;
 use App\Http\Requests\UpdateDeliveryRequest;
 use App\Models\Delivery;

@@ -4,25 +4,26 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { reactive, onMounted, ref, computed } from 'vue';
+import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: GuestLayout });
 
 const props = defineProps({
     title: String,
     variants: Object,
-    product: Object
+    product: Object,
+    user_id: Number
 });
 
 
+const page = usePage();
+
+
 const countries = reactive({});
-const country = ref('');
 
-const timezone = ref('Asia/Manila');
-const currency = ref('PHP');
-const variant = ref('monthly');
-
+const lemonsqueezy_api = page.props.app_lemon_squeezy_api;
 
 const form = useForm({
     name: '',
@@ -30,28 +31,25 @@ const form = useForm({
     password: '',
     password_confirmation: '',
     store: '',
-    country: '',
-    timezone: '',
-    currency: '',
+    country: 'Philippines',
+    country_code: '',
+    timezone: 'Asia/Manila',
+    currency: 'PHP',
     order: 'monthly',
     product_id: props.product.data.id,
-    variant_id: '',
+    variant_id: props.variants.data[0].id,
     total: '',
 });
 
-const submit = () => {
-    form.post(route('register.store'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
-    });
-};
 
 const countryChange = () => {
-    timezone.value = country.value.timezones[0].name || '';
-    currency.value = country.value.currency || '';
-
-    form.country = country.value.name;
-    form.timezone = timezone.value;
-    form.currency = currency.value;
+    countries.data.forEach((country) => {
+        if (country.name === form.country ) {   
+            form.timezone = country.timezones[0].name;
+            form.currency = country.currency;
+            form.country_code = country.code;
+        }
+    })
 }
 
 const filteredVariants = computed(() => {
@@ -80,9 +78,91 @@ const toggleVarient = (variant) => {
     form.order = variant.attributes.name.toLowerCase();
     form.variant_id = variant.id;
     total.value = formatPrice(variant.attributes.price);
-    form.total = total.value;
+    form.total = formatNumberWithCommas(total.value);
 }
 
+const submit = async () => {
+    form.post(route('register.store'), {
+        onSuccess: async (response) => {
+
+            console.log(response.props.auth.user.email);
+
+            const url = 'https://api.lemonsqueezy.com/v1/checkouts';
+
+            const headers = {
+                'Accept': 'application/vnd.api+json',
+                'Content-Type': 'application/vnd.api+json',
+                'Authorization': `Bearer ${lemonsqueezy_api}`,
+            };
+            const data = {
+                data: {
+                    type: 'checkouts',
+                    attributes: {
+                        product_options: {
+                            redirect_url : 'http://127.0.0.1:8000/dashboard',
+                            enabled_variants: [form.variant_id],
+                        },
+                        checkout_options: {
+                            embed : true,
+                            subscription_preview : false,
+                            button_color: '#2DD272'
+                        },
+                        checkout_data: {
+                            name: `${response.props.auth.user.name}`,
+                            email: `${response.props.auth.user.email}`,
+                            billing_address: {
+                                country: `${form.country_code}`,
+                            },
+                            custom: {
+                                user_id: `${response.props.auth.user.id}`,
+                            }
+                        },
+                        preview: true
+                    },
+                    relationships: {
+                        store: {
+                            data: {
+                                type: 'stores',
+                                id: `${props.product.data.attributes.store_id}`
+                            }
+                        },
+                        variant: {
+                            data: {
+                                type: 'variants',
+                                id: `${form.variant_id}`
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(data)
+            });
+            const details = await res.json();  
+            console.log('API Response:', details); // Log the entire response for debugging
+            LemonSqueezy.Url.Open(details.data.attributes.url);
+
+            form.reset();
+            form.clearErrors();
+        },
+
+        onError: (response) => {
+            useToast().error(`Error! Please check the required fields to complete the order.`, {
+                position: 'bottom-right',
+                timeout: 3000,  
+                dismissible: true
+            })
+            console.log(response);
+        },
+
+        preserveScroll: true,
+        
+    });
+};
 
 onMounted(() => {
     fetch('/json/country.json')
@@ -91,7 +171,6 @@ onMounted(() => {
             countries.data = data;
         });
 });
-
 </script>
 
 <template>
@@ -101,10 +180,10 @@ onMounted(() => {
     <div class="
         relative
         z-10
-        pt-[100px]
-        md:pt-[50px]
-        lg:pt-[90px]
-        pb-[60px]
+        pt-[130px]
+        md:pt-[70px]
+        lg:pt-[120px]
+        pb-[80px]
         bg-primary
         overflow-hidden
       ">
@@ -112,7 +191,7 @@ onMounted(() => {
             <div class="flex flex-wrap items-center -mx-4">
                 <div class="w-full px-4">
                     <div class="text-center">
-                        <h1 class="font-semibold text-white text-4xl">You’re almost there! Complete your order
+                        <h1 class="font-semibold text-white text-4xl">You’re almost there! Complete your order.
                         </h1>
                     </div>
                 </div>
@@ -144,12 +223,12 @@ onMounted(() => {
             <p>Selected plan:</p>
             <span class="font-semibold">{{ product.data.attributes.name }}</span>
         </div>
-        {{ form.errors }}
+        <!-- {{ form.errors }} -->
         <form @submit.prevent="submit">
-            <div class="flex gap-3 mt-20 flex-col">
+            <div class="flex gap-3 mt-20 flex-col fadeInUp">
                 <h1 class="text-4xl font-bold ">1. Check your order </h1>
 
-                <div class="mt-4 gap-4 flex mt-6 flex-col md:flex-row">
+                <div class="gap-4 flex mt-6 flex-col md:flex-row">
                     <div v-for="(variant, index) in filteredVariants" :key="variant.id"
                         class="p-5 px-10 bg-gray-100 shadow-sm rounded cursor-pointer" @click="toggleVarient(variant);">
 
@@ -157,7 +236,7 @@ onMounted(() => {
                             <div class="flex gap-3 justify-center">
                                 <input type="radio" :id="'variant-' + index" name="variant"
                                     class="radio radio-primary radio-sm" :value="variant.attributes.name.toLowerCase()"
-                                    v-model="form.order" />
+                                    v-model="form.order"  required />
                                 <p class="font-semibold" :for="'variant-' + index" checked>{{ variant.attributes.name }}
                                 </p>
                             </div>
@@ -170,13 +249,13 @@ onMounted(() => {
                             <div class="flex gap-3 justify-center">
                                 <input type="radio" :id="'variant-' + index" name="variant"
                                     class="radio radio-primary radio-sm" :value="variant.attributes.name.toLowerCase()"
-                                    v-model="form.order" />
+                                    v-model="form.order" required />
                                 <p class="font-semibold" :for="'variant-' + index">{{ variant.attributes.name }}</p>
                             </div>
                             <p class="text-5xl font-semibold mt-6">
                                 ₱{{ formatNumberWithCommas(formatPrice(variant.attributes.price)) }}
                             </p>
-                            <p class="text-sm mt-3 font-bold">PHP / month</p>
+                            <p class="text-sm mt-3 font-bold">PHP / year</p>
                             <p class="text-sm mt-2">14 days free trial</p>
                             <p v-if="variant.attributes.name.toLowerCase() === 'yearly'"
                                 class="text-xs md:text-sm mt-2 badge badge-primary">Save two months when you pay
@@ -184,10 +263,11 @@ onMounted(() => {
                             </p>
                         </div>
                     </div>
+                    <InputError class="mt-2" :message="form.errors.variant" />
                 </div>
             </div>
 
-            <div class="flex gap-3 mt-24 flex-col">
+            <div class="flex gap-3 mt-24 flex-col fadeInUp">
                 <h1 class="text-4xl font-bold ">2. Create your account </h1>
                 <div class="flex flex-col sm:justify-center sm:pt-0">
                     <form @submit.prevent="submit">
@@ -258,7 +338,7 @@ onMounted(() => {
                 </div>
 
             </div>
-            <div class="flex gap-3 mt-24 flex-col">
+            <div class="flex gap-3 mt-24 flex-col fadeInUp">
                 <h1 class="text-4xl font-bold ">3. Create your store </h1>
                 <div class="flex flex-col sm:justify-center sm:pt-0">
 
@@ -281,16 +361,16 @@ onMounted(() => {
                     </div>
                     <div class="mt-4">
                         <InputLabel value="Select Country" />
-                        <select class="select select-bordered w-full " v-model="country" @change="countryChange">
+                        <select class="select select-bordered w-full " v-model="form.country" @change="countryChange">
                             <option disabled selected value="">Select your country</option>
-                            <option v-for="country in countries.data" :value="country" :key="country.code">
+                            <option v-for="country in countries.data" :value="country.name" :key="country.code">
                                 {{ country.name }}
                             </option>
                         </select>
                     </div>
                     <div class="mt-4">
                         <InputLabel value="Select Timezone" />
-                        <select class="select select-bordered w-full " v-model="timezone">
+                        <select class="select select-bordered w-full " v-model="form.timezone">
                             <option disabled selected value="">Choose timezone</option>
                             <option v-for="country in countries.data" :value="country.timezones[0].name"
                                 :key="country.code" :selected="country.code === 'PH'">
@@ -300,7 +380,7 @@ onMounted(() => {
                     </div>
                     <div class="mt-4">
                         <InputLabel value="Select Currency" />
-                        <select class="select select-bordered w-full " v-model="currency">
+                        <select class="select select-bordered w-full " v-model="form.currency">
                             <option disabled selected value="">Choose currency</option>
                             <option v-for="country in countries.data" :value="country.currency" :key="country.code"
                                 :selected="country.code === 'PH'">
@@ -312,7 +392,7 @@ onMounted(() => {
 
             </div>
 
-            <div class="flex gap-3 mt-24 flex-col">
+            <div class="flex gap-3 mt-24 flex-col fadeInUp">
                 <h1 class="text-4xl font-bold ">4. Proceed to payment </h1>
 
                 <div class="flex gap-3 justify-between text-2xl bg-gray-100 p-3 shadow-sm font-bold mt-4">
@@ -320,8 +400,16 @@ onMounted(() => {
                     <span class="font-bold">₱ {{ total }}</span>
                 </div>
 
-                <button class="bg-primary text-white px-6 py-2 rounded hover:text-primary-600 mt-5 btn-lg"
-                    @click.prevent="submit" :disabled="form.processing">Pay Now</button>
+                <button class="btn btn-primary text-white px-6 py-2 rounded mt-5 btn-lg"
+                    @click.prevent="submit" :disabled="form.processing">
+                    
+                    <span v-if="!form.processing">Pay Now</span>
+                    <div class="flex gap-3 items-center" v-if="form.processing">
+                        <span class="loading loading-spinner"></span>
+                        <span> Processing...</span>
+                    </div>
+                  
+                </button>
 
                 <p class="mt-4">
                     By checking out you agree with our

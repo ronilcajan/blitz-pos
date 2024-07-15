@@ -72,19 +72,6 @@ class StoreController extends Controller
     {
         Gate::authorize('update', $store);
 
-        $response = Http::get('https://api.ipgeolocation.io/ipgeo',[
-            'apiKey' => '8aa952f04a194d639a762c8e66425c46',
-        ])->json();
-
-        $country = [
-            'name' => $response['country_name'],
-            'code' => $response['country_code3'],
-            'flag' => $response['country_flag'],
-            'currency' => $response['currency']['code'],
-            'currency_symbol' => $response['currency']['symbol'],
-            'time_zone' => $response['time_zone']['name'],
-        ];
-
         $store = [
             'id' => $store->id,
             'name' => $store->name,
@@ -98,8 +85,6 @@ class StoreController extends Controller
             'country_code' => $store->country_code,
             'timezone' => $store->timezone,
             'currency' => $store?->currency,
-            'flag' => $store->flag,
-            'tax' => $store->tax,
             'description' => $store->description,
             'address' => $store->address,
             'avatar' => $store->avatar ?asset('storage/'.$store->avatar) : '',
@@ -108,7 +93,6 @@ class StoreController extends Controller
         return inertia('Store/Show', [
             'title' => 'Store Details',
             'store' => $store,
-            'country' => $country,
         ]);
     }
     /**

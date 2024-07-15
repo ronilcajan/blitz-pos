@@ -1,5 +1,6 @@
 <script setup>
 import { router } from '@inertiajs/vue3'
+import { ref } from 'vue';
 
 const props = defineProps({
     plans: Object
@@ -10,6 +11,12 @@ const selectPlan = (plan) => {
     router.get(route('register', plan.id));
 }
 
+const plansIsMonthly = ref(true);
+const changePricing = () => {
+    plansIsMonthly.value = !plansIsMonthly.value;
+}
+
+console.log(props.plans);
 
 </script>
 <template>
@@ -40,7 +47,7 @@ const selectPlan = (plan) => {
                         <div class="mt-10 flex justify-center ">
                             <label class="label cursor-pointer gap-3">
                                 <span>Monthly</span>
-                                <input type="checkbox" class="toggle" />
+                                <input type="checkbox" class="toggle" @change="changePricing" />
                                 <span>Yearly</span>
                             </label>
 
@@ -56,7 +63,7 @@ const selectPlan = (plan) => {
                         <span class="block mb-2 text-base font-medium uppercase text-dark">
                             Free Plan
                         </span>
-                        <h2 class="font-semibold text-primary mb-9 text-[28px]">
+                        <h2 class="font-semibold text-primary mb-9 text-[28px] animate-pulse">
                             0.00/mo
                         </h2>
                         <div class="mb-10 mb-1 text-base font-medium leading-loose text-body-color">
@@ -96,9 +103,19 @@ const selectPlan = (plan) => {
                         <span class="block mb-2 text-base font-medium text-white uppercase">
                             {{ plan.attributes.name }}
                         </span>
-                        <h2 class="font-semibold text-white mb-9 text-[28px]">
+                        <h2 class="font-semibold text-white mb-9 text-[28px] animate-bounce " v-if="plansIsMonthly">
                             {{ plan.attributes.from_price_formatted }}/mo
                         </h2>
+
+                        <div v-if="!plansIsMonthly" class="animate-bounce ">
+                            <h2 class="font-semibold text-white text-[28px]" >
+                                {{ plan.attributes.to_price_formatted }}/yr
+                            </h2>
+                            <span class="inline-block px-5 py-1 mb-5 text-xs font-medium text-dark bg-white rounded">
+                                Saves up to two months
+                            </span>
+                        </div>
+
                         <div class="mb-10">
                             <p class="text-white mb-1 text-base font-medium leading-loose text-body-color"
                                 v-html="plan.attributes.description"></p>
@@ -116,11 +133,21 @@ const selectPlan = (plan) => {
                         <span class="block mb-2 text-base font-medium uppercase text-dark">
                             {{ plan.attributes.name }}
                         </span>
-                        <h2 class="font-semibold text-primary mb-9 text-[28px]">
+                        <h2 class="font-semibold text-primary mb-9 text-[28px] animate-pulse " v-if="plansIsMonthly">
                             {{ plan.attributes.from_price_formatted }}/mo
                         </h2>
+
+                        <div v-if="!plansIsMonthly" class="animate-pulse">
+                            <h2 class="font-semibold text-primary text-[28px]" >
+                                {{ plan.attributes.to_price_formatted }}/yr
+                            </h2>
+                            <span class="inline-block px-5 py-1 mb-5 text-xs font-medium text-white bg-primary rounded">
+                                Saves up to two months
+                            </span>
+                        </div>
+                        
                         <div class="mb-10">
-                            <p class="mb-1 text-base font-medium leading-loose" v-html="plan.attributes.description">
+                            <p clas s="mb-1 text-base font-medium leading-loose" v-html="plan.attributes.description">
                             </p>
                         </div>
 

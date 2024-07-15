@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm } from '@inertiajs/vue3'
-import { ref,computed } from 'vue';
+import { ref,onMounted, reactive } from 'vue';
 import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
@@ -13,7 +13,7 @@ const props = defineProps({
 	filters: Object
 });
 
-const tin = ref(null);
+const countries = reactive({});
 // const country = ref('');
 const image_preview = ref(props.store?.avatar ?? '');
 
@@ -31,8 +31,6 @@ const form = useForm({
     timezone : props.store?.timezone ?? props.country?.time_zone,
     currency : props.store?.currency ?? props.country?.currency,
     currency_symbol : props.store?.currency_symbol ?? props.country?.currency_symbol,
-    flag : props.store?.flag ?? props.country?.flag,
-    tax : props.store?.tax,
     address : props.store?.address,
     description : props.store?.description,
     avatar : '',
@@ -60,6 +58,26 @@ const onFileChange = (e) => {
     }
     image_preview.value = URL.createObjectURL(file);
 }
+
+const countryChange = () => {
+    countries.data.forEach((country) => {
+        if (country.name === form.country ) {   
+            form.timezone = country.timezones[0].name;
+            form.currency = country.currency;
+            form.country_code = country.code;
+        }
+    })
+}
+
+
+onMounted(() => {
+    fetch('/json/country.json')
+        .then(res => res.json())
+        .then(data => {
+            countries.data = data;
+        });
+});
+
 </script>
 
 
@@ -187,35 +205,36 @@ const onFileChange = (e) => {
 
                             <div class="form-control">
                                 <InputLabel for="name" value="Country" />
-                                <div class="w-full join">
-                                    <div class="indicator">
-                                        <span class="btn join-item">
-                                            <img :src="form.flag" class="w-8" alt="">
-                                        </span>
-                                    </div>                                    <div class="w-full">
-                                        <div>
-                                            <TextInput
-                                                type="text"
-                                                class="w-full join-item"
-                                                v-model="form.country"
-                                                placeholder="Select a country"
-                                                required
-                                                readonly
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+                                <select class="select select-bordered w-full " v-model="form.country" @change="countryChange">
+                                    <option disabled selected value="">Select your country</option>
+                                    <option v-for="country in countries.data" :value="country.name" :key="country.code">
+                                        {{ country.name }}
+                                    </option>
+                                </select>
                             </div>
                             <div class="form-control">
-                                <InputLabel for="phone" value="TIN" />
-                                <TextInput
-                                    type="text"
-                                    class="block w-full"
-                                    v-model="form.tax"
-                                    placeholder="Enter TIN"
-                                    ref="tin"
-                                />
+                                <InputLabel value="Select Timezone" />
+                                <select class="select select-bordered w-full " v-model="form.timezone">
+                                    <option disabled selected value="">Choose timezone</option>
+                                    <option v-for="country in countries.data" :value="country.timezones[0].name"
+                                        :key="country.code" :selected="country.code === 'PH'">
+                                        {{ country.timezones[0].name }}
+                                    </option>
+                                </select>
                             </div>
+                        </div>
+                        <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+
+                                <div class="form-control">
+                                    <InputLabel value="Select Currency" />
+                                    <select class="select select-bordered w-full " v-model="form.currency">
+                                        <option disabled selected value="">Choose currency</option>
+                                        <option v-for="country in countries.data" :value="country.currency" :key="country.code"
+                                            :selected="country.code === 'PH'">
+                                            {{ country.currency }}
+                                        </option>
+                                    </select>
+                                </div>
                         </div>
                         <div>
                             <InputLabel value="Full address" />

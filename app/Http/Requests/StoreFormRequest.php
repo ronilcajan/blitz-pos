@@ -34,8 +34,6 @@ class StoreFormRequest extends FormRequest
             'timezone' => '',
             'currency' => '',
             'currency_symbol' => '',
-            'flag' => '',
-            'tax' => '',
             'description' => '',
             'address' => '',
         ];

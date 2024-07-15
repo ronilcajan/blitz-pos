@@ -3,7 +3,7 @@ import { usePage } from '@inertiajs/vue3'
 
 const page = usePage();
 
-const logo = page.props?.logo;
+const logo = page.props?.logo_white;
 
 </script>
 <template>

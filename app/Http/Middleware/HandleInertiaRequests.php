@@ -37,6 +37,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                     'user' => $user ? [
+                        'id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
                         'phone' => $user->phone,
@@ -59,6 +60,7 @@ class HandleInertiaRequests extends Middleware
             'logo' => Vite::asset('resources/images/logo.png'),
             'logo_white' => Vite::asset('resources/images/logo-white.png'),
             'app_name' => config('app.name'),
+            'app_lemon_squeezy_api' => env('LEMON_SQUEEZY_API_KEY'),
         ];
     }
 }

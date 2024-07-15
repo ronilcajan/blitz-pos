@@ -45,6 +45,8 @@ class DashboardController extends Controller
                 ];
         });
 
+        // dd(auth()->user()->subscription());
+
         $stock_alert = Product::with(['stock','price'])
             ->orderBy('name', 'ASC')
             ->whereHas('stock', function($q){
