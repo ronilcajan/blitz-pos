@@ -42,6 +42,14 @@ import Modal from '@/Components/Modal.vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import ActionGroupDropdown from '@/Components/ActionGroupDropdown.vue';
 import FilterDate from '@/Components/FilterDate.vue';
+import TitleContainer from '@/Components/TitleContainer.vue';
+import Table from '@/Components/Table.vue';
+import TableHeader from '@/Components/TableHeader.vue';
+import TableBody from '@/Components/TableBody.vue';
+import TableHead from '@/Components/TableHead.vue';
+import TableRow from '@/Components/TableRow.vue';
+import TableCell from '@/Components/TableCell.vue';
+import Avatar from '@/Components/Avatar.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -52,20 +60,21 @@ createInertiaApp({
 
         const app = createApp({ render: () => h(App, props) });
 
-        app.config.warnHandler = function (msg, vm, trace) {
-            // Ignore specific warnings
-            if (msg.includes('Extraneous non-props attributes')) {
-                return;
-            }
-            // Log other warnings to the console
-            console.warn(`[Vue warn]: ${msg}${trace}`);
-        };
+        // app.config.warnHandler = function (msg, vm, trace) {
+        //     // Ignore specific warnings
+        //     if (msg.includes('Extraneous non-props attributes')) {
+        //         return;
+        //     }
+        //     // Log other warnings to the console
+        //     console.warn(`[Vue warn]: ${msg}${trace}`);
+        // };
 
         return app.use(plugin)
             .use(ZiggyVue)
             .use(ToastPlugin)
             .component('Head', Head)
             .component('Link', Link)
+            .component('ApplicationLogo', ApplicationLogo)
             .component('Checkbox', Checkbox)
             .component('GuestLayout', GuestLayout)
             .component('InputError', InputError)
@@ -94,12 +103,20 @@ createInertiaApp({
             .component('DeleteIcon', DeleteIcon)
             .component('SearchInput', SearchInput)
             .component('Pagination', Pagination)
-            .component('ApplicationLogo', ApplicationLogo)
             .component('PaginationControlList', PaginationControlList)
             .component('PaginationResultRange', PaginationResultRange)
             .component('FilterByStoreDropdown', FilterByStoreDropdown)
             .component('ActionGroupDropdown', ActionGroupDropdown)
             .component('Modal', Modal)
+            .component('TitleContainer', TitleContainer)
+            .component('Table', Table)
+            .component('TableHeader', TableHeader)
+            .component('TableBody', TableBody)
+            .component('TableHead', TableHead)
+            .component('TableRow', TableRow)
+            .component('TableCell', TableCell)
+            .component('Avatar', Avatar)
+
             .mount(el);
     },
     progress: {

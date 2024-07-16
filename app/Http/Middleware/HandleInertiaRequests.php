@@ -51,6 +51,7 @@ class HandleInertiaRequests extends Middleware
                         'isAdmin' => $user_role === 'admin',
                         'isStaff' => $user_role === 'staff',
                         'canDelete' => $user_role !== 'staff',
+                        'subscribed' => $user->subscribed() ?? false,
                         'impersonate' => session()->get('impersonate') ?? null
                     ] : null,
                 ],

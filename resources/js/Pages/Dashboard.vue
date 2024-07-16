@@ -57,11 +57,11 @@ const doughnut_data = {
 
 <template>
 
-    <Head title="Dashboard" />
+    <Head :title="title" />
 
-    <div class="grow mb-6">
+    <div class="grow">
         <h1 class="lg:text-2xl font-bold">
-            Dashboard
+            {{ title }}
         </h1>
     </div>
 

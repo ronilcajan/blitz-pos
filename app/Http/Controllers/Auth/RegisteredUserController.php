@@ -20,6 +20,10 @@ class RegisteredUserController extends Controller
      */
     public function create(string $plan)
     {
+
+        if(auth()->check()){
+            return redirect('/dashboard')->with('message', 'Please use the billing page to upgrade your plan.');    
+        }
         // for free plan
         $product = [
             'data' => [

@@ -179,12 +179,6 @@ const statusChange = (userId, selectedStatus) => {
                         </td>
                         <td class="w-10 table-cell">
                             <div class="flex items-center gap-2">
-                                <div class="avatar placeholder " v-show="!user.avatar">
-                                    <div class="w-10 bg-neutral text-neutral-content rounded-full">
-                                        <span class="text-xl">{{ user.name[0] }}</span>
-                                    </div>
-                                </div>
-
                                 <div class="avatar btn btn-circle btn-ghost online" v-show="user.avatar">
                                     <div class="w-10 rounded-full">
                                         <img :src="user.avatar" />

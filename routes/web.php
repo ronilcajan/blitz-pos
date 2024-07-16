@@ -27,15 +27,15 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/register/{plan}', [RegisteredUserController::class, 'create'])->name('register');
 Route::post('/register', [RegisteredUserController::class, 'store'])->name('register.store');
-Route::get('/buy', [RegisteredUserController::class, 'buy'])->name('buy');
-Route::get('/subscribe', [RegisteredUserController::class, 'subscribe'])->name('buy');
 
 Route::get('/auth/google', [GoogleAuthController::class, 'signInwithGoogle'])->name('google-auth');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleLoginCallback']);
@@ -52,6 +52,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:super-admin']],
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+
+    Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscription');
 
     Route::resource('/sales', SaleController::class);
     Route::post('/sales/bulk/delete', [SaleController::class, 'bulkDelete'])->name('sales.bulkDelete');

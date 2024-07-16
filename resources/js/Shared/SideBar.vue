@@ -152,7 +152,12 @@ const page = usePage();
 						</details>
 					</li>
 				</ul>
+				<div class="mt-auto" v-if="!$page.props.auth.user.subscribed">
+					<NavLink :href="route('subscription')" class="btn btn-primary w-full">Upgrade to Pro</NavLink>
+				</div>
 			</nav>
 			<!-- /sidebar menu -->
+			
 		</aside>
+		
 </template>

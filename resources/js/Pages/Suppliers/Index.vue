@@ -3,18 +3,15 @@ import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-
 defineOptions({ layout: AuthenticatedLayout })
 
 const props = defineProps({
     title: String,
 	suppliers: Object,
-    stores: Object,
 	filter: Object
 });
 
 let search = ref(props.filter.search);
-let store = ref('');
 const url = '/suppliers';
 
 const deleteModal = ref(false);
@@ -83,116 +80,106 @@ const selectAll = () => {
         supplierIds.value = [];
       }
 }
+
+const activeDropdown = ref(null);
+const toggleDropdown = (supplierId) => { 
+      if (activeDropdown.value === supplierId) {
+        activeDropdown.value = null;
+      } else {
+        activeDropdown.value = supplierId;
+      }
+}
+
 </script>
 
 <template>
     <Head :title="title" />
-    <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
-        <CreateButtonLink href="/suppliers/create">New supplier</CreateButtonLink>
+
+    <TitleContainer :title="title">
+        <CreateButtonLink v-if="suppliers.data.length > 0" href="/suppliers/create">New supplier</CreateButtonLink>
+    </TitleContainer>
+
+    <div class="flex-grow p-2 lg:gap-x-12 lg:p-4 lg:pt-2 flex flex-col justify-center items-center border-dashed border-2" v-if="suppliers.data.length == 0">
+        <div class="flex flex-col gap-3 justify-center items-center w-2/3">
+            <p class="text-lg font-semibold">
+                No {{ title.toLocaleLowerCase() }} found!
+            </p>
+            <p class="text-center text-muted text-sm mb-5">
+                Your {{ title.toLocaleLowerCase() }} will be displayed here.</p>
+
+            <CreateButtonLink href="/suppliers/create">New supplier</CreateButtonLink>
+
+        </div>
     </div>
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
-        <div class="card-body grow-0">
-            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
-                <div class="flex gap-2">
-                    <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
-                    <DeleteButton v-if="$page.props.auth.user.canDelete" v-show="supplierIds.length > 0" @click="deleteAllSelectedModal = true">
-                        Delete
-                    </DeleteButton>
-                </div>
-                <div class="flex gap-2 flex-col sm:flex-row">
-                    <div class="w-full">
-                        <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
+
+    <div class="flex-grow" v-if="suppliers.data.length > 0">
+        <section class="col-span-12 bg-base-100 shadow-sm rounded">
+            <div class="card-body grow-0">
+                <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
+                    <div class="flex gap-2">
+                        <DeleteButton v-if="$page.props.auth.user.canDelete" v-show="supplierIds.length > 0" @click="deleteAllSelectedModal = true">
+                            Delete
+                        </DeleteButton>
+                    </div>
+                    <div class="flex gap-2 flex-col sm:flex-row">
+                        <div class="w-full">
+                            <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
+                        </div>
                     </div>
                 </div>
+
+              
             </div>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="table table-zebra">
-                <thead class="uppercase">
-                    <tr>
-                        <th v-if="$page.props.auth.user.canDelete">
-                            <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
-                        </th>
-                        <th>
-                            <div class="font-bold">Name</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Contact Person</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Phone</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Address</div>
-                        </th>
-                        <th class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">
-                            <div class="font-bold">Store</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Created on</div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="supplier in suppliers.data" :key="supplier.id">
-                        <td class="w-0" v-if="$page.props.auth.user.canDelete">
-                            <input :value="supplier.id" v-model="supplierIds" type="checkbox" class="checkbox checkbox-sm">
-                        </td>
-                        <td class="w-5 table-cell">
-                            <div class="flex items-center gap-2">
-                                <div class="avatar" v-show="supplier.logo">
-                                    <div class="mask mask-squircle h-10 w-10">
-                                        <img :src="supplier.logo" alt="logo">
-                                    </div>
-                                </div>
-                                <div>
 
-                                    <div class="flex text-sm font-bold gap-2">{{ supplier.name }}
-                                    </div>
-
-                                    <div class="text-xs opacity-50">{{ supplier.email }}</div>
-                                    <div class="sm:hidden">
-                                        <div class="text-xs opacity-50">{{ supplier.contact_person }}</div>
-                                        <div class="text-xs opacity-50">{{ supplier.phone }}</div>
-                                        <div class="text-xs opacity-50">{{ supplier.address }}</div>
-                                    </div>
+            <Table >
+                <template #table-header>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead v-if="$page.props.auth.user.canDelete">
+                                <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
+                            </TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Contact Person</TableHead>
+                            <TableHead>Phone</TableHead>
+                            <TableHead>Address</TableHead>
+                            <TableHead>Created on</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                </template>
+                <template #table-body>
+                    <TableBody>
+                        <TableRow v-for="supplier in suppliers.data" :key="supplier.id">
+                            <TableCell v-if="$page.props.auth.user.canDelete">
+                                <input :value="supplier.id" v-model="supplierIds" type="checkbox" class="checkbox checkbox-sm">
+                            </TableCell>
+                            <TableCell>
+                                <div class="flex items-center gap-2">
+                                    <Avatar :src="supplier.logo" />
+                                    {{ supplier.name }}
                                 </div>
-                            </div>
-                        </td>
-                        <!-- These columns will be hidden on small screens -->
-                        <td class="hidden sm:table-cell">{{ supplier.contact_person }}</td>
-                        <td class="hidden sm:table-cell">{{ supplier.phone }}</td>
-                        <td class="hidden sm:table-cell">{{ supplier.address }}</td>
-                        <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ supplier.store }}</td>
-                        <td class="hidden sm:table-cell">{{ supplier.created_at }}</td>
-                        <td>
-                            <div class="flex items-center space-x-2 justify-center">
-                                <Link :href="`/suppliers/${supplier.id}/edit`" class=" hover:text-green-500">
-                                    <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
-                                    </svg>
-                                </Link>
+                            </TableCell>
+                            <TableCell>{{ supplier.contact_person }}</TableCell>
+                            <TableCell>{{ supplier.phone }}</TableCell>
+                            <TableCell>{{ supplier.address }}</TableCell>
+                            <TableCell>{{ supplier.created_at }}</TableCell>
+                            <TableCell class="flex gap-2">
+                                <EditIconBtn :href="`/suppliers/${supplier.id}/edit`"/>
                                 <DeleteIcon @modal-show="deleteSupplierForm(supplier.id)"/>
-                            </div>
-                        </td>
-
-                    </tr>
-                    <tr v-if="suppliers.data.length  <= 0">
-                        <td colspan="7" class="text-center">
-                            No data found
-                        </td>
-
-                    </tr>
-                </tbody>
-            </table>
-
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </template>
+            </Table>
+           
+        </section>
+        <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+            <PaginationResultRange :data="suppliers" />
+            <PaginationControlList :url="url" />
+            <Pagination :links="suppliers.links" />
         </div>
-    </section>
-    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <PaginationResultRange :data="suppliers" />
-        <PaginationControlList :url="url" />
-        <Pagination :links="suppliers.links" />
     </div>
+
+    
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">
         <div class="p-6">

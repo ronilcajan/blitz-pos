@@ -41,7 +41,7 @@ const impersonating = computed(() =>
 
                 <HeaderBar />
             </div>
-            <div class="min-h-screen p-2 lg:gap-x-12 lg:p-4 lg:pt-2">
+            <div class="min-h-screen flex flex-col mt-5 p-2 lg:gap-x-12 lg:p-4 lg:pt-2">
 
                 <slot />
 

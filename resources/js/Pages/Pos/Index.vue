@@ -457,11 +457,17 @@ const submitPurchase = () => {
                             @add-products="newPurchase(product)"
                         />
 
-                        <div class="w-full flex justify-center items-center border border-gray-100 rounded bg-base-200" v-if="products.data.length === 0">
-                            <div class="text-center text-gray-400">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="250"  height="250"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8.812 4.793l3.188 -1.793l8 4.5v8.5m-2.282 1.784l-5.718 3.216l-8 -4.5v-9l2.223 -1.25" /><path d="M14.543 10.57l5.457 -3.07" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-4.35 2.447m-2.564 1.442l-1.086 .611" /><path d="M3 3l18 18" /></svg>                                <p class="text-gray-500">No products found!</p>
+                        <div class="w-full flex justify-center items-center border border-gray-100 rounded border-dashed border-2" v-if="products.data.length === 0">
+                            <div class="flex flex-col gap-3 justify-center items-center w-2/3">
+                            <p class="text-lg font-semibold">
+                                No products found!
+                            </p>
+                            <p class="text-center text-muted text-sm mb-5">
+                                Your products will be displayed here.</p>
 
-                            </div>
+                            <button class="btn btn-primary btn-sm" @click="createProductModal = true" as="button">New Products</button>
+
+                        </div>
                         </div>
 
                     </div>
@@ -489,9 +495,8 @@ const submitPurchase = () => {
                             <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor" stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                         </PrimaryButton>
                         <!-- <DraftOrdersDropdown :orders="orders"/> -->
-
                     </div>
-                    <h1 class="font-bold mt-3">ITEMS:</h1>
+                    <h1 class="font-bold mt-3 uppercase">purchase items:</h1>
                     <div style="height:440px" class="mt-2 overflow-x-auto overflow-y-auto ">
 
                         <PurchaseCard
@@ -501,9 +506,18 @@ const submitPurchase = () => {
                             @delete-item="deleteOrder(item.id)"
                         />
 
-                        <div class="w-full h-full flex justify-center items-center border border-gray-100 rounded bg-base-200" v-if="purchases.length === 0">
-                            <div class="text-center text-gray-400">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="250"  height="250"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-list-details"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M13 5h8" /><path d="M13 9h5" /><path d="M13 15h8" /><path d="M13 19h5" /><path d="M3 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M3 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /></svg>
+                        <div class="w-full h-full flex justify-center items-center border border-gray-100 rounded border-dashed border-2 flex-col" v-if="purchases.length === 0">
+                            
+                            <div class="flex flex-col gap-3 justify-center items-center text-gray-400">
+                               
+
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="180"  height="180"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-list-details"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M13 5h8" /><path d="M13 9h5" /><path d="M13 15h8" /><path d="M13 19h5" /><path d="M3 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M3 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /></svg>
+
+                                <p class="text-lg font-semibold">
+                                No purchase items found!
+                            </p>
+                            <p class="text-center text-muted text-sm">
+                                Your purchase items will be displayed here.</p>
                             </div>
                         </div>
                     </div>
