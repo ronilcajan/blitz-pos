@@ -99,18 +99,9 @@ const toggleDropdown = (supplierId) => {
         <CreateButtonLink v-if="suppliers.data.length > 0" href="/suppliers/create">New supplier</CreateButtonLink>
     </TitleContainer>
 
-    <div class="flex-grow p-2 lg:gap-x-12 lg:p-4 lg:pt-2 flex flex-col justify-center items-center border-dashed border-2" v-if="suppliers.data.length == 0">
-        <div class="flex flex-col gap-3 justify-center items-center w-2/3">
-            <p class="text-lg font-semibold">
-                No {{ title.toLocaleLowerCase() }} found!
-            </p>
-            <p class="text-center text-muted text-sm mb-5">
-                Your {{ title.toLocaleLowerCase() }} will be displayed here.</p>
-
-            <CreateButtonLink href="/suppliers/create">New supplier</CreateButtonLink>
-
-        </div>
-    </div>
+    <EmptyContainer :title="title" v-if="suppliers.data.length == 0">
+        <CreateButtonLink href="/suppliers/create">New supplier</CreateButtonLink>
+    </EmptyContainer>
 
     <div class="flex-grow" v-if="suppliers.data.length > 0">
         <section class="col-span-12 bg-base-100 shadow-sm rounded">
@@ -179,7 +170,6 @@ const toggleDropdown = (supplierId) => {
         </div>
     </div>
 
-    
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">
         <div class="p-6">

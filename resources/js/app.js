@@ -50,6 +50,7 @@ import TableHead from '@/Components/TableHead.vue';
 import TableRow from '@/Components/TableRow.vue';
 import TableCell from '@/Components/TableCell.vue';
 import Avatar from '@/Components/Avatar.vue';
+import EmptyContainer from '@/Components/EmptyContainer.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -116,6 +117,7 @@ createInertiaApp({
             .component('TableRow', TableRow)
             .component('TableCell', TableCell)
             .component('Avatar', Avatar)
+            .component('EmptyContainer', EmptyContainer)
 
             .mount(el);
     },

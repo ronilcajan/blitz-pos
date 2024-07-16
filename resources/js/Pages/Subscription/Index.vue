@@ -14,21 +14,17 @@ const props = defineProps({
 
 <template>
     <Head :title="title" />
-    
-    <TitleContainer :title="title">
-        <CreateButtonLink v-if="subscription.length > 0" href="/suppliers/create">Create subscription</CreateButtonLink>
+
+     <TitleContainer :title="title">
+        <CreateButtonLink v-if="subscription.length > 0" href="/subscription/create">Create subscription</CreateButtonLink>
     </TitleContainer>
-   
-    <div class="flex-grow mt-5 p-2 lg:gap-x-12 lg:p-4 lg:pt-2 flex flex-col justify-center items-center">
 
-        <div class="flex flex-col gap-3 justify-center items-center" v-if="subscription.length == 0">
-            <p>No {{ title }} found!</p>
-
+    <EmptyContainer :title="title" v-if="subscription.length == 0">
             <CreateButtonLink href="/suppliers/create">Create subscription</CreateButtonLink>
+    </EmptyContainer>
 
-        </div>
-
-        <div v-if="subscription.length > 0">
+    <div class="flex-grow" v-if="subscription.length > 0">
+        <div >
             
             <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
             <div class="card-body grow-0">
@@ -134,10 +130,5 @@ const props = defineProps({
                 <Pagination :links="subscription.links" />
             </div>
         </div>
-        
     </div>
-
-    
-    
-    
 </template>

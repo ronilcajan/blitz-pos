@@ -25,7 +25,7 @@ onMounted(() => {
 				</svg>
 			</label>
 		</div>
-		<div>
+		<div class="flex items-center">
 
 			<select data-choose-theme class="select select-xs">
 				<option value="">Default</option>
