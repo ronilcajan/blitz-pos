@@ -46,9 +46,19 @@ console.log(props.plans);
                         </p>
                         <div class="mt-10 flex justify-center ">
                             <label class="label cursor-pointer gap-3">
-                                <span>Monthly</span>
-                                <input type="checkbox" class="toggle" @change="changePricing" />
-                                <span>Yearly</span>
+                                <input type="checkbox" class="toggle toggle-primary"  @change="changePricing" />
+                                <span class="text-xl font-semibold">Pay annually and 
+                                    <span class="text-primary relative">save up to 17%
+                                    
+                                        <span class="absolute mt-6 right-4">
+                                            <svg width="126" height="11" viewBox="0 0 126 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M3.39429 7.30524L1.95739 6.94095C23.114 3.08745 69.9537 -3.24652 118.067 4.18479L125.206 7.15758C118.647 6.14449 111.958 5.38936 105.251 4.85001C63.9115 1.89605 23.1258 6.61143 5.3761 10.3878L0.000390253 10.333L3.33004 9.06123L2.83185 7.42404C3.01764 7.38451 3.20513 7.34491 3.39429 7.30524Z" fill="#335DFF"/>
+                                            </svg>
+
+                                        </span>
+                                    
+                                    </span>
+                                </span>
                             </label>
 
                         </div>
@@ -63,7 +73,7 @@ console.log(props.plans);
                         <span class="block mb-2 text-base font-medium uppercase text-dark">
                             Free Plan
                         </span>
-                        <h2 class="font-semibold text-primary mb-9 text-[28px] animate-pulse">
+                        <h2 class="font-semibold text-primary mb-9 text-[28px]">
                             0.00/mo
                         </h2>
                         <div class="mb-10 mb-1 text-base font-medium leading-loose text-body-color">
@@ -84,10 +94,10 @@ console.log(props.plans);
                             </p>
                         </div>
                         <div class="w-full">
-                            <button type="button" @click="selectPlan('free')"
+                            <Link :href="route('register','free_plan')"
                                 class="btn btn-lg btn-primary btn-outline inline-block text-base font-medium text-primary bg-transparent border border-[#D4DEFF] rounded-full text-center py-4 px-11 hover:text-white hover:bg-primary hover:border-primary transition duration-300 ease-in-out">
                                 Get Started for Free
-                            </button>
+                            </Link>
                         </div>
                         <span class="absolute left-0 bottom-0 z-[-1] w-14 h-14 rounded-tr-full block bg-primary">
                         </span>
@@ -103,16 +113,16 @@ console.log(props.plans);
                         <span class="block mb-2 text-base font-medium text-white uppercase">
                             {{ plan.attributes.name }}
                         </span>
-                        <h2 class="font-semibold text-white mb-9 text-[28px] animate-bounce " v-if="plansIsMonthly">
+                        <h2 class="font-semibold text-white mb-9 text-[28px]" v-if="plansIsMonthly">
                             {{ plan.attributes.from_price_formatted }}/mo
                         </h2>
 
-                        <div v-if="!plansIsMonthly" class="animate-bounce ">
+                        <div v-if="!plansIsMonthly">
                             <h2 class="font-semibold text-white text-[28px]" >
                                 {{ plan.attributes.to_price_formatted }}/yr
                             </h2>
                             <span class="inline-block px-5 py-1 mb-5 text-xs font-medium text-dark bg-white rounded">
-                                Saves up to two months
+                                save up to {{ ((plan.attributes.price/100) * 2).toFixed(2) }}
                             </span>
                         </div>
 
@@ -121,10 +131,10 @@ console.log(props.plans);
                                 v-html="plan.attributes.description"></p>
                         </div>
                         <div class="w-full">
-                            <a type="button" :href="route('register', plan.id)"
+                            <Link type="button" :href="route('register', plan.id)"
                                 class="btn btn-lg btn-primary btn-outline inline-block py-5 text-base font-medium text-center transition duration-300 ease-in-out bg-white border border-white rounded-full text-dark px-11 hover:text-white hover:bg-dark hover:border-dark">
                                 Upgrade to Basic
-                            </a>
+                            </Link>
                         </div>
                     </div>
 
@@ -133,29 +143,30 @@ console.log(props.plans);
                         <span class="block mb-2 text-base font-medium uppercase text-dark">
                             {{ plan.attributes.name }}
                         </span>
-                        <h2 class="font-semibold text-primary mb-9 text-[28px] animate-pulse " v-if="plansIsMonthly">
+                        <h2 class="font-semibold text-primary mb-9 text-[28px]" v-if="plansIsMonthly">
                             {{ plan.attributes.from_price_formatted }}/mo
                         </h2>
 
-                        <div v-if="!plansIsMonthly" class="animate-pulse">
-                            <h2 class="font-semibold text-primary text-[28px]" >
+                        <div v-if="!plansIsMonthly">
+                            <h2 class="font-semibold text-primary text-[28px] " >
                                 {{ plan.attributes.to_price_formatted }}/yr
                             </h2>
                             <span class="inline-block px-5 py-1 mb-5 text-xs font-medium text-white bg-primary rounded">
-                                Saves up to two months
+                                save up to 
+                                {{ ((plan.attributes.price/100) * 2).toFixed(2) }}
                             </span>
                         </div>
                         
                         <div class="mb-10">
-                            <p clas s="mb-1 text-base font-medium leading-loose" v-html="plan.attributes.description">
+                            <p clas s="mb-10 mb-1 text-base font-medium leading-loose text-body-color" v-html="plan.attributes.description">
                             </p>
                         </div>
 
                         <div class="w-full">
-                            <a type="button" :href="route('register', plan.id)"
+                            <Link type="button" :href="route('register', plan.id)"
                                 class="btn btn-lg btn-primary btn-outline inline-block text-base font-medium text-primary bg-transparent border border-[#D4DEFF] rounded-full text-center py-5 px-11 hover:text-white hover:bg-primary hover:border-primary transition duration-300 ease-in-out">
                                 Upgrade to Standard
-                            </a>
+                            </Link>
                         </div>
                         <span class="
                     absolute

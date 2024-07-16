@@ -34,9 +34,7 @@ class AuthenticatedSessionController extends Controller
 
         if (Auth::user()->status->getLabelText() === 'active') {
 
-
             if(Auth::user()->hasRole('super-admin')) {
-
                 return redirect()
                 ->intended(route('admin.dashboard', absolute: true))
                 ->with('message', "Welcome back, ".

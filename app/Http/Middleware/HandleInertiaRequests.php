@@ -60,7 +60,7 @@ class HandleInertiaRequests extends Middleware
             'logo' => Vite::asset('resources/images/logo.png'),
             'logo_white' => Vite::asset('resources/images/logo-white.png'),
             'app_name' => config('app.name'),
-            'app_lemon_squeezy_api' => env('LEMON_SQUEEZY_API_KEY'),
+            'app_lemon_squeezy_api' => config('services.lemonsqueezy.api_key'),
         ];
     }
 }

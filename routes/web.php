@@ -29,8 +29,6 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -45,22 +43,14 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleL
 Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
-Route::get('/subscribe', function (Request $request) {
-    return $request->user()->subscribe('446841');
-});
-
 Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:super-admin']], function() {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::resource('/stores', StoreController::class);
     Route::resource('/users', AdminUserController::class);
-
 });
 
-
 Route::middleware(['auth', 'verified'])->group(function () {
-
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
 
     Route::resource('/sales', SaleController::class);

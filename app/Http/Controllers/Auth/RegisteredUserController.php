@@ -20,23 +20,57 @@ class RegisteredUserController extends Controller
      */
     public function create(string $plan)
     {
-        $response_product = Http::withHeaders([
-            'Accept' => 'application/vnd.api+json',
-            'Content-Type' => 'application/vnd.api+json',
-            'Authorization' => 'Bearer ' . env('LEMON_SQUEEZY_API_KEY')
-        ])->get('https://api.lemonsqueezy.com/v1/products/'.$plan);
+        // for free plan
+        $product = [
+            'data' => [
+                'id' => 'free_plan',
+                'attributes' => [
+                    'id' => 'free_plan',
+                    'name' => 'Free Plan',
+                    'price' => '0.00',
+                ]
+            ]
+        ];
+        $variants = [
+            'data' => [
+                [
+                    'id' => 0,
+                    'attributes' => [
+                        'id' => 0,
+                    ]
+                ],
+                [
+                    'id' => 1,
+                    'attributes' => [
+                        'id' => 'free_plan',
+                        'name' => 'Monthly',
+                        'price' => '0.00',
+                    ]
+                ],
+            ],
+        ];
 
-        $response_variant = Http::withHeaders([
-            'Accept' => 'application/vnd.api+json',
-            'Content-Type' => 'application/vnd.api+json',
-            'Authorization' => 'Bearer ' . env('LEMON_SQUEEZY_API_KEY')
-        ])->get('https://api.lemonsqueezy.com/v1/variants', [
-            'filter[product_id]' => $plan
-        ]);
+        $api_key = config('services.lemonsqueezy.api_key');
 
-        $variants = $response_variant->json();
-        $product = $response_product->json();
+        if($plan !== 'free_plan'){ // if the plan is not free plan
+            $response_product = Http::withHeaders([
+                'Accept' => 'application/vnd.api+json',
+                'Content-Type' => 'application/vnd.api+json',
+                'Authorization' => 'Bearer ' .$api_key
+            ])->get('https://api.lemonsqueezy.com/v1/products/'.$plan);
+    
+            $response_variant = Http::withHeaders([
+                'Accept' => 'application/vnd.api+json',
+                'Content-Type' => 'application/vnd.api+json',
+                'Authorization' => 'Bearer ' .$api_key
+            ])->get('https://api.lemonsqueezy.com/v1/variants', [
+                'filter[product_id]' => $plan
+            ]);
 
+            $variants = $response_variant->json();
+            $product = $response_product->json();
+        }
+    
         return inertia('Auth/Register',[
             'title' => "Order Registration",
             'variants' => $variants,
@@ -57,14 +91,12 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed'],
             'store' => ['required', 'string'],
             'country' => ['required', 'string'],
-            'variant_id' => ['required', 'string'],
+            'variant_id' => '',
             'product_id' => ['required', 'string'],
         ]);
 
         try {
-
             DB::beginTransaction();
-
 
             $details = [
                 'name' => $request->store,
@@ -73,7 +105,7 @@ class RegisteredUserController extends Controller
                 'country' => $request->country,
                 'timezone' => $request->timezone,
                 'currency' => $request->currency,
-                'country_code' => $request->country_code,
+                'country_code' => $request->country_code, 
             ];
 
             $store = Store::create($details);
@@ -83,7 +115,6 @@ class RegisteredUserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'store_id' => $store->id,
-                'email_verified_at' => now(),
             ]);
 
             $user->addRole('owner');
@@ -92,7 +123,14 @@ class RegisteredUserController extends Controller
             Auth::login($user);
             
             DB::commit(); 
-           
+
+            // for free plan
+            if($request->product_id === 'free_plan'){
+                return redirect()->intended(route('dashboard', absolute: false))
+                ->with('message', "Hello, ".
+                    auth()->user()->name."! We're glad to see you. Your dashboard is ready.");
+            }
+            // return back for payment
             return redirect()->back();
 
         } catch (\Throwable $th) {

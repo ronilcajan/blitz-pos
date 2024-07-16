@@ -1,10 +1,6 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout1.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { reactive, onMounted, ref, computed } from 'vue';
 import { useToast } from 'vue-toast-notification';
 
@@ -17,12 +13,8 @@ const props = defineProps({
     user_id: Number
 });
 
-
 const page = usePage();
-
-
 const countries = reactive({});
-
 const lemonsqueezy_api = page.props.app_lemon_squeezy_api;
 
 const form = useForm({
@@ -36,11 +28,10 @@ const form = useForm({
     timezone: 'Asia/Manila',
     currency: 'PHP',
     order: 'monthly',
-    product_id: props.product.data.id,
-    variant_id: props.variants.data[0].id,
+    product_id: props.product?.data.id,
+    variant_id: props.variants?.data[0].id,
     total: '',
 });
-
 
 const countryChange = () => {
     countries.data.forEach((country) => {
@@ -72,7 +63,8 @@ const togglePasswordVisibility = () => {
     inputType.value = inputType.value === 'password' ? 'text' : 'password';
 }
 
-const total = ref(formatNumberWithCommas(formatPrice(filteredVariants.value[0].attributes.price)));
+const total = ref(
+    (formatPrice(filteredVariants.value[0].attributes.price)));
 
 const toggleVarient = (variant) => {
     form.order = variant.attributes.name.toLowerCase();
@@ -85,66 +77,65 @@ const submit = async () => {
     form.post(route('register.store'), {
         onSuccess: async (response) => {
 
-            console.log(response.props.auth.user.email);
-
             const url = 'https://api.lemonsqueezy.com/v1/checkouts';
+            const redirect_url = 'http://127.0.0.1:8000/dashboard';
 
-            const headers = {
-                'Accept': 'application/vnd.api+json',
-                'Content-Type': 'application/vnd.api+json',
-                'Authorization': `Bearer ${lemonsqueezy_api}`,
-            };
-            const data = {
-                data: {
-                    type: 'checkouts',
-                    attributes: {
-                        product_options: {
-                            redirect_url : 'http://127.0.0.1:8000/dashboard',
-                            enabled_variants: [form.variant_id],
-                        },
-                        checkout_options: {
-                            embed : true,
-                            subscription_preview : false,
-                            button_color: '#2DD272'
-                        },
-                        checkout_data: {
-                            name: `${response.props.auth.user.name}`,
-                            email: `${response.props.auth.user.email}`,
-                            billing_address: {
-                                country: `${form.country_code}`,
+            if(form.product_id !== 'free_plan') { // if not free plan
+                const headers = {
+                    'Accept': 'application/vnd.api+json',
+                    'Content-Type': 'application/vnd.api+json',
+                    'Authorization': `Bearer ${lemonsqueezy_api}`,
+                };
+                const data = {
+                    data: {
+                        type: 'checkouts',
+                        attributes: {
+                            product_options: {
+                                redirect_url : redirect_url,
+                                enabled_variants: [form.variant_id],
                             },
-                            custom: {
-                                user_id: `${response.props.auth.user.id}`,
-                            }
+                            checkout_options: {
+                                embed : true,
+                                subscription_preview : false,
+                                button_color: '#2DD272'
+                            },
+                            checkout_data: {
+                                name: `${response.props.auth.user.name}`,
+                                email: `${response.props.auth.user.email}`,
+                                billing_address: {
+                                    country: `${form.country_code}`,
+                                },
+                                custom: {
+                                    user_id: `${response.props.auth.user.id}`,
+                                }
+                            },
+                            preview: true
                         },
-                        preview: true
-                    },
-                    relationships: {
-                        store: {
-                            data: {
-                                type: 'stores',
-                                id: `${props.product.data.attributes.store_id}`
-                            }
-                        },
-                        variant: {
-                            data: {
-                                type: 'variants',
-                                id: `${form.variant_id}`
+                        relationships: {
+                            store: {
+                                data: {
+                                    type: 'stores',
+                                    id: `${props.product.data.attributes.store_id}`
+                                }
+                            },
+                            variant: {
+                                data: {
+                                    type: 'variants',
+                                    id: `${form.variant_id}`
+                                }
                             }
                         }
                     }
-                }
+                };
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(data)
+                });
+                const details = await res.json();  
+                console.log('API Response:', details); // Log the entire response for debugging
+                LemonSqueezy.Url.Open(details.data.attributes.url);
             }
-
-
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify(data)
-            });
-            const details = await res.json();  
-            console.log('API Response:', details); // Log the entire response for debugging
-            LemonSqueezy.Url.Open(details.data.attributes.url);
 
             form.reset();
             form.clearErrors();
@@ -243,7 +234,7 @@ onMounted(() => {
                             <p class="text-5xl font-semibold mt-6">
                                 ₱{{ formatPrice(variant.attributes.price) }}</p>
                             <p class="text-sm mt-3 font-bold">PHP / month</p>
-                            <p class="text-sm mt-2">14 days free trial</p>
+                            <p class="text-sm mt-2" v-if="product.data.attributes.id !== 'free_plan'">14 days free trial</p>
                         </div>
                         <div v-else class="flex flex-col items-center">
                             <div class="flex gap-3 justify-center">
@@ -348,18 +339,18 @@ onMounted(() => {
                         <TextInput type="text" class="block w-full" v-model="form.store" required autofocus
                             autocomplete="name" placeholder="Enter store name" />
 
-                        <InputError class="mt-2" :message="form.errors.store" />
+                        <InputError :message="form.errors.store" />
                     </div>
 
-                    <div class="mt-4">
+                    <div>
                         <InputLabel for="email" value="Email" />
 
                         <TextInput type="email" class="block w-full" v-model="form.email" required
                             autocomplete="username" placeholder="Enter email" />
 
-                        <InputError class="mt-2" :message="form.errors.email" />
+                        <InputError :message="form.errors.email" />
                     </div>
-                    <div class="mt-4">
+                    <div>
                         <InputLabel value="Select Country" />
                         <select class="select select-bordered w-full " v-model="form.country" @change="countryChange">
                             <option disabled selected value="">Select your country</option>
