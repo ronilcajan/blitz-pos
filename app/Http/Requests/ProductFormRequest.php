@@ -29,11 +29,10 @@ class ProductFormRequest extends FormRequest
             'unit' => 'required',
             'product_category_id' => 'required',
             'base_price' => 'required',
-            'product_type' => '',
+            'usage_type' => '',
             'markup_price' => '',
             'sale_price' => '',
             'discount_price' => '',
-            'in_store' => 'required',
         ];
     }
 }

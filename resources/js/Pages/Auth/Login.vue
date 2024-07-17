@@ -1,4 +1,5 @@
 <script setup>
+import LoginLayout from '@/Layouts/LoginLayout.vue';
 import { useForm } from '@inertiajs/vue3';
 
 defineProps({

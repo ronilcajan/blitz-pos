@@ -202,7 +202,7 @@ onMounted(() => {
 	</header>
 
 	<header v-if="$page.props.flash.message" class="flex col-span-12 gap-2 mt-5 lg:gap-4">
-		<div role="alert" class="alert alert-success text-white">
+		<div role="alert" class="alert alert-success">
 			<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 stroke-current shrink-0" fill="none"
 				viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -81,6 +81,7 @@ createInertiaApp({
         return app.use(plugin)
             .use(ZiggyVue)
             .use(ToastPlugin)
+
             .component('Head', Head)
             .component('Link', Link)
             .component('ApplicationLogo', ApplicationLogo)

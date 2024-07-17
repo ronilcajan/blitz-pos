@@ -5,11 +5,11 @@ import { useToast } from 'vue-toast-notification';
 import { ref, watch } from 'vue';
 
 defineOptions({ layout: AuthenticatedLayout })
+
 const page = usePage()
 
 const props = defineProps({
     title: String,
-    stores: Object,
     units: Object,
     categories: Object,
 });
@@ -22,31 +22,27 @@ const form = useForm({
 	name: '',
 	barcode: '',
 	product_category_id : '',
-	product_type : 'sellable',
+	usage_type : 'sellable',
 	unit : '',
     brand: '',
-	manufacturer: '',
 	size : '',
 	color : '',
 	dimension : '',
     expiration_date: '',
     description: '',
     visible : 'published',
-    image: '',
+    image: [],
 
     base_price : 0.00,
     markup_price : 0.00,
     sale_price : 0.00,
     discount: 0,
     discount_price:  0.00,
-    manual_percentage: 'manual',
-
+    flat_percentage: 'flat',
     sku: '',
     min_quantity: '5',
 	in_store : 0,
     in_warehouse: 0,
-
-    store_id : page?.props?.auth?.user.store_id ?? 1,
 });
 
 const unitForm = useForm({name: ''});
@@ -67,10 +63,10 @@ const calculateSalePrice = () => {
     calculateDiscount();
 }
 const calculateDiscount = () => {
-    const { sale_price, discount, manual_percentage  } = form;
-    const value = manual_percentage;
+    const { sale_price, discount, flat_percentage  } = form;
+    const value = flat_percentage;
 
-    if (value === 'manual') {
+    if (value === 'flat') {
         const discountedPrice = parseFloat(sale_price - discount).toFixed(2);
         form.discount_price = discountedPrice;
     } else {
@@ -137,143 +133,364 @@ const submitCreateForm = () => {
 				duration: 3000,
 				dismissible: true
 			});
-            image_preview.value = '';
+            imagePreviews.value = '';
 		},
 	})
 }
-const image_preview = ref([]);
+const imagePreviews = ref([]);
 const onFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
+    const files = Array.from(e.target.files);
+
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type.startsWith('image/')) {
+            imagePreviews.value.push(URL.createObjectURL(file));
+        } else {
+            alert('Please select image files only');
+        }
     }
-    image_preview.value = URL.createObjectURL(file);
+    form.image.push(e.target.files[0]);
 }
+const removeImage = (index) => {
+    imagePreviews.value.splice(index, 1);
+    form.image.splice(index, 1);
+};
 </script>
 
 <template>
     <Head :title="title" />
     <form class="flex-grow" @submit.prevent="submitCreateForm">
-    <TitleContainer :title="title">
+        <TitleContainer :title="title">
             <CancelButton href="/products" >Cancel</CancelButton>
-            <CreateSubmitBtn v-model="form">Create products</CreateSubmitBtn>
+            <CreateSubmitBtn v-model="form">Create prdsoducts</CreateSubmitBtn>
         </TitleContainer>
 
-   
-    <div class="flex flex-col gap-5 md:flex-row">
-
-        <div class="w-full md:w-2/3">
-            <div class="shadow card bg-base-100">
-                <div class="card-body">
-                    <div class="flex flex-col justify-between gap-2 lg:flex-row">
-                        <h2 class="mb-5 text-sm card-title grow">
-                            <span class="uppercase">General Information</span>
-                        </h2>
-                    </div>
 
 
-                    <div>
-                        <InputLabel for="name" value="Product Name" />
-                        <TextInput
-                            type="text"
-                            class="block w-full"
-                            v-model="form.name"
-                            required
-                            placeholder="Enter product name"
-                        />
-                        <InputError class="mt-2" :message="form.errors.name" />
-                    </div>
-                    <div class="form-control">
-                                <InputLabel for="name" value="Size or Weight (optional)" />
-                                <TextInput
-                                    type="text"
-                                    class="block w-full"
-                                    v-model="form.size"
-                                    placeholder="Enter size or weight"
-                                />
-                                <InputError class="mt-2" :message="form.errors.size" />
-                            </div>
+        <div class="flex flex-col gap-5 md:flex-row">
 
-                    <div class="flex flex-col gap-5 md:flex-row">
-                        <div class="w-full md:w-1/2">
-                            <InputLabel for="phone" value="Color (optional)" />
+            <div class="w-full md:w-2/3">
+                <div class="shadow card bg-base-100">
+                    <div class="card-body">
+                        <div class="form-control">
+                            <span class="text-lg font-bold">
+                                Product Title</span>
                             <TextInput
                                 type="text"
-                                class="block w-full"
-                                v-model="form.color"
-                                placeholder="red,blue,white"
+                                class="block w-full mt-2"
+                                v-model="form.name"
+                                required
+                                placeholder="Enter product title here"
                             />
-                            <InputError class="mt-2" :message="form.errors.color" />
+                            <InputError class="mt-2" :message="form.errors.name" />
                         </div>
-                        <div class="w-full md:w-1/2">
-                            <div class="flex items-end gap-2">
-                                <div class="w-full">
-                                    <InputLabel for="name" value="Category" />
-                                    <select v-model="form. product_category_id" required class="w-full select select-bordered">
-                                        <option disabled selected value="">Select a product category</option>
-                                        <option v-for="category in categories" :value="category.id" :key="category.id">
-                                            {{ category.name }}
-                                        </option>
-                                    </select>
+                        <div class="form-control mt-6">
+                            <span class="text-lg font-bold mb-3">
+                                Product Description</span>
+                            <textarea v-model="form.description" class="w-full textarea textarea-bordered textarea-lg p-4" placeholder="Enter description"></textarea>
+                            <InputError class="mt-2" :message="form.errors.description" />
+                        </div>
+
+                        <div class="form-control mt-6">
+                            <span class="text-lg font-bold mb-3">
+                                Display images
+                            </span>
+                            <div>
+                                <div class="flex flex-wrap gap-3 mb-3" v-if="imagePreviews.length">
+                                    <div v-for="(image, index) in imagePreviews" class="relative w-24 h-24 p-3 rounded" :key="index">
+                                        <img :src="image" class="w-full h-full object-cover rounded" alt="Image Preview">
+                                        <button type="button"
+                                            @click="removeImage(index)"
+                                            class="absolute top-0 right-0 text-red-500 hover:text-red-700"
+                                            >
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-square-rounded-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 2l.324 .001l.318 .004l.616 .017l.299 .013l.579 .034l.553 .046c4.785 .464 6.732 2.411 7.196 7.196l.046 .553l.034 .579c.005 .098 .01 .198 .013 .299l.017 .616l.005 .642l-.005 .642l-.017 .616l-.013 .299l-.034 .579l-.046 .553c-.464 4.785 -2.411 6.732 -7.196 7.196l-.553 .046l-.579 .034c-.098 .005 -.198 .01 -.299 .013l-.616 .017l-.642 .005l-.642 -.005l-.616 -.017l-.299 -.013l-.579 -.034l-.553 -.046c-4.785 -.464 -6.732 -2.411 -7.196 -7.196l-.046 -.553l-.034 -.579a28.058 28.058 0 0 1 -.013 -.299l-.017 -.616c-.003 -.21 -.005 -.424 -.005 -.642l.001 -.324l.004 -.318l.017 -.616l.013 -.299l.034 -.579l.046 -.553c.464 -4.785 2.411 -6.732 7.196 -7.196l.553 -.046l.579 -.034c.098 -.005 .198 -.01 .299 -.013l.616 -.017c.21 -.003 .424 -.005 .642 -.005zm-1.489 7.14a1 1 0 0 0 -1.218 1.567l1.292 1.293l-1.292 1.293l-.083 .094a1 1 0 0 0 1.497 1.32l1.293 -1.292l1.293 1.292l.094 .083a1 1 0 0 0 1.32 -1.497l-1.292 -1.293l1.292 -1.293l.083 -.094a1 1 0 0 0 -1.497 -1.32l-1.293 1.292l-1.293 -1.292l-.094 -.083z" fill="currentColor" stroke-width="0" /></svg>
+                                        </button>
+                                    </div>
 
                                 </div>
-                                <div>
-                                    <button class="btn btn-square btn-outline btn-primary" type="button" @click="createCategoryModal = true">
-                                        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
+                                <div class="flex relative mb-5.5 w-full cursor-pointer appearance-none rounded border border-dashed border-gray-300 bg-gray px-4 py-4 sm:py-7.5 justify-center">
+                                    <div class="flex flex-col items-center justify-center space-y-3">
+                                        <span class="flex items-center justify-center w-10 h-10 bg-white border rounded-full border-stroke dark:border-strokedark dark:bg-boxdark">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M1.99967 9.33337C2.36786 9.33337 2.66634 9.63185 2.66634 10V12.6667C2.66634 12.8435 2.73658 13.0131 2.8616 13.1381C2.98663 13.2631 3.1562 13.3334 3.33301 13.3334H12.6663C12.8431 13.3334 13.0127 13.2631 13.1377 13.1381C13.2628 13.0131 13.333 12.8435 13.333 12.6667V10C13.333 9.63185 13.6315 9.33337 13.9997 9.33337C14.3679 9.33337 14.6663 9.63185 14.6663 10V12.6667C14.6663 13.1971 14.4556 13.7058 14.0806 14.0809C13.7055 14.456 13.1968 14.6667 12.6663 14.6667H3.33301C2.80257 14.6667 2.29387 14.456 1.91879 14.0809C1.54372 13.7058 1.33301 13.1971 1.33301 12.6667V10C1.33301 9.63185 1.63148 9.33337 1.99967 9.33337Z" fill="#3C50E0"></path>
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M7.5286 1.52864C7.78894 1.26829 8.21106 1.26829 8.4714 1.52864L11.8047 4.86197C12.0651 5.12232 12.0651 5.54443 11.8047 5.80478C11.5444 6.06513 11.1223 6.06513 10.8619 5.80478L8 2.94285L5.13807 5.80478C4.87772 6.06513 4.45561 6.06513 4.19526 5.80478C3.93491 5.54443 3.93491 5.12232 4.19526 4.86197L7.5286 1.52864Z" fill="#3C50E0"></path>
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M7.99967 1.33337C8.36786 1.33337 8.66634 1.63185 8.66634 2.00004V10C8.66634 10.3682 8.36786 10.6667 7.99967 10.6667C7.63148 10.6667 7.33301 10.3682 7.33301 10V2.00004C7.33301 1.63185 7.63148 1.33337 7.99967 1.33337Z" fill="#3C50E0"></path>
                                         </svg>
-                                 </button>
+                                        </span>
+                                        <p class="text-sm font-medium">
+                                        <span class="text-primary">Click to upload</span>
+                                        or drag and drop
+                                        </p>
+                                        <p class="mt-1.5 text-sm font-medium">
+                                        SVG, PNG, JPG or GIF
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer"
+                                            @change="onFileChange"
+                                            multiple
+                                        >
+
+                                    </div>
+                                </div>
+                                <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
+                                        {{ form.progress.percentage }}%
+                                    </progress>
+                                </div>
+
+                            <InputError class="mt-2" :message="form.errors.description" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 shadow card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="mb-2 text-sm card-title grow">
+                                <span class="uppercase">Pricing Details</span>
+                            </h2>
+                        <div>
+                            <div class="flex items-center">
+                                <span class="font-semibold text-sm">Base/Supplier Price</span>
+
+                                <div class="dropdown">
+                                    <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
+                                        <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    </div>
+                                    <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
+                                        <div tabindex="0" class="card-body">
+                                            <h2 class="font-bold uppercase">You needed more info?</h2>
+                                            <p>This is the original price of the product before any modifications or adjustments.</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            <NumberInput
+                                class="block w-full mt-2"
+                                v-model="form.base_price"
+                                required
+                                min="0"
+                                @change="calculateSalePrice"                     placeholder="Enter base price"
+                            />
+                            <InputError class="mt-2" :message="form.errors.base_price" />
+                        </div>
+                        <div class="flex flex-col gap-5 md:flex-row">
+                            <div class="w-full md:w-1/2">
+                                <div class="flex items-center">
+                                    <span class="font-semibold text-sm">Markup Price</span>
+                                    <div class="dropdown">
+                                        <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
+                                            <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        </div>
+                                        <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
+                                            <div tabindex="0" class="card-body">
+                                                <h2 class="font-bold uppercase">You needed more info?</h2>
+                                                <p>The markup price is the additional amount added to the base price to cover costs.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <NumberInput
+                                    class="block w-full mt-2"
+                                    v-model="form.markup_price"
+                                    required
+                                    min="0"
+                                    @change="calculateSalePrice"               placeholder="Enter markup price"
+                                />
+                                <InputError class="mt-2" :message="form.errors.markup_price" />
+
+                            </div>
+                            <div class="w-full md:w-1/2">
+                                <div class="flex items-center">
+                                <span class="font-semibold text-sm">Sale Price</span>
+
+                                <div class="dropdown">
+                                    <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
+                                        <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    </div>
+                                    <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
+                                        <div tabindex="0" class="card-body">
+                                            <h2 class="font-bold uppercase">You needed more info?</h2>
+                                            <p>The sale price that the customer pays before any discounts are applied.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <NumberInput
+                                type="number"
+                                class="block w-full mt-2"
+                                v-model="form.sale_price"
+                                required
+                                min="0"
+                                @change="calculateDiscount"
+                                placeholder="Enter sale price"
+                            />
+                            <InputError class="mt-2" :message="form.errors.sale_price" />
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-5 md:flex-row">
+                            <div class="w-full md:w-1/2">
+                                <div class="flex items-center gap-2 mb-2 justify-start">
+                                    <span class="font-semibold text-sm">Discount: (if applicable)</span>
+                                    <div>
+                                        <input type="radio" aria-label="flat"
+                                        class="btn btn-xs" @change="calculateDiscount" value="flat"
+                                        v-model="form.flat_percentage" />
+                                    </div>
+                                    <div>
+                                        <input type="radio" aria-label="percent(%)"
+                                        class="btn btn-xs" @change="calculateDiscount" value="percentage"
+                                        v-model="form.flat_percentage" />
+                                    </div>
+                                </div>
+                                <NumberInput
+                                    class="block w-full"
+                                    v-model="form.discount"
+                                    @change="calculateDiscount"
+                                    placeholder="Enter discount"
+                                    min="0"
+                                />
+                                <InputError class="mt-2" :message="form.errors.discount" />
+
+                            </div>
+                            <div class="w-full md:w-1/2">
+                                <span class="font-semibold text-sm">Discounted Price</span>
+                                <NumberInput
+                                    class="block w-full mt-2"
+                                    v-model="form.discount_price"
+                                    required
+                                    min="0"
+                                    step="0.01"
+                                />
+                                <InputError class="mt-2" :message="form.errors.discount_price" />
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 shadow card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="mb-2 text-sm card-title grow">
+                            <span class="text-lg font-bold">
+                                Manage Inventory</span>
+                        </h2>
+                        <div>
+                            <span class="font-semibold text-sm">Barcode</span>
+                                <TextInput
+                                    type="text"
+                                    class="block w-full mt-2"
+                                    v-model="form.barcode"
+                                    required
+                                    placeholder="Enter barcode"
+                                />
+                                <InputError class="mt-2" :message="form.errors.barcode" />
+                        </div>
+                        <div class="flex flex-col gap-5 md:flex-row">
+                            <div class="w-full md:w-1/2">
+                                <span class="font-semibold text-sm">Stock Keeping Unit (optional)</span>
+                                <TextInput
+                                    type="text"
+                                    class="block w-full mt-2"
+                                    v-model="form.sku"
+                                    placeholder="Enter SKU"
+                                />
+                                <InputError class="mt-2" :message="form.errors.sku" />
+                            </div>
+                            <div class="w-full md:w-1/2">
+                                <span class="font-semibold text-sm">Minimum Stocks (alert level)</span>
+                                <select v-model="form.min_quantity" class="w-full select select-bordered mt-2">
+                                    <option>5</option>
+                                    <option>10</option>
+                                    <option>20</option>
+                                    <option>50</option>
+                                    <option>100</option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.min_quantity" />
+                            </div>
+                            </div>
+                        <div class="flex flex-col gap-5 md:flex-row">
+
+                            <div class="w-full md:w-1/2">
+                                <span class="font-semibold text-sm">In Warehouse</span>
+                                <NumberInput
+                                    class="block w-full mt-2"
+                                    v-model="form.in_warehouse"
+                                    placeholder="Enter quantity"
+                                />
+                                <InputError class="mt-2" :message="form.errors.in_warehouse" />
+                            </div>
+                            <div class="w-full md:w-1/2">
+                                <span class="font-semibold text-sm">In Store</span>
+                                <NumberInput
+                                    step="0.01"
+                                    min="0"
+                                    class="block w-full mt-2"
+                                    v-model="form.in_store"
+                                    placeholder="Enter quantity"
+                                />
+                                <InputError class="mt-2" :message="form.errors.in_store" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full md:w-1/3">
+                <div class="shadow card bg-base-100">
+                    <div class="card-body grow-0 ">
+                        <h2 class="text-sm card-title grow">
+                            <span class="text-lg font-bold">
+                                Organize</span>
+                        </h2>
+                        <div class="w-full">
+                            <div class="flex flex-row items-center gap-2 mb-2">
+                                <span class="font-semibold text-sm">Category</span>
+                                <button as="button" class="btn btn-xs btn-primary btn-link" type="button" @click="createCategoryModal = true">Add new category</button>
+                            </div>
+                            <select v-model="form. product_category_id" required class="w-full select select-bordered">
+                                <option disabled selected value="">Select a product category</option>
+                                <option v-for="category in categories" :value="category.id" :key="category.id">
+                                    {{ category.name }}
+                                </option>
+                            </select>
                             <InputError class="mt-2" :message="form.errors.product_category_id" />
                         </div>
-                    </div>
-
-                    <div class="flex flex-col gap-5 md:flex-row">
-                        <div class="w-full md:w-1/2 ">
-                            <div class="mb-4 form-control">
-                                <InputLabel for="product_type" value="Product Type" />
-                                <select v-model="form.product_type" class="w-full select select-bordered">
-                                    <option disabled value="">Select a product type</option>
-                                    <option>
-                                        sellable
-                                    </option>
-                                    <option>
-                                        consumable
-                                    </option>
-                                </select>
-                                <InputError class="mt-2" :message="form.errors.product_type" />
+                        <div class="w-full mt-4">
+                            <div class="flex flex-row items-center gap-2 mb-2">
+                                <span class="font-semibold text-sm">Units</span>
+                                <button as="button" class="btn btn-xs btn-primary btn-link" type="button" @click="createUnitModal = true">Add new unit</button>
                             </div>
-                        </div>
-                        <div class="w-full md:w-1/2 ">
-
-                            <div class="flex items-end gap-2">
-                                <div class="w-full">
-                                    <InputLabel for="name" value="Unit" />
-                                    <select v-model="form.unit" class="w-full select select-bordered" required>
-                                        <option disabled selected value="">Select a product unit</option>
-                                        <option v-for="unit in units" :value="unit.name" :key="unit.id">
-                                            {{ unit.name }}
-                                        </option>
-                                    </select>
-
-                                </div>
-                                <div>
-                                    <button class="btn btn-square btn-outline btn-primary" type="button" @click="createUnitModal = true">
-                                        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
-                                        </svg>
-                                 </button>
-                                </div>
-                            </div>
+                            <select v-model="form.unit" class="w-full select select-bordered" required>
+                                <option disabled selected value="">Select a product unit</option>
+                                <option v-for="unit in units" :value="unit.name" :key="unit.id">
+                                    {{ unit.name }}
+                                </option>
+                            </select>
                             <InputError class="mt-2" :message="form.errors.unit" />
                         </div>
-                    </div>
 
-                    <div class="flex flex-col gap-5 md:flex-row">
-                        <div class="w-full md:w-1/2">
-                            <InputLabel for="name" value="Brand (optional)" />
+                        <div class="mt-4 form-control ">
+                            <span class="font-semibold text-sm mb-2">Usage types</span>
+                            <select v-model="form.usage_type" class="w-full select select-bordered">
+                                <option disabled value="">Select a product type</option>
+                                <option>
+                                    sellable
+                                </option>
+                                <option>
+                                    internal_use
+                                </option>
+                            </select>
+                            <InputError class="mt-2" :message="form.errors.usage_type" />
+                        </div>
+
+                        <div class="form-control mt-4">
+                            <span class="font-semibold text-sm mb-2">Brand (optional)</span>
                             <TextInput
                                 type="text"
                                 class="block w-full"
@@ -282,21 +499,49 @@ const onFileChange = (e) => {
                             />
                             <InputError class="mt-2" :message="form.errors.brand" />
                         </div>
-                        <div class="w-full md:w-1/2">
-                            <InputLabel for="phone" value="Manufacturer (optional)" />
+
+                        <div class="form-control">
+                            <span class="font-semibold text-sm mb-2">Expiration Date (optional)</span>
+                            <TextInput
+                                type="date"
+                                class="block w-full"
+                                v-model="form.expiration_date"
+                            />
+                            <InputError class="mt-2" :message="form.errors.expiration_date" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shadow card bg-base-100 mt-5 ">
+                    <div class="card-body grow-0 ">
+                        <h2 class="text-sm card-title grow">
+                            <span class="text-lg font-bold">
+                                Variants</span>
+                        </h2>
+                        <div class="form-control mt-2">
+                            <span class="font-semibold text-sm mb-2">Size or Weight (optional)</span>
                             <TextInput
                                 type="text"
                                 class="block w-full"
-                                v-model="form.manufacturer"
-                                placeholder="Enter product manufacturer"
+                                v-model="form.size"
+                                placeholder="Enter size or weight"
                             />
-                            <InputError class="mt-2" :message="form.errors.manufacturer" />
+                            <InputError class="mt-2" :message="form.errors.size" />
                         </div>
-                    </div>
+                        <div class="form-control">
+                            <span class="font-semibold text-sm mb-2">Color (optional)</span>
+                            <TextInput
+                                type="text"
+                                class="block w-full"
+                                v-model="form.color"
+                                placeholder="red,blue,white"
+                            />
+                            <InputError class="mt-2" :message="form.errors.color" />
+                        </div>
 
-                    <div class="flex flex-col gap-5 md:flex-row">
-                        <div class="w-full md:w-1/2">
-                            <InputLabel for="phone" value="Dimension (optional)" />
+
+                        <div class="w-full">
+                            <span class="font-semibold text-sm mb-2">Dimension (optional)</span>
                             <TextInput
                                 type="text"
                                 class="block w-full"
@@ -305,272 +550,34 @@ const onFileChange = (e) => {
                             />
                             <InputError class="mt-2" :message="form.errors.dimension" />
                         </div>
-
-                        <div class="w-full md:w-1/2">
-                            <div class="form-control">
-                                <InputLabel for="name" value="Expiration Date (optional)" />
-                                <TextInput
-                                    type="date"
-                                    class="block w-full"
-                                    v-model="form.expiration_date"
-                                />
-                                <InputError class="mt-2" :message="form.errors.expiration_date" />
-                            </div>
-                        </div>
                     </div>
-
-                    <div class="mb-3">
-                        <InputLabel value="Description" />
-                        <textarea v-model="form.description" class="w-full textarea textarea-bordered" placeholder="Enter description"></textarea>
-                        <InputError class="mt-2" :message="form.errors.description" />
-                    </div>
-                    <div>
-                        <div class="mb-3" v-show="$page.props.auth.user.isSuperAdmin">
-                            <InputLabel for="phone" value="Store" />
-                            <select v-model="form.store_id" class="w-full select select-bordered">
-                                <option disabled selected value="">Select a store</option>
-                                <option v-for="store in stores" :value="store.id" :key="store.id">
-                                    {{ store.name }}
-                                </option>
-                            </select>
-                            <InputError class="mt-2" :message="form.errors.store_id" />
-                        </div>
-                    </div>
-
                 </div>
-            </div>
 
-            <div class="mt-5 shadow card bg-base-100">
-                <div class="card-body">
-                    <h2 class="mb-2 text-sm card-title grow">
-                            <span class="uppercase">Pricing Details</span>
+                <div class="mt-5 shadow card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="mb-2 text-sm card-title grow">
+                            <span class="text-lg font-bold">
+                                Product Status</span>
                         </h2>
-                    <div>
-                        <div class="flex items-center">
-                            <InputLabel for="name" value="Base Price" />
-                            <div class="dropdown">
-                                <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
-                                    <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div>
+                            <span class="font-semibold text-sm mb-2">Product Visibility</span>
+                            <div class="w-full px-4 py-3 my-2 text-sm border rounded-lg">
+                                    {{ form.visible }}
                                 </div>
-                                <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
-                                    <div tabindex="0" class="card-body">
-                                        <h2 class="font-bold uppercase">You needed more info?</h2>
-                                        <p>This is the original price of the product before any modifications or adjustments.</p>
-                                    </div>
-                                </div>
+                            <div class="flex flex-row items-center gap-3 mt-3 form-control text-sm">
+                                <input type="checkbox" id="hide" v-model="isHide" class="checkbox checkbox-sm " />
+                                <label for="hide">Hide this product</label>
                             </div>
-                        </div>
-                        <NumberInput
-                            class="block w-full"
-                            v-model="form.base_price"
-                            required
-                            min="0"
-                            @change="calculateSalePrice"                     placeholder="Enter base price"
-                        />
-                        <InputError class="mt-2" :message="form.errors.base_price" />
-                    </div>
-                    <div class="flex flex-col gap-5 md:flex-row">
-                        <div class="w-full md:w-1/2">
-                            <div class="flex items-center">
-                                <InputLabel for="name" value="Markup Price" />
-                                <div class="dropdown">
-                                    <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
-                                        <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    </div>
-                                    <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
-                                        <div tabindex="0" class="card-body">
-                                            <h2 class="font-bold uppercase">You needed more info?</h2>
-                                            <p>The markup price is the additional amount added to the base price to cover costs.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <NumberInput
-                                class="block w-full"
-                                v-model="form.markup_price"
-                                required
-                                min="0"
-                                @change="calculateSalePrice"               placeholder="Enter markup price"
-                            />
-                            <InputError class="mt-2" :message="form.errors.markup_price" />
+                            <InputError class="mt-2" :message="form.errors.phone" />
 
                         </div>
-                        <div class="w-full md:w-1/2">
-                            <div class="flex items-center">
-                            <InputLabel for="name" value="Sale Price" />
-                            <div class="dropdown">
-                                <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
-                                    <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                </div>
-                                <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
-                                    <div tabindex="0" class="card-body">
-                                        <h2 class="font-bold uppercase">You needed more info?</h2>
-                                        <p>The sale price that the customer pays before any discounts are applied.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <NumberInput
-                            type="number"
-                            class="block w-full"
-                            v-model="form.sale_price"
-                            required
-                            min="0"
-                            @change="calculateDiscount"
-                            placeholder="Enter sale price"
-                        />
-                        <InputError class="mt-2" :message="form.errors.sale_price" />
-                        </div>
-                    </div>
 
-                    <div class="flex flex-col gap-5 md:flex-row">
-                        <div class="w-full md:w-1/2">
-                            <div class="flex items-center gap-2">
-                                <InputLabel for="name" value="Discount: (if applicable)" />
-                                <div>
-                                    <input type="radio" aria-label="manual"
-                                    class="btn btn-xs" @change="calculateDiscount" value="manual"
-                                    v-model="form.manual_percentage" />
-                                </div>
-                                <div>
-                                    <input type="radio" aria-label="percent(%)"
-                                    class="btn btn-xs" @change="calculateDiscount" value="percentage"
-                                    v-model="form.manual_percentage" />
-                                </div>
-                            </div>
-                            <NumberInput
-                                class="block w-full"
-                                v-model="form.discount"
-                                @change="calculateDiscount"
-                                placeholder="Enter discount"
-                                min="0"
-                            />
-                            <InputError class="mt-2" :message="form.errors.discount" />
 
-                        </div>
-                        <div class="w-full md:w-1/2">
-                            <InputLabel for="name" value="Discount Price" />
-                            <TextInput
-                                class="block w-full"
-                                v-model="form.discount_price"
-                                required
-                                min="0"
-                            />
-                            <InputError class="mt-2" :message="form.errors.discount_price" />
-
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-5 shadow card bg-base-100">
-                <div class="card-body">
-                    <h2 class="mb-2 text-sm card-title grow">
-                        <span class="uppercase">Manage Stocks</span>
-                    </h2>
-                    <div>
-                        <InputLabel for="name" value="Barcode" />
-                            <TextInput
-                                type="text"
-                                class="block w-full"
-                                v-model="form.barcode"
-                                required
-                                placeholder="Enter barcode"
-                            />
-                            <InputError class="mt-2" :message="form.errors.barcode" />
-                    </div>
-                    <div class="flex flex-col gap-5 md:flex-row">
-                        <div class="w-full md:w-1/2">
-                            <InputLabel for="phone" value="Stock Keeping Unit (optional)" />
-                            <TextInput
-                                type="text"
-                                class="block w-full"
-                                v-model="form.sku"
-                                placeholder="Enter SKU"
-                            />
-                            <InputError class="mt-2" :message="form.errors.sku" />
-                        </div>
-                        <div class="w-full md:w-1/2">
-                            <InputLabel for="name" value="Minimum Stocks (alert level)" />
-                        <select v-model="form.min_quantity" class="w-full select select-bordered">
-                            <option>5</option>
-                            <option>10</option>
-                            <option>20</option>
-                            <option>50</option>
-                            <option>100</option>
-                        </select>
-                        <InputError class="mt-2" :message="form.errors.min_quantity" />
-                        </div>
-                        </div>
-                    <div class="flex flex-col gap-5 md:flex-row">
-
-                        <div class="w-full md:w-1/2">
-                            <InputLabel for="phone" value="In Warehouse" />
-                            <NumberInput
-                                class="block w-full"
-                                v-model="form.in_warehouse"
-                                placeholder="Enter quantity"
-                            />
-                            <InputError class="mt-2" :message="form.errors.in_warehouse" />
-                        </div>
-                        <div class="w-full md:w-1/2">
-                            <InputLabel for="name" value="In Store" />
-                            <NumberInput
-                                step="0.01"
-                                min="0"
-                                class="block w-full"
-                                v-model="form.in_store"
-                                placeholder="Enter quantity"
-                            />
-                            <InputError class="mt-2" :message="form.errors.in_store" />
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-
-        <div class="w-full md:w-1/3">
-            <div class="shadow card bg-base-100">
-                <div class="card-body grow-0 ">
-                    <h2 class="mb-5 text-sm card-title grow">
-                        <span class="uppercase">Product Image</span>
-                    </h2>
-                    <div class="flex relative mb-5.5 w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5 justify-center">
-                        <input type="file" @input="form.image = $event.target.files[0]" accept="image/*" class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer" @change="onFileChange">
-
-                        <ImagePreview v-model="image_preview" />
-                    </div>
-                    <progress v-if="form.progress" :value="form.progress.percentage" class="progress" max="100">
-                            {{ form.progress.percentage }}%
-                        </progress>
-                </div>
-            </div>
-
-            <div class="mt-5 shadow card bg-base-100">
-                <div class="card-body">
-                    <h2 class="mb-2 text-sm card-title grow">
-                        <span class="uppercase">Product Status</span>
-                    </h2>
-
-                    <div>
-                        <InputLabel for="phone" value="Product Visibility" />
-                        <div class="w-full px-4 py-3 my-2 text-sm border rounded-lg">
-                                {{ form.visible }}
-                            </div>
-                        <div class="flex flex-row items-center gap-3 mt-3 form-control">
-                            <input type="checkbox" id="hide" v-model="isHide" class="checkbox checkbox-sm" />
-                            <label for="hide">Hide this product</label>
-                        </div>
-                        <InputError class="mt-2" :message="form.errors.phone" />
-
-                    </div>
-
-
-                </div>
-            </div>
-        </div>
-
-     </div>
     </form>
 
     <Modal :show="createUnitModal" @close="closeModal">

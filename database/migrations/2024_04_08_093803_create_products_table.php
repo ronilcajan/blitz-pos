@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('unit')->nullable();
             $table->string('product_type')->default('sellable');
             $table->string('brand')->nullable();
-            $table->string('manufacturer')->nullable();
             $table->string('image')->nullable();
             $table->string('visible')->default('published');
             $table->timestamp('expiration_date')->nullable();

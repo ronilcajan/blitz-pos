@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductFormRequest;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductImage;
 use App\Models\ProductUnit;
 use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Support\Number;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 
@@ -27,7 +29,7 @@ class ProductController extends Controller
         : 10;
 
         $products = Product::query()
-            ->with(['store', 'price', 'stock','category'])
+            ->with(['store', 'price', 'stock','category','images'])
             ->orderBy('name', 'ASC')
             ->filter(request(['search','store','category','type']))
             ->paginate($perPage)
@@ -41,11 +43,10 @@ class ProductController extends Controller
                     'size' => $product->size,
                     'dimension' => $product->dimension,
                     'unit' => $product->unit,
-                    'product_type' => $product->product_type,
+                    'usage_type' => $product->usage_type,
                     'brand' => $product->brand,
-                    'manufacturer' => $product->manufacturer,
                     'description' => $product->description,
-                    'image' => $product?->image ?? asset('product.png'),
+                    'image' => $product?->images[0]->image ?? asset('product.png'),
                     'visible' => $product->visible === 'published',
                     'store' => $product->store->name,
                     'category' => $product->category?->name,
@@ -74,10 +75,7 @@ class ProductController extends Controller
         Gate::authorize('create', Product::class);
 
         return inertia('Product/Create', [
-            'title' => "Add New Product",
-            // 'barcode' =>  $data,
-            'stores' => Store::select('id', 'name')
-                ->orderBy('name', 'ASC')->get(),
+            'title' => "Add a Product",
             'units' => ProductUnit::select('id','name')
                 ->orderBy('name', 'ASC')->get(),
             'categories' => ProductCategory::select('id','name')
@@ -101,53 +99,75 @@ class ProductController extends Controller
             'color' => $request->color,
             'dimension' => $request->dimension,
             'unit' => $request->unit,
-            'product_type' => $request->product_type,
+            'usage_type' => $request->usage_type,
             'brand' => $request->brand,
-            'manufacturer' => $request->manufacturer,
             'description' => $request->description,
             'product_category_id' => $request->product_category_id,
             'store_id' => $request->store_id ?? auth()->user()->store_id,
         ];
 
-        if($request->hasFile('image')){
-            $image = $request->file('image')->store('products','public');
-            $productAttributes['image'] = asset('storage/'. $image);
+        DB::beginTransaction();
+
+        try {
+            $product = Product::create($productAttributes);
+
+            if($request->hasFile('image')){
+                $productImages = [];
+
+                foreach($request->file('image') as $image){
+                    $path = $image->store('products', 'public');
+
+                    $productImages[] = [
+                        'image' => asset('storage/' . $path),
+                        'product_id' => $product->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+
+                ProductImage::insert($productImages);
+            }
+
+            // calculate price if base_price is only set
+            $discounted_price = 0;
+            $sale_price = $request->base_price + $request->markup_price;
+
+            if($request->flat_percentage == 'flat'){
+                $discounted_price = $sale_price - $request->discount;
+            }else{
+                $discount = $sale_price * ($request->discount/100);
+                $discounted_price = $sale_price - $discount;
+            }
+
+            $productPriceAttributes = [
+                'base_price' => $request->base_price,
+                'markup_price' => $request->markup_price,
+                'sale_price' => $request->sale_price,
+                'discount' => $request->discount,
+                'flat_percentage' => $request->flat_percentage ?? 'flat',
+                'discount_price' => $request->discount_price ?? $discounted_price,
+                'product_id' => $product->id
+            ];
+
+            $productStocksAttributes = [
+                'sku' => $request->sku,
+                'min_quantity' => $request->min_quantity,
+                'in_store' => $request->in_store,
+                'in_warehouse' => $request->in_warehouse,
+                'product_id' => $product->id
+            ];
+
+            // Update or create price attributes
+            $product->price()->updateOrCreate([], $productPriceAttributes);
+            // Update or create stock attributes
+            $product->stock()->updateOrCreate([], $productStocksAttributes);
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            //throw $th;
+            return redirect()->back()->with('error', $th->getMessage());
         }
-        $product = Product::create($productAttributes);
-
-        // calculate price if base_price is only set
-        $discounted_price = 0;
-        $sale_price = $request->base_price + $request->markup_price;
-
-        if($request->manual_percentage == 'manual'){
-            $discounted_price = $sale_price - $request->discount;
-        }else{
-            $discount = $sale_price * ($request->discount/100);
-            $discounted_price = $sale_price - $discount;
-        }
-
-        $productPriceAttributes = [
-            'base_price' => $request->base_price,
-            'markup_price' => $request->markup_price,
-            'sale_price' => $request->sale_price,
-            'discount' => $request->discount,
-            'manual_percentage' => $request->manual_percentage ?? 'manual',
-            'discount_price' => $request->discount_price ?? $discounted_price,
-            'product_id' => $product->id
-        ];
-
-        $productStocksAttributes = [
-            'sku' => $request->sku,
-            'min_quantity' => $request->min_quantity,
-            'in_store' => $request->in_store,
-            'in_warehouse' => $request->in_warehouse,
-            'product_id' => $product->id
-        ];
-
-        // Update or create price attributes
-        $product->price()->updateOrCreate([], $productPriceAttributes);
-        // Update or create stock attributes
-        $product->stock()->updateOrCreate([], $productStocksAttributes);
 
         return redirect()->back();
     }

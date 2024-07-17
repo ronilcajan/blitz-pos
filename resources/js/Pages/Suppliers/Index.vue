@@ -110,16 +110,16 @@ const submitImportProducts = () => {
     <Head :title="title" />
 
     <TitleContainer :title="title">
-        <CreateBtn href="suppliers/create" v-if="supplierDataLength !== 0">New supplier</CreateBtn>
-
-        <ActionDropdown
-            :dataIds="supplierIds"
-            :exportPDFRoute="route('suppliers.export_pdf')"
-            :exportExcelRoute="route('suppliers.export_excel')"
-            :withImportBtn="true"
-            @open-import-modal="importModal = true"
-            @delete-all-selected="deleteAllSelectedModal = true"/>
-
+        <div v-if="supplierDataLength !== 0">
+            <CreateBtn href="suppliers/create" >New supplier</CreateBtn>
+            <ActionDropdown
+                :dataIds="supplierIds"
+                :exportPDFRoute="route('suppliers.export_pdf')"
+                :exportExcelRoute="route('suppliers.export_excel')"
+                :withImportBtn="true"
+                @open-import-modal="importModal = true"
+                @delete-all-selected="deleteAllSelectedModal = true"/>
+        </div>
     </TitleContainer>
 
     <EmptyContainer :title="title" v-if="supplierDataLength === 0">

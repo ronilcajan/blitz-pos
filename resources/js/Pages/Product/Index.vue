@@ -124,10 +124,20 @@ const submitBulkDeleteForm = () => {
     })
 }
 
+watch(category, value => {
+    const newQuery = { ...route().params, category: value };
+    router.visit('/products', {
+        method: 'get',
+        data: newQuery,
+        preserveState: true,
+        replace: true,
+    });
+});
+
 const appliedFilters = [
     { title: 'category', value: category },
     { title: 'search', value: search },
-    { title: 'product type', value: type },
+    { title: 'usage type', value: type },
 ]
 
 const clearFilters = (filter) => {
@@ -135,21 +145,21 @@ const clearFilters = (filter) => {
         category.value = '';
     } else if (filter.title == 'search') {
         search.value = '';
-    } else if (filter.title == 'product type') {
+    } else if (filter.title == 'usage type') {
         type.value = '';
     }
 }
 
 const product_types = [
-   { id: '1', name: 'Sellable',},
-   { id: '2', name: 'Consumable',},
+   { id: '1', name: 'sellable',},
+   { id: '2', name: 'internal_use',},
 
 ]
 </script>
 
 <template>
     <Head :title="title" />
-    
+
     <TitleContainer :title="title">
         <div class="flex items-center gap-2" v-if="productsDataLength > 0">
             <CreateBtn href="/products/create">New product</CreateBtn>
@@ -162,12 +172,12 @@ const product_types = [
                 @delete-all-selected="deleteAllSelectedModal = true"/>
 
         </div>
-        
+
     </TitleContainer>
 
     <EmptyContainer :title="title" v-if="productsDataLength == 0">
         <CreateBtn href="/products/create">New product</CreateBtn>
-    </EmptyContainer> 
+    </EmptyContainer>
 
     <div class="flex-grow" v-if="productsDataLength > 0">
         <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
@@ -175,9 +185,9 @@ const product_types = [
                 <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                     <div class="flex gap-2 flex-col sm:flex-row">
 
-                        <SelectDropdownFilter v-model="category" :url="url" :title="`category`" :options="product_categories" />
+                        <SelectDropdownFilter v-model="category" :url=" url" :title="`category`" :options="product_categories" />
 
-                        <SelectDropdownFilter v-model="type" :url="url" :title="`type`":options="product_types" />
+                        <SelectDropdownFilter v-model="type" :url=" url" :title="`type`":options="product_types" />
 
                     </div>
                     <div class="flex gap-2 flex-col sm:flex-row">
@@ -197,12 +207,11 @@ const product_types = [
                                 <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
                             </TableHead>
                             <TableHead>Name</TableHead>
-                            <TableHead>Size</TableHead>
-                            <TableHead>Brand</TableHead>
-                            <TableHead>Category</TableHead>
-                            <TableHead>Product Type</TableHead>
-                            <TableHead>Unit</TableHead>
                             <TableHead>Price</TableHead>
+                            <TableHead>Unit</TableHead>
+                            <TableHead>Category</TableHead>
+                            <TableHead>Size</TableHead>
+                            <TableHead>Usage Type</TableHead>
                             <TableHead>Visible</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -224,15 +233,15 @@ const product_types = [
                                     </div>
                                 </div>
                             </TableCell>
-                            <TableCell>{{ product.size }}</TableCell>
-                            <TableCell>{{ product.brand }}</TableCell>
-                            <TableCell>{{ product.category }}</TableCell>
-                            <TableCell>
-                                <div class="badge" :class="product.product_type === 'sellable' ? 'badge-primary' : 'badge-neutral'">
-                                    {{ product.product_type }}</div>
-                            </TableCell>
-                            <TableCell>{{ product.unit }}</TableCell>
                             <TableCell>{{ product.price }}</TableCell>
+                            <TableCell>{{ product.unit }}</TableCell>
+                            <TableCell>{{ product.category }}</TableCell>
+
+                            <TableCell>{{ product.size }}</TableCell>
+                            <TableCell>
+                                <div class="badge badge-sm" :class="product.usage_type === 'sellable' ? 'badge-primary' : 'badge-neutral'">
+                                    {{ product.usage_type }}</div>
+                            </TableCell>
                             <TableCell>
                                 <input @change="isVisible(product.id, $event.target)" type="checkbox" class="toggle toggle-sm toggle-success" :checked="product.visible" />
                             </TableCell>

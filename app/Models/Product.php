@@ -42,6 +42,11 @@ class Product extends Model
         return $this->hasOne(ProductPrice::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
     public function stocks(): HasMany
     {
         return $this->hasMany(ProductSupplier::class);
@@ -55,11 +60,7 @@ class Product extends Model
                 'name',
                 'barcode',
                 'size',
-                'dimension',
-                'brand',
-                'product_type',
-                'manufacturer',
-                'description',
+                'usage_type',
                 ], 'LIKE', "%{$search}%")
             ->orWhereHas('store', function($q) use ($search){
                 $q->where('name', $search);
@@ -77,7 +78,7 @@ class Product extends Model
         if(!empty($filter['type'])){
             $type = $filter['type'];
             if($type != 'all'){
-                $query->where('product_type', $type);
+                $query->where('usage_type', strtolower($type));
             }
         }
 

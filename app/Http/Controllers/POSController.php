@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\TransactionCodeGenerator;
 use App\Http\Requests\StoreSaleRequest;
 use App\Models\Customer;
 use App\Models\Product;
@@ -27,7 +26,7 @@ class POSController extends Controller
             ->with(['price','stock','category'])
             ->orderBy('name', 'ASC')
             ->where('visible','published')
-            ->where('product_type','sellable')
+            ->where('usage_type','sellable')
             ->whereHas('stock', function($q){
                 $q->where('in_store','>',0)
                     ->orWhere('in_warehouse','>',0);
