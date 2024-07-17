@@ -1,6 +1,6 @@
 <script setup>
 import { router } from '@inertiajs/vue3'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
@@ -25,6 +25,8 @@ const props = defineProps({
     stock_alert: Object
 })
 
+
+
 const bar_data = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
     datasets: [
@@ -39,9 +41,7 @@ const bar_data = {
             data: props.sales_previous_year
         }
     ],
-    chartOptions: {
-        responsive: true
-    }
+    
 }
 
 const doughnut_data = {
@@ -53,6 +53,27 @@ const doughnut_data = {
         }
     ]
 }
+const chartOptions = {
+        responsive: true
+}
+
+
+const computed_sales_previous_year = computed(() => {
+    return props.sales_previous_year
+})
+
+const refreshBarChart = () => {
+    router.reload({ only: ['sales_current_year', 'sales_previous_year']})
+}
+
+const computed_bar_data = computed(() => {
+    return bar_data
+})
+
+const selected_month = '';
+watch(selected_month, () => {
+    refreshBarChart()
+})
 </script>
 
 <template>
@@ -152,10 +173,16 @@ const doughnut_data = {
         <div class="w-full md:w-2/3">
             <div class="mt-5 shadow card bg-base-100">
                 <div class="card-body">
-                    <h2 class="font-bold">Sales Overview</h2>
+                    <div class="flex justify-between items-center">
+                        <h2 class="font-bold">Sales Overview</h2>
+                        <div>
+                        </div>
+                        
+                    </div>
+                   
                     <p class="text-xs">This chart represents the total sales from January to December for the current
                         year and previous year.</p>
-                    <Bar :data="bar_data" />
+                    <Bar :data="computed_bar_data" :options="chartOptions" />
                 </div>
             </div>
         </div>

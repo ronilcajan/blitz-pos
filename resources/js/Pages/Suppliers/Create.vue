@@ -3,9 +3,6 @@ import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-import CancelButton from '@/Components/CancelButton.vue';
-import CreateButtonLink from '@/Components/CreateButtonLink.vue';
-import SaveButton from '@/Components/SaveButton.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 const page = usePage()
@@ -54,13 +51,13 @@ const onFileChange = (e) => {
 
 <template>
     <Head :title="title" />
-    <form @submit.prevent="submitCreateForm">
+    <form class="flex-grow" @submit.prevent="submitCreateForm">
     
         <TitleContainer :title="title">
-            <CancelButton href="/suppliers"/>
-            <SaveButton v-model="form" />
+            <CancelButton href="/suppliers" >Cancel</CancelButton>
+            <CreateSubmitBtn v-model="form">Create supplier</CreateSubmitBtn>
         </TitleContainer>
-   
+
         <div class="flex gap-5 flex-col md:flex-row">
             <div class="w-full sm:w-2/3">
                 <div class="card bg-base-100 shadow">
@@ -129,8 +126,6 @@ const onFileChange = (e) => {
                             </select>
                             <InputError class="mt-2" :message="form.errors.store_id" />
                         </div>
-
-
                         <div >
                             <InputLabel value="Address" />
                             <textarea v-model="form.address" class="textarea w-full textarea-bordered" placeholder="Address"></textarea>
@@ -143,7 +138,7 @@ const onFileChange = (e) => {
                 <div class="card bg-base-100 shadow">
                     <div class="card-body grow-0 ">
                         <h2 class="card-title grow text-sm mb-5">
-                            <span class="uppercase">Supplier Photo</span>
+                            <span class="uppercase">Supplier Logo</span>
                         </h2>
                         <div class="flex relative mb-5.5 w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5 justify-center">
                             <input type="file" @input="form.logo = $event.target.files[0]" accept="image/*" class="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none" @change="onFileChange">

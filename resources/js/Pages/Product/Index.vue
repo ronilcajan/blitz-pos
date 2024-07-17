@@ -1,10 +1,8 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-import StatusFilter from './partials/StatusFilter.vue';
-import ActionDropdown from './partials/ActionDropdown.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -18,10 +16,10 @@ const props = defineProps({
 
 const page = usePage();
 let search = ref(props.filter.search);
-let store = ref('');
 let category = ref('');
 let type = ref('');
 const url = '/products';
+const productsDataLength = props.products.data.length;
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -33,13 +31,6 @@ let selectAllCheckbox = ref(false);
 const importForm = useForm({import_file: ''});
 const deleteForm = useForm({id: ''});
 const deleteSelectedForm = useForm({products_id: []});
-
-const isSuperAdmin = page.props.auth.user.isSuperAdmin
-const canDelete = page.props.auth.user.canDelete
-
-const showRefresh = computed(() => {
-    return store.value !== '' || category.value !== '' || type.value !== '';
-})
 
 const deleteProductForm = (product_id) => {
 	deleteModal.value = true;
@@ -117,7 +108,6 @@ const submitBulkDeleteForm = () => {
     deleteSelectedForm.products_id = productIds.value
     deleteSelectedForm.post(route('products.bulkDelete'),
     {
-        forceFormData: true,
         replace: true,
         preserveScroll: true,
         onSuccess: () => {
@@ -134,166 +124,143 @@ const submitBulkDeleteForm = () => {
     })
 }
 
-watch(category, value => {
-    const newQuery = { ...route().params, category: value };
-    router.visit('/products', {
-        method: 'get',
-        data: newQuery,
-        preserveState: true,
-        replace: true,
-    });
-});
+const appliedFilters = [
+    { title: 'category', value: category },
+    { title: 'search', value: search },
+    { title: 'product type', value: type },
+]
 
+const clearFilters = (filter) => {
+    if (filter.title == 'category') {
+        category.value = '';
+    } else if (filter.title == 'search') {
+        search.value = '';
+    } else if (filter.title == 'product type') {
+        type.value = '';
+    }
+}
+
+const product_types = [
+   { id: '1', name: 'Sellable',},
+   { id: '2', name: 'Consumable',},
+
+]
 </script>
 
 <template>
     <Head :title="title" />
-    <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
-        <CreateButtonLink href="/products/create">New product</CreateButtonLink>
+    
+    <TitleContainer :title="title">
+        <div class="flex items-center gap-2" v-if="productsDataLength > 0">
+            <CreateBtn href="/products/create">New product</CreateBtn>
+            <ActionDropdown
+                :dataIds="productIds"
+                :exportPDFRoute="route('products.export_pdf')"
+                :exportExcelRoute="route('products.export_excel')"
+                :withImportBtn="true"
+                @open-import-modal="importModal = true"
+                @delete-all-selected="deleteAllSelectedModal = true"/>
 
-        <ActionDropdown
-            :productIds="productIds"
-            :exportExcelRoute="route('products.export_excel')"
-            :exportPDFRoute="route('products.export_pdf')"
-            @open-import-modal="importModal = true"
-            @delete-all-selected="deleteAllSelectedModal = true"
-        />
+        </div>
+        
+    </TitleContainer>
 
-        <StatusFilter v-model="type" />
+    <EmptyContainer :title="title" v-if="productsDataLength == 0">
+        <CreateBtn href="/products/create">New product</CreateBtn>
+    </EmptyContainer> 
 
-    </div>
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
-        <div class="card-body grow-0">
-            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
-                <div class="flex gap-2 flex-col sm:flex-row">
-                    <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
-                    <div class="w-full">
-                        <select v-model="category" class="select select-bordered select-sm w-full">
-                            <option selected value="">Filter by categories</option>
-                            <option v-for="category in product_categories" :value="category.name" :key="category.id">
-                                {{ category.name }}
-                            </option>
-                        </select>
+    <div class="flex-grow" v-if="productsDataLength > 0">
+        <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
+            <div class="card-body grow-0">
+                <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
+                    <div class="flex gap-2 flex-col sm:flex-row">
+
+                        <SelectDropdownFilter v-model="category" :url="url" :title="`category`" :options="product_categories" />
+
+                        <SelectDropdownFilter v-model="type" :url="url" :title="`type`":options="product_types" />
+
+                    </div>
+                    <div class="flex gap-2 flex-col sm:flex-row">
+                        <div class="w-full">
+                            <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
+                        </div>
                     </div>
                 </div>
-                <div class="flex gap-2 flex-col sm:flex-row">
-                    <div class="w-full">
-                        <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
-                    </div>
-                </div>
+                <ClearFilters :filters="appliedFilters" @clear-filters="clearFilters" />
             </div>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="table table-zebra">
-                <thead class="uppercase">
-                    <tr>
-                        <th v-if="canDelete">
-                            <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
-                        </th>
-                        <th>
-                            <div class="font-bold">Name</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Size</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Brand</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Category</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Product Type</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Unit</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Price</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Visible</div>
-                        </th>
-                        <th class="hidden sm:table-cell" v-show="isSuperAdmin">
-                            <div class="font-bold">Store</div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="product in products.data" :key="product.id">
-                        <td class="w-0" v-if="canDelete">
-                            <input :value="product.id" v-model="productIds" type="checkbox" class="checkbox checkbox-sm">
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <div class="avatar placeholder" v-show="!product.image">
-                                    <div class="w-10 bg-neutral text-neutral-content rounded-full">
-                                        <span class="text-xl">{{ product.name[0] }}</span>
-                                    </div>
-                                </div>
-                                <div class="avatar" v-show="product.image">
-                                    <div class="mask mask-squircle h-10 w-10">
-                                        <img :src="product.image" alt="logo">
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="flex text-sm font-bold gap-2">
-                                        {{ product.name }}
-                                    </div>
-                                    <div class="text-xs opacity-50">
-                                        {{ product.barcode }}
-                                    </div>
-                                    <div class="sm:hidden">
-                                        <div class="text-xs opacity-50">{{ product.phone }}</div>
-                                        <div class="text-xs opacity-50">{{ product.address }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="hidden sm:table-cell">
-                            {{ product.size }}</td>
-                        <td class="hidden sm:table-cell">
-                            {{ product.brand }}</td>
-                        <td class="hidden sm:table-cell">
-                                {{ product.category }}
-                        </td>
-                        <td class="hidden sm:table-cell">
-                            <div class="badge" :class="product.product_type === 'sellable' ? 'badge-primary' : 'badge-neutral'">
-                                {{ product.product_type }}</div>
-                        </td>
-                        <td class="hidden sm:table-cell">
-                            {{ product.unit }}</td>
-                        <td class="hidden sm:table-cell">
-                            {{ product.price }}</td>
-                        <td class="hidden sm:table-cell">
-                            <input @change="isVisible(product.id, $event.target)" type="checkbox" class="toggle toggle-sm toggle-success" :checked="product.visible" />
-                        </td>
-                        <td class="hidden sm:table-cell" v-show="isSuperAdmin">
-                            {{ product.store }}</td>
-                        <td>
-                            <div class="flex items-center space-x-2 justify-center">
-                                <EditIconBtn :href="`/products/${product.id}/edit`"/>
-                                <DeleteIcon @modal-show="deleteProductForm(product.id)" />
-                            </div>
-                        </td>
-                    </tr>
-                    <tr v-if="products.data.length  <= 0">
-                        <td colspan="12" class="text-center">
-                            No data found
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
 
+            <Table>
+                <template #table-header>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead v-if="$page.props.auth.user.canDelete">
+                                <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
+                            </TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Size</TableHead>
+                            <TableHead>Brand</TableHead>
+                            <TableHead>Category</TableHead>
+                            <TableHead>Product Type</TableHead>
+                            <TableHead>Unit</TableHead>
+                            <TableHead>Price</TableHead>
+                            <TableHead>Visible</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                </template>
+                <template #table-body>
+                    <TableBody>
+                        <TableRow v-for="product in products.data" :key="product.id">
+                            <TableCell v-if="$page.props.auth.user.canDelete">
+                                <input :value="product.id" v-model="productIds" type="checkbox" class="checkbox checkbox-sm">
+                            </TableCell>
+                            <TableCell>
+                                <div class="flex items-center gap-2">
+                                    <Avatar :src="product.image" />
+                                    <div class="flex flex-col">
+                                        {{ product.name }}
+                                        <p class="text-xs opacity-50">
+                                            {{ product.barcode }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </TableCell>
+                            <TableCell>{{ product.size }}</TableCell>
+                            <TableCell>{{ product.brand }}</TableCell>
+                            <TableCell>{{ product.category }}</TableCell>
+                            <TableCell>
+                                <div class="badge" :class="product.product_type === 'sellable' ? 'badge-primary' : 'badge-neutral'">
+                                    {{ product.product_type }}</div>
+                            </TableCell>
+                            <TableCell>{{ product.unit }}</TableCell>
+                            <TableCell>{{ product.price }}</TableCell>
+                            <TableCell>
+                                <input @change="isVisible(product.id, $event.target)" type="checkbox" class="toggle toggle-sm toggle-success" :checked="product.visible" />
+                            </TableCell>
+                            <TableCell>
+                                <div class="flex items-center gap-2">
+                                    <EditIconBtn :href="`/products/${product.id}/edit`"/>
+                                    <DeleteIcon @modal-show="deleteProductForm(product.id)"/>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow v-if="products.data == 0">
+                            <TableCell :colspan="10" class="text-center">
+                                No {{ title.toLocaleLowerCase() }} found!
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </template>
+            </Table>
+
+        </section>
+        <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+            <PaginationResultRange :data="products" />
+            <PaginationControlList :url="url" />
+            <Pagination :links="products.links" />
         </div>
-    </section>
-    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <PaginationResultRange :data="products" />
-        <PaginationControlList :url="url" />
-        <Pagination :links="products.links" />
     </div>
     <!-- delete modal -->
-    <Modal :show="deleteModal" @close="closeModal">
+    <Modal :show="deleteModal" @close="deleteModal = false">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
                 Delete products
@@ -302,7 +269,7 @@ watch(category, value => {
             <form method="dialog" class="w-full" @submit.prevent="submitDeleteForm">
 
                 <div class="mt-6 flex justify-end">
-                    <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
+                    <SecondaryButton class="btn" @click="deleteModal = false">Cancel</SecondaryButton>
                     <DangerButton
                         class="ms-3"
                         :class="{ 'opacity-25': deleteForm.processing }"

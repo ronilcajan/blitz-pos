@@ -45,7 +45,7 @@ const impersonating = computed(() =>
 
                 <slot />
 
-                <footer class="w-full p-4 mt-20 footer footer-center">
+                <footer class="w-full p-4 footer footer-center">
                     <aside>
                         <p class="text-center">Copyright © 2024 - All rights reserved by {{ $page.props.app_name }}</p>
                     </aside>

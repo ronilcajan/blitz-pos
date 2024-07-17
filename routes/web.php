@@ -11,6 +11,7 @@ use App\Http\Controllers\ExpensesCategoryController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ExportProductController;
 use App\Http\Controllers\ExportSaleController;
+use App\Http\Controllers\ExportSupplierController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImpersonateController;
@@ -121,6 +122,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('/suppliers', SupplierController::class);
     Route::post('/suppliers/update', [SupplierController::class, 'update']);
     Route::post('/suppliers/bulk/delete', [SupplierController::class, 'bulkDelete'])->name('suppliers.bulkDelete');
+    Route::get('/export/suppliers/excel', [ExportSupplierController::class, 'export_excel'])->name('suppliers.export_excel');
+    Route::get('/export/suppliers/pdf', [ExportSupplierController::class, 'export_pdf'])->name('suppliers.export_pdf');
+    Route::get('/export/suppliers/template', [ExportSupplierController::class, 'export_template'])->name('suppliers.donwloadTemplate');
+    Route::post('/import/suppliers', [SupplierController::class, 'import'])->name('suppliers.import');
 
     Route::get('/stores/{store}', [StoreController::class, 'show'])->name('store.show');
     Route::post('/stores/update', [StoreController::class, 'update'])->name('store.update');

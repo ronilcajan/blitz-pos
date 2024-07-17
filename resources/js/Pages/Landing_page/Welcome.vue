@@ -1,7 +1,7 @@
 <script setup>
 import { reactive } from 'vue'
 
-import GuestLayout from '@/Layouts/GuestLayout1.vue';
+import GuestLayout from '@/Layouts/GuestLayout.vue';
 import Hero from './partials/Hero.vue';
 import Feature from './partials/Feature.vue';
 import About from './partials/About.vue';

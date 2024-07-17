@@ -154,7 +154,13 @@ const onFileChange = (e) => {
 
 <template>
     <Head :title="title" />
-    <form @submit.prevent="submitCreateForm" class="w-full">
+    <form class="flex-grow" @submit.prevent="submitCreateForm">
+    <TitleContainer :title="title">
+            <CancelButton href="/products" >Cancel</CancelButton>
+            <CreateSubmitBtn v-model="form">Create products</CreateSubmitBtn>
+        </TitleContainer>
+
+   
     <div class="flex flex-col gap-5 md:flex-row">
 
         <div class="w-full md:w-2/3">
@@ -164,22 +170,6 @@ const onFileChange = (e) => {
                         <h2 class="mb-5 text-sm card-title grow">
                             <span class="uppercase">General Information</span>
                         </h2>
-                        <div class="flex flex-col justify-end gap-3 md:flex-row">
-                            <NavLink href="/products" class="btn btn-sm">
-                                <svg class="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
-                                </svg>
-                                Cancel</NavLink>
-                            <PrimaryButton type="submit"
-                                class="btn btn-sm"
-                                :class="{ 'opacity-25': form.processing }"
-                                :disabled="form.processing"
-                            >
-                                <span v-if="form.processing" class="loading loading-spinner"></span>
-                                Create Product
-                            </PrimaryButton>
-                        </div>
-
                     </div>
 
 

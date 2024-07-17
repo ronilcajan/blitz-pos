@@ -1,5 +1,5 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout1.vue';
+import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { reactive, onMounted, ref, computed } from 'vue';
 import { useToast } from 'vue-toast-notification';

@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SupplierRequestForm;
+use App\Imports\ImportSupplier;
 use App\Models\Store;
 use App\Models\Supplier;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SupplierController extends Controller
 {
@@ -41,7 +45,6 @@ class SupplierController extends Controller
                     'address' => $supplier->address,
                     'logo' => $supplier->logo,
                     'store' => $supplier->store?->name,
-                    'created_at' => $supplier->created_at->format('M d, Y h:i: A'),
                 ];
         });
 
@@ -137,6 +140,21 @@ class SupplierController extends Controller
         $supplier->update($validate);
 
         return redirect()->back();
+    }
+
+
+    public function import(Request $request)
+    {
+        try {
+            Excel::import(new ImportSupplier, $request->file('import_file')->store('temp'));
+
+            return redirect()->back();
+        }
+         catch (Exception $e) {
+            Log::error('Error recording supploer: ' .$e->getMessage());
+
+            return redirect()->back()->withErrors(['error' => 'An error occurred while importing the products. Please try again.'.$e->getMessage()]);
+         }
     }
 
     /**

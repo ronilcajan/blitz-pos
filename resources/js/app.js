@@ -51,6 +51,14 @@ import TableRow from '@/Components/TableRow.vue';
 import TableCell from '@/Components/TableCell.vue';
 import Avatar from '@/Components/Avatar.vue';
 import EmptyContainer from '@/Components/EmptyContainer.vue';
+import SaveAlert from '@/Components/SaveAlert.vue';
+import CreateBtn from '@/Components/CreateBtn.vue';
+import CreateSubmitBtn from '@/Components/CreateSubmitBtn.vue';
+import SaveSubmitBtn from '@/Components/SaveSubmitBtn.vue';
+import ActionDropdown from '@/Components/ActionDropdown.vue';
+import DateRangeFilter from '@/Components/DateRangeFilter.vue';
+import ClearFilters from '@/Components/ClearFilters.vue';
+import SelectDropdownFilter from '@/Components/SelectDropdownFilter.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -61,14 +69,14 @@ createInertiaApp({
 
         const app = createApp({ render: () => h(App, props) });
 
-        // app.config.warnHandler = function (msg, vm, trace) {
-        //     // Ignore specific warnings
-        //     if (msg.includes('Extraneous non-props attributes')) {
-        //         return;
-        //     }
-        //     // Log other warnings to the console
-        //     console.warn(`[Vue warn]: ${msg}${trace}`);
-        // };
+        app.config.warnHandler = function (msg, vm, trace) {
+            // Ignore specific warnings
+            if (msg.includes('Extraneous non-props attributes')) {
+                return;
+            }
+            // Log other warnings to the console
+            console.warn(`[Vue warn]: ${msg}${trace}`);
+        };
 
         return app.use(plugin)
             .use(ZiggyVue)
@@ -118,6 +126,14 @@ createInertiaApp({
             .component('TableCell', TableCell)
             .component('Avatar', Avatar)
             .component('EmptyContainer', EmptyContainer)
+            .component('SaveAlert', SaveAlert)
+            .component('CreateBtn', CreateBtn)
+            .component('CreateSubmitBtn', CreateSubmitBtn)
+            .component('SaveSubmitBtn', SaveSubmitBtn)
+            .component('ActionDropdown', ActionDropdown)
+            .component('DateRangeFilter', DateRangeFilter)
+            .component('ClearFilters', ClearFilters)
+            .component('SelectDropdownFilter', SelectDropdownFilter)
 
             .mount(el);
     },
