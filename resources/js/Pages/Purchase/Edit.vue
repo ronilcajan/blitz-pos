@@ -195,8 +195,6 @@ const submitPurchaseForm = () => {
 			});
 		},
 	})
-
-    purchases = [];
 }
 onMounted(() => {
     discount.value = parseFloat(props.purchase.discount);

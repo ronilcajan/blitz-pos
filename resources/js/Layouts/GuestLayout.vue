@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { usePage } from '@inertiajs/vue3'
-import Header from '@/Pages/Landing_page/partials/Header.vue';
+import HeaderBar from '@/Pages/Landing_page/partials/Header.vue';
 import Footer from '@/Pages/Landing_page/partials/Footer.vue';
 import BackToTopButton from '@/Pages/Landing_page/partials/BackToTopButton.vue';
 
@@ -129,7 +129,7 @@ onMounted(() => {
 <template>
     <div data-theme="light">
 
-        <Header />
+        <HeaderBar />
 
 
         <slot />

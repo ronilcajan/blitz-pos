@@ -20,10 +20,6 @@ class RegisteredUserController extends Controller
      */
     public function create(string $plan)
     {
-
-        if(auth()->check()){
-            return redirect('/dashboard')->with('message', 'Please use the billing page to upgrade your plan.');    
-        }
         // for free plan
         $product = [
             'data' => [
@@ -62,7 +58,7 @@ class RegisteredUserController extends Controller
                 'Content-Type' => 'application/vnd.api+json',
                 'Authorization' => 'Bearer ' .$api_key
             ])->get('https://api.lemonsqueezy.com/v1/products/'.$plan);
-    
+
             $response_variant = Http::withHeaders([
                 'Accept' => 'application/vnd.api+json',
                 'Content-Type' => 'application/vnd.api+json',
@@ -74,7 +70,7 @@ class RegisteredUserController extends Controller
             $variants = $response_variant->json();
             $product = $response_product->json();
         }
-    
+
         return inertia('Auth/Register',[
             'title' => "Order Registration",
             'variants' => $variants,
@@ -109,24 +105,25 @@ class RegisteredUserController extends Controller
                 'country' => $request->country,
                 'timezone' => $request->timezone,
                 'currency' => $request->currency,
-                'country_code' => $request->country_code, 
+                'country_code' => $request->country_code,
             ];
 
             $store = Store::create($details);
-    
+
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'store_id' => $store->id,
+                'email_verified_at' => now(),
             ]);
 
             $user->addRole('owner');
 
             event(new Registered($user));
             Auth::login($user);
-            
-            DB::commit(); 
+
+            DB::commit();
 
             // for free plan
             if($request->product_id === 'free_plan'){

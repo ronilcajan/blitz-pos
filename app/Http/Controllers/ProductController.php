@@ -50,15 +50,13 @@ class ProductController extends Controller
                     'visible' => $product->visible === 'published',
                     'store' => $product->store->name,
                     'category' => $product->category?->name,
-                    'price' =>  $product->price?->discount_price ? Number::currency($product->price->discount_price, in: 'PHP') : null,
+                    'price' =>  $product->price?->sale_price ? Number::currency($product->price->sale_price, in: auth()->user()->store->currency) : null,
                 ];
         });
 
         return inertia('Product/Index', [
             'title' => 'Products',
             'products' => $products,
-            'stores' => Store::select('id', 'name')
-                ->orderBy('name','DESC')->get(),
             'product_categories' => ProductCategory::select('id', 'name')
                 ->orderBy('name','DESC')
                 ->get(),
@@ -102,6 +100,8 @@ class ProductController extends Controller
             'usage_type' => $request->usage_type,
             'brand' => $request->brand,
             'description' => $request->description,
+            'visible' => $request->visible,
+            'expiration_date' => $request->expiration_date,
             'product_category_id' => $request->product_category_id,
             'store_id' => $request->store_id ?? auth()->user()->store_id,
         ];
@@ -128,24 +128,14 @@ class ProductController extends Controller
                 ProductImage::insert($productImages);
             }
 
-            // calculate price if base_price is only set
-            $discounted_price = 0;
-            $sale_price = $request->base_price + $request->markup_price;
-
-            if($request->flat_percentage == 'flat'){
-                $discounted_price = $sale_price - $request->discount;
-            }else{
-                $discount = $sale_price * ($request->discount/100);
-                $discounted_price = $sale_price - $discount;
-            }
-
             $productPriceAttributes = [
                 'base_price' => $request->base_price,
                 'markup_price' => $request->markup_price,
+                'discount_rate' => $request->discount_rate,
+                'discount_type' => $request->discount_type,
+                'tax_rate' => $request->tax_rate,
+                'tax_type' => $request->discount_type,
                 'sale_price' => $request->sale_price,
-                'discount' => $request->discount,
-                'flat_percentage' => $request->flat_percentage ?? 'flat',
-                'discount_price' => $request->discount_price ?? $discounted_price,
                 'product_id' => $product->id
             ];
 
@@ -206,7 +196,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        $product = Product::with(['price','stock'])
+        $product = Product::with(['price','stock','images'])
             ->findOrFail($product->id);
 
         Gate::authorize('update', $product);
@@ -242,46 +232,73 @@ class ProductController extends Controller
             'color' => $request->color,
             'dimension' => $request->dimension,
             'unit' => $request->unit,
-            'product_type' => $request->product_type,
+            'usage_type' => $request->usage_type,
             'brand' => $request->brand,
-            'visible' => $request->visible,
-            'manufacturer' => $request->manufacturer,
             'description' => $request->description,
             'product_category_id' => $request->product_category_id,
+            'visible' => $request->visible,
+            'expiration_date' => $request->expiration_date,
             'store_id' => $request->store_id ?? auth()->user()->store_id,
         ];
 
-        if($request->hasFile('image')){
-            $image = $request->file('image')->store('products','public');
-            $productAttributes['image'] = asset('storage/'. $image);
+        DB::beginTransaction();
+
+        try {
+            $product->update($productAttributes);
+
+            if($request->hasFile('image')){
+                ProductImage::where('product_id', $product->id)->delete();
+
+                $productImages = [];
+
+                foreach($request->file('image') as $image){
+                    $path = $image->store('products', 'public');
+
+                    $productImages[] = [
+                        'image' => asset('storage/' . $path),
+                        'product_id' => $product->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+
+                ProductImage::insert($productImages);
+            }
+
+            $productPriceAttributes = [
+                'base_price' => $request->base_price,
+                'markup_price' => $request->markup_price,
+                'discount_rate' => $request->discount_rate,
+                'discount_type' => $request->discount_type,
+                'tax_rate' => $request->tax_rate,
+                'tax_type' => $request->discount_type,
+                'sale_price' => $request->sale_price,
+                'product_id' => $product->id
+            ];
+
+            $productStocksAttributes = [
+                'sku' => $request->sku,
+                'min_quantity' => $request->min_quantity,
+                'in_store' => $request->in_store,
+                'in_warehouse' => $request->in_warehouse,
+                'product_id' => $product->id
+            ];
+
+           // Update or create price attributes
+            $product->price()->updateOrCreate([], $productPriceAttributes);
+            // Update or create stock attributes
+            $product->stock()->updateOrCreate([], $productStocksAttributes);
+
+            DB::commit();
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            //throw $th;
+            return redirect()->back()->with('error', $th->getMessage());
         }
-        $product->update($productAttributes);
-
-        $productPriceAttributes = [
-            'base_price' => $request->base_price,
-            'markup_price' => $request->markup_price,
-            'sale_price' => $request->sale_price,
-            'discount' => $request->discount,
-            'manual_percentage' => $request->manual_percentage,
-            'discount_price' => $request->discount_price,
-            'product_id' => $product->id
-        ];
-
-        $productStocksAttributes = [
-            'sku' => $request->sku,
-            'min_quantity' => $request->min_quantity,
-            'in_store' => $request->in_store,
-            'in_warehouse' => $request->in_warehouse,
-            'product_id' => $product->id
-        ];
-
-       // Update or create price attributes
-        $product->price()->updateOrCreate([], $productPriceAttributes);
-        // Update or create stock attributes
-        $product->stock()->updateOrCreate([], $productStocksAttributes);
-
 
         return redirect()->back();
+
     }
 
     public function change_status(Product $product, Request $request)

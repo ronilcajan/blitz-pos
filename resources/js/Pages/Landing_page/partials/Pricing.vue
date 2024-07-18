@@ -16,8 +16,6 @@ const changePricing = () => {
     plansIsMonthly.value = !plansIsMonthly.value;
 }
 
-console.log(props.plans);
-
 </script>
 <template>
     <section id="pricing" class="
@@ -47,16 +45,16 @@ console.log(props.plans);
                         <div class="mt-10 flex justify-center ">
                             <label class="label cursor-pointer gap-3">
                                 <input type="checkbox" class="toggle toggle-primary"  @change="changePricing" />
-                                <span class="text-xl font-semibold">Pay annually and 
+                                <span class="text-xl font-semibold">Pay annually and
                                     <span class="text-primary relative">save up to 17%
-                                    
+
                                         <span class="absolute mt-6 right-4">
                                             <svg width="126" height="11" viewBox="0 0 126 11" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path fill-rule="evenodd" clip-rule="evenodd" d="M3.39429 7.30524L1.95739 6.94095C23.114 3.08745 69.9537 -3.24652 118.067 4.18479L125.206 7.15758C118.647 6.14449 111.958 5.38936 105.251 4.85001C63.9115 1.89605 23.1258 6.61143 5.3761 10.3878L0.000390253 10.333L3.33004 9.06123L2.83185 7.42404C3.01764 7.38451 3.20513 7.34491 3.39429 7.30524Z" fill="#335DFF"/>
                                             </svg>
 
                                         </span>
-                                    
+
                                     </span>
                                 </span>
                             </label>
@@ -76,7 +74,7 @@ console.log(props.plans);
                         <h2 class="font-semibold text-primary mb-9 text-[28px]">
                             0.00/mo
                         </h2>
-                        <div class="mb-10 mb-1 text-base font-medium leading-loose text-body-color">
+                        <div class="mb-10 text-base font-medium leading-loose text-body-color">
                             <p class="mb-1">
                                 1 User
                             </p>
@@ -103,7 +101,7 @@ console.log(props.plans);
                         </span>
                     </div>
                 </div>
-                <div class="w-full md:w-1/2 lg:w-1/3" v-for="(plan, index) in props.plans.data">
+                <div class="w-full md:w-1/2 lg:w-1/3" v-for="(plan, index) in plans.data" :key="index">
                     <div class="bg-primary bg-gradient-to-b from-primary to-[#179BEE] rounded-xl relative z-10 overflow-hidden shadow-pricing py-10 px-8 sm:p-12 lg:py-10 lg:px-6 xl:p-12 mb-10 text-center wow fadeInUp"
                         data-wow-delay=".1s" v-if="index === 0">
                         <span
@@ -152,11 +150,11 @@ console.log(props.plans);
                                 {{ plan.attributes.to_price_formatted }}/yr
                             </h2>
                             <span class="inline-block px-5 py-1 mb-5 text-xs font-medium text-white bg-primary rounded">
-                                save up to 
+                                save up to
                                 {{ ((plan.attributes.price/100) * 2).toFixed(2) }}
                             </span>
                         </div>
-                        
+
                         <div class="mb-10">
                             <p clas s="mb-10 mb-1 text-base font-medium leading-loose text-body-color" v-html="plan.attributes.description">
                             </p>

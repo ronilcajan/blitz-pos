@@ -16,7 +16,8 @@ class HomeController extends Controller
             'Accept' => 'application/vnd.api+json',
             'Content-Type' => 'application/vnd.api+json',
             'Authorization' => 'Bearer ' . env('LEMON_SQUEEZY_API_KEY')
-        ])->get('https://api.lemonsqueezy.com/v1/products');
+        ])->get('https://api.lemonsqueezy.com/v1/products?filter[store_id]=' . env('LEMON_SQUEEZY_STORE'));
+
 
         return inertia('Landing_page/Welcome', [
             'title' => "Home",

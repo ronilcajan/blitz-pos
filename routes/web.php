@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeliveryController;
@@ -44,13 +45,15 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleL
 Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
+
+
 Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:super-admin']], function() {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::resource('/stores', StoreController::class);
     Route::resource('/users', AdminUserController::class);
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'timeZone'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
 
@@ -92,6 +95,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/products/update', [ProductController::class, 'update']);
     Route::patch('/products/update/{product}/status', [ProductController::class, 'change_status'])->name('products.change_status');
     Route::post('/products/bulk/delete', [ProductController::class, 'bulkDelete'])->name('products.bulkDelete');
+
+    Route::post('/check-barcode', [BarcodeController::class, 'checkBarcode'])
+            ->name('product.check-barcode');
+    Route::post('/get-barcode', [BarcodeController::class, 'getProducts'])
+            ->name('product.get-products');
 
     Route::get('/export/products/', [ExportProductController::class, 'export_excel'])->name('products.export_excel');
     Route::get('/export/products/pdf', [ExportProductController::class, 'export_pdf'])->name('products.export_pdf');

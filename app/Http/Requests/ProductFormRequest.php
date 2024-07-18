@@ -28,11 +28,14 @@ class ProductFormRequest extends FormRequest
             'barcode' => 'sometimes:required',
             'unit' => 'required',
             'product_category_id' => 'required',
-            'base_price' => 'required',
-            'usage_type' => '',
+            'usage_type' => 'required',
             'markup_price' => '',
-            'sale_price' => '',
-            'discount_price' => '',
+            'base_price' => 'required',
+            'sale_price' => 'required',
+            'discount_rate' => 'required',
+            'discount_type' => 'required|in:none,flat,percentage',
+            'tax_rate' => 'required',
+            'tax_type' => 'required|in:none,flat,percentage',
         ];
     }
 }

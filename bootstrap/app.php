@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SetUserTimezone;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Inertia\Inertia;
@@ -14,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    
+
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
@@ -24,11 +25,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleInertiaRequests::class,
         ]);
-
+        $middleware->alias([
+            'timeZone' => SetUserTimezone::class,
+        ]);
         // $middleware->validateCsrfTokens(except: [
         //     'lemon-squeezy/*',
         // ]);
     })
+
 
     ->withExceptions(function (Exceptions $exceptions) {
         // $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
@@ -45,5 +49,5 @@ return Application::configure(basePath: dirname(__DIR__))
         //     return $response;
         // });
     })
-    
+
     ->create();

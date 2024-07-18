@@ -1,8 +1,9 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { reactive, onMounted, ref, computed } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import { useToast } from 'vue-toast-notification';
+import axios from 'axios';
 
 defineOptions({ layout: GuestLayout });
 
@@ -35,7 +36,7 @@ const form = useForm({
 
 const countryChange = () => {
     countries.data.forEach((country) => {
-        if (country.name === form.country ) {   
+        if (country.name === form.country ) {
             form.timezone = country.timezones[0].name;
             form.currency = country.currency;
             form.country_code = country.code;
@@ -127,12 +128,19 @@ const submit = async () => {
                         }
                     }
                 };
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(data)
+
+                const res = await axios.post(url,data, {
+                    headers: headers
                 });
-                const details = await res.json();  
+
+                const details = res.data;
+                // const res = await fetch(url, {
+                //     method: 'POST',
+                //     headers: headers,
+                //     body: JSON.stringify(data)
+                // });
+                // const details = await res.json();
+
                 console.log('API Response:', details); // Log the entire response for debugging
                 LemonSqueezy.Url.Open(details.data.attributes.url);
             }
@@ -144,23 +152,24 @@ const submit = async () => {
         onError: (response) => {
             useToast().error(`Error! Please check the required fields to complete the order.`, {
                 position: 'bottom-right',
-                timeout: 3000,  
+                timeout: 3000,
                 dismissible: true
             })
             console.log(response);
         },
 
         preserveScroll: true,
-        
+
     });
 };
 
-onMounted(() => {
-    fetch('/json/country.json')
-        .then(res => res.json())
-        .then(data => {
-            countries.data = data;
-        });
+
+axios.get('/json/country.json')
+.then(response => {
+    countries.data = response.data;
+})
+.catch(error => {
+    console.error('Error fetching countries:', error);
 });
 </script>
 
@@ -333,7 +342,7 @@ onMounted(() => {
                 <h1 class="text-4xl font-bold ">3. Create your store </h1>
                 <div class="flex flex-col sm:justify-center sm:pt-0">
 
-                    <div>
+                    <div class="mt-4">
                         <InputLabel for="name" value="Store" />
 
                         <TextInput type="text" class="block w-full" v-model="form.store" required autofocus
@@ -342,7 +351,7 @@ onMounted(() => {
                         <InputError :message="form.errors.store" />
                     </div>
 
-                    <div>
+                    <div class="mt-4">
                         <InputLabel for="email" value="Email" />
 
                         <TextInput type="email" class="block w-full" v-model="form.email" required
@@ -350,7 +359,7 @@ onMounted(() => {
 
                         <InputError :message="form.errors.email" />
                     </div>
-                    <div>
+                    <div class="mt-4">
                         <InputLabel value="Select Country" />
                         <select class="select select-bordered w-full " v-model="form.country" @change="countryChange">
                             <option disabled selected value="">Select your country</option>
@@ -393,13 +402,13 @@ onMounted(() => {
 
                 <button class="btn btn-primary text-white px-6 py-2 rounded mt-5 btn-lg"
                     @click.prevent="submit" :disabled="form.processing">
-                    
+
                     <span v-if="!form.processing">Pay Now</span>
                     <div class="flex gap-3 items-center" v-if="form.processing">
                         <span class="loading loading-spinner"></span>
                         <span> Processing...</span>
                     </div>
-                  
+
                 </button>
 
                 <p class="mt-4">

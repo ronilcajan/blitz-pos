@@ -52,6 +52,10 @@ class Product extends Model
         return $this->hasMany(ProductSupplier::class);
     }
 
+    public function isTaxFree(){
+        return $this->price->tax_type === 'none' || $this->price->tax_type === null;
+    }
+
     public function scopeFilter($query, array $filter){
         if(!empty($filter['search'])){
             $search = $filter['search'];

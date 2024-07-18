@@ -18,11 +18,13 @@ class ProductPriceFactory extends Factory
     public function definition(): array
     {
         return [
-            'base_price' => fake()->numberBetween(100, 1000),
-            'markup_price' => fake()->numberBetween(10, 50),
-            'sale_price' => fake()->numberBetween(1000, 10000),
-            'discount' => fake()->numberBetween(10, 50),
-            'discount_price' => fake()->numberBetween(1000, 10000),
+            'base_price' => fake()->numberBetween(500, 1000),
+            'markup_price' => fake()->numberBetween(100, 200),
+            'discount_rate' => fake()->numberBetween(5, 20),
+            'discount_type' => fake()->randomElement(['none', 'flat', 'percentage']),
+            'tax_rate' => fake()->numberBetween(5, 20),
+            'tax_type' => fake()->randomElement(['none', 'flat', 'percentage']),
+            'sale_price' => fake()->numberBetween(500, 1000),
             'product_id' => function () {
                 return Product::inRandomOrder()->first()->id;
             },

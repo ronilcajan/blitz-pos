@@ -1,12 +1,14 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { useForm, usePage } from '@inertiajs/vue3'
+import { useForm } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-import { ref, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
+import axios from 'axios';
+import debounce from "lodash/debounce";
+import { StreamQrcodeBarcodeReader } from 'vue3-barcode-qrcode-reader'
+
 
 defineOptions({ layout: AuthenticatedLayout })
-
-const page = usePage()
 
 const props = defineProps({
     title: String,
@@ -16,11 +18,14 @@ const props = defineProps({
 
 const createUnitModal = ref(false);
 const createCategoryModal = ref(false);
+const barcodeScanModel = ref(false);
 const isHide = ref('published');
+const barcode = ref('');
+const barcodeScan = ref('');
 
 const form = useForm({
 	name: '',
-	barcode: '',
+	barcode: barcode.value,
 	product_category_id : '',
 	usage_type : 'sellable',
 	unit : '',
@@ -36,9 +41,10 @@ const form = useForm({
     base_price : 0.00,
     markup_price : 0.00,
     sale_price : 0.00,
-    discount: 0,
-    discount_price:  0.00,
-    flat_percentage: 'flat',
+    discount_rate: 0,
+    discount_type: 'none',
+    tax_rate: 0,
+    tax_type: 'none',
     sku: '',
     min_quantity: '5',
 	in_store : 0,
@@ -47,38 +53,64 @@ const form = useForm({
 
 const unitForm = useForm({name: ''});
 const categoryForm = useForm({name: '',description: ''});
-const supplierForm = useForm({
-	name: '',
-	contact_person: '',
-	email: '',
-	phone : '',
-	address : '',
-	logo : '',
-    store_id : page?.props?.auth?.user.store_id,
-});
+
+const addMarkUpPrice = () => {
+    const { base_price, markup_price  } = form;
+    const total = parseFloat(markup_price) + parseFloat(base_price);
+    return total;
+}
+
+const calculateDicount = () => {
+    if (form.discount_type === 'none') {
+        form.discount_rate = 0;
+        return 0;
+    };
+
+    if (form.discount_type === 'percentage') {
+        return parseFloat(addMarkUpPrice())
+            * parseFloat(form.discount_rate) / 100;
+    }
+
+    return form.discount_rate;
+
+}
+
+const calculateTaxAmount = () => {
+    if (form.tax_type === 'none') {
+        form.tax_rate = 0;
+        return 0;
+    };
+
+    const discountedPrice = addMarkUpPrice() - calculateDicount();
+
+    if (form.tax_type === 'percentage') {
+        return discountedPrice
+            * parseFloat(form.tax_rate) / 100;
+    }
+
+    return form.tax_rate;
+}
+
 
 const calculateSalePrice = () => {
-    const { base_price, markup_price  } = form;
-    form.sale_price = parseFloat(base_price + markup_price).toFixed(2);
-    calculateDiscount();
-}
-const calculateDiscount = () => {
-    const { sale_price, discount, flat_percentage  } = form;
-    const value = flat_percentage;
-
-    if (value === 'flat') {
-        const discountedPrice = parseFloat(sale_price - discount).toFixed(2);
-        form.discount_price = discountedPrice;
-    } else {
-        const discounted = (parseFloat(sale_price) * parseFloat(discount)) / 100;
-        const totalPrice = parseFloat(sale_price) - discounted;
-        form.discount_price = parseFloat(totalPrice).toFixed(2);
-    }
+    const markup = addMarkUpPrice();
+    form.sale_price = (markup).toFixed(2);
 }
 
-watch(isHide, value => {
-    form.visible = value ? 'hide' : 'published';
-})
+const calculateSalePriceWithTax = () => {
+    const markup = addMarkUpPrice();
+    const discount = calculateDicount();
+    const total = (markup - discount) + calculateTaxAmount();
+    form.sale_price = (total).toFixed(2);
+}
+
+const calculateSalePriceWithDiscount = () => {
+    const total = addMarkUpPrice() - calculateDicount();
+    form.sale_price = (total).toFixed(2);
+}
+
+
+
 const closeModal = () => {
     unitForm.clearErrors()
     createUnitModal.value = false;
@@ -86,8 +118,6 @@ const closeModal = () => {
     categoryForm.clearErrors()
     createCategoryModal.value = false;
     categoryForm.reset();
-    supplierForm.clearErrors()
-    supplierForm.reset();
 };
 
 const submitUnitForm = () => {
@@ -156,6 +186,90 @@ const removeImage = (index) => {
     imagePreviews.value.splice(index, 1);
     form.image.splice(index, 1);
 };
+
+const generateBarcode = () => {
+    const min = 100000000000; // Minimum 12-digit number
+    const max = 999999999999; // Maximum 12-digit number
+    barcode.value = Math.floor(min + Math.random() * (max - min + 1)).toString();
+}
+const isLoading = ref(false)
+function onLoading(loading) {
+  isLoading.value = loading
+}
+
+watch(isHide, value => {
+    form.visible = value ? 'hide' : 'published';
+})
+
+watch(barcodeScan, debounce(function (value) {
+    searchProductUsingBarcode(value);
+}, 500))
+
+watch(barcode, debounce(function (value) {
+    checkBarcodeUniqueness(value);
+}, 500))
+
+const products = reactive({
+    barcode: '',
+    title: '',
+    description: '',
+    image: '',
+    size: '',
+});
+
+const product_exists = ref('');
+const searchProductUsingBarcode = async (barcode) => {
+    try {
+        const response = await axios.post(route('product.get-products'), {
+            barcode
+        });
+
+        const items = response.data;
+        product_exists.value = ``;
+        if(items.status === 'active'){
+            products.barcode = items.code;
+            products.title = items.company;
+            products.description = items.description;
+            products.image = items.image_url;
+            products.size = items.size;
+        }else{
+            clearProductData();
+            product_exists.value = 'Product not found! Just create your product manually.'
+        }
+
+    } catch (error) {
+        clearProductData();
+        console.error('Error getting products data:', error);
+    }
+}
+const clearProductData = () => {
+    products.barcode = '';
+    products.title = '';
+    products.description = '';
+    products.image = '';
+    products.size = '';
+};
+
+const barcode_msg = ref('');
+const checkBarcodeUniqueness = async (barcode) => {
+    let isChecking = true;
+    let isUnique = false;
+
+    try {
+        const response = await axios.post(route('product.check-barcode'),{
+            barcode
+        });
+
+        isUnique = response.data.isUnique;
+
+        barcode_msg.value = !isUnique ? 'This barcode already exists. Please enter another one.' : null;
+
+    } catch (error) {
+        console.error('Error checking barcode uniqueness:', error);
+    } finally {
+        isChecking = false;
+    }
+}
 </script>
 
 <template>
@@ -163,7 +277,7 @@ const removeImage = (index) => {
     <form class="flex-grow" @submit.prevent="submitCreateForm">
         <TitleContainer :title="title">
             <CancelButton href="/products" >Cancel</CancelButton>
-            <CreateSubmitBtn v-model="form">Create prdsoducts</CreateSubmitBtn>
+            <CreateSubmitBtn v-model="form">Create products</CreateSubmitBtn>
         </TitleContainer>
 
 
@@ -173,6 +287,11 @@ const removeImage = (index) => {
             <div class="w-full md:w-2/3">
                 <div class="shadow card bg-base-100">
                     <div class="card-body">
+                        <!-- <div class="flex justify-end">
+                            <button @click="barcodeScanModel = true" class="btn btn-xs btn-ghost btn-outline tooltip" data-tip="Scan Barcode" type="button">
+                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
+                            </button>
+                        </div> -->
                         <div class="form-control">
                             <span class="text-lg font-bold">
                                 Product Title</span>
@@ -253,32 +372,33 @@ const removeImage = (index) => {
                         <h2 class="mb-2 text-sm card-title grow">
                                 <span class="uppercase">Pricing Details</span>
                             </h2>
-                        <div>
-                            <div class="flex items-center">
-                                <span class="font-semibold text-sm">Base/Supplier Price</span>
 
-                                <div class="dropdown">
-                                    <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
-                                        <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    </div>
-                                    <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
-                                        <div tabindex="0" class="card-body">
-                                            <h2 class="font-bold uppercase">You needed more info?</h2>
-                                            <p>This is the original price of the product before any modifications or adjustments.</p>
+                        <div class="flex flex-col gap-5 md:flex-row">
+                            <div class="w-full md:w-1/2">
+                                <div class="flex items-center">
+                                    <span class="font-semibold text-sm">Base/Supplier Price</span>
+
+                                    <div class="dropdown">
+                                        <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
+                                            <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        </div>
+                                        <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-52 shadow">
+                                            <div tabindex="0" class="card-body">
+                                                <h2 class="font-bold uppercase text-xs">You needed more info?</h2>
+                                                <p>This is the original price of the product before any modifications or adjustments.</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                <NumberInput
+                                    class="block w-full mt-2"
+                                    v-model="form.base_price"
+                                    required
+                                    min="0"
+                                    @change="calculateSalePrice"                     placeholder="Enter base price"
+                                />
+                                <InputError class="mt-2" :message="form.errors.base_price" />
                             </div>
-                            <NumberInput
-                                class="block w-full mt-2"
-                                v-model="form.base_price"
-                                required
-                                min="0"
-                                @change="calculateSalePrice"                     placeholder="Enter base price"
-                            />
-                            <InputError class="mt-2" :message="form.errors.base_price" />
-                        </div>
-                        <div class="flex flex-col gap-5 md:flex-row">
                             <div class="w-full md:w-1/2">
                                 <div class="flex items-center">
                                     <span class="font-semibold text-sm">Markup Price</span>
@@ -288,7 +408,7 @@ const removeImage = (index) => {
                                         </div>
                                         <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
                                             <div tabindex="0" class="card-body">
-                                                <h2 class="font-bold uppercase">You needed more info?</h2>
+                                                <h2 class="font-bold uppercase text-xs">You needed more info?</h2>
                                                 <p>The markup price is the additional amount added to the base price to cover costs.</p>
                                             </div>
                                         </div>
@@ -304,71 +424,98 @@ const removeImage = (index) => {
                                 <InputError class="mt-2" :message="form.errors.markup_price" />
 
                             </div>
-                            <div class="w-full md:w-1/2">
-                                <div class="flex items-center">
-                                <span class="font-semibold text-sm">Sale Price</span>
-
-                                <div class="dropdown">
-                                    <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
-                                        <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    </div>
-                                    <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
-                                        <div tabindex="0" class="card-body">
-                                            <h2 class="font-bold uppercase">You needed more info?</h2>
-                                            <p>The sale price that the customer pays before any discounts are applied.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <NumberInput
-                                type="number"
-                                class="block w-full mt-2"
-                                v-model="form.sale_price"
-                                required
-                                min="0"
-                                @change="calculateDiscount"
-                                placeholder="Enter sale price"
-                            />
-                            <InputError class="mt-2" :message="form.errors.sale_price" />
-                            </div>
                         </div>
 
                         <div class="flex flex-col gap-5 md:flex-row">
                             <div class="w-full md:w-1/2">
-                                <div class="flex items-center gap-2 mb-2 justify-start">
-                                    <span class="font-semibold text-sm">Discount: (if applicable)</span>
-                                    <div>
-                                        <input type="radio" aria-label="flat"
-                                        class="btn btn-xs" @change="calculateDiscount" value="flat"
-                                        v-model="form.flat_percentage" />
-                                    </div>
-                                    <div>
-                                        <input type="radio" aria-label="percent(%)"
-                                        class="btn btn-xs" @change="calculateDiscount" value="percentage"
-                                        v-model="form.flat_percentage" />
-                                    </div>
-                                </div>
-                                <NumberInput
-                                    class="block w-full"
-                                    v-model="form.discount"
-                                    @change="calculateDiscount"
-                                    placeholder="Enter discount"
-                                    min="0"
-                                />
-                                <InputError class="mt-2" :message="form.errors.discount" />
+                                <span class="font-semibold text-sm">Discount Type</span>
+                                <select name="discount_type" v-model="form.discount_type" class="select select-bordered w-full mt-2" @change="calculateSalePriceWithDiscount">
+                                    <option value="none">none</option>
+                                    <option value="flat">flat</option>
+                                    <option value="percentage">percentage</option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.discount_type" />
 
                             </div>
                             <div class="w-full md:w-1/2">
-                                <span class="font-semibold text-sm">Discounted Price</span>
+                                <span class="font-semibold text-sm">
+                                    Discount Rate
+                                    <span class="text-red-500" v-if="form.discount_type !== 'none'">
+                                        (-{{ calculateDicount().toFixed(2) }})
+                                    </span>
+                                </span>
                                 <NumberInput
                                     class="block w-full mt-2"
-                                    v-model="form.discount_price"
+                                    v-model="form.discount_rate"
                                     required
                                     min="0"
-                                    step="0.01"
+                                    step="0.0001"
+                                    @change="calculateSalePriceWithDiscount"
+                                    :readonly="form.discount_type === 'none'"
                                 />
-                                <InputError class="mt-2" :message="form.errors.discount_price" />
+                                <InputError class="mt-2" :message="form.errors.discount_rate" />
 
+                            </div>
+                            <div class="w-full md:w-1/2">
+                                <span class="font-semibold text-sm">Tax Type </span>
+                                <select name="tax_type" v-model="form.tax_type" class="select select-bordered w-full mt-2" @change="calculateSalePriceWithTax">
+                                    <option value="none">none</option>
+                                    <option value="flat">flat</option>
+                                    <option value="percentage">percentage</option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.tax_type" />
+
+                            </div>
+                            <div class="w-full md:w-1/2">
+                                <span class="font-semibold text-sm">
+                                    Tax Rate
+                                    <span class="text-primary" v-if="form.tax_type !== 'none'">
+                                        (+{{ calculateTaxAmount().toFixed(2) }})
+                                    </span>
+                                </span>
+                                <NumberInput
+                                    class="block w-full mt-2"
+                                    v-model="form.tax_rate"
+                                    required
+                                    min="0"
+                                    step="0.0001"
+                                    @change="calculateSalePriceWithTax"
+                                    :readonly="form.tax_type === 'none'"
+
+                                />
+                                <InputError class="mt-2" :message="form.errors.tax_rate" />
+
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-5 md:flex-row">
+
+                            <div class="w-full">
+                                <div class="flex items-center">
+                                    <span class="font-semibold text-sm">Sale Price</span>
+
+                                    <div class="dropdown">
+                                        <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
+                                            <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        </div>
+                                        <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
+                                            <div tabindex="0" class="card-body">
+                                                <h2 class="font-bold uppercase text-xs">You needed more info?</h2>
+                                                <p>The sale price that the customer pays.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <NumberInput
+                                    type="number"
+                                    class="block w-full mt-2"
+                                    v-model="form.sale_price"
+                                    required
+                                    min="0"
+                                    readonly
+                                    placeholder="Enter sale price"
+                                />
+                                <InputError class="mt-2" :message="form.errors.sale_price" />
                             </div>
                         </div>
                     </div>
@@ -381,17 +528,25 @@ const removeImage = (index) => {
                                 Manage Inventory</span>
                         </h2>
                         <div>
-                            <span class="font-semibold text-sm">Barcode</span>
+                            <div class="w-full flex justify-start items-center gap-1">
+                                <span class="font-semibold text-sm">Barcode</span>
+
+                                <button @click="generateBarcode" class="btn btn-xs btn-ghost tooltip btn-outline" data-tip="Generate Barcode" type="button">
+                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-tallymark-4"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 5l0 14" /><path d="M10 5l0 14" /><path d="M14 5l0 14" /><path d="M18 5l0 14" /></svg>
+                                </button>
+
+
+                            </div>
                                 <TextInput
                                     type="text"
                                     class="block w-full mt-2"
-                                    v-model="form.barcode"
+                                    v-model="barcode"
                                     required
-                                    placeholder="Enter barcode"
+                                    placeholder="Enter barcode or scan"
                                 />
-                                <InputError class="mt-2" :message="form.errors.barcode" />
+                                <InputError class="mt-2" :message="form.errors.barcode || barcode_msg" />
                         </div>
-                        <div class="flex flex-col gap-5 md:flex-row">
+                        <div class="flex flex-col gap-5 md:flex-row mt-2">
                             <div class="w-full md:w-1/2">
                                 <span class="font-semibold text-sm">Stock Keeping Unit (optional)</span>
                                 <TextInput
@@ -413,8 +568,8 @@ const removeImage = (index) => {
                                 </select>
                                 <InputError class="mt-2" :message="form.errors.min_quantity" />
                             </div>
-                            </div>
-                        <div class="flex flex-col gap-5 md:flex-row">
+                        </div>
+                        <div class="flex flex-col gap-5 md:flex-row mt-2">
 
                             <div class="w-full md:w-1/2">
                                 <span class="font-semibold text-sm">In Warehouse</span>
@@ -528,7 +683,7 @@ const removeImage = (index) => {
                             />
                             <InputError class="mt-2" :message="form.errors.size" />
                         </div>
-                        <div class="form-control">
+                        <div class="form-control mt-2">
                             <span class="font-semibold text-sm mb-2">Color (optional)</span>
                             <TextInput
                                 type="text"
@@ -540,7 +695,7 @@ const removeImage = (index) => {
                         </div>
 
 
-                        <div class="w-full">
+                        <div class="form-control mt-2">
                             <span class="font-semibold text-sm mb-2">Dimension (optional)</span>
                             <TextInput
                                 type="text"
@@ -580,7 +735,7 @@ const removeImage = (index) => {
         </div>
     </form>
 
-    <Modal :show="createUnitModal" @close="closeModal">
+    <Modal :show="createUnitModal" @close="createUnitModal = false">
         <div class="p-6">
             <h1 class="mb-4 text-xl font-medium">
                 Create new product unit
@@ -613,7 +768,7 @@ const removeImage = (index) => {
         </div>
     </Modal>
 
-    <Modal :show="createCategoryModal" @close="closeModal">
+    <Modal :show="createCategoryModal" @close="createCategoryModal = false">
         <div class="p-6">
             <h1 class="mb-4 text-xl font-medium">
                 Create new category
@@ -648,6 +803,41 @@ const removeImage = (index) => {
                     </PrimaryButton>
                 </div>
             </form>
+        </div>
+    </Modal>
+
+    <Modal :show="barcodeScanModel" @close="barcodeScanModel = false" maxWidth="md">
+        <div class="p-6 text-center">
+            <h1 class="mb-4 text-xl font-medium">
+                Search products using barcode
+            </h1>
+            <div class="flex justify-center border border-dashed border-primary px-4 py-4 rounded-lg">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="200"  height="200"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
+            </div>
+
+            <TextInput class="w-full mt-6" v-model="barcodeScan" placeholder="Enter barcode"/>
+            <InputError class="mt-2" :message="product_exists" />
+            <div v-if="products.barcode" class="border border-gray-300 p-2 mt-3 cursor-pointer hover:bg-slate-50 rounded-md" >
+                <div class="flex justify-start gap-2">
+                    <div class="flex justify-start" v-if="products.image">
+                        <img width="40" class="rounded-md" :src="products.image ?? ''" alt="logo">
+                    </div>
+                    <div class="flex flex-col text-left">
+                        <p class="font-medium">
+                            {{ products.title }}
+                        </p>
+                        <span class="font-medium text-sm">
+                            {{ products.barcode }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <div class="flex justify-end mt-6">
+                    <SecondaryButton class="btn" @click="barcodeScanModel = false">Close</SecondaryButton>
+                </div>
+            </div>
         </div>
     </Modal>
 </template>

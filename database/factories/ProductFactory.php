@@ -28,7 +28,6 @@ class ProductFactory extends Factory
             'unit'=> function () {
                 return ProductUnit::inRandomOrder()->first()->name;
             },
-            'manufacturer' => fake()->company(),
             'description' => fake()->text(),
             'product_category_id' => function () {
                 return ProductCategory::inRandomOrder()->first()->id;

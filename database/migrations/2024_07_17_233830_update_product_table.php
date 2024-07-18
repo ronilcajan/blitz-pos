@@ -12,10 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->string('usage_type')->after('unit')->default('sellable'); // 'sellable' or 'internal_use'
-            $table->dropColumn('manufacturer');
             $table->dropColumn('image');
-
+            $table->string('usage_type')->after('unit')->default('sellable'); // 'sellable' or 'internal_use'
         });
     }
 
@@ -26,7 +24,6 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn('usage_type');
-            $table->string('manufacturer')->nullable();
             $table->string('image')->nullable();
         });
     }

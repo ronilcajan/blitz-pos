@@ -9,7 +9,6 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import ToastPlugin from 'vue-toast-notification';
 import Checkbox from '@/Components/Checkbox.vue';
-import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -60,6 +59,7 @@ import DateRangeFilter from '@/Components/DateRangeFilter.vue';
 import ClearFilters from '@/Components/ClearFilters.vue';
 import SelectDropdownFilter from '@/Components/SelectDropdownFilter.vue';
 
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
@@ -86,7 +86,6 @@ createInertiaApp({
             .component('Link', Link)
             .component('ApplicationLogo', ApplicationLogo)
             .component('Checkbox', Checkbox)
-            .component('GuestLayout', GuestLayout)
             .component('InputError', InputError)
             .component('PrimaryButton', PrimaryButton)
             .component('SecondaryButton', SecondaryButton)
