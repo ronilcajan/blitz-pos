@@ -115,23 +115,26 @@ class RegisteredUserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'store_id' => $store->id,
-                'email_verified_at' => now(),
+                // 'email_verified_at' => now(),
             ]);
 
             $user->addRole('owner');
 
             event(new Registered($user));
-            Auth::login($user);
 
             DB::commit();
 
+            Auth::login($user);
             // for free plan
             if($request->product_id === 'free_plan'){
+
+
+
                 return redirect()->intended(route('dashboard', absolute: false))
                 ->with('message', "Hello, ".
                     auth()->user()->name."! We're glad to see you. Your dashboard is ready.");
             }
-            // return back for payment
+
             return redirect()->back();
 
         } catch (\Throwable $th) {

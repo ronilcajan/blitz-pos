@@ -101,8 +101,8 @@ const submit = async () => {
                                 button_color: '#2DD272'
                             },
                             checkout_data: {
-                                name: `${response.props.auth.user.name}`,
-                                email: `${response.props.auth.user.email}`,
+                                name: `${form.name}`,
+                                email: `${form.email}`,
                                 billing_address: {
                                     country: `${form.country_code}`,
                                 },
@@ -134,13 +134,6 @@ const submit = async () => {
                 });
 
                 const details = res.data;
-                // const res = await fetch(url, {
-                //     method: 'POST',
-                //     headers: headers,
-                //     body: JSON.stringify(data)
-                // });
-                // const details = await res.json();
-
                 console.log('API Response:', details); // Log the entire response for debugging
                 LemonSqueezy.Url.Open(details.data.attributes.url);
             }
@@ -393,7 +386,7 @@ axios.get('/json/country.json')
             </div>
 
             <div class="flex gap-3 mt-24 flex-col fadeInUp">
-                <h1 class="text-4xl font-bold ">4. Proceed to payment </h1>
+                <h1 class="text-4xl font-bold ">4. Amount to pay </h1>
 
                 <div class="flex gap-3 justify-between text-2xl bg-gray-100 p-3 shadow-sm font-bold mt-4">
                     <p>Total amount</p>
@@ -403,7 +396,7 @@ axios.get('/json/country.json')
                 <button class="btn btn-primary text-white px-6 py-2 rounded mt-5 btn-lg"
                     @click.prevent="submit" :disabled="form.processing">
 
-                    <span v-if="!form.processing">Pay Now</span>
+                    <span v-if="!form.processing">Proceed to payment now</span>
                     <div class="flex gap-3 items-center" v-if="form.processing">
                         <span class="loading loading-spinner"></span>
                         <span> Processing...</span>
