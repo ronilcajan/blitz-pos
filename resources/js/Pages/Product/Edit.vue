@@ -72,53 +72,56 @@ const addMarkUpPrice = () => {
     return total;
 }
 
-const calculateDicount = () => {
+const calculateDiscount = () => {
     if (form.discount_type === 'none') {
         form.discount_rate = 0;
         return 0;
-    };
-
-    if (form.discount_type === 'percentage') {
-        return parseFloat(addMarkUpPrice())
-            * parseFloat(form.discount_rate) / 100;
     }
 
-    return form.discount_rate;
+    if (form.discount_type === 'percentage') {
+        // Ensure `addMarkUpPrice` returns a number and `form.discount_rate` is a number
+        return parseFloat(addMarkUpPrice()) * (parseFloat(form.discount_rate) / 100);
+    }
 
+    // If the discount type is not 'none' or 'percentage', return the discount rate as is
+    return parseFloat(form.discount_rate);
 }
 
 const calculateTaxAmount = () => {
     if (form.tax_type === 'none') {
         form.tax_rate = 0;
         return 0;
-    };
-
-    const discountedPrice = addMarkUpPrice() - calculateDicount();
-
-    if (form.tax_type === 'percentage') {
-        return discountedPrice
-            * parseFloat(form.tax_rate) / 100;
     }
 
-    return form.tax_rate;
+    const discountedPrice = addMarkUpPrice() - calculateDiscount();
+
+    if (form.tax_type === 'percentage') {
+        // Ensure `form.tax_rate` is a number
+        return discountedPrice * (parseFloat(form.tax_rate) / 100);
+    }
+
+    // If the tax type is not 'none' or 'percentage', return the tax rate as is
+    return parseFloat(form.tax_rate);
 }
 
 const calculateSalePrice = () => {
+    // Ensure `addMarkUpPrice` returns a number
     const markup = addMarkUpPrice();
-    form.sale_price = (markup).toFixed(2);
+    form.sale_price = markup.toFixed(2);
 }
 
 const calculateSalePriceWithTax = () => {
     const markup = addMarkUpPrice();
-    const discount = calculateDicount();
+    const discount = calculateDiscount();
     const total = (markup - discount) + calculateTaxAmount();
-    form.sale_price = (total).toFixed(2);
+    form.sale_price = total.toFixed(2);
 }
 
 const calculateSalePriceWithDiscount = () => {
-    const total = addMarkUpPrice() - calculateDicount();
-    form.sale_price = (total).toFixed(2);
+    const total = addMarkUpPrice() - calculateDiscount();
+    form.sale_price = total.toFixed(2);
 }
+
 
 const changeProductVisibility = computed(() => {
     isHide.value = props.product.visible === 'hide';
@@ -310,8 +313,6 @@ onMounted(() => {
             <SaveSubmitBtn v-model="form" >Save changes</SaveSubmitBtn>
         </TitleContainer>
 
-
-
         <div class="flex flex-col gap-5 md:flex-row">
             <div class="w-full md:w-2/3">
                 <div class="shadow card bg-base-100">
@@ -346,15 +347,7 @@ onMounted(() => {
                             </span>
                             <div>
                                 <div class="flex flex-wrap gap-3 mb-3" v-if="imagePreviews.length || imagePreviews1.length">
-                                    <div v-for="(image, index) in imagePreviews" class="relative w-24 h-24 p-3 rounded" :key="index">
-                                        <img :src="image" class="w-full h-full object-cover rounded" alt="Image Preview">
-                                        <button type="button"
-                                            @click="removeImage(index)"
-                                            class="absolute top-0 right-0 text-red-500 hover:text-red-700"
-                                            >
-                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-square-rounded-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 2l.324 .001l.318 .004l.616 .017l.299 .013l.579 .034l.553 .046c4.785 .464 6.732 2.411 7.196 7.196l.046 .553l.034 .579c.005 .098 .01 .198 .013 .299l.017 .616l.005 .642l-.005 .642l-.017 .616l-.013 .299l-.034 .579l-.046 .553c-.464 4.785 -2.411 6.732 -7.196 7.196l-.553 .046l-.579 .034c-.098 .005 -.198 .01 -.299 .013l-.616 .017l-.642 .005l-.642 -.005l-.616 -.017l-.299 -.013l-.579 -.034l-.553 -.046c-4.785 -.464 -6.732 -2.411 -7.196 -7.196l-.046 -.553l-.034 -.579a28.058 28.058 0 0 1 -.013 -.299l-.017 -.616c-.003 -.21 -.005 -.424 -.005 -.642l.001 -.324l.004 -.318l.017 -.616l.013 -.299l.034 -.579l.046 -.553c.464 -4.785 2.411 -6.732 7.196 -7.196l.553 -.046l.579 -.034c.098 -.005 .198 -.01 .299 -.013l.616 -.017c.21 -.003 .424 -.005 .642 -.005zm-1.489 7.14a1 1 0 0 0 -1.218 1.567l1.292 1.293l-1.292 1.293l-.083 .094a1 1 0 0 0 1.497 1.32l1.293 -1.292l1.293 1.292l.094 .083a1 1 0 0 0 1.32 -1.497l-1.292 -1.293l1.292 -1.293l.083 -.094a1 1 0 0 0 -1.497 -1.32l-1.293 1.292l-1.293 -1.292l-.094 -.083z" fill="currentColor" stroke-width="0" /></svg>
-                                        </button>
-                                    </div>
+                                   
 
                                     <div v-for="(image, index) in imagePreviews1" class="relative w-24 h-24 p-3 rounded" :key="index">
                                         <img :src="image" class="w-full h-full object-cover rounded" alt="Image Preview">
@@ -365,7 +358,15 @@ onMounted(() => {
                                             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-square-rounded-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 2l.324 .001l.318 .004l.616 .017l.299 .013l.579 .034l.553 .046c4.785 .464 6.732 2.411 7.196 7.196l.046 .553l.034 .579c.005 .098 .01 .198 .013 .299l.017 .616l.005 .642l-.005 .642l-.017 .616l-.013 .299l-.034 .579l-.046 .553c-.464 4.785 -2.411 6.732 -7.196 7.196l-.553 .046l-.579 .034c-.098 .005 -.198 .01 -.299 .013l-.616 .017l-.642 .005l-.642 -.005l-.616 -.017l-.299 -.013l-.579 -.034l-.553 -.046c-4.785 -.464 -6.732 -2.411 -7.196 -7.196l-.046 -.553l-.034 -.579a28.058 28.058 0 0 1 -.013 -.299l-.017 -.616c-.003 -.21 -.005 -.424 -.005 -.642l.001 -.324l.004 -.318l.017 -.616l.013 -.299l.034 -.579l.046 -.553c.464 -4.785 2.411 -6.732 7.196 -7.196l.553 -.046l.579 -.034c.098 -.005 .198 -.01 .299 -.013l.616 -.017c.21 -.003 .424 -.005 .642 -.005zm-1.489 7.14a1 1 0 0 0 -1.218 1.567l1.292 1.293l-1.292 1.293l-.083 .094a1 1 0 0 0 1.497 1.32l1.293 -1.292l1.293 1.292l.094 .083a1 1 0 0 0 1.32 -1.497l-1.292 -1.293l1.292 -1.293l.083 -.094a1 1 0 0 0 -1.497 -1.32l-1.293 1.292l-1.293 -1.292l-.094 -.083z" fill="currentColor" stroke-width="0" /></svg>
                                         </button>
                                     </div>
-
+                                    <div v-for="(image, index) in imagePreviews" class="relative w-24 h-24 p-3 rounded" :key="index">
+                                        <img :src="image" class="w-full h-full object-cover rounded" alt="Image Preview">
+                                        <button type="button"
+                                            @click="removeImage(index)"
+                                            class="absolute top-0 right-0 text-red-500 hover:text-red-700"
+                                            >
+                                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-square-rounded-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 2l.324 .001l.318 .004l.616 .017l.299 .013l.579 .034l.553 .046c4.785 .464 6.732 2.411 7.196 7.196l.046 .553l.034 .579c.005 .098 .01 .198 .013 .299l.017 .616l.005 .642l-.005 .642l-.017 .616l-.013 .299l-.034 .579l-.046 .553c-.464 4.785 -2.411 6.732 -7.196 7.196l-.553 .046l-.579 .034c-.098 .005 -.198 .01 -.299 .013l-.616 .017l-.642 .005l-.642 -.005l-.616 -.017l-.299 -.013l-.579 -.034l-.553 -.046c-4.785 -.464 -6.732 -2.411 -7.196 -7.196l-.046 -.553l-.034 -.579a28.058 28.058 0 0 1 -.013 -.299l-.017 -.616c-.003 -.21 -.005 -.424 -.005 -.642l.001 -.324l.004 -.318l.017 -.616l.013 -.299l.034 -.579l.046 -.553c.464 -4.785 2.411 -6.732 7.196 -7.196l.553 -.046l.579 -.034c.098 -.005 .198 -.01 .299 -.013l.616 -.017c.21 -.003 .424 -.005 .642 -.005zm-1.489 7.14a1 1 0 0 0 -1.218 1.567l1.292 1.293l-1.292 1.293l-.083 .094a1 1 0 0 0 1.497 1.32l1.293 -1.292l1.293 1.292l.094 .083a1 1 0 0 0 1.32 -1.497l-1.292 -1.293l1.292 -1.293l.083 -.094a1 1 0 0 0 -1.497 -1.32l-1.293 1.292l-1.293 -1.292l-.094 -.083z" fill="currentColor" stroke-width="0" /></svg>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="flex relative mb-5.5 w-full cursor-pointer appearance-none rounded border border-dashed border-gray-300 bg-gray px-4 py-4 sm:py-7.5 justify-center">
                                     <div class="flex flex-col items-center justify-center space-y-3">
@@ -480,7 +481,7 @@ onMounted(() => {
                                 <span class="font-semibold text-sm">
                                     Discount Rate
                                     <span class="text-red-500" v-if="form.discount_type !== 'none'">
-                                        (-{{ calculateDicount() }})
+                                        (-{{ calculateDiscount() }})
                                     </span>
                                 </span>
                                 <NumberInput

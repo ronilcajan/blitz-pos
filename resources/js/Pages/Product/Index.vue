@@ -208,7 +208,7 @@ const product_types = [
                                     class="checkbox checkbox-sm">
                             </TableHead>
                             <TableHead>Name</TableHead>
-                            <TableHead>Price</TableHead>
+                            <TableHead>Price({{ $page.props.auth.user.currency }})</TableHead>
                             <TableHead>Unit</TableHead>
                             <TableHead>Category</TableHead>
                             <TableHead>Size</TableHead>
@@ -225,15 +225,19 @@ const product_types = [
                                     class="checkbox checkbox-sm">
                             </TableCell>
                             <TableCell>
-                                <div class="flex items-center gap-2">
+                                <Link :href="`/products/${product.id}`" 
+                                    class="text-blue-800 ">
+                                    <div class="flex items-center gap-2">
                                     <Avatar :src="product.image" />
-                                    <div class="flex flex-col">
+                                    <div class="flex flex-col font-semibold">
                                         {{ product.name }}
                                         <p class="text-xs opacity-50">
                                             {{ product.barcode }}
                                         </p>
                                     </div>
                                 </div>
+                                </Link>
+                               
                             </TableCell>
                             <TableCell>{{ product.price }}</TableCell>
                             <TableCell>{{ product.unit }}</TableCell>

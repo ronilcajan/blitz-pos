@@ -58,6 +58,7 @@ import ActionDropdown from '@/Components/ActionDropdown.vue';
 import DateRangeFilter from '@/Components/DateRangeFilter.vue';
 import ClearFilters from '@/Components/ClearFilters.vue';
 import SelectDropdownFilter from '@/Components/SelectDropdownFilter.vue';
+import VueBarcode from '@chenfengyuan/vue-barcode';
 
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -84,6 +85,7 @@ createInertiaApp({
 
             .component('Head', Head)
             .component('Link', Link)
+            .component('Barcode', VueBarcode)
             .component('ApplicationLogo', ApplicationLogo)
             .component('Checkbox', Checkbox)
             .component('InputError', InputError)

@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
+use Milon\Barcode\DNS1D;
+use Milon\Barcode\DNS2D;
 
 class ProductController extends Controller
 {
@@ -50,7 +52,7 @@ class ProductController extends Controller
                     'visible' => $product->visible === 'published',
                     'store' => $product->store->name,
                     'category' => $product->category?->name,
-                    'price' =>  $product->price?->sale_price ? Number::currency($product->price->sale_price, in: auth()->user()->store->currency) : null,
+                    'price' =>  $product->price?->sale_price ? Number::format($product->price?->sale_price,2) : null,
                 ];
         });
 
@@ -204,13 +206,28 @@ class ProductController extends Controller
         return inertia('Product/Edit', [
             'title' => "Edit Product",
             'product' => $product,
-            'stores' => Store::select('id', 'name')
-                ->orderBy('name', 'DESC')->get(),
             'units' => ProductUnit::select('id','name')
                 ->orderBy('name', 'DESC')->get(),
             'categories' => ProductCategory::select('id','name')
                 ->orderBy('name', 'DESC')
             ->get(),
+        ]);
+    }
+
+    public function show(Product $product)
+    {
+
+        $product = Product::with(['price','stock','images','sales','category'])
+            ->findOrFail($product->id);
+
+        $sales = $product->sales()->with(['sale.customer'])->get();
+
+        Gate::authorize('update', $product);
+
+        return inertia('Product/Show', [
+            'title' => "Product details",
+            'product' => $product,
+            'sales' => $sales,
         ]);
     }
 
@@ -224,6 +241,8 @@ class ProductController extends Controller
         Gate::authorize('update', $product);
 
         $request->validated();
+
+       
 
         $productAttributes = [
             'name' => $request->name,
@@ -254,6 +273,18 @@ class ProductController extends Controller
 
                 $productImages = [];
 
+                   // Handle images from URLs
+                if ($request->has('images_url')) {
+                    foreach ($request->input('images_url') as $imageUrl) {
+                        $productImages[] = [
+                            'image' => $imageUrl,
+                            'product_id' => $product->id,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                }
+
                 // Handle uploaded images
                 if ($request->hasFile('image')) {
                     
@@ -268,17 +299,7 @@ class ProductController extends Controller
                     }
                 }
 
-                // Handle images from URLs
-                if ($request->has('images_url')) {
-                    foreach ($request->input('images_url') as $imageUrl) {
-                        $productImages[] = [
-                            'image' => $imageUrl,
-                            'product_id' => $product->id,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ];
-                    }
-                }
+             
 
                 // Insert new product images
                 ProductImage::insert($productImages);
@@ -309,14 +330,14 @@ class ProductController extends Controller
             $product->stock()->updateOrCreate([], $productStocksAttributes);
 
             DB::commit();
-
+            return redirect()->back();
         } catch (\Throwable $th) {
             DB::rollBack();
             //throw $th;
             return redirect()->back()->with('error', $th->getMessage());
         }
 
-        return redirect()->back();
+        
 
     }
 

@@ -142,7 +142,7 @@ watch(selected_month, () => {
                         <path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" />
                     </svg>
                 </span>
-                {{ expenses }}
+                {{ $page.props.auth.user.currency }}  {{ expenses }}
             </div>
         </div>
 
@@ -161,7 +161,7 @@ watch(selected_month, () => {
                         <path d="M3 6v10c0 .888 .772 1.45 2 2" />
                         <path d="M3 11c0 .888 .772 1.45 2 2" />
                     </svg>
-                </span>
+                </span> {{ $page.props.auth.user.currency }} 
                 {{ sales }}
             </div>
         </div>

@@ -50,7 +50,7 @@ Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.s
 Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:super-admin']], function() {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::resource('/stores', StoreController::class);
-    Route::resource('/users', AdminUserController::class);
+    // Route::resource('/users', AdminUserController::class);
 });
 
 Route::middleware(['auth', 'verified', 'timeZone'])->group(function () {

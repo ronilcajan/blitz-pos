@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('visible')->default('published');
             $table->timestamp('expiration_date')->nullable();
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->foreignIdFor(ProductCategory::class)
                 ->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Store::class)
