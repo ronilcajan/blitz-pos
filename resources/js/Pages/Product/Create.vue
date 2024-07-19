@@ -262,6 +262,8 @@ const checkBarcodeUniqueness = async (barcode) => {
 
         isUnique = response.data.isUnique;
 
+        if(isUnique) form.barcode = barcode
+
         barcode_msg.value = !isUnique ? 'This barcode already exists. Please enter another one.' : null;
 
     } catch (error) {

@@ -246,22 +246,41 @@ class ProductController extends Controller
         try {
             $product->update($productAttributes);
 
-            if($request->hasFile('image')){
+
+           // Check if both image and images_url are present in the request
+            if ($request->hasFile('image') || $request->has('images_url')) {
+                // Delete existing product images
                 ProductImage::where('product_id', $product->id)->delete();
 
                 $productImages = [];
 
-                foreach($request->file('image') as $image){
-                    $path = $image->store('products', 'public');
-
-                    $productImages[] = [
-                        'image' => asset('storage/' . $path),
-                        'product_id' => $product->id,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
+                // Handle uploaded images
+                if ($request->hasFile('image')) {
+                    
+                    foreach ($request->file('image') as $image) {
+                        $path = $image->store('products', 'public');
+                        $productImages[] = [
+                            'image' => asset('storage/' . $path),
+                            'product_id' => $product->id,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
                 }
 
+                // Handle images from URLs
+                if ($request->has('images_url')) {
+                    foreach ($request->input('images_url') as $imageUrl) {
+                        $productImages[] = [
+                            'image' => $imageUrl,
+                            'product_id' => $product->id,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                }
+
+                // Insert new product images
                 ProductImage::insert($productImages);
             }
 
