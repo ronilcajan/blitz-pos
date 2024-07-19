@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-
+import {ref} from 'vue';
 defineOptions({ layout: AuthenticatedLayout })
 
 const props = defineProps({
@@ -48,7 +48,21 @@ const isVisible = (event) => {
             }
         })
 }
-const BarcodeValue = ref('');
+import VueBarcode from "@chenfengyuan/vue-barcode";
+import html2canvas from 'html2canvas-pro';
+
+
+const barCodeDiv = ref();
+const downloadBarCode = () => {
+      html2canvas(barCodeDiv.value).then((canvas) => {
+        var barcodeImgTag = document.createElement("a");
+        document.body.appendChild(barcodeImgTag);
+        barcodeImgTag.download = "Barcode.jpg";
+        barcodeImgTag.href = canvas.toDataURL();
+        barcodeImgTag.target = "_blank";
+        barcodeImgTag.click();
+      });
+    }
 </script>
 
 <template>
@@ -94,16 +108,27 @@ const BarcodeValue = ref('');
                 </div>
                 <div class="shadow card bg-base-100 rounded-sm">
                     <div class="card-body">
-                        <input v-model="product.barcode" /><br>
-                        <vue-barcode
-        ref="BarImg"
-        v-if="BarcodeValue"
-        tag="img"
-        :value="BarcodeValue"
-        :options="{ displayValue: true, lineColor: '#2B2B2C' }"
-      />
+                    <div class="flex justify-end">
+                       <button @click="downloadBarCode" class="btn btn-link btn-xs">Download Barcode</button>
+                    </div>
+                        <div ref="barCodeDiv" id="barCodeDiv" class="flex justify-start flex-col border py-3 px-4 w-52">
+                            <div class="w-full flex justify-center items-center text-md font-bold">
 
-
+                                {{ $page.props.auth.user.store_name }}
+                                </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span>{{ product.name }}</span>
+                                <span>{{ formatNumberWithCommas(product.price.sale_price) }}</span>
+                            </div>
+                          
+                            <vue-barcode
+                                ref="BarImg"
+                                v-if="product.barcode"
+                                tag="img"
+                                :value="product.barcode"
+                                :options="{ displayValue: true, lineColor: '#2B2B2C' }"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

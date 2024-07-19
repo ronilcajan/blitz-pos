@@ -22,6 +22,8 @@
         "@chenfengyuan/vue-barcode": "^2.0.2",
         "@inertiajs/vue3": "^1.0.15",
         "chart.js": "^4.4.3",
+        "html2canvas": "^1.4.1",
+        "html2canvas-pro": "^1.5.7",
         "jsbarcode": "^3.11.6",
         "lodash": "^4.17.21",
         "puppeteer": "^22.7.1",
