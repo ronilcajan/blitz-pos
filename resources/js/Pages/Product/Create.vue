@@ -54,61 +54,62 @@ const form = useForm({
 const unitForm = useForm({name: ''});
 const categoryForm = useForm({name: '',description: ''});
 
+
 const addMarkUpPrice = () => {
     const { base_price, markup_price  } = form;
-    const total = parseFloat(markup_price) + parseFloat(base_price);
-    return total;
+    return parseFloat(markup_price) + parseFloat(base_price);
 }
 
-const calculateDicount = () => {
+const calculateDiscount = () => {
     if (form.discount_type === 'none') {
         form.discount_rate = 0;
         return 0;
-    };
-
-    if (form.discount_type === 'percentage') {
-        return parseFloat(addMarkUpPrice())
-            * parseFloat(form.discount_rate) / 100;
     }
 
-    return form.discount_rate;
+    if (form.discount_type === 'percentage') {
+        // Ensure `addMarkUpPrice` returns a number and `form.discount_rate` is a number
+        return parseFloat(addMarkUpPrice()) * (parseFloat(form.discount_rate) / 100);
+    }
 
+    // If the discount type is not 'none' or 'percentage', return the discount rate as is
+    return parseFloat(form.discount_rate);
 }
 
 const calculateTaxAmount = () => {
     if (form.tax_type === 'none') {
         form.tax_rate = 0;
         return 0;
-    };
-
-    const discountedPrice = addMarkUpPrice() - calculateDicount();
-
-    if (form.tax_type === 'percentage') {
-        return discountedPrice
-            * parseFloat(form.tax_rate) / 100;
     }
 
-    return form.tax_rate;
-}
+    const discountedPrice = addMarkUpPrice() - calculateDiscount();
 
+    if (form.tax_type === 'percentage') {
+        // Ensure `form.tax_rate` is a number
+        return discountedPrice * (parseFloat(form.tax_rate) / 100);
+    }
 
-const calculateSalePrice = () => {
-    const markup = addMarkUpPrice();
-    form.sale_price = (markup).toFixed(2);
+    // If the tax type is not 'none' or 'percentage', return the tax rate as is
+    return parseFloat(form.tax_rate);
 }
 
 const calculateSalePriceWithTax = () => {
     const markup = addMarkUpPrice();
-    const discount = calculateDicount();
+    const discount = calculateDiscount();
     const total = (markup - discount) + calculateTaxAmount();
-    form.sale_price = (total).toFixed(2);
+    return total.toFixed(2);
 }
 
 const calculateSalePriceWithDiscount = () => {
-    const total = addMarkUpPrice() - calculateDicount();
-    form.sale_price = (total).toFixed(2);
+    const total = addMarkUpPrice() - calculateDiscount();
+    return total.toFixed(2);
 }
 
+const calculateTotal = () => {
+    const total = (addMarkUpPrice() 
+    - calculateDiscount()) 
+    + calculateTaxAmount();
+    form.sale_price = total;
+}
 
 
 const closeModal = () => {
@@ -397,7 +398,7 @@ const checkBarcodeUniqueness = async (barcode) => {
                                     v-model="form.base_price"
                                     required
                                     min="0"
-                                    @change="calculateSalePrice"                     placeholder="Enter base price"
+                                    @change="calculateTotal"                     placeholder="Enter base price"
                                 />
                                 <InputError class="mt-2" :message="form.errors.base_price" />
                             </div>
@@ -421,7 +422,7 @@ const checkBarcodeUniqueness = async (barcode) => {
                                     v-model="form.markup_price"
                                     required
                                     min="0"
-                                    @change="calculateSalePrice"               placeholder="Enter markup price"
+                                    @change="calculateTotal"               placeholder="Enter markup price"
                                 />
                                 <InputError class="mt-2" :message="form.errors.markup_price" />
 
@@ -431,7 +432,7 @@ const checkBarcodeUniqueness = async (barcode) => {
                         <div class="flex flex-col gap-5 md:flex-row">
                             <div class="w-full md:w-1/2">
                                 <span class="font-semibold text-sm">Discount Type</span>
-                                <select name="discount_type" v-model="form.discount_type" class="select select-bordered w-full mt-2" @change="calculateSalePriceWithDiscount">
+                                <select name="discount_type" v-model="form.discount_type" class="select select-bordered w-full mt-2" @change="calculateTotal">
                                     <option value="none">none</option>
                                     <option value="flat">flat</option>
                                     <option value="percentage">percentage</option>
@@ -442,8 +443,9 @@ const checkBarcodeUniqueness = async (barcode) => {
                             <div class="w-full md:w-1/2">
                                 <span class="font-semibold text-sm">
                                     Discount Rate
-                                    <span class="text-red-500" v-if="form.discount_type !== 'none'">
-                                        (-{{ calculateDicount().toFixed(2) }})
+                                    <span class="text-red-500" 
+                                    v-if="form.discount_type !== 'none'">
+                                        (-{{ calculateDiscount() }})
                                     </span>
                                 </span>
                                 <NumberInput
@@ -452,15 +454,14 @@ const checkBarcodeUniqueness = async (barcode) => {
                                     required
                                     min="0"
                                     step="0.0001"
-                                    @change="calculateSalePriceWithDiscount"
-                                    :readonly="form.discount_type === 'none'"
+                                    @change="calculateTotal"
                                 />
                                 <InputError class="mt-2" :message="form.errors.discount_rate" />
 
                             </div>
                             <div class="w-full md:w-1/2">
                                 <span class="font-semibold text-sm">Tax Type </span>
-                                <select name="tax_type" v-model="form.tax_type" class="select select-bordered w-full mt-2" @change="calculateSalePriceWithTax">
+                                <select name="tax_type" v-model="form.tax_type" class="select select-bordered w-full mt-2" @change="calculateTotal">
                                     <option value="none">none</option>
                                     <option value="flat">flat</option>
                                     <option value="percentage">percentage</option>
@@ -471,8 +472,9 @@ const checkBarcodeUniqueness = async (barcode) => {
                             <div class="w-full md:w-1/2">
                                 <span class="font-semibold text-sm">
                                     Tax Rate
-                                    <span class="text-primary" v-if="form.tax_type !== 'none'">
-                                        (+{{ calculateTaxAmount().toFixed(2) }})
+                                    <span class="text-primary" 
+                                    v-if="form.tax_type !== 'none'">
+                                        (+{{ calculateTaxAmount() }})
                                     </span>
                                 </span>
                                 <NumberInput
@@ -481,8 +483,7 @@ const checkBarcodeUniqueness = async (barcode) => {
                                     required
                                     min="0"
                                     step="0.0001"
-                                    @change="calculateSalePriceWithTax"
-                                    :readonly="form.tax_type === 'none'"
+                                    @change="calculateTotal"
 
                                 />
                                 <InputError class="mt-2" :message="form.errors.tax_rate" />
@@ -515,6 +516,7 @@ const checkBarcodeUniqueness = async (barcode) => {
                                     required
                                     min="0"
                                     readonly
+                                    @change="calculateTotal"
                                     placeholder="Enter sale price"
                                 />
                                 <InputError class="mt-2" :message="form.errors.sale_price" />
