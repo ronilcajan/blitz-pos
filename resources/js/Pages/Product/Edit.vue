@@ -68,8 +68,7 @@ const categoryForm = useForm({name: '',description: ''});
 
 const addMarkUpPrice = () => {
     const { base_price, markup_price  } = form;
-    const total = parseFloat(markup_price) + parseFloat(base_price);
-    return total;
+    return parseFloat(markup_price) + parseFloat(base_price);
 }
 
 const calculateDiscount = () => {
@@ -104,22 +103,23 @@ const calculateTaxAmount = () => {
     return parseFloat(form.tax_rate);
 }
 
-const calculateSalePrice = () => {
-    // Ensure `addMarkUpPrice` returns a number
-    const markup = addMarkUpPrice();
-    form.sale_price = markup.toFixed(2);
-}
-
 const calculateSalePriceWithTax = () => {
     const markup = addMarkUpPrice();
     const discount = calculateDiscount();
     const total = (markup - discount) + calculateTaxAmount();
-    form.sale_price = total.toFixed(2);
+    return total.toFixed(2);
 }
 
 const calculateSalePriceWithDiscount = () => {
     const total = addMarkUpPrice() - calculateDiscount();
-    form.sale_price = total.toFixed(2);
+    return total.toFixed(2);
+}
+
+const calculateTotal = () => {
+    const total = (addMarkUpPrice() 
+    - calculateDiscount()) 
+    + calculateTaxAmount();
+    form.sale_price = total;
 }
 
 
@@ -435,7 +435,8 @@ onMounted(() => {
                                     v-model="form.base_price"
                                     required
                                     min="0"
-                                    @change="calculateSalePrice"                     placeholder="Enter base price"
+                                    @change="calculateTotal"                     
+                                    placeholder="Enter base price"
                                 />
                                 <InputError class="mt-2" :message="form.errors.base_price" />
                             </div>
@@ -459,7 +460,8 @@ onMounted(() => {
                                     v-model="form.markup_price"
                                     required
                                     min="0"
-                                    @change="calculateSalePrice"               placeholder="Enter markup price"
+                                    @change="calculateTotal"               
+                                    placeholder="Enter markup price"
                                 />
                                 <InputError class="mt-2" :message="form.errors.markup_price" />
 
@@ -469,7 +471,7 @@ onMounted(() => {
                         <div class="flex flex-col gap-5 md:flex-row">
                             <div class="w-full md:w-1/2">
                                 <span class="font-semibold text-sm">Discount Type</span>
-                                <select name="discount_type" v-model="form.discount_type" class="select select-bordered w-full mt-2" @change="calculateSalePriceWithDiscount">
+                                <select name="discount_type" v-model="form.discount_type" class="select select-bordered w-full mt-2" @change="calculateTotal">
                                     <option value="none">none</option>
                                     <option value="flat">flat</option>
                                     <option value="percentage">percentage</option>
@@ -490,7 +492,7 @@ onMounted(() => {
                                     required
                                     min="0"
                                     step="0.0001"
-                                    @change="calculateSalePriceWithDiscount"
+                                    @change="calculateTotal"
                                     :readonly="form.discount_type === 'none'"
                                 />
                                 <InputError class="mt-2" :message="form.errors.discount_rate" />
@@ -498,7 +500,7 @@ onMounted(() => {
                             </div>
                             <div class="w-full md:w-1/2">
                                 <span class="font-semibold text-sm">Tax Type </span>
-                                <select name="tax_type" v-model="form.tax_type" class="select select-bordered w-full mt-2" @change="calculateSalePriceWithTax">
+                                <select name="tax_type" v-model="form.tax_type" class="select select-bordered w-full mt-2" @change="calculateTotal">
                                     <option value="none">none</option>
                                     <option value="flat">flat</option>
                                     <option value="percentage">percentage</option>
@@ -519,7 +521,7 @@ onMounted(() => {
                                     required
                                     min="0"
                                     step="0.0001"
-                                    @change="calculateSalePriceWithTax"
+                                    @change="calculateTotal"
                                     :readonly="form.tax_type === 'none'"
 
                                 />
@@ -553,6 +555,7 @@ onMounted(() => {
                                     required
                                     min="0"
                                     readonly
+                                    @change="calculateTotal"
                                     placeholder="Enter sale price"
                                 />
                                 <InputError class="mt-2" :message="form.errors.sale_price" />

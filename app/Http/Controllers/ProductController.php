@@ -223,7 +223,7 @@ class ProductController extends Controller
         $sales = $product->sales()
             ->orderBy('created_at', 'DESC')
             ->with(['sale.customer'])
-            ->paginate(20);
+            ->paginate(10);
 
         
         $productPriceModel = new ProductPrice();
@@ -232,7 +232,7 @@ class ProductController extends Controller
             ->where('event', 'updated')
             ->where('subject_id', $product->price->id)
             ->orderBy('created_at', 'DESC')
-            ->paginate(20); 
+            ->paginate(10); 
 
         return inertia('Product/Show', [
             'title' => "Product details",
