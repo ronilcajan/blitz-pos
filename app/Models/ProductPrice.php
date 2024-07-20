@@ -22,12 +22,14 @@ class ProductPrice extends Model
         return $this->belongsTo(Product::class);
     }
 
+    protected static $recordEvents = ['updated'];
+
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('Product Price')
-            ->logOnly(['name'])
-            ->logOnlyDirty()
+            ->useLogName('update_price')
+            ->logOnly(['id','sale_price'])
             ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
     }
 }

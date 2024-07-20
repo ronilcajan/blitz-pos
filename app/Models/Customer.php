@@ -55,7 +55,6 @@ class Customer extends Model
         return LogOptions::defaults()
             ->useLogName('Customer')
             ->logOnly(['name'])
-            ->logOnlyDirty()
             ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");    
     }
 

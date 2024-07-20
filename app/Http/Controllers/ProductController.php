@@ -6,6 +6,7 @@ use App\Http\Requests\ProductFormRequest;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductImage;
+use App\Models\ProductPrice;
 use App\Models\ProductUnit;
 use App\Models\Store;
 use App\Models\Supplier;
@@ -14,8 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
-use Milon\Barcode\DNS1D;
-use Milon\Barcode\DNS2D;
+use Spatie\Activitylog\Models\Activity;
 
 class ProductController extends Controller
 {
@@ -220,14 +220,25 @@ class ProductController extends Controller
         $product = Product::with(['price','stock','images','sales','category'])
             ->findOrFail($product->id);
 
-        $sales = $product->sales()->with(['sale.customer'])->get();
+        $sales = $product->sales()
+            ->orderBy('created_at', 'DESC')
+            ->with(['sale.customer'])
+            ->paginate(20);
 
-        Gate::authorize('update', $product);
+        
+        $productPriceModel = new ProductPrice();
+        $priceActivity = Activity::query()
+            ->where('subject_type', get_class($productPriceModel))
+            ->where('event', 'updated')
+            ->where('subject_id', $product->price->id)
+            ->orderBy('created_at', 'DESC')
+            ->paginate(20); 
 
         return inertia('Product/Show', [
             'title' => "Product details",
             'product' => $product,
             'sales' => $sales,
+            'price_activity' => $priceActivity,
         ]);
     }
 
