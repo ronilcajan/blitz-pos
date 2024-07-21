@@ -126,16 +126,6 @@ const submitBulkDeleteForm = () => {
         })
 }
 
-watch(category, value => {
-    const newQuery = { ...route().params, category: value };
-    router.visit('/products', {
-        method: 'get',
-        data: newQuery,
-        preserveState: true,
-        replace: true,
-    });
-});
-
 const appliedFilters = [
     { title: 'category', value: category },
     { title: 'search', value: search },
@@ -165,7 +155,7 @@ const product_types = [
 
     <TitleContainer :title="title">
         <div class="flex items-center gap-2" v-if="productsDataLength > 0">
-            <CreateBtn href="/products/create">New product</CreateBtn>
+            <CreateBtnLink href="/products/create">New product</CreateBtnLink>
             <ActionDropdown :dataIds="productIds" :exportPDFRoute="route('products.export_pdf')"
                 :exportExcelRoute="route('products.export_excel')" :withImportBtn="true"
                 @open-import-modal="importModal = true" @delete-all-selected="deleteAllSelectedModal = true" />
@@ -175,7 +165,7 @@ const product_types = [
     </TitleContainer>
 
     <EmptyContainer :title="title" v-if="productsDataLength == 0">
-        <CreateBtn href="/products/create">New product</CreateBtn>
+        <CreateBtnLink href="/products/create">New product</CreateBtnLink>
     </EmptyContainer>
 
     <div class="flex-grow" v-if="productsDataLength > 0">
@@ -186,13 +176,12 @@ const product_types = [
 
                         <SelectDropdownFilter v-model="category" :url="url" :title="`category`"
                             :options="product_categories" />
-
                         <SelectDropdownFilter v-model="type" :url="url" :title="`type`" :options="product_types" />
 
                     </div>
                     <div class="flex gap-2 flex-col sm:flex-row">
                         <div class="w-full">
-                            <SearchInput v-model="search" @clear-search="search = ''" :url="url" />
+                            <SearchInput v-model="search" :url="url" />
                         </div>
                     </div>
                 </div>
@@ -255,7 +244,7 @@ const product_types = [
                             </TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
-                                    <EditIconBtn :href="`/products/${product.id}/edit`" />
+                                    <EditIconBtnLink :href="`/products/${product.id}/edit`" />
                                     <DeleteIcon @modal-show="deleteProductForm(product.id)" />
                                 </div>
                             </TableCell>

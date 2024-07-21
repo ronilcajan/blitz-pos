@@ -84,7 +84,7 @@ class ProductUnitController extends Controller
     {
         // Gate::authorize('bulk_delete', ExpensesCategory::class);
 
-        ProductUnit::whereIn('id',$request->categories_id)->delete();
+        ProductUnit::whereIn('id',$request->units_id)->delete();
         return redirect()->back();
     }
 

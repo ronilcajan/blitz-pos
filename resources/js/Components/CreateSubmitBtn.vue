@@ -7,7 +7,7 @@ const model = defineModel({
 </script>
 
 <template>
-    <PrimaryButton type="submit"
+    <PrimaryButton :type="type"
         class="btn btn-sm"
         :class="{ 'opacity-25': model.processing }"
         :disabled="model.processing"

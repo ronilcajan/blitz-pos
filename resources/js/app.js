@@ -21,12 +21,12 @@ import NumberInput from '@/Components/NumberInput.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
-import CreateButtonLink from '@/Components/CreateButtonLink.vue';
 import DefaultButtonLink from '@/Components/DefaultButtonLink.vue';
 import SaveButton from '@/Components/SaveButton.vue';
 import DeleteButton from '@/Components/DeleteButton.vue';
 import DeleteIcon from '@/Components/DeleteIcon.vue';
 import EditIconBtn from '@/Components/EditIconBtn.vue';
+import EditIconBtnLink from '@/Components/EditIconBtnLink.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import PrintButton from '@/Components/PrintButton.vue';
 import CancelButton from '@/Components/CancelButton.vue';
@@ -52,6 +52,7 @@ import Avatar from '@/Components/Avatar.vue';
 import EmptyContainer from '@/Components/EmptyContainer.vue';
 import SaveAlert from '@/Components/SaveAlert.vue';
 import CreateBtn from '@/Components/CreateBtn.vue';
+import CreateBtnLink from '@/Components/CreateBtnLink.vue';
 import CreateSubmitBtn from '@/Components/CreateSubmitBtn.vue';
 import SaveSubmitBtn from '@/Components/SaveSubmitBtn.vue';
 import ActionDropdown from '@/Components/ActionDropdown.vue';
@@ -106,11 +107,11 @@ createInertiaApp({
             .component('FilterDate', FilterDate)
             .component('ImageUpload', ImageUpload)
             .component('NavLink', NavLink)
-            .component('CreateButtonLink', CreateButtonLink)
             .component('DefaultButtonLink', DefaultButtonLink)
             .component('SaveButton', SaveButton)
             .component('DeleteButton', DeleteButton)
             .component('EditIconBtn', EditIconBtn)
+            .component('EditIconBtnLink', EditIconBtnLink)
             .component('DeleteIcon', DeleteIcon)
             .component('SearchInput', SearchInput)
             .component('Pagination', Pagination)
@@ -130,6 +131,7 @@ createInertiaApp({
             .component('EmptyContainer', EmptyContainer)
             .component('SaveAlert', SaveAlert)
             .component('CreateBtn', CreateBtn)
+            .component('CreateBtnLink', CreateBtnLink)
             .component('CreateSubmitBtn', CreateSubmitBtn)
             .component('SaveSubmitBtn', SaveSubmitBtn)
             .component('ActionDropdown', ActionDropdown)

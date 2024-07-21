@@ -10,7 +10,6 @@ const props = defineProps({
 const model = defineModel({
     type: String,
 });
-const emits = defineEmits(['clearSearch']); // Declare emitted event 'clearSearch'
 
 watch(model, debounce(function (value) {
     const newQuery = { ...route().params, search: value }; //maintain url params
@@ -21,7 +20,6 @@ watch(model, debounce(function (value) {
     })
 
 }, 500));
-
 
 </script>
 
@@ -34,12 +32,19 @@ watch(model, debounce(function (value) {
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                 </svg>
             </div>
-            <input placeholder="Type here" v-model="model" class="input pl-8 input-bordered input-sm w-full"/>
-            <button type="button" v-if="model" class="absolute inset-y-0 end-0 flex items-center pe-3" @click="$emit('clearSearch')">
-                <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                </svg>
-            </button>
+            <input placeholder="Type here" 
+            v-model="model" class="input pl-8 input-bordered input-sm w-full"                 
+            id="simple-search" 
+            type="search" />
         </div>
     </div>
 </template>
+<style scoped>
+/* input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>') no-repeat center center;
+    cursor: pointer;
+} */
+</style>

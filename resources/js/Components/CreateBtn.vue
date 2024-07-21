@@ -1,15 +1,8 @@
 <script setup>
-defineProps({
-    href: {
-        type: String,
-        required: '',
-    },
-});
 </script>
 
 <template>
-    <Link
-        :href="href"
+    <button
         class="btn btn-sm btn-primary text-sm leading-5 transition duration-150 ease-in-out">
 
         <svg class="w-4 h-4 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -18,5 +11,5 @@ defineProps({
         
         <slot />
 
-    </Link>
+    </button>
 </template>

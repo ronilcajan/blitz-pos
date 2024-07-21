@@ -73,13 +73,10 @@ const downloadBarCode = () => {
     <Head :title="title" />
 
     <TitleContainer :title="title">
-        <button class="btn btn-sm btn-success ">
-            <EditIconBtn class="flex items-center gap-1" 
-            :href="`/products/${product.id}/edit`" :title="`Edit ${product.name}`">
-            <span>Edit</span>
-            </EditIconBtn>
-        </button>
-       
+        <EditIconBtnLink class="flex items-center gap-1 btn btn-sm btn-success" 
+        :href="`/products/${product.id}/edit`" :title="`Edit ${product.name}`">
+        <span>Edit</span>
+        </EditIconBtnLink>
     </TitleContainer>
 
 
