@@ -25,17 +25,10 @@ class ImportProducts implements ToModel, WithCalculatedFormulas, WithHeadingRow
         DB::beginTransaction();
 
         try {
-            $category = ProductCategory::where('name', $row['category'])->first();
-
-            if (!$category) {
-                $category = ProductCategory::create([
-                    'name' => $row['category'],
-                    'store_id' => auth()->user()->store_id,
-                ]);
-            }
-
-            // Now you can safely access $category->id
-            $categoryId = $category->id;
+            $category = ProductCategory::firstOrCreate(
+                ['name' => $row['category']],
+                ['store_id' => auth()->user()->store_id]
+            );
 
             $productAttributes = [
                 'name' => $row['name'],
@@ -48,12 +41,20 @@ class ImportProducts implements ToModel, WithCalculatedFormulas, WithHeadingRow
                 'brand' => $row['brand'],
                 'visible' => $row['visible'],
                 'description' => $row['description'],
-                'product_category_id' => $categoryId,
+                'product_category_id' => $category->id,
                 'store_id' => auth()->user()->store_id,
             ];
 
-            $product = Product::updateOrCreate(['barcode' => $row['barcode']], $productAttributes);
+            $product = Product::updateOrCreate(
+                [
+                    'barcode' => $row['barcode'],
+                    'store_id' => auth()->user()->store_id,
+                ], 
+                $productAttributes);
 
+            $existingStock = $product->stock()->first();
+
+            // Prepare stock attributes
             $productStocksAttributes = [
                 'sku' => $row['sku'],
                 'min_quantity' => $row['min_quantity'],
@@ -61,6 +62,18 @@ class ImportProducts implements ToModel, WithCalculatedFormulas, WithHeadingRow
                 'in_warehouse' => $row['in_warehouse'],
                 'product_id' => $product->id
             ];
+
+            // If stock exists, add to existing values
+            if ($existingStock) {
+                $productStocksAttributes['in_store'] += $existingStock->in_store;
+                $productStocksAttributes['in_warehouse'] += $existingStock->in_warehouse;
+            }
+
+            // Update or create stock attributes
+            $product->stock()->updateOrCreate(
+                ['product_id' => $product->id],
+                $productStocksAttributes
+            );
 
             $productPriceAttributes = [
                 'base_price' => $row['base_price'],
@@ -74,9 +87,11 @@ class ImportProducts implements ToModel, WithCalculatedFormulas, WithHeadingRow
             ];
 
             // Update or create price attributes
-            $product->price()->updateOrCreate([], $productPriceAttributes);
+            $product->price()->updateOrCreate(
+                ['product_id' => $product->id], 
+                $productPriceAttributes);
             // Update or create stock attributes
-            $product->stock()->updateOrCreate([], $productStocksAttributes);
+            $product->stock()->updateOrCreate(['product_id' => $product->id], $productStocksAttributes);
 
             DB::commit();
         } catch (\Exception $e) {

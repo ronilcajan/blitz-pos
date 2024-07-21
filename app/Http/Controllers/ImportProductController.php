@@ -7,13 +7,19 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
 class ImportProductController extends Controller
 {
     public function __invoke(Request $request)
     {
         try {
-            Excel::import(new ImportProducts, $request->file('import_file')->store('temp'));
+
+            $filePath = $request->file('import_file')->store('temp');
+
+            Excel::import(new ImportProducts, $filePath);
+
+            Storage::delete($filePath);
 
             return redirect()->back();
         }

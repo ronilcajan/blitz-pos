@@ -22,38 +22,50 @@ class ExportProductController extends Controller
     }
 
     public function export_pdf(){
-        $product = Product::with(['store','price', 'stock','category']);
-        $items = $product
-                ->orderBy('name','ASC')
-                ->get()
-                ->map(function($product){
-                    return [
-                        'name' => $product->name,
-                        'barcode' => $product->barcode,
-                        'size' => $product->size,
-                        'unit' => $product->unit,
-                        'usage_type' => $product->usage_type,
-                        'brand' => $product->brand,
-                        'expiration_date' => $product->expiration_date ? date('y-m-d',strtotime($product->expiration_date)) : '',
-                        'description' => $product->description,
-                        'category' => $product->category?->name,
-                        'sku' => $product->sku,
-                        'in_store' => number_format($product->stock?->in_store),
-                        'in_warehouse' => number_format($product->stock?->in_warehouse),
-                        'base_price' => number_format($product->price?->base_price,2),
-                        'markup_price' => number_format($product->price?->markup_price,2),
-                        'price' =>  number_format($product->price?->sale_price,2),
-                    ];
-                });
+    // Fetch products with related models
+        $productQuery = Product::with(['store', 'price', 'stock', 'category']);
+        
+        // Map products to a format suitable for the PDF
+        $items = $productQuery
+            ->orderBy('name', 'ASC')
+            ->get()
+            ->map(function($product) {
+                return [
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'size' => $product->size,
+                    'unit' => $product->unit,
+                    'usage_type' => $product->usage_type,
+                    'brand' => $product->brand,
+                    'expiration_date' => $product->expiration_date 
+                        ? date('Y-m-d', strtotime($product->expiration_date)) 
+                        : '',
+                    'description' => $product->description,
+                    'category' => $product->category?->name,
+                    'sku' => $product->sku,
+                    'in_store' => number_format($product->stock?->in_store, 0),
+                    'in_warehouse' => number_format($product->stock?->in_warehouse, 0),
+                    'base_price' => number_format($product->price?->base_price, 2),
+                    'markup_price' => number_format($product->price?->markup_price, 2),
+                    'price' => number_format($product->price?->sale_price, 2),
+                ];
+            });
 
+        // Load view for PDF generation
         $pdf = Pdf::loadView('products.export_products_pdf', [
             'title' => "Products Inventory",
             'store' => auth()->user()->store,
             'items' => $items,
         ]);
 
-        $filename = 'products_pdf'.date('-Y-m-d').'.pdf';
+        // Generate filename with timestamp
+        $filename = 'products_pdf_' . date('Y-m-d_H-i-s') . '.pdf';
+
+        // Set paper size and orientation
         $pdf->setPaper('Legal', 'landscape');
+
+        // Download the generated PDF
         return $pdf->download($filename);
     }
+
 }
