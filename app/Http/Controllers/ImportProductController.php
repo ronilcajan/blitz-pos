@@ -18,6 +18,7 @@ class ImportProductController extends Controller
             return redirect()->back();
         }
          catch (Exception $e) {
+            
             Log::error('Error recording sales: ' .$e->getMessage());
 
             return redirect()->back()->withErrors(['error' => 'An error occurred while importing the products. Please try again.'.$e->getMessage()]);

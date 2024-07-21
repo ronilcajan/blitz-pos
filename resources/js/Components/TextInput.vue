@@ -19,7 +19,7 @@ defineExpose({ focus: () => input.value.focus() });
 
 <template>
     <input
-        class="input input-bordered mt-2"
+        class="input input-bordered mt-1"
         v-model="model"
         ref="input"
     />

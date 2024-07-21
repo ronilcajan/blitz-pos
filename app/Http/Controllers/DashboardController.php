@@ -37,7 +37,7 @@ class DashboardController extends Controller
                     'total' => !$sale->store->currency ? Number::format($sale->total, 2) : Number::currency($sale->total, in: $sale?->store?->currency),
                     'payment_method' => $sale->payment_method,
                     'user' => $sale->user?->name,
-                    'customer' => $sale->customer?->name,
+                    'customer' => $sale->customer?->name ?? 'Walk-in',
                     'store' => $sale->store?->name,
                     'status' => $sale->status->getLabelText(),
                     'statusColor' => $sale->status->getLabelColor(),

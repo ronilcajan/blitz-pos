@@ -170,7 +170,7 @@
                             {{ $item['unit'] }}
                         </td>
                         <td>
-                            {{ $item['product_type'] }}
+                            {{ $item['usage_type'] }}
                         </td>
                         <td>
                             {{ $item['brand'] }}

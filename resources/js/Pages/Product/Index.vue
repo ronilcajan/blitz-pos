@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
@@ -19,7 +19,6 @@ let search = ref(props.filter.search);
 let category = ref('');
 let type = ref('');
 const url = '/products';
-const productsDataLength = props.products.data.length;
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -82,7 +81,7 @@ const submitDeleteForm = () => {
 
 
 const submitImportProducts = () => {
-    importForm.visit(route('products.import'),
+    importForm.post(route('products.import'),
         {
             replace: true,
             preserveScroll: true,
@@ -147,6 +146,14 @@ const product_types = [
     { id: '2', name: 'internal_use', },
 
 ]
+
+const productsDataLength = computed(() => {
+    if(route().params){
+        return props.products.data.length + 1
+    }
+    return props.products.data.length
+})
+
 </script>
 
 <template>
@@ -174,7 +181,7 @@ const product_types = [
                 <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
                     <div class="flex gap-2 flex-col sm:flex-row">
 
-                        <SelectDropdownFilter v-model="category" :url="url" :title="`category`"
+                        <SelectDropdownFilter v-if="product_categories.length" v-model="category" :url="url" :title="`category`"
                             :options="product_categories" />
                         <SelectDropdownFilter v-model="type" :url="url" :title="`type`" :options="product_types" />
 

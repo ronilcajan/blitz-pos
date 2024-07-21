@@ -25,9 +25,8 @@ class ProductsExport implements FromCollection, WithHeadings, WithColumnWidths
                             'color' => $product->color,
                             'dimension' => $product->dimension,
                             'unit' => $product->unit,
-                            'product_type' => $product->product_type,
+                            'usage_type' => $product->usage_type,
                             'brand' => $product->brand,
-                            'manufacturer' => $product->manufacturer,
                             'visible' => $product->visible,
                             'expiration_date' => $product->expiration_date,
                             'description' => $product->description,
@@ -37,8 +36,12 @@ class ProductsExport implements FromCollection, WithHeadings, WithColumnWidths
                             'in_store' => $product->stock?->in_store,
                             'in_warehouse' => $product->stock?->in_warehouse,
                             'base_price' => $product->price?->base_price,
-                            'markup_price' => $product->price?->markup_price,
-                            'price' =>  $product->price?->discount_price,
+                            'markup_price' =>$product->price?->markup_price,
+                            'discount_rate' => $product->price?->discount_rate,
+                            'discount_type' => $product->price?->discount_type,
+                            'tax_rate' => $product->price?->tax_rate,
+                            'tax_type' => $product->price?->tax_type,
+                            'sale_price' => $product->price?->sale_price
                         ];
                     });
     }
@@ -52,9 +55,8 @@ class ProductsExport implements FromCollection, WithHeadings, WithColumnWidths
             'color',
             'dimension',
             'unit',
-            'product_type',
+            'usage_type',
             'brand',
-            'manufacturer',
             'visible',
             'expiration_date',
             'description',
@@ -65,7 +67,11 @@ class ProductsExport implements FromCollection, WithHeadings, WithColumnWidths
             'in_warehouse',
             'base_price',
             'markup_price',
-            'price',
+            'discount_rate',
+            'discount_type',
+            'tax_rate',
+            'tax_type',
+            'sale_price'
         ];
     }
 

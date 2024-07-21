@@ -98,7 +98,7 @@ class ProductController extends Controller
             'size' => $request->size,
             'color' => $request->color,
             'dimension' => $request->dimension,
-            'unit' => $request->unit,
+            'unit' => $request->unit, 
             'usage_type' => $request->usage_type,
             'brand' => $request->brand,
             'description' => $request->description,
@@ -157,7 +157,6 @@ class ProductController extends Controller
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
-            //throw $th;
             return redirect()->back()->with('error', $th->getMessage());
         }
 
