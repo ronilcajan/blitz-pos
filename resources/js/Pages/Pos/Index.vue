@@ -108,7 +108,11 @@ const createOrderFromProduct = (product) => {
         unit: product.unit,
         stocks: product.stocks,
         price: parseFloat(product.price ?? 0.00).toFixed(2),
+        taxRate: parseFloat(product.tax ?? 0.00),
         image: product.image,
+        get tax() {
+            return (this.qty * this.taxRate).toFixed(2);
+        },
         get total() {
             return (this.qty * parseFloat(this.price)).toFixed(2);
         },
@@ -151,8 +155,8 @@ const purchaseForm = useForm({
 	transaction_date: updateDateTime(),
 	quantity : 0,
     sub_total: 0,
+    tax: 0,
 	discount : discount.value,
-    tax : tax.value,
     total : 0,
     payment_tender : 0,
     payment_changed : 0,
@@ -172,11 +176,17 @@ const calculateQty = computed(() => {
     return subTotal;
 })
 
+const calculateTax = computed(() => {
+    const taxTotal = purchases.reduce((acc, order) => acc + parseFloat(order.tax), 0).toFixed(2);
+    return taxTotal;
+})
+
 const calculateTotal = computed(() => {
     const subTotal = purchases.reduce((acc, order) => acc + parseFloat(order.total), 0).toFixed(2);
+
     const discountValue = parseFloat(purchaseForm.discount);
-    const taxValue = parseFloat(purchaseForm.tax);
-    const total = (subTotal + taxValue) - (discountValue);
+    const total = subTotal - discountValue;
+
     return total.toFixed(2);
 })
 
@@ -204,21 +214,6 @@ const checkDiscount = () => {
     purchaseForm.total = calculateTotal
 }
 
-const checkTax = () => {
-    if(purchaseForm.tax < 0){
-        useToast().warning(`Warning! Tax is less than 0.`, {
-				position: 'top-right',
-				duration: 3000,
-				dismissible: true
-			});
-        return;
-    }
-    if(purchaseForm.tax == ''){
-        purchaseForm.tax = 0;
-    }
-
-    purchaseForm.total = calculateTotal
-}
 
 const formatNumberWithCommas = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -259,6 +254,7 @@ watch(purchases,  (newItems) => {
     purchaseForm.quantity = calculateQty.value;
     purchaseForm.sub_total = calculateSubTotal.value;
     purchaseForm.total = calculateTotal.value;
+    purchaseForm.tax = calculateTax.value;
 });
 
 const setPaymentAmount = (amount) => {
@@ -457,7 +453,7 @@ const submitPurchase = () => {
                             @add-products="newPurchase(product)"
                         />
 
-                        <div class="w-full flex justify-center items-center border border-gray-100 rounded border-dashed border-2" v-if="products.data.length === 0">
+                        <div class="w-full flex justify-center items-center border-gray-100 rounded border-dashed border-2" v-if="products.data.length === 0">
                             <div class="flex flex-col gap-3 justify-center items-center w-2/3">
                             <p class="text-lg font-semibold">
                                 No products found!
@@ -469,7 +465,7 @@ const submitPurchase = () => {
 
                         </div>
                         </div>
-
+ 
                     </div>
                     <div class="hidden md:flex">
                         <Pagination :links="products.links" />
@@ -506,7 +502,7 @@ const submitPurchase = () => {
                             @delete-item="deleteOrder(item.id)"
                         />
 
-                        <div class="w-full h-full flex justify-center items-center border border-gray-100 rounded border-dashed border-2 flex-col" v-if="purchases.length === 0">
+                        <div class="w-full h-full flex justify-center items-center border-gray-100 rounded border-dashed border-2 flex-col" v-if="purchases.length === 0">
                             
                             <div class="flex flex-col gap-3 justify-center items-center text-gray-400">
                                
@@ -526,22 +522,30 @@ const submitPurchase = () => {
                             <div>Items</div>
                             <div>{{ formatNumberWithCommas(purchaseForm.quantity) }}</div>
                         </div>
+                        
+                        <div class="flex justify-between  uppercase">
+                            <div>TAX
+                                    <div class="dropdown">
+                                        <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
+                                            <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        </div>
+                                        <div tabindex="0" class="card compact dropdown-content z-[1] bg-base-100 rounded-box w-64 shadow">
+                                            <div tabindex="0" class="card-body">
+                                                <h2 class="font-bold uppercase text-xs">Tax Info?</h2>
+                                                <p>Tax is added on top of subtotal.</p>
+                                            </div>
+                                        </div>
+                                    </div></div>
+                            <div>
+                                <span class="">
+                                {{  $page.props.auth.user.currency + " " + purchaseForm.tax }}
+                                </span>
+                            </div>
+                        </div>
                         <div class="flex justify-between  uppercase">
                             <div>Sub-total</div>
                             <div>{{  $page.props.auth.user.currency + " " + formatNumberWithCommas(purchaseForm.sub_total) }}</div>
                         </div>
-                        <!-- <div class="flex justify-between  uppercase">
-                            <div>
-                                <button class="font-semibold text-red-500" type="button" @click="addTaxModal = true">
-                                    TAX(+/-):
-                                </button>
-                            </div>
-                            <div>
-                                <span class="text-red-500">
-                                {{  $page.props.auth.user.currency + " " + purchaseForm.tax }}
-                                </span>
-                                </div>
-                        </div> -->
                         <div class="flex justify-between uppercase">
                             <div>
                                 <button class="font-semibold uppercase text-red-500" type="button" @click="addDiscountModal = true">
@@ -830,41 +834,6 @@ const submitPurchase = () => {
                     class="ms-3"
                 >
                     Add discount
-                </PrimaryButton>
-            </div>
-        </div>
-    </Modal>
-    <Modal :show="addTaxModal" @close="addTaxModal = false">
-        <div class="p-6">
-            <h1 class="text-xl mb-4 font-medium">
-                Add TAX
-            </h1>
-            <div>
-                <InputLabel for="name" value="TAX" />
-                <NumberInput
-                    type="number"
-                    class="block w-full"
-                    v-model="purchaseForm.tax"
-                    required
-                    placeholder="Enter supplier name"
-                    @input="checkTax"
-                />
-            </div>
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="addTaxModal = false"
-                    class="ms-3"
-                >
-                    Close
-                </SecondaryButton>
-                <DangerButton @click="purchaseForm.tax = 0;"
-                    class="ms-3"
-                >
-                    Reset
-                </DangerButton>
-                <PrimaryButton @click="addTaxModal = false"
-                    class="ms-3"
-                >
-                    Add tax
                 </PrimaryButton>
             </div>
         </div>

@@ -23,7 +23,7 @@ class POSController extends Controller
         $user = auth()->user();
 
         $products =  Product::query()
-            ->with(['price','stock','category'])
+            ->with(['price','stock','category','images'])
             ->orderBy('name', 'ASC')
             ->where('visible','published')
             ->where('usage_type','sellable')
@@ -41,6 +41,7 @@ class POSController extends Controller
                     'barcode' => $product->barcode,
                     'size' => $product->size,
                     'unit' => $product->unit,
+                    'tax' => $product->price->tax_rate,
                     'image' => $product?->images[0]->image ?? asset('product.png'),
                     'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
                     'price' =>  $product->price->sale_price ?? 0,
