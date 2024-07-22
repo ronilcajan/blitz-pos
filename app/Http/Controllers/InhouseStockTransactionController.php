@@ -185,11 +185,21 @@ class InhouseStockTransactionController extends Controller
         //
     }
 
+    public function bulkDelete(Request $request)
+    {
+        // Gate::authorize('bulk_delete', Supplier::class);
+
+        InhouseStockTransaction::whereIn('id',$request->transactions_id)->delete();
+        return redirect()->back();
+    }
+
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(InhouseStockTransaction $inhouseStockTransaction)
+    public function destroy(Request $request)
     {
-        //
+        $transaction = InhouseStockTransaction::find($request->inhouseStockTransaction)->delete();
+
+        return redirect()->back();
     }
 }

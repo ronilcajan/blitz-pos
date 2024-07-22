@@ -92,7 +92,7 @@ Route::middleware(['auth', 'verified', 'timeZone'])->group(function () {
     Route::post('/inventory/stocks/bulk_update', [InventoryController::class, 'bulk_update']);
 
     Route::resource('/in_house', InhouseStockTransactionController::class);
-
+    Route::post('/in_house/bulk_update', [InhouseStockTransactionController::class, 'bulkDelete'])->name('in_house.bulkDelete');
 
     Route::resource('/products', ProductController::class);
     Route::get('/products/api/fetch/{barcode}', [ProductController::class, 'barcode_api'])->name('products.barcode.api');

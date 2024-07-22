@@ -23,23 +23,23 @@ const importModal = ref(false);
 let transactionIds = ref([]);
 let selectAllCheckbox = ref(false);
 
-const deleteForm = useForm({id: ''});
-const deleteSelectedForm = useForm({transaction_id: []});
+const deleteForm = useForm({inhouseStockTransaction: ''});
+const deleteSelectedForm = useForm({transactions_id: []});
 
-const deleteSupplierForm = (transaction_id) => {
+const deleteTransactionForm = (transaction_id) => {
 	deleteModal.value = true;
-	deleteForm.id = transaction_id
+	deleteForm.inhouseStockTransaction = transaction_id
 }
 
 const submitDeleteForm = () => {
-	deleteForm.delete(`/in_house/${deleteForm.id}`,{
+	deleteForm.delete(`/in_house/${deleteForm.inhouseStockTransaction}`,{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
 			deleteForm.clearErrors()
             deleteModal.value = false;
             deleteForm.reset();
-			useToast().error('Supplier has been deleted!', {
+			useToast().error('Transaction has been deleted!', {
 				position: 'top-right',
 				duration: 3000,
 				dismissible: true
@@ -49,15 +49,15 @@ const submitDeleteForm = () => {
 }
 
 const submitBulkDeleteForm = () => {
-    deleteSelectedForm.suppliers_id = supplierIds.value
-    deleteSelectedForm.post(route('suppliers.bulkDelete'),
+    deleteSelectedForm.transactions_id = transactionIds.value
+    deleteSelectedForm.post(route('in_house.bulkDelete'),
     {
         replace: true,
         preserveScroll: true,
         onSuccess: () => {
             transactionIds.value = [];
             deleteAllSelectedModal.value = false;
-            useToast().error('Selected suppliers has been deleted!', {
+            useToast().error('Selected transaction has been deleted!', {
                 position: 'top-right',
                 duration: 3000,
                 dismissible: true
@@ -171,10 +171,10 @@ const selectAll = () => {
         </div>
     </div>
 
-    <!-- <Modal :show="deleteModal" @close="deleteModal = false">
+    <Modal :show="deleteModal" @close="deleteModal = false">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
-                Delete supplier
+                Delete transaction
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitDeleteForm">
@@ -196,7 +196,7 @@ const selectAll = () => {
     <Modal :show="deleteAllSelectedModal" @close="deleteAllSelectedModal = false">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
-                Delete {{ supplierIds.length }} suppliers
+                Delete selected transactions
             </h1>
             <p>Are you sure you want to delete this data? This action cannot be undone.</p>
             <form method="dialog" class="w-full" @submit.prevent="submitBulkDeleteForm">
@@ -214,5 +214,5 @@ const selectAll = () => {
                 </div>
             </form>
         </div>
-    </Modal> -->
+    </Modal>
 </template>
