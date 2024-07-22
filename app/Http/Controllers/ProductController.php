@@ -8,6 +8,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductImage;
 use App\Models\ProductPrice;
 use App\Models\ProductUnit;
+use App\Models\SoldItems;
 use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Support\Number;
@@ -50,11 +51,14 @@ class ProductController extends Controller
                     'description' => $product->description,
                     'image' => $product?->images[0]->image ?? asset('product.png'),
                     'visible' => $product->visible === 'published',
-                    'store' => $product->store->name,
                     'category' => $product->category?->name,
-                    'price' =>  $product->price?->sale_price ? Number::format($product->price?->sale_price,2) : null,
+                    'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
+                    'price' =>  $product->price?->sale_price ? Number::currency($product->price?->sale_price, in: auth()->user()->store->currency) : $product->price?->sale_price,
                 ];
         });
+
+        // $inventoryLevel = $products->sum('stocks');
+        // $totalSalesVolumn = SoldItems::sum('quantity');
 
         return inertia('Product/Index', [
             'title' => 'Products',
@@ -252,27 +256,26 @@ class ProductController extends Controller
 
         $request->validated();
 
-       
-
-        $productAttributes = [
-            'name' => $request->name,
-            'barcode' => $request->barcode,
-            'size' => $request->size,
-            'color' => $request->color,
-            'dimension' => $request->dimension,
-            'unit' => $request->unit,
-            'usage_type' => $request->usage_type,
-            'brand' => $request->brand,
-            'description' => $request->description,
-            'product_category_id' => $request->product_category_id,
-            'visible' => $request->visible,
-            'expiration_date' => $request->expiration_date,
-            'store_id' => $request->store_id ?? auth()->user()->store_id,
-        ];
-
-        DB::beginTransaction();
 
         try {
+            DB::beginTransaction();
+
+            $productAttributes = [
+                'name' => $request->name,
+                'barcode' => $request->barcode,
+                'size' => $request->size,
+                'color' => $request->color,
+                'dimension' => $request->dimension,
+                'unit' => $request->unit,
+                'usage_type' => $request->usage_type,
+                'brand' => $request->brand,
+                'description' => $request->description,
+                'product_category_id' => $request->product_category_id,
+                'visible' => $request->visible,
+                'expiration_date' => $request->expiration_date,
+                'store_id' => $request->store_id ?? auth()->user()->store_id,
+            ];
+
             $product->update($productAttributes);
 
 

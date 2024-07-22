@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 class SupplierController extends Controller
@@ -24,7 +25,7 @@ class SupplierController extends Controller
         $perPage = $request->per_page
         ? (
             $request->per_page == 'All'
-            ? Store::count()
+            ? Supplier::count()
             : $request->per_page
         )
         : 10;
@@ -146,7 +147,10 @@ class SupplierController extends Controller
     public function import(Request $request)
     {
         try {
-            Excel::import(new ImportSupplier, $request->file('import_file')->store('temp'));
+            $filename = $request->file('import_file')->store('temp');
+            Excel::import(new ImportSupplier, $filename);
+
+            Storage::delete($filename);
 
             return redirect()->back();
         }

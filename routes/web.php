@@ -17,6 +17,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\ImportProductController;
+use App\Http\Controllers\InhouseStockTransactionController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\POSController;
@@ -89,6 +90,9 @@ Route::middleware(['auth', 'verified', 'timeZone'])->group(function () {
     Route::post('/inventory/update', [InventoryController::class, 'update']);
     Route::patch('/inventory/stocks/update/{product}', [InventoryController::class, 'update_stocks']);
     Route::post('/inventory/stocks/bulk_update', [InventoryController::class, 'bulk_update']);
+
+    Route::resource('/in_house', InhouseStockTransactionController::class);
+
 
     Route::resource('/products', ProductController::class);
     Route::get('/products/api/fetch/{barcode}', [ProductController::class, 'barcode_api'])->name('products.barcode.api');

@@ -79,7 +79,7 @@ const submit = async () => {
         onSuccess: async (response) => {
 
             const url = 'https://api.lemonsqueezy.com/v1/checkouts';
-            const redirect_url = 'http://127.0.0.1:8000/dashboard';
+            // const redirect_url = 'http://127.0.0.1:8000/dashboard';
 
             if(form.product_id !== 'free_plan') { // if not free plan
                 const headers = {
@@ -92,7 +92,7 @@ const submit = async () => {
                         type: 'checkouts',
                         attributes: {
                             product_options: {
-                                redirect_url : redirect_url,
+                                // redirect_url : redirect_url,
                                 enabled_variants: [form.variant_id],
                             },
                             checkout_options: {

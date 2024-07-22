@@ -99,22 +99,28 @@ const downloadBarCode = () => {
                             </div>
                             </template>
                         </div>
-                        <div class="flex w-full justify-center gap-2 py-2">
                             <div class="flex justify-center gap-2 flex-wrap">
                                 <template v-for="(image, index) in product.images" :key="index">
-                                    <a :href="`#item${index}`" class=" btn-link border border-gray-100 p-2">  
+                                    <a :href="`#item${index}`" class="btn-link border border-gray-100 p-2">  
                                         <img width="50" :src="image.image"/>
                                     </a>
                                 </template>
                             </div>
-                           
-                        </div>
                     </div>
             </div>
 
-            <div class="shadow card bg-base-100 rounded-sm col-span-2 mb-3">
-                <div class="card-body">
-                    <div class="flex justify-between items-center">
+            <div class="rounded-sm mb-3 col-span-2">
+                <div role="tablist" class="tabs tabs-lifted tabs-md justify-self-start">
+                    <input
+                        type="radio"
+                        name="my_tabs_2"
+                        role="tab"
+                        class="tab font-semibold text-primary text-xs"
+                        aria-label="Info"
+                        checked="checked" />
+                    <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
+                        
+                        <div class="flex justify-between items-center">
                         <h2 class="text-sm card-title grow">
                             <span class="text-4xl font-bold">
                                 {{ product?.name }}
@@ -177,19 +183,17 @@ const downloadBarCode = () => {
                             <span class="">{{ product?.description }}
                             </span>
                         </div>
-                    </div>    
-                </div>
-            </div>
+                    </div> 
+                    
+                        
+                    </div>
 
-            <div class="rounded-sm mb-3">
-                <div role="tablist" class="tabs tabs-lifted tabs-md justify-self-start">
                     <input
                         type="radio"
                         name="my_tabs_2"
                         role="tab"
                         class="tab font-semibold text-primary text-xs"
-                        aria-label="Attributes"
-                        checked="checked" />
+                        aria-label="Attributes" />
                     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
                         
                         <div class="flex flex-col">
@@ -241,8 +245,7 @@ const downloadBarCode = () => {
                         name="my_tabs_2"
                         role="tab"
                         class="tab font-semibold text-primary text-xs"
-                        aria-label="Pricing"
-                        checked="checked" />
+                        aria-label="Pricing" />
                     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
                         
                         <div class="flex flex-col">
@@ -309,8 +312,7 @@ const downloadBarCode = () => {
                         name="my_tabs_2"
                         role="tab"
                         class="tab font-semibold text-primary text-xs"
-                        aria-label="Inventory"
-                        checked="checked" />
+                        aria-label="Inventory" />
                     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
                         
                         <div class="flex flex-col">
@@ -357,8 +359,7 @@ const downloadBarCode = () => {
                         name="my_tabs_2"
                         role="tab"
                         class="tab font-semibold text-primary text-xs"
-                        aria-label="Barcode"
-                        checked="checked" />
+                        aria-label="Barcode"/>
                     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
                         
                         <div class="flex justify-start">

@@ -8,32 +8,31 @@ defineOptions({ layout: AuthenticatedLayout })
 
 const props = defineProps({
     title: String,
-	suppliers: Object,
+	transactions: Object,
 	filter: Object
 });
 
-const url = '/suppliers';
+const url = '/in_house';
 let search = ref(props.filter.search);
-const supplierDataLength = props.suppliers.data.length;
+const transactionsDataLength = props.transactions.data.length;
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
 const importModal = ref(false);
 
-let supplierIds = ref([]);
+let transactionIds = ref([]);
 let selectAllCheckbox = ref(false);
 
 const deleteForm = useForm({id: ''});
-const deleteSelectedForm = useForm({suppliers_id: []});
-const importForm = useForm({import_file: ''});
+const deleteSelectedForm = useForm({transaction_id: []});
 
-const deleteSupplierForm = (user_id) => {
+const deleteSupplierForm = (transaction_id) => {
 	deleteModal.value = true;
-	deleteForm.id = user_id
+	deleteForm.id = transaction_id
 }
 
 const submitDeleteForm = () => {
-	deleteForm.delete(`/suppliers/${deleteForm.id}`,{
+	deleteForm.delete(`/in_house/${deleteForm.id}`,{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
@@ -56,7 +55,7 @@ const submitBulkDeleteForm = () => {
         replace: true,
         preserveScroll: true,
         onSuccess: () => {
-            supplierIds.value = [];
+            transactionIds.value = [];
             deleteAllSelectedModal.value = false;
             useToast().error('Selected suppliers has been deleted!', {
                 position: 'top-right',
@@ -72,36 +71,11 @@ const submitBulkDeleteForm = () => {
 const selectAll = () => {
 	if (selectAllCheckbox.value) {
         // If "Select All" checkbox is checked, select all users
-        supplierIds.value = props.suppliers.data.map(supplier => supplier.id);
+        transactionIds.value = props.transactions.data.map(transaction => transaction.id);
       } else {
         // If "Select All" checkbox is unchecked, deselect all users
-        supplierIds.value = [];
+        transactionIds.value = [];
       }
-}
-
-const submitImportProducts = () => {
-    importForm.post(route('suppliers.import'),
-    {
-        replace: true,
-        preserveScroll: true,
-        onSuccess: () => {
-            importForm.reset();
-            importModal.value=false
-            useToast().success('Suppliers has been imported successfully!', {
-                position: 'top-right',
-                duration: 3000,
-                dismissible: true
-            });
-            router.reload({only: ['suppliers']})
-        },
-        onError: () => {
-            useToast().error(importForm.errors.error, {
-                position: 'top-right',
-                duration: 3000,
-                dismissible: true
-            });
-        }
-    })
 }
 
 </script>
@@ -110,25 +84,23 @@ const submitImportProducts = () => {
     <Head :title="title" />
 
     <TitleContainer :title="title">
-        <div v-if="supplierDataLength !== 0" class="flex items-center gap-2">
-            <CreateBtnLink href="suppliers/create" >New supplier</CreateBtnLink>
+        <div v-if="transactionsDataLength !== 0" class="flex gap-2">
+            <CreateBtnLink href="in_house/create" >New transactions</CreateBtnLink>
             <ActionDropdown
-                :dataIds="supplierIds"
-                :exportPDFRoute="route('suppliers.export_pdf')"
-                :exportExcelRoute="route('suppliers.export_excel')"
-                :withImportBtn="true"
-                @open-import-modal="importModal = true"
+                :dataIds="transactionIds"
+                :exportPDFRoute="false"
+                :exportExcelRoute="false"
+                :withImportBtn="false"
+                @open-import-modal="importModal = false"
                 @delete-all-selected="deleteAllSelectedModal = true"/>
         </div>
     </TitleContainer>
 
-    <EmptyContainer :title="title" v-if="supplierDataLength === 0">
-       
-
-        <CreateBtnLink href="suppliers/create">New supplier</CreateBtnLink>
+    <EmptyContainer :title="title" v-if="transactionsDataLength === 0">
+        <CreateBtnLink href="in_house/create">New transactions</CreateBtnLink>
     </EmptyContainer> 
 
-    <div class="flex-grow" v-if="supplierDataLength > 0">
+    <div class="flex-grow" v-if="transactionsDataLength > 0">
         <section class="col-span-12 overflow-hidden  bg-base-100 shadow-sm rounded">
             <div class="card-body grow-0">
                 <div class="flex justify-end  gap-2 flex-col-reverse sm:flex-row">
@@ -147,37 +119,43 @@ const submitImportProducts = () => {
                             <TableHead v-if="$page.props.auth.user.canDelete">
                                 <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
                             </TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Contact Person</TableHead>
-                            <TableHead>Phone</TableHead>
-                            <TableHead>Address</TableHead>
+                            <TableHead>Tx No</TableHead>
+                            <TableHead>Quantity</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Created By</TableHead>
+                            <TableHead>Date</TableHead>
                         </TableRow>
                     </TableHeader>
                 </template>
                 <template #table-body>
                     <TableBody>
-                        <TableRow v-for="supplier in suppliers.data" :key="supplier.id">
+                        <TableRow v-for="transaction in transactions.data" :key="transaction.id">
                             <TableCell v-if="$page.props.auth.user.canDelete">
-                                <input :value="supplier.id" v-model="supplierIds" type="checkbox" class="checkbox checkbox-sm">
+                                <input :value="transaction.id" v-model="transactionIds" type="checkbox" class="checkbox checkbox-sm">
                             </TableCell>
+                            <TableCell>{{ transaction.tx_no }}</TableCell>
+                            <TableCell>{{ transaction.quantity }}</TableCell>
+                            <TableCell>{{ transaction.amount }}</TableCell>
+                            <TableCell>
+                               <span class="badge badge-success" v-if="transaction.status=='completed'">
+                                    {{ transaction.status }}
+                                </span>
+                                <span class="badge badge-warning" v-else>
+                                    {{ transaction.status }}
+                                </span>
+                            </TableCell>
+                            <TableCell>{{ transaction.created_by }}</TableCell>
+                            <TableCell>{{ transaction.created_at }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
-                                    <Avatar :src="supplier.logo" />
-                                    {{ supplier.name }}
-                                </div>
-                            </TableCell>
-                            <TableCell>{{ supplier.contact_person }}</TableCell>
-                            <TableCell>{{ supplier.phone }}</TableCell>
-                            <TableCell>{{ supplier.address }}</TableCell>
-                            <TableCell class="flex gap-2">
-                                <div class="flex items-center gap-2">
-                                    <EditIconBtn :href="`/suppliers/${supplier.id}/edit`"/>
-                                    <DeleteIcon @modal-show="deleteSupplierForm(supplier.id)"/>
+                                    <EditIconBtn v-if="transaction.status=='completed'" :href="`/inventory/in_house/${transaction.id}/edit`"/>
+                                    <DeleteIcon @modal-show="deleteTransactionForm(transaction.id)"/>
                                 </div>
                             </TableCell>
                         </TableRow>
-                        <TableRow v-if="suppliers.data == 0">
-                            <TableCell :colspan="5" class="text-center">
+                        <TableRow v-if="transactions.data == 0">
+                            <TableCell :colspan="7" class="text-center">
                                 No {{ title.toLocaleLowerCase() }} found!
                             </TableCell>
                         </TableRow>
@@ -187,14 +165,13 @@ const submitImportProducts = () => {
            
         </section>
         <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-            <PaginationResultRange :data="suppliers" />
+            <PaginationResultRange :data="transactions" />
             <PaginationControlList :url="url" />
-            <Pagination :links="suppliers.links" />
+            <Pagination :links="transactions.links" />
         </div>
     </div>
 
-    <!-- delete modal -->
-    <Modal :show="deleteModal" @close="deleteModal = false">
+    <!-- <Modal :show="deleteModal" @close="deleteModal = false">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
                 Delete supplier
@@ -216,7 +193,6 @@ const submitImportProducts = () => {
             </form>
         </div>
     </Modal>
-    <!-- delete all selected modal -->
     <Modal :show="deleteAllSelectedModal" @close="deleteAllSelectedModal = false">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
@@ -238,43 +214,5 @@ const submitImportProducts = () => {
                 </div>
             </form>
         </div>
-    </Modal>
-
-    <Modal :show="importModal" @close="importModal = false" maxWidth="md">
-        <div class="p-6">
-            <h1 class="text-xl mb-4 font-medium">
-                Import Suppliers
-            </h1>
-            <p>Please upload your suppliers data using an Excel file.</p>
-            <form method="dialog" class="w-full" @submit.prevent="submitImportProducts">
-
-                <div class="mb-3">
-                    <InputLabel value="Select an Excel file" />
-                    <input type="file" class="file-input file-input-bordered file-input-sm w-full" @input="importForm.import_file = $event.target.files[0]" accept=".xlsx, .xls"
-                    required />
-                    <progress class="progress" v-if="importForm.progress" :value="importForm.progress.percentage" max="100">
-                    {{ importForm.progress.percentage }}%
-                    </progress>
-                    <InputError class="mt-2" :message="importForm.errors.import_file" />
-
-                    <div>
-                        <small>Note: Before uploading, make sure you use this <a :href="route('suppliers.donwloadTemplate')" class="text-primary">template</a>.</small>
-                    </div>
-
-                </div>
-
-                <div class="mt-6 flex justify-end">
-                    <SecondaryButton class="btn" @click="importModal = false">Cancel</SecondaryButton>
-                    <PrimaryButton
-                        class="ms-3"
-                        :class="{ 'opacity-25': importForm.processing }"
-                        :disabled="importForm.processing"
-                    >
-                        <span v-if="importForm.processing" class="loading loading-spinner"></span>
-                        Import Now
-                    </PrimaryButton>
-                </div>
-            </form>
-        </div>
-    </Modal>
+    </Modal> -->
 </template>

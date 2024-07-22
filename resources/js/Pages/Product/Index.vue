@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
+import StatsCard from './partials/StatsCard.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -154,6 +155,7 @@ const productsDataLength = computed(() => {
     return props.products.data.length
 })
 
+
 </script>
 
 <template>
@@ -176,6 +178,21 @@ const productsDataLength = computed(() => {
     </EmptyContainer>
 
     <div class="flex-grow" v-if="productsDataLength > 0">
+        <!-- <section class="stats stats-vertical col-span-12 mb-5 w-full shadow-sm xl:stats-horizontal">
+            <StatsCard title="Total Quantity">
+                Keep an eye on your inventory levels
+            </StatsCard>
+            <StatsCard title="Total Quantity Sold">
+                Monitor your sales volume
+            </StatsCard>
+            <StatsCard title="Total Revenue" >
+                Analyze your earnings
+            </StatsCard>
+            <StatsCard title="Total Profits" >
+                Review your annual profitability
+            </StatsCard>
+        </section> -->
+
         <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
             <div class="card-body grow-0">
                 <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
@@ -205,7 +222,7 @@ const productsDataLength = computed(() => {
                             </TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Price({{ $page.props.auth.user.currency }})</TableHead>
-                            <TableHead>Unit</TableHead>
+                            <TableHead>Stocks</TableHead>
                             <TableHead>Category</TableHead>
                             <TableHead>Size</TableHead>
                             <TableHead>Usage Type</TableHead>
@@ -236,7 +253,7 @@ const productsDataLength = computed(() => {
                                
                             </TableCell>
                             <TableCell>{{ product.price }}</TableCell>
-                            <TableCell>{{ product.unit }}</TableCell>
+                            <TableCell>{{ product.stocks }} {{ product.unit }}</TableCell>
                             <TableCell>{{ product.category }}</TableCell>
 
                             <TableCell>{{ product.size }}</TableCell>

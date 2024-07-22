@@ -252,9 +252,6 @@ watch(supplier, value => {
                             <div class="font-bold">Size</div>
                         </th>
                         <th class="hidden sm:table-cell">
-                            <div class="font-bold">unit</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
                             <div class="font-bold">Price</div>
                         </th>
                         <th class="hidden sm:table-cell">
@@ -262,9 +259,6 @@ watch(supplier, value => {
                         </th>
                         <th class="hidden sm:table-cell">
                             <div class="font-bold">In Store</div>
-                        </th>
-                        <th class="hidden sm:table-cell" v-show="isSuperAdmin">
-                            <div class="font-bold">Store</div>
                         </th>
                     </tr>
                 </thead>
@@ -303,18 +297,13 @@ watch(supplier, value => {
                         <td class="hidden sm:table-cell">
                             {{ product.size }}</td>
                         <td class="hidden sm:table-cell">
-                                {{ product.unit }}
-                        </td>
-                        <td class="hidden sm:table-cell">
                                 {{ product.price }}
                         </td>
                         <td class="hidden sm:table-cell">
-                                {{ product.in_warehouse }}
+                                {{ product.in_warehouse }} {{ product.unit }}
                         </td>
                         <td class="hidden sm:table-cell">
-                            {{ product.in_store }}</td>
-                        <td class="hidden sm:table-cell" v-show="isSuperAdmin">
-                            {{ product.store }}</td>
+                            {{ product.in_store }} {{ product.unit }}</td>
                         <td>
                             <div class="flex items-center space-x-2 justify-end">
                                 <button v-if="product.in_warehouse" @click="stocksTransfer(product)" class=" hover:text-primary" title="In warehouse stocks to store">

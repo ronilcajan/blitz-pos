@@ -86,7 +86,7 @@ class PurchaseController extends Controller
                     'image' => $product->image,
                     'category' => $product->category?->name,
                     'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
-                    'price' =>  $product->price?->discount_price,
+                    'price' =>  $product->price?->sale_price,
                 ];
         });
 
@@ -113,7 +113,6 @@ class PurchaseController extends Controller
         auth()->user()->can('create', Purchase::class);
 
         $request->validated();
-        $generator = new TransactionCodeGenerator();
         $convertStringToNumber = new ConvertToNumber();
 
         $discount = $convertStringToNumber->convertToNumber($request->discount);

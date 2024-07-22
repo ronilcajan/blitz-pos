@@ -272,6 +272,7 @@ const clearFilters = (filter) => {
             </h1>
 
             <form method="dialog" class="w-full" @submit.prevent="submitUpdateForm">
+
                 <div class="mb-3">
                     <InputLabel for="name" value="Category name" />
                     <TextInput

@@ -48,7 +48,7 @@ class InventoryController extends Controller
                 'in_warehouse' => $product->stock?->in_warehouse ? Number::format($product->stock->in_warehouse, precision: 2) : null,
                 'image' => $product?->image ?? asset('product.png'),
                 'store' => $product->store->name,
-                'price' =>  $product->price?->discount_price ? Number::currency($product->price->discount_price, in: 'PHP') : null,
+                'price' =>  $product->price?->sale_price ? Number::currency($product->price?->sale_price, in: auth()->user()->store->currency) : $product->price?->sale_price,
             ];
     });
 
@@ -158,6 +158,10 @@ class InventoryController extends Controller
         $product_supplier->update($product_supplier_data);
 
         return redirect()->back();
+    }
+
+    public function show(Product $product){
+        
     }
 
     public function update_stocks(Product $product, Request $request)
