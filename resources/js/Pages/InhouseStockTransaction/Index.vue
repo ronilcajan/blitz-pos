@@ -124,7 +124,6 @@ const selectAll = () => {
                             <TableHead>Amount</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Created By</TableHead>
-                            <TableHead>Date</TableHead>
                         </TableRow>
                     </TableHeader>
                 </template>
@@ -134,22 +133,31 @@ const selectAll = () => {
                             <TableCell v-if="$page.props.auth.user.canDelete">
                                 <input :value="transaction.id" v-model="transactionIds" type="checkbox" class="checkbox checkbox-sm">
                             </TableCell>
-                            <TableCell>{{ transaction.tx_no }}</TableCell>
+                            <TableCell>
+                                <div class="flex flex-col">
+                                    <span class="font-semibold">
+                                        {{ transaction.tx_no }}
+                                    </span>
+                                    <span class="text-xs">
+                                        {{ transaction.created_at }}
+                                    </span>    
+                                </div>
+                               
+                            </TableCell>
                             <TableCell>{{ transaction.quantity }}</TableCell>
                             <TableCell>{{ transaction.amount }}</TableCell>
-                            <TableCell>
-                               <span class="badge badge-success" v-if="transaction.status=='completed'">
+                            <TableCell >
+                               <span class="badge badge-success text-xs" v-if="transaction.status=='completed'">
                                     {{ transaction.status }}
                                 </span>
-                                <span class="badge badge-warning" v-else>
+                                <span class="badge badge-warning text-xs" v-else>
                                     {{ transaction.status }}
                                 </span>
                             </TableCell>
                             <TableCell>{{ transaction.created_by }}</TableCell>
-                            <TableCell>{{ transaction.created_at }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
-                                    <EditIconBtn v-if="transaction.status=='completed'" :href="`/inventory/in_house/${transaction.id}/edit`"/>
+                                    <EditIconBtnLink v-if="transaction.status=='completed'" :href="`/in_house/${transaction.id}/edit`"/>
                                     <DeleteIcon @modal-show="deleteTransactionForm(transaction.id)"/>
                                 </div>
                             </TableCell>

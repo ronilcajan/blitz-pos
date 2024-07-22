@@ -44,7 +44,7 @@ class InhouseStockTransactionController extends Controller
                     'status' => $transaction->status,
                     'notes' => $transaction->notes,
                     'created_by' => $transaction->user->name,
-                    'created_at' => $transaction->created_at->format('M d, Y h:i: A'),
+                    'created_at' => $transaction->created_at->format('M d, Y'),
                 ];
         });
 
