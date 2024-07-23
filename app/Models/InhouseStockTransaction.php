@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -27,6 +28,22 @@ class InhouseStockTransaction extends Model
     public function store():BelongsTo
     {
         return $this->belongsTo(Store::class);
+    }
+
+    public function used_items():HasMany
+    {
+        return $this->hasMany(InHouseTransactionItems::class);
+    }
+
+  
+
+    protected static function booted(): void
+    {
+        static::creating(function($model){
+            $model->user_id = auth()->user()->id;
+            $model->store_id = auth()->user()->store->id;
+        });
+
     }
 
     public function scopeFilter($query, array $filter){

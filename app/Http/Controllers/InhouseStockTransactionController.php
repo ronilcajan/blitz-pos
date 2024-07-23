@@ -106,8 +106,6 @@ class InhouseStockTransactionController extends Controller
             'amount' => $total,
             'status' => $request->status ?? 'pending',
             'notes' => $request->notes,
-            'user_id' => auth()->id(),
-            'store_id' => auth()->user()->store_id,
             'created_at' => $request->transaction_date,
         ];
 
@@ -159,7 +157,8 @@ class InhouseStockTransactionController extends Controller
             Log::error('Error recording transaction: ' .$e->getMessage());
 
             return redirect()->back()->withErrors(['error' => 'An error occurred while recording the transaction. Please try again.'.$e->getMessage()]);
-        }    }
+        }    
+    }
 
     /**
      * Display the specified resource.
@@ -172,17 +171,124 @@ class InhouseStockTransactionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(InhouseStockTransaction $inhouseStockTransaction)
+    public function edit(InhouseStockTransaction $in_house)
     {
-        //
+        $products =  Product::query()
+        ->with(['store', 'price', 'stock','category'])
+        ->where('usage_type', 'internal_use')
+        ->whereHas('stock', fn($q) => $q->where('in_warehouse', '>', 0))
+        ->filter(request(['search']))
+        ->paginate(5)
+        ->withQueryString()
+        ->through(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'barcode' => $product->barcode,
+                'size' => $product->size,
+                'unit' => $product->unit,
+                'image' => $product?->image ? asset('storage/' .$product?->image ) : asset('product.png'),
+                'category' => $product->category?->name,
+                'stocks' => $product->stock?->in_warehouse,
+                'price' => $product->price?->sale_price,
+            ];
+        });
+
+
+
+        $items =  $in_house->used_items()->with('product')->get()->map(function($item){
+            dd($in_house);
+
+            return [
+                'id' => $item->product_id,
+                'name' => $item->product?->name,
+                'size' => $item->product?->size,
+                'unit' => $item->product?->unit,
+                'image' => $item->product?->image? asset('storage/' .$item->product?->image ) : asset('product.png'),
+                'stocks' => $item->product?->stock?->in_store + $item->product?->stock?->in_warehouse,
+                'price' =>  $item->sale_price,
+                'qty' =>  $item->quantity,
+            ];
+        });
+
+        return inertia('InhouseStockTransaction/Edit', [
+            'title' => 'Edit Inhouse Stock Transaction',
+            'products' => $products,
+            'transaction' => $in_house,
+            'items' => $items,
+            'filter' => request()->only(['search','barcode']),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, InhouseStockTransaction $inhouseStockTransaction)
+    public function update(StoreInhouseTransactionRequest $request, InhouseStockTransaction $in_house)
     {
-        //
+        $request->validated();
+
+        $convertStringToNumber = new ConvertToNumber();
+
+        $total = $convertStringToNumber->convertToNumber($request->total);
+        
+        $transactionAttributes = [
+            'quantity' => $request->quantity,
+            'amount' => $total,
+            'status' => $request->status ?? 'pending',
+            'notes' => $request->notes,
+            'created_at' => $request->transaction_date,
+        ];
+
+        DB::beginTransaction();
+        try{
+
+            $in_house->update($transactionAttributes);
+
+            $items = [];
+            
+            InHouseTransactionItems::where('inhouse_stock_transaction_id', $in_house->id)->delete();
+
+            dd($request->all());
+            foreach($request->items as $product){
+                $items[] = [
+                    'quantity' =>  $product['qty'],
+                    'amount' =>  $product['price'],
+                    'inhouse_stock_transaction_id' =>  $in_house->id,
+                    'product_id' =>  $product['id'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            }
+
+            InHouseTransactionItems::insert($items);
+
+            if( $request->status == 'completed'){
+
+                foreach($request->items as $item){
+                    $product = Product::with('stock')->find($item['id']);
+
+                    if ($product && $product->stock) {
+                        // Calculate the new stock
+                        $newStock = $product->stock->in_warehouse - $item['qty'];
+                        // Update the stock in the database
+                        $product->stock->update(['in_warehouse' => $newStock < 0 ? 0 : $newStock]);
+                       
+                    }
+
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->back();
+
+        }catch(\Exception $e){
+
+            DB::rollBack();
+            Log::error('Error recording transaction: ' .$e->getMessage());
+
+            return redirect()->back()->withErrors(['error' => 'An error occurred while recording the transaction. Please try again.'.$e->getMessage()]);
+        }  
     }
 
     public function bulkDelete(Request $request)
@@ -198,8 +304,7 @@ class InhouseStockTransactionController extends Controller
      */
     public function destroy(Request $request)
     {
-        $transaction = InhouseStockTransaction::find($request->inhouseStockTransaction)->delete();
-
+        InhouseStockTransaction::find($request->inhouseStockTransaction)->delete();
         return redirect()->back();
     }
 }
