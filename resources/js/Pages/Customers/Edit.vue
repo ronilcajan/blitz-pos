@@ -49,8 +49,15 @@ const onFileChange = (e) => {
 
 <template>
     <Head :title="title" />
-    <form @submit.prevent="submitUpdateForm">
+    <form class="flex-grow" @submit.prevent="submitUpdateForm">
+        <TitleContainer :title="title">
+            <CancelButton href="/customers" >Cancel</CancelButton>
+            <SaveSubmitBtn v-model="form" >Save changes</SaveSubmitBtn>
+        </TitleContainer>
+
         <div class="flex gap-5 flex-col md:flex-row">
+            
+
             <div class="w-full sm:w-2/3">
                 <div class="card bg-base-100 shadow">
                     <div class="card-body grow-0">
@@ -58,22 +65,8 @@ const onFileChange = (e) => {
                             <h2 class="card-title grow text-sm mb-5">
                                 <span class="uppercase">Customer Information</span>
                             </h2>
-                            <div class="flex justify-end gap-3 flex-col md:flex-row">
-                                <NavLink href="/customers" class="btn btn-sm">
-                                    <svg class="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
-                                    </svg>
-                                    Cancel</NavLink>
-                                <SuccessButton type="submit"
-                                    class="btn btn-sm"
-                                    :class="{ 'opacity-25': form.processing }"
-                                    :disabled="form.processing"
-                                >
-                                    <span v-if="form.processing" class="loading loading-spinner"></span>
-                                    Save Changes
-                                </SuccessButton>
-                            </div>
                         </div>
+                        <SaveAlert v-if="form.isDirty" />
                         <div class="mb-3">
                             <InputLabel for="name" value="Customer name" />
                             <TextInput
@@ -85,7 +78,7 @@ const onFileChange = (e) => {
                             />
                             <InputError class="mt-2" :message="form.errors.name" />
                         </div>
-
+                       
                         <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
                             <div class="form-control">
                                 <InputLabel for="name" value="Email address" />

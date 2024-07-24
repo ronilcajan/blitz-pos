@@ -210,7 +210,7 @@ const product_types = [
 ]
 
 const productsDataLength = computed(() => {
-    if(route().params){
+    if(route().params.length > 0){
         return props.products.data.length + 1
     }
     return props.products.data.length

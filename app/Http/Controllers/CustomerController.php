@@ -101,7 +101,6 @@ class CustomerController extends Controller
             'email' => $customer->email,
             'phone' => $customer->phone,
             'address' => $customer->address,
-            'store_id' => $customer->store?->id,
             'logo' => $customer->logo,
         ];
 
@@ -139,7 +138,7 @@ class CustomerController extends Controller
     {
         Gate::authorize('bulk_delete', Customer::class);
 
-        Customer::whereIn('id',$request->customer_id)->delete();
+        Customer::whereIn('id',$request->customers_id)->delete();
         return redirect()->back();
     }
 

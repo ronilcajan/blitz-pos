@@ -146,7 +146,9 @@ const page = usePage();
                                         Store
                                     </NavLink>
                                 </li>
-								<li><a>Routes</a></li>
+								<li>
+									<a>Logs</a>
+								</li>
 							</ul>
 						</details>
 					</li>

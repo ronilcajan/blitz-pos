@@ -29,7 +29,6 @@ class CustomerFormRequest extends FormRequest
             'email' => ['required',Rule::unique('customers', 'email')->ignore($customerId)],
             'phone' => '',
             'address' => '',
-            'store_id' => 'required',
         ];
     }
 }
