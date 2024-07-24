@@ -131,7 +131,7 @@ class InhouseStockTransactionController extends Controller
 
             InHouseTransactionItems::insert($items);
 
-            if( $request->status == 'completed'){
+            if( $request->status === 'completed'){
 
                 foreach($request->items as $item){
                     $product = Product::with('stock')->find($item['id']);
@@ -143,8 +143,8 @@ class InhouseStockTransactionController extends Controller
                         $product->stock->update(['in_warehouse' => $newStock < 0 ? 0 : $newStock]);
                        
                     }
-
                 }
+                return redirect()->to('in_house');
             }
 
             DB::commit();
@@ -174,30 +174,29 @@ class InhouseStockTransactionController extends Controller
     public function edit(InhouseStockTransaction $in_house)
     {
         $products =  Product::query()
-        ->with(['store', 'price', 'stock','category'])
-        ->where('usage_type', 'internal_use')
-        ->whereHas('stock', fn($q) => $q->where('in_warehouse', '>', 0))
-        ->filter(request(['search']))
-        ->paginate(5)
-        ->withQueryString()
-        ->through(function ($product) {
-            return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'barcode' => $product->barcode,
-                'size' => $product->size,
-                'unit' => $product->unit,
-                'image' => $product?->image ? asset('storage/' .$product?->image ) : asset('product.png'),
-                'category' => $product->category?->name,
-                'stocks' => $product->stock?->in_warehouse,
-                'price' => $product->price?->sale_price,
-            ];
-        });
+            ->with(['store', 'price', 'stock','category'])
+            ->where('usage_type', 'internal_use')
+            ->whereHas('stock', fn($q) => $q->where('in_warehouse', '>', 0))
+            ->filter(request(['search']))
+            ->paginate(5)
+            ->withQueryString()
+            ->through(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'size' => $product->size,
+                    'unit' => $product->unit,
+                    'image' => $product?->image ? asset('storage/' .$product?->image ) : asset('product.png'),
+                    'category' => $product->category?->name,
+                    'stocks' => $product->stock?->in_warehouse,
+                    'price' => $product->price?->sale_price,
+                ];
+            });
 
 
 
         $items =  $in_house->used_items()->with('product')->get()->map(function($item){
-            dd($in_house);
 
             return [
                 'id' => $item->product_id,
@@ -206,7 +205,7 @@ class InhouseStockTransactionController extends Controller
                 'unit' => $item->product?->unit,
                 'image' => $item->product?->image? asset('storage/' .$item->product?->image ) : asset('product.png'),
                 'stocks' => $item->product?->stock?->in_store + $item->product?->stock?->in_warehouse,
-                'price' =>  $item->sale_price,
+                'price' =>  $item->amount,
                 'qty' =>  $item->quantity,
             ];
         });
@@ -225,6 +224,7 @@ class InhouseStockTransactionController extends Controller
      */
     public function update(StoreInhouseTransactionRequest $request, InhouseStockTransaction $in_house)
     {
+
         $request->validated();
 
         $convertStringToNumber = new ConvertToNumber();
@@ -245,15 +245,14 @@ class InhouseStockTransactionController extends Controller
             $in_house->update($transactionAttributes);
 
             $items = [];
-            
+
             InHouseTransactionItems::where('inhouse_stock_transaction_id', $in_house->id)->delete();
 
-            dd($request->all());
             foreach($request->items as $product){
                 $items[] = [
                     'quantity' =>  $product['qty'],
                     'amount' =>  $product['price'],
-                    'inhouse_stock_transaction_id' =>  $in_house->id,
+                    'inhouse_stock_transaction_id' => $in_house->id,
                     'product_id' =>  $product['id'],
                     'created_at' => now(),
                     'updated_at' => now()
@@ -276,6 +275,8 @@ class InhouseStockTransactionController extends Controller
                     }
 
                 }
+
+                return redirect()->to('in_house');
             }
 
             DB::commit();

@@ -4,7 +4,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import debounce from "lodash/debounce";
 import { useToast } from 'vue-toast-notification';
-import ActionDropdown from './partials/ActionDropdown.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -19,12 +18,9 @@ const props = defineProps({
 
 const page = usePage();
 let search = ref(props.filter.search);
-let store = ref('');
 let category = ref('');
 let supplier = ref('');
-const url = '/inventory';
 
-const isSuperAdmin = page.props.auth.user.isSuperAdmin
 const canDelete = page.props.auth.user.canDelete
 
 const deleteModal = ref(false);
@@ -189,143 +185,148 @@ watch(supplier, value => {
 	{ preserveState: true, replace:true })
 })
 
+let type = ref('');
+const url = '/inventory';
+const appliedFilters = [
+    { title: 'category', value: category },
+    { title: 'search', value: search },
+    { title: 'usage type', value: type },
+]
+
+const clearFilters = (filter) => {
+    if (filter.title == 'category') {
+        category.value = '';
+    } else if (filter.title == 'search') {
+        search.value = '';
+    } else if (filter.title == 'usage type') {
+        type.value = '';
+    }
+}
+
+const product_types = [
+    { id: '1', name: 'sellable', },
+    { id: '2', name: 'internal_use', },
+
+]
+
+const productsDataLength = computed(() => {
+    if(route().params){
+        return props.products.data.length + 1
+    }
+    return props.products.data.length
+})
+
 </script>
 
 <template>
     <Head :title="title" />
-    <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
-        <CreateButtonLink href="/products/create">New product</CreateButtonLink>
-        <!-- <StatusFilter v-model="status" /> -->
-        <ActionDropdown
-            :productIds="productIds"
-            :exportExcelRoute="route('products.export_excel')"
-            :exportPDFRoute="route('products.export_pdf')"
-            @open-import-modal="importModal = true"
-            @delete-all-selected="deleteAllSelectedModal = true"
-            @transfer-selected-stocks="transferStocksSelectedModal = true"
-        />
-    </div>
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
-        <div class="card-body grow-0">
 
-            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
-                <div class="flex gap-2 flex-col sm:flex-row">
-                    <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
-                    <div class="w-full">
-                        <select v-model="category" class="select select-bordered select-sm w-full">
-                            <option selected value="">Filter by categories</option>
-                            <option v-for="category in product_categories" :value="category.name" :key="category.id">
-                                {{ category.name }}
-                            </option>
-                        </select>
+  <TitleContainer :title="title">
+        <div class="flex items-center gap-2" v-if="productsDataLength > 0">
+            <CreateBtnLink href="/products/create">New product</CreateBtnLink>
+            <ActionDropdown :dataIds="productIds" :exportPDFRoute="route('products.export_pdf')"
+                :exportExcelRoute="route('products.export_excel')" :withImportBtn="true"
+                @open-import-modal="importModal = true" @delete-all-selected="deleteAllSelectedModal = true" />
+
+        </div>
+
+    </TitleContainer>
+
+    <EmptyContainer :title="title" v-if="productsDataLength == 0">
+        <CreateBtnLink href="/products/create">New product</CreateBtnLink>
+    </EmptyContainer>
+
+    <div class="flex-grow" v-if="productsDataLength > 0">
+
+        <section class="col-span-12 overflow-hidden bg-base-100 shadow-sm rounded-xl">
+            <div class="card-body grow-0">
+                <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
+                    <div class="flex gap-2 flex-col sm:flex-row">
+
+                        <SelectDropdownFilter v-if="product_categories.length" v-model="category" :url="url" :title="`category`"
+                            :options="product_categories" />
+                        <SelectDropdownFilter v-model="type" :url="url" :title="`type`" :options="product_types" />
+
                     </div>
-                    <div class="w-full">
-                        <select v-model="supplier" class="select select-bordered select-sm w-full max-w-xs">
-                            <option selected value="">Filter by suppliers</option>
-                            <option v-for="supplier in suppliers" :value="supplier.name" :key="supplier.id">
-                                {{ supplier.name }}
-                            </option>
-                        </select>
-                    </div>
-
-
-                </div>
-                <div class="flex gap-2 flex-col sm:flex-row">
-
-                    <div class="w-full">
-                        <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
+                    <div class="flex gap-2 flex-col sm:flex-row">
+                        <div class="w-full">
+                            <SearchInput v-model="search" :url="url" />
+                        </div>
                     </div>
                 </div>
+                <ClearFilters :filters="appliedFilters" @clear-filters="clearFilters" />
             </div>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="table table-zebra">
-                <thead class="uppercase">
-                    <tr>
-                        <th v-if="canDelete">
-                            <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
-                        </th>
-                        <th>
-                            <div class="font-bold">Name</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Size</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Price</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">In Warehouse</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">In Store</div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="product in products.data" :key="product.id">
-                        <td class="w-0" v-if="canDelete">
-                            <input :value="product.id" v-model="productIds" type="checkbox" class="checkbox checkbox-sm">
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <div class="avatar placeholder" v-show="!product.image">
-                                    <div class="w-10 bg-neutral text-neutral-content rounded-full">
-                                        <span class="text-xl">{{ product.name }}</span>
-                                    </div>
-                                </div>
-                                <div class="avatar" v-show="product.image">
-                                    <div class="mask mask-squircle h-10 w-10">
-                                        <img :src="product.image" alt="logo">
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="flex text-sm font-bold gap-2">
+
+            <Table>
+                <template #table-header>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead v-if="$page.props.auth.user.canDelete">
+                                <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox"
+                                    class="checkbox checkbox-sm">
+                            </TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Size</TableHead>
+                            <TableHead>Price({{ $page.props.auth.user.currency }})</TableHead>
+                            <TableHead>Stocks</TableHead>
+                            <TableHead>In Warehouse</TableHead>
+                            <TableHead>In Store</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                </template>
+                <template #table-body>
+                    <TableBody>
+                        <TableRow v-for="product in products.data" :key="product.id">
+                            <TableCell v-if="$page.props.auth.user.canDelete">
+                                <input :value="product.id" v-model="productIds" type="checkbox"
+                                    class="checkbox checkbox-sm">
+                            </TableCell>
+                            <TableCell>
+                                <Link :href="`/products/${product.id}`" 
+                                    class="text-blue-800 ">
+                                    <div class="flex items-center gap-2">
+                                    <Avatar :src="product.image" />
+                                    <div class="flex flex-col font-semibold">
                                         {{ product.name }}
-                                    </div>
-                                    <div class="text-xs opacity-50">
-                                        {{ product.barcode }}
-                                    </div>
-                                    <div class="sm:hidden">
-                                        <div class="text-xs opacity-50">{{ product.phone }}</div>
-                                        <div class="text-xs opacity-50">{{ product.address }}</div>
+                                        <p class="text-xs opacity-50">
+                                            {{ product.barcode }}
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
-                        </td>
-                        <!-- These columns will be hidden on small screens -->
-                        <td class="hidden sm:table-cell">
-                            {{ product.size }}</td>
-                        <td class="hidden sm:table-cell">
-                                {{ product.price }}
-                        </td>
-                        <td class="hidden sm:table-cell">
+                                </Link>
+                               
+                            </TableCell>
+                            <TableCell>{{ product.size }}</TableCell>
+                            <TableCell>{{ product.stocks }} {{ product.price }}
+
+                            </TableCell>
+                            <TableCell> 
                                 {{ product.in_warehouse }} {{ product.unit }}
-                        </td>
-                        <td class="hidden sm:table-cell">
-                            {{ product.in_store }} {{ product.unit }}</td>
-                        <td>
-                            <div class="flex items-center space-x-2 justify-end">
-                                <button v-if="product.in_warehouse" @click="stocksTransfer(product)" class=" hover:text-primary" title="In warehouse stocks to store">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package-export"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21l-8 -4.5v-9l8 -4.5l8 4.5v4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M15 18h7" /><path d="M19 15l3 3l-3 3" /></svg>
-                                </button>
-                                <EditIconBtn :href="`/products/${product.id}/edit`"/>
-                                <DeleteIcon v-if="canDelete" @modal-show="deleteProductForm(product.id)" />
-                            </div>
-                        </td>
+                                </TableCell>
 
-                    </tr>
-                    <tr v-if="products.data.length  <= 0">
-                        <td colspan="12" class="text-center">
-                            No data found
-                        </td>
-
-                    </tr>
-                </tbody>
-            </table>
-
-        </div>
-    </section>
+                            <TableCell> 
+                                {{ product.in_store }} {{ product.unit }}
+                            </TableCell>
+                            <TableCell>
+                                <div class="flex items-center gap-2">
+                                    <button v-if="product.in_warehouse" @click="stocksTransfer(product)" class=" hover:text-primary" title="In warehouse stocks to store">
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package-export"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21l-8 -4.5v-9l8 -4.5l8 4.5v4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M15 18h7" /><path d="M19 15l3 3l-3 3" /></svg>
+                                    </button>
+                                    <EditIconBtnLink :href="`/products/${product.id}/edit`" />
+                                    <DeleteIcon @modal-show="deleteProductForm(product.id)" />
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow v-if="products.data == 0">
+                            <TableCell :colspan="6" class="text-center">
+                                No {{ title.toLocaleLowerCase() }} found!
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </template>
+            </Table>
+        </section>
+    </div>
     <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
         <PaginationResultRange :data="products" />
         <PaginationControlList :url="url" />

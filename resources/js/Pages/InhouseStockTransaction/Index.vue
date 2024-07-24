@@ -157,7 +157,7 @@ const selectAll = () => {
                             <TableCell>{{ transaction.created_by }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2">
-                                    <EditIconBtnLink v-if="transaction.status=='completed'" :href="route('in_house.edit', transaction.id)"/>
+                                    <EditIconBtnLink v-if="transaction.status!=='completed'" :href="route('in_house.edit', transaction.id)"/>
                                     <DeleteIcon @modal-show="deleteTransactionForm(transaction.id)"/>
                                 </div>
                             </TableCell>

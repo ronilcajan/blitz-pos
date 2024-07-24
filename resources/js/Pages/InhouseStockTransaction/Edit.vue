@@ -19,7 +19,6 @@ const props = defineProps({
 });
 
 const purchases = reactive([]);
-const barcode = ref(props.filter.barcode);
 const search = ref(props.filter.search);
 const createProductModal = ref(false);
 const hideDropdownRef = ref('pending');
@@ -132,10 +131,10 @@ const getCurrentDate = ($date) => {
 
 const transactionForm = useForm({
 	transaction_date: getCurrentDate(props.transaction.created_at),
-	status: 'pending',
+	status: props.transaction.status,
     total : calculateTotal,
     quantity : calculateQty,
-    notes : '',
+    notes : props.transaction.notes,
     items : [],
 });
 
@@ -152,7 +151,7 @@ const submitPurchaseForm = () => {
     
     transactionForm.items = purchases;
 
-	transactionForm.put(route('in_house.update', props.transaction.id),
+    transactionForm.put(`/in_house/${props.transaction.id}`,        
     {
 		replace: true,
 		preserveScroll: true,
@@ -182,7 +181,7 @@ onMounted(() => {
             id: item.id,
             product: item.name,
             details: item.size,
-            qty: 1,
+            qty: parseFloat(item.qty),
             unit: item.unit,
             stocks: item.stocks,
             price: parseFloat(item.price ?? 0.00).toFixed(2),
@@ -195,7 +194,7 @@ onMounted(() => {
     });
 });
 
-console.log(purchases);
+console.log(props.items);
 
 </script>
 
@@ -337,14 +336,15 @@ console.log(purchases);
                     <div class="w-full justify-center mb-10">
                         <InputLabel class="label" value="Status" />
                         <div class="join">
-                            <input v-model="transactionForm.status" value="pending" class="join-item btn btn-sm" type="radio" name="options" aria-label="Pending" ref="hideDropdownRef" checked/>
-                            <input v-model="transactionForm.status" value="completed" class="join-item btn btn-sm" type="radio" name="options" aria-label="Completed" />
+                            <input v-model="transactionForm.status" value="pending" class="join-item btn btn-sm" type="radio" name="options" aria-label="Pending" ref="hideDropdownRef" :checked="transaction.status === 'pending'"/>
+                            <input v-model="transactionForm.status" value="completed" class="join-item btn btn-sm" type="radio" name="options" aria-label="Completed" :checked="transaction.status === 'completed'"/>
                         </div>
                     </div>
                     <div class="flex justify-end gap-2 flex-col lg:flex-row">
                         <div class="flex justify-end gap-3 flex-col md:flex-row">
-                            <CancelButton href="/purchase" >Cancel</CancelButton>
-                            <CreateSubmitBtn :disabled="transactionForm.processing || purchases.length == 0" v-model="transactionForm">Create</CreateSubmitBtn>
+                            <CancelButton href="/in_house" >Cancel</CancelButton>
+                            <SaveSubmitBtn v-model="transactionForm" >Save changes</SaveSubmitBtn>
+
                         </div>
                     </div>
                 </div>
