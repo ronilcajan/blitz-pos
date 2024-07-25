@@ -82,12 +82,24 @@ const selectAll = () => {
 }
 
 const customersDataLength = computed(() => {
-    if(route().params.length > 0) {
-
+    if(route().params) {
         return props.customers.data.length + 1
     }
     return props.customers.data.length
 })
+
+const appliedFilters = [
+    { title: 'search', value: search },
+]
+const clearFilters = (filter) => {
+    if (filter.title == 'category') {
+        category.value = '';
+    } else if (filter.title == 'search') {
+        search.value = '';
+    } else if (filter.title == 'usage type') {
+        type.value = '';
+    }
+}
 </script>
 
 <template>
@@ -120,6 +132,7 @@ const customersDataLength = computed(() => {
                         </div>
                     </div>
                 </div>
+                <ClearFilters :filters="appliedFilters" @clear-filters="clearFilters" />
             </div>
             <Table>
                 <template #table-header>
@@ -141,16 +154,24 @@ const customersDataLength = computed(() => {
                                 <input :value="customer.id" v-model="customerIds" type="checkbox" class="checkbox checkbox-sm">
                             </TableCell>
                             <TableCell>
-                                <div class="flex items-center gap-2">
-                                    <Avatar :src="customer.logo" />
-                                    {{ customer.name }}
-                                </div>
+                                <Link :href=" `/customers/${customer.id}`" class="text-blue-800">
+                                    <div class="flex items-center gap-2">
+                                        <Avatar :src="customer.logo" />
+                                        <div class="flex flex-col font-semibold">
+                                            {{ customer.name }}
+                                            <p class="text-xs opacity-50">
+                                                {{ customer.email }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </Link>
+                                
                             </TableCell>
                             <TableCell>{{ customer.phone }}</TableCell>
                             <TableCell>{{ customer.address }}</TableCell>
                             <TableCell class="flex gap-2">
                                 <div class="flex items-center gap-2">
-                                    <EditIconBtn :href="`/customers/${customer.id}/edit`"/>
+                                    <EditIconBtnLink  :href="`/customers/${customer.id}/edit` "/>
                                     <DeleteIcon @modal-show="deleteCustomerForm(customer.id)"/>
                                 </div>
                             </TableCell>

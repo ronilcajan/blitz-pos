@@ -85,7 +85,15 @@ class CustomerController extends Controller
      */
     public function show(Customer $customer)
     {
-        //
+        Gate::authorize('update', $customer);
+
+        $sales = $customer->sales()->latest()->paginate(10);
+        
+        return inertia('Customers/Show', [
+            'title' => "View Customer",
+            'customer' => $customer,
+            'sales' => $sales,
+        ]);
     }
 
     /**

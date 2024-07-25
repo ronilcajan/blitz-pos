@@ -161,17 +161,25 @@ const submitImportProducts = () => {
                                 <input :value="supplier.id" v-model="supplierIds" type="checkbox" class="checkbox checkbox-sm">
                             </TableCell>
                             <TableCell>
+                                <Link :href=" `/suppliers/${supplier.id}`" class="text-blue-800">
+
                                 <div class="flex items-center gap-2">
                                     <Avatar :src="supplier.logo" />
-                                    {{ supplier.name }}
+                                    <div class="flex flex-col font-semibold">
+                                        {{ supplier.name }}
+                                        <p class="text-xs opacity-50">
+                                            {{ supplier.email }}
+                                        </p>
+                                    </div>
                                 </div>
+                                </Link>
                             </TableCell>
                             <TableCell>{{ supplier.contact_person }}</TableCell>
                             <TableCell>{{ supplier.phone }}</TableCell>
                             <TableCell>{{ supplier.address }}</TableCell>
                             <TableCell class="flex gap-2">
                                 <div class="flex items-center gap-2">
-                                    <EditIconBtn :href="`/suppliers/${supplier.id}/edit`"/>
+                                    <EditIconBtnLink :href="`/suppliers/${supplier.id}/edit`"/>
                                     <DeleteIcon @modal-show="deleteSupplierForm(supplier.id)"/>
                                 </div>
                             </TableCell>

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -23,6 +24,11 @@ class Customer extends Model
     public function store():BelongsTo
     {
         return $this->belongsTo(Store::class);
+    } 
+
+    public function sales():HasMany
+    {
+        return $this->hasMany(Sale::class);
     } 
 
     public function scopeFilter($query, array $filter){

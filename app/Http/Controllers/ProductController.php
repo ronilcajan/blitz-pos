@@ -224,7 +224,7 @@ class ProductController extends Controller
             ->findOrFail($product->id);
 
         $sales = $product->sales()
-            ->orderBy('created_at', 'DESC')
+            ->latest()
             ->with(['sale.customer'])
             ->paginate(10);
 
@@ -234,7 +234,7 @@ class ProductController extends Controller
             ->where('subject_type', get_class($productPriceModel))
             ->where('event', 'updated')
             ->where('subject_id', $product->price->id)
-            ->orderBy('created_at', 'DESC')
+            ->latest()
             ->paginate(10); 
 
         return inertia('Product/Show', [
