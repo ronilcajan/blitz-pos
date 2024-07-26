@@ -121,11 +121,19 @@
                     </tr>
                 @endforeach
                 <tr>
-                    <td style="padding: 2px 0; ">
-                        <p style="margin-top:5px">Subtotal</p>
+                    <td style="padding: 2px 0;">
+                        <p style="margin-top:5px">Tax</p>
                     </td>
                     <td style="padding: 2px 0; text-align: right;">
-                        <p style="margin-top:5px">{{ $sale->sub_total }}</p>
+                        <p style="margin-top:5px">{{ $sale->tax }}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 2px 0; ">
+                        <p style="margin-top:0px">Subtotal</p>
+                    </td>
+                    <td style="padding: 2px 0; text-align: right;">
+                        <p style="margin-top:0px">{{ $sale->sub_total }}</p>
 
                     </td>
                 </tr>
@@ -134,7 +142,7 @@
                         <p style="margin: 0">Discount</p>
                     </td>
                     <td style="padding: 2px 0; text-align: right;">
-                        <p style="margin: 0">{{ $sale->discount }}</p>
+                        <p style="margin: 0">-{{ $sale->discount }}</p>
 
                     </td>
                 </tr>

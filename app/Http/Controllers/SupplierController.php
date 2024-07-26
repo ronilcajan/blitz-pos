@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SupplierRequestForm;
 use App\Imports\ImportSupplier;
+use App\Models\Delivery;
 use App\Models\Store;
 use App\Models\Supplier;
 use Exception;
@@ -95,7 +96,15 @@ class SupplierController extends Controller
      */
     public function show(Supplier $supplier)
     {
-        //
+       $purchases = $supplier->purchases()->latest()->take(20)->get();
+       $deliveries = $supplier->deliveries()->latest()->take(20)->get();
+
+        return inertia('Suppliers/Show', [
+            'title' => 'View supplier',
+            'supplier' => $supplier,
+            'purchases' => $purchases,
+            'deliveries' => $deliveries
+        ]);
     }
 
     /**

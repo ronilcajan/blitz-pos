@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, watch } from 'vue';
+import { reactive, ref, watch,computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
@@ -108,155 +108,179 @@ watch(type, value => {
 const isSuperAdmin = page.props.auth.user.isSuperAdmin
 const canDelete = page.props.auth.user.canDelete
 
+
+const deliveryDataLength = computed(() => {
+    if(route().params) {
+        return props.deliveries.data.length + 1
+    }
+    return props.deliveries.data.length
+})
+
+const appliedFilters = [
+    { title: 'suppliers', value: supplier },
+]
+
+const clearFilters = (filter) => {
+    if (filter.title == 'suppliers') {
+        supplier.value = '';
+    } else if (filter.title == 'search') {
+        search.value = '';
+    } 
+}
 </script>
 
 <template>
     <Head :title="title" />
-    <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
-        <CreateButtonLink href="/deliveries/create">New delivery</CreateButtonLink>
-        <!-- <DownloadButton :href="route('user.export')">Export</DownloadButton> -->
-        <!-- <StatusFilter v-model="type" /> -->
-        <FilterDate :dateRange="date_range" :url="url"/>
-    </div>
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
-        <div class="card-body grow-0">
-            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
-                <div class="flex gap-2 flex-col sm:flex-row">
-                    <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
-                    <div class="w-full">
-                        <select v-model="supplier" class="select select-bordered select-sm w-full">
-                            <option selected value="">Filter by suppliers</option>
-                            <option v-for="supplier in suppliers" :value="supplier.name" :key="supplier.id">
-                                {{ supplier.name }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex gap-2 flex-col sm:flex-row">
-                    <div class="w-full">
-                        <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <DeleteButton v-if="canDelete" v-show="deliveryIds.length > 0" @click="deleteAllSelectedModal = true">
-                    Delete
-                </DeleteButton>
-            </div>
+
+    <TitleContainer :title="title">
+        <div v-if="deliveryDataLength !== 0" class="flex items-center gap-2">
+            <CreateBtnLink href="deliveries/create" >New delivery</CreateBtnLink>
+            <FilterDate :dateRange="date_range" :url="url"/>
+
         </div>
-        <div class="overflow-x-auto">
-            <table class="table table-zebra">
-                <thead class="uppercase">
-                    <tr>
-                        <th v-if="canDelete">
-                            <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
-                        </th>
-                        <th>
-                            <div class="font-bold">TRANSACTION</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Purchase</div>
-                        </th>
+    </TitleContainer>
 
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Quantity</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Amount</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Status</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Supplier</div>
-                        </th>
+    <EmptyContainer :title="title" v-if="deliveryDataLength === 0">
+        <CreateBtnLink href="deliveries/create">New supplier</CreateBtnLink>
+    </EmptyContainer> 
 
-                        <th class="hidden sm:table-cell" v-show="isSuperAdmin">
-                            <div class="font-bold">Store</div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="delivery in deliveries.data" :key="delivery.id">
-                        <td class="w-0" v-if="canDelete">
-                            <input :value="delivery.id" v-model="deliveryIds" type="checkbox" class="checkbox checkbox-sm">
-                        </td>
-                        <td>
-                            <div class="text-sm font-bold">
-                                <Link :href="`/deliveries/${delivery.id}`" class="hover:text-primary">
-                                    {{ delivery.tx_no }}
-                                </Link>
-                            </div>
-                            <div>
-                                <div class="text-xs opacity-50">
-                                    {{ delivery.created_at }}
+    <div v-if="deliveryDataLength > 0" class="flex-grow">
+
+        <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
+            <div class="card-body grow-0">
+                <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
+                    <div class="flex gap-2 flex-col sm:flex-row">
+
+                        <SelectDropdownFilter v-if="suppliers.length" v-model="supplier" :url="url" :title="`suppliers`"
+                            :options="suppliers" />
+
+                    </div>
+                    <div class="flex gap-2 flex-col sm:flex-row">
+                        <div class="w-full">
+                            <SearchInput v-model="search" :url="url" />
+                        </div>
+                    </div>
+                </div>
+                <ClearFilters :filters="appliedFilters" @clear-filters="clearFilters" />
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead class="uppercase">
+                        <tr>
+                            <th v-if="canDelete">
+                                <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
+                            </th>
+                            <th>
+                                <div class="font-bold">TRANSACTION</div>
+                            </th>
+                            <th class="hidden sm:table-cell">
+                                <div class="font-bold">Purchase</div>
+                            </th>
+
+                            <th class="hidden sm:table-cell">
+                                <div class="font-bold">Quantity</div>
+                            </th>
+                            <th class="hidden sm:table-cell">
+                                <div class="font-bold">Amount</div>
+                            </th>
+                            <th class="hidden sm:table-cell">
+                                <div class="font-bold">Status</div>
+                            </th>
+                            <th class="hidden sm:table-cell">
+                                <div class="font-bold">Supplier</div>
+                            </th>
+
+                            <th class="hidden sm:table-cell" v-show="isSuperAdmin">
+                                <div class="font-bold">Store</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="delivery in deliveries.data" :key="delivery.id">
+                            <td class="w-0" v-if="canDelete">
+                                <input :value="delivery.id" v-model="deliveryIds" type="checkbox" class="checkbox checkbox-sm">
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold">
+                                    <Link :href="`/deliveries/${delivery.id}`" class="hover:text-primary">
+                                        {{ delivery.tx_no }}
+                                    </Link>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="sm:table-cell">
-                                {{ delivery.purchase }}
-                        </td>
-                        <td class="sm:table-cell">
-                            {{ delivery.quantity }} Items</td>
-                        <td class="sm:table-cell">
-                            {{ delivery.amount }}</td>
-                        <td class="hidden sm:table-cell">
-                            <div class="badge gap-2 badge-warning"
-                            v-if="delivery.status === 'pending' || delivery.status === 'partial'">
-                            {{ delivery.status }}
-                            </div>
-                            <div class="badge gap-2 badge-success" v-if="delivery.status === 'completed' ||
-                            delivery.status === 'full'">
-                            {{ delivery.status }}
-                            </div>
-                            <div class="badge gap-2 badge-error" v-if="delivery.status === 'cancelled'">
-                            {{ delivery.status }}
-                            </div>
-                        </td>
-                        <td class="sm:table-cell">
-                                {{ delivery.supplier }}
-                        </td>
+                                <div>
+                                    <div class="text-xs opacity-50">
+                                        {{ delivery.created_at }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="sm:table-cell">
+                                    {{ delivery.purchase }}
+                            </td>
+                            <td class="sm:table-cell">
+                                {{ delivery.quantity }} Items</td>
+                            <td class="sm:table-cell">
+                                {{ delivery.amount }}</td>
+                            <td class="hidden sm:table-cell">
+                                <div class="badge gap-2 badge-warning"
+                                v-if="delivery.status === 'pending' || delivery.status === 'partial'">
+                                {{ delivery.status }}
+                                </div>
+                                <div class="badge gap-2 badge-success" v-if="delivery.status === 'completed' ||
+                                delivery.status === 'full'">
+                                {{ delivery.status }}
+                                </div>
+                                <div class="badge gap-2 badge-error" v-if="delivery.status === 'cancelled'">
+                                {{ delivery.status }}
+                                </div>
+                            </td>
+                            <td class="sm:table-cell">
+                                    {{ delivery.supplier }}
+                            </td>
 
-                        <td class="sm:table-cell" v-show="isSuperAdmin">
-                            {{ delivery.store }}</td>
-                        <td>
+                            <td class="sm:table-cell" v-show="isSuperAdmin">
+                                {{ delivery.store }}</td>
+                            <td>
 
-                            <div class="flex items-center space-x-2 justify-center">
-                                <Link v-if="delivery.status !== 'completed'" :href="`/deliveries/${delivery.id}/edit`"
-                                class="hover:text-green-500">
-                                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
-                                    </svg>
-                                </Link>
-                                <a :href="route('delivery.downloadPDF', delivery.id)"
-                                class="hover:text-primary" target="_blank">
-                                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"/>
-                                    </svg>
-                                </a>
-                                <Link :href="`/deliveries/${delivery.id}`" class="hover:text-primary tooltip tooltip-top" data-tip="Delivery details">
-                                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10 3v4a1 1 0 0 1-1 1H5m8-2h3m-3 3h3m-4 3v6m4-3H8M19 4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 12v6h8v-6H8Z"/>
-                                    </svg>
-                                </Link>
-                                <DeleteIcon @modal-show="deleteDeliveryForm(delivery.id)"/>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr v-if="deliveries.data.length  <= 0">
-                        <td colspan="12" class="text-center">
-                            No data found
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                                <div class="flex items-center space-x-2 justify-center">
+                                    <Link v-if="delivery.status !== 'completed'" :href="`/deliveries/${delivery.id}/edit`"
+                                    class="hover:text-green-500">
+                                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
+                                        </svg>
+                                    </Link>
+                                    <a :href="route('delivery.downloadPDF', delivery.id)"
+                                    class="hover:text-primary" target="_blank">
+                                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"/>
+                                        </svg>
+                                    </a>
+                                    <Link :href="`/deliveries/${delivery.id}`" class="hover:text-primary tooltip tooltip-top" data-tip="Delivery details">
+                                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10 3v4a1 1 0 0 1-1 1H5m8-2h3m-3 3h3m-4 3v6m4-3H8M19 4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 12v6h8v-6H8Z"/>
+                                        </svg>
+                                    </Link>
+                                    <DeleteIcon @modal-show="deleteDeliveryForm(delivery.id)"/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr v-if="deliveries.data.length  <= 0">
+                            <td colspan="12" class="text-center">
+                                No data found
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+            <PaginationResultRange :data="deliveries" />
+            <PaginationControlList :url="url" />
+            <Pagination :links="deliveries.links" />
         </div>
-    </section>
-    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <PaginationResultRange :data="deliveries" />
-        <PaginationControlList :url="url" />
-        <Pagination :links="deliveries.links" />
+
     </div>
+
+   
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">
         <div class="p-6">

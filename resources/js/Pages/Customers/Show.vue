@@ -45,7 +45,7 @@ console.log(props.sales);
 
     <div class="flex-grow">
         <div class="flex flex-col md:flex-row gap-4">
-            <div class="card bg-base-100 w-full sm:w-1/3">
+            <div class="card bg-base-100 w-full sm:w-1/3 shadow">
                 <div class="card-body">
                     <div class="flex justify-start" v-if="customer.logo">
                         <img :src="customer.logo" alt="avatar" class="w-full rounded">
@@ -164,7 +164,7 @@ console.log(props.sales);
                                         </TableCell>
                                         <TableCell>
                                             <div class="badge badge-sm"
-                                                :class="sale.status === 'complete' ? 'badge-primary' : 'badge-red-600'">
+                                                :class="sale.status === 'complete' ? 'badge-primary' : 'badge-warning'">
                                                 {{ sale.status }}
                                             </div>
                                         </TableCell>

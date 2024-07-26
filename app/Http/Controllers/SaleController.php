@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\TransactionCodeGenerator;
-use App\Http\Requests\StoreSaleRequest;
 use App\Http\Requests\UpdateSaleRequest;
 use App\Models\Customer;
 use App\Models\Sale;
-use App\Models\SoldItems;
 use App\Models\Store;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -45,7 +42,7 @@ class SaleController extends Controller
                     'total' => !$sale->store->currency ? Number::format($sale->total, 2) : Number::currency($sale->total, in: $sale?->store?->currency),
                     'payment_method' => $sale->payment_method,
                     'user' => $sale->user?->name,
-                    'customer' => $sale->customer?->name,
+                    'customer' => $sale->customer?->name ?? 'Walk-in',
                     'store' => $sale->store?->name,
                     'status' => $sale->status->getLabelText(),
                     'statusColor' => $sale->status->getLabelColor(),
@@ -79,6 +76,7 @@ class SaleController extends Controller
         $sale = Sale::with(['store','customer'])->find($sale->id);
 
         $sale->quantity = Number::format($sale->quantity);
+        $sale->tax = $sale->store->currency.' '.Number::format($sale->tax, precision:2);
         $sale->discount = $sale->store->currency.' '.Number::format($sale->discount, precision:2);
         $sale->sub_total = $sale->store->currency.' '.Number::format($sale->sub_total, precision:2);
         $sale->total = $sale->store->currency.' '.Number::format($sale->total, precision:2);
