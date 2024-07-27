@@ -104,4 +104,16 @@ class Delivery extends Model
             ->logOnlyDirty()
             ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
     }
+
+    protected static function booted(): void
+    {
+        static::creating(function($model){
+            $model->store_id = auth()->user()->store->id;
+        });
+
+        static::updating(function($model){
+            $model->store_id = auth()->user()->store->id;
+        });
+
+    }
 }

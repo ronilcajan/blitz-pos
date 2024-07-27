@@ -169,7 +169,7 @@ const submitCategoryForm = () => {
 }
 
 const submitUpdateForm = () => {
-	form.post('/products/update',{
+	form.post(route('products.update'),{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
@@ -179,6 +179,13 @@ const submitUpdateForm = () => {
 				dismissible: true
 			});
 		},
+        onError: (errors) => {
+            useToast().danger(`Error! ${errors.error}!`, {
+				position: 'top-right',
+				duration: 3000,
+				dismissible: true
+			});
+        }
 	})
 }
 

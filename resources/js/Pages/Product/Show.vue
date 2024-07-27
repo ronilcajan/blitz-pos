@@ -426,7 +426,7 @@ const downloadBarCode = () => {
                                     <TableRow>
                                         <TableHead>Invoice</TableHead>
                                         <TableHead>Qty</TableHead>
-                                        <TableHead>Price({{ $page.props.auth.user.currency }})</TableHead>
+                                        <TableHead>Price</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead>Customer</TableHead>
                                         <TableHead>Date</TableHead>
@@ -448,7 +448,7 @@ const downloadBarCode = () => {
                                                 :class="sale.sale.status === 'complete' ? 'badge-primary' : 'badge-red-600'">
                                                 {{ sale.sale.status }}</div>
                                         </TableCell>
-                                        <TableCell>{{ sale.sale?.customer ?? 'Walk-in'  }}</TableCell>
+                                        <TableCell>{{ sale.sale?.customer?.name ?? 'Walk-in'  }}</TableCell>
                                         <TableCell>{{ formatDateForDisplay(sale.created_at) }}</TableCell>
                                     </TableRow>
                                     <TableRow v-if="sales == 0">
@@ -475,8 +475,8 @@ const downloadBarCode = () => {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Date </TableHead>
-                                        <TableHead>Old Price({{ $page.props.auth.user.currency }}) </TableHead>
-                                        <TableHead>New Price({{ $page.props.auth.user.currency }})</TableHead>
+                                        <TableHead>Old Price </TableHead>
+                                        <TableHead>New Price</TableHead>
                                     </TableRow>
                                 </TableHeader>
                             </template>

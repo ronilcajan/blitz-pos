@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
-import debounce from "lodash/debounce";
+import ActionDropdown from './partials/ActionDropdown.vue';
 import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
@@ -20,8 +20,6 @@ const page = usePage();
 let search = ref(props.filter.search);
 let category = ref('');
 let supplier = ref('');
-
-const canDelete = page.props.auth.user.canDelete
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -224,9 +222,9 @@ const productsDataLength = computed(() => {
   <TitleContainer :title="title">
         <div class="flex items-center gap-2" v-if="productsDataLength > 0">
             <CreateBtnLink href="/products/create">New product</CreateBtnLink>
-            <ActionDropdown :dataIds="productIds" :exportPDFRoute="route('products.export_pdf')"
+            <ActionDropdown :productIds="productIds" :exportPDFRoute="route('products.export_pdf')"
                 :exportExcelRoute="route('products.export_excel')" :withImportBtn="true"
-                @open-import-modal="importModal = true" @delete-all-selected="deleteAllSelectedModal = true" />
+                @open-import-modal="importModal = true" @transfer-selected-stocks="transferStocksSelectedModal = true" />
 
         </div>
 
@@ -267,7 +265,7 @@ const productsDataLength = computed(() => {
                             </TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Size</TableHead>
-                            <TableHead>Price({{ $page.props.auth.user.currency }})</TableHead>
+                            <TableHead>Price</TableHead>
                             <TableHead>Stocks</TableHead>
                             <TableHead>In Warehouse</TableHead>
                             <TableHead>In Store</TableHead>
@@ -294,7 +292,7 @@ const productsDataLength = computed(() => {
                                     </div>
                                 </div>
                                 </Link>
-                               
+                                {{ $page.props.auth.user.currency }}
                             </TableCell>
                             <TableCell>{{ product.size }}</TableCell>
                             <TableCell>{{ product.stocks }} {{ product.price }}
@@ -398,6 +396,9 @@ const productsDataLength = computed(() => {
                         />
                     <InputError class="mt-2" :message="stocksForm.errors.qty" />
                 </div>
+                <div>
+                        <p class="text-xs mt-2">Note: This modal allows you to transfer stock quantities from warehouse to your store.</p>
+                    </div>
 
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="stockTransferModal = false">Cancel</SecondaryButton>
@@ -414,44 +415,6 @@ const productsDataLength = computed(() => {
         </div>
     </Modal>
 
-    <Modal :show="transferStocksSelectedModal" @close="transferStocksSelectedModal = false" maxWidth="md">
-        <div class="p-6">
-            <h1 class="text-xl mb-4 font-medium">
-                Transfer Stocks for Selected Products
-            </h1>
-            <form method="dialog" class="w-full" @submit.prevent="submitStockTranserSelectedProducts">
-
-                <div class="mb-3">
-                    <InputLabel value="Enter quantity" />
-                    <TextInput
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            class="block w-full"
-                            v-model="stocksSelectedForm.qty"
-                            placeholder="Enter quantity for transfer"
-                        />
-                    <InputError class="mt-2" :message="stocksSelectedForm.errors.qty" />
-
-                    <div>
-                        <small>Note: This modal allows you to transfer stock quantities for multiple selected products. If a product has zero stock in the warehouse, it will be skipped. If you enter a quantity greater than the warehouse stock, all available stock for that product will be transferred.</small>
-                    </div>
-                </div>
-
-                <div class="mt-6 flex justify-end">
-                    <SecondaryButton class="btn" @click="transferStocksSelectedModal = false">Cancel</SecondaryButton>
-                    <PrimaryButton
-                        class="ms-3"
-                        :class="{ 'opacity-25': stocksSelectedForm.processing }"
-                        :disabled="stocksSelectedForm.processing"
-                    >
-                        <span v-if="stocksSelectedForm.processing" class="loading loading-spinner"></span>
-                        Transfer Now
-                    </PrimaryButton>
-                </div>
-            </form>
-        </div>
-    </Modal>
     <Modal :show="importModal" @close="importModal = false" maxWidth="md">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
@@ -484,6 +447,44 @@ const productsDataLength = computed(() => {
                     >
                         <span v-if="importForm.processing" class="loading loading-spinner"></span>
                         Import Now
+                    </PrimaryButton>
+                </div>
+            </form>
+        </div>
+    </Modal>
+    <Modal :show="transferStocksSelectedModal" @close="transferStocksSelectedModal = false" maxWidth="md">
+        <div class="p-6">
+            <h1 class="text-xl mb-4 font-medium">
+                Transfer Stocks for Selected Products
+            </h1>
+            <form method="dialog" class="w-full" @submit.prevent="submitStockTranserSelectedProducts">
+
+                <div class="mb-3">
+                    <InputLabel value="Enter quantity" />
+                    <TextInput
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            class="block w-full"
+                            v-model="stocksSelectedForm.qty"
+                            placeholder="Enter quantity for transfer"
+                        />
+                    <InputError class="mt-2" :message="stocksSelectedForm.errors.qty" />
+
+                    <div>
+                        <p class="text-xs mt-2">Note: This modal allows you to transfer stock quantities from warehouse to your store for multiple selected products. If a product has zero stock in the warehouse, it will be skipped. If you enter a quantity greater than the warehouse stock, all available stock for that product will be transferred.</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <SecondaryButton class="btn" @click="transferStocksSelectedModal = false">Cancel</SecondaryButton>
+                    <PrimaryButton
+                        class="ms-3"
+                        :class="{ 'opacity-25': stocksSelectedForm.processing }"
+                        :disabled="stocksSelectedForm.processing"
+                    >
+                        <span v-if="stocksSelectedForm.processing" class="loading loading-spinner"></span>
+                        Transfer Now
                     </PrimaryButton>
                 </div>
             </form>

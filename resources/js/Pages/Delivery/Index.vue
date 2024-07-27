@@ -164,113 +164,91 @@ const clearFilters = (filter) => {
                 <ClearFilters :filters="appliedFilters" @clear-filters="clearFilters" />
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="table table-zebra">
-                    <thead class="uppercase">
-                        <tr>
-                            <th v-if="canDelete">
-                                <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
-                            </th>
-                            <th>
-                                <div class="font-bold">TRANSACTION</div>
-                            </th>
-                            <th class="hidden sm:table-cell">
-                                <div class="font-bold">Purchase</div>
-                            </th>
-
-                            <th class="hidden sm:table-cell">
-                                <div class="font-bold">Quantity</div>
-                            </th>
-                            <th class="hidden sm:table-cell">
-                                <div class="font-bold">Amount</div>
-                            </th>
-                            <th class="hidden sm:table-cell">
-                                <div class="font-bold">Status</div>
-                            </th>
-                            <th class="hidden sm:table-cell">
-                                <div class="font-bold">Supplier</div>
-                            </th>
-
-                            <th class="hidden sm:table-cell" v-show="isSuperAdmin">
-                                <div class="font-bold">Store</div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="delivery in deliveries.data" :key="delivery.id">
-                            <td class="w-0" v-if="canDelete">
+            <Table>
+                <template #table-header>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead v-if="$page.props.auth.user.canDelete">
+                                <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox"
+                                    class="checkbox checkbox-sm">
+                            </TableHead>
+                            <TableHead>Transaction</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Quantity</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Purchase No</TableHead>
+                            <TableHead>Supplier</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                </template>
+                <template #table-body>
+                    <TableBody>
+                        <TableRow v-for="delivery in deliveries.data" :key="delivery.id">
+                            <TableCell v-if="$page.props.auth.user.canDelete">
                                 <input :value="delivery.id" v-model="deliveryIds" type="checkbox" class="checkbox checkbox-sm">
-                            </td>
-                            <td>
-                                <div class="text-sm font-bold">
-                                    <Link :href="`/deliveries/${delivery.id}`" class="hover:text-primary">
+                            </TableCell>
+                            <TableCell>
+                                <Link 
+                                    :href="`/deliveries/${delivery.id}`" 
+                                    class=" text-blue-700">
+                                    <div class="flex flex-col font-semibold gap-2">
                                         {{ delivery.tx_no }}
-                                    </Link>
-                                </div>
-                                <div>
-                                    <div class="text-xs opacity-50">
-                                        {{ delivery.created_at }}
+                                        <p class="text-xs opacity-50">
+                                            {{ delivery.created_at }}</p>
                                     </div>
-                                </div>
-                            </td>
-                            <td class="sm:table-cell">
-                                    {{ delivery.purchase }}
-                            </td>
-                            <td class="sm:table-cell">
-                                {{ delivery.quantity }} Items</td>
-                            <td class="sm:table-cell">
-                                {{ delivery.amount }}</td>
-                            <td class="hidden sm:table-cell">
+                                </Link>
+                            </TableCell>
+                            <TableCell>{{ delivery.amount }}</TableCell>
+                            <TableCell>{{ delivery.quantity }} Item/s</TableCell>
+                            <TableCell>
                                 <div class="badge gap-2 badge-warning"
-                                v-if="delivery.status === 'pending' || delivery.status === 'partial'">
-                                {{ delivery.status }}
+                                    v-if="delivery.status === 'pending' || delivery.status === 'partial'">
+                                    {{ delivery.status }}
+                                    </div>
+                                    <div class="badge gap-2 badge-success" v-if="delivery.status === 'completed' ||
+                                    delivery.status === 'full'">
+                                    {{ delivery.status }}
+                                    </div>
+                                    <div class="badge gap-2 badge-error" v-if="delivery.status === 'cancelled'">
+                                    {{ delivery.status }}
                                 </div>
-                                <div class="badge gap-2 badge-success" v-if="delivery.status === 'completed' ||
-                                delivery.status === 'full'">
-                                {{ delivery.status }}
-                                </div>
-                                <div class="badge gap-2 badge-error" v-if="delivery.status === 'cancelled'">
-                                {{ delivery.status }}
-                                </div>
-                            </td>
-                            <td class="sm:table-cell">
-                                    {{ delivery.supplier }}
-                            </td>
+                            </TableCell>
+                            <TableCell>{{ delivery.purchase }}</TableCell>
+                            <TableCell>{{ delivery.supplier }}</TableCell>
 
-                            <td class="sm:table-cell" v-show="isSuperAdmin">
-                                {{ delivery.store }}</td>
-                            <td>
-
+                            <TableCell>
                                 <div class="flex items-center space-x-2 justify-center">
+
                                     <Link v-if="delivery.status !== 'completed'" :href="`/deliveries/${delivery.id}/edit`"
-                                    class="hover:text-green-500">
-                                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
-                                        </svg>
-                                    </Link>
-                                    <a :href="route('delivery.downloadPDF', delivery.id)"
-                                    class="hover:text-primary" target="_blank">
-                                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"/>
-                                        </svg>
-                                    </a>
-                                    <Link :href="`/deliveries/${delivery.id}`" class="hover:text-primary tooltip tooltip-top" data-tip="Delivery details">
-                                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10 3v4a1 1 0 0 1-1 1H5m8-2h3m-3 3h3m-4 3v6m4-3H8M19 4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 12v6h8v-6H8Z"/>
-                                        </svg>
-                                    </Link>
+                                        class="hover:text-green-500">
+                                            <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
+                                            </svg>
+                                        </Link>
+                                        <a :href="route('delivery.downloadPDF', delivery.id)"
+                                        class="hover:text-primary" target="_blank">
+                                            <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"/>
+                                            </svg>
+                                        </a>
+                                        <Link :href="`/deliveries/${delivery.id}`" class="hover:text-primary tooltip tooltip-top" data-tip="Delivery details">
+                                            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10 3v4a1 1 0 0 1-1 1H5m8-2h3m-3 3h3m-4 3v6m4-3H8M19 4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 12v6h8v-6H8Z"/>
+                                            </svg>
+                                        </Link>
                                     <DeleteIcon @modal-show="deleteDeliveryForm(delivery.id)"/>
                                 </div>
-                            </td>
-                        </tr>
-                        <tr v-if="deliveries.data.length  <= 0">
-                            <td colspan="12" class="text-center">
-                                No data found
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow v-if="deliveries.data == 0">
+                            <TableCell :colspan="10" class="text-center">
+                                No {{ title.toLocaleLowerCase() }} found!
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </template>
+            </Table>
+
         </section>
         <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
             <PaginationResultRange :data="deliveries" />

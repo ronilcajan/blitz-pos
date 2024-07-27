@@ -219,8 +219,13 @@
             </tfoot>
         </table>
     </div>
-    <div class="margin-top" style="margin: 0 16px">
+    <div class="margin-top" style="margin: 16px 16px">
         <div>Notes: {{ $delivery->notes }}</div>
+    </div>
+    <div class="margin-top" style="margin: 16px 16px">
+        <div>Receiver:
+            <span style="text-underline-position: below">{{ $delivery->receiver }}</span>
+        </div>
     </div>
     <div class="footer margin-top" style="margin: 8px 16px">
         <div>Thank you for doing business with us!</div>

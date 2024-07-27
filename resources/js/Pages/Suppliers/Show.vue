@@ -125,7 +125,7 @@ const totalAmountDelivered = computed(() => {
                     <div class="stat-figure text-secondary">
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="30"  height="30"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-moneybag"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9.5 3h5a1.5 1.5 0 0 1 1.5 1.5a3.5 3.5 0 0 1 -3.5 3.5h-1a3.5 3.5 0 0 1 -3.5 -3.5a1.5 1.5 0 0 1 1.5 -1.5z" /><path d="M4 17v-1a8 8 0 1 1 16 0v1a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4z" /></svg>
                     </div>
-                    <div class="stat-title">Loyalty Points</div>
+                    <div class="stat-title">Total Amount</div>
                     <div class="stat-value">{{ totalAmountDelivered ?? 0 }}</div>
                     <!-- <div class="stat-desc">↘︎ 90 (14%)</div> -->
                 </div>
@@ -179,9 +179,9 @@ const totalAmountDelivered = computed(() => {
                                             {{ formatDateForDisplay(purchase.created_at) }}
                                         </TableCell>
                                     </TableRow>
-                                    <TableRow v-if="purchase == 0">
+                                    <TableRow v-if="purchases == 0">
                                         <TableCell :colspan="6" class="text-center">
-                                            No sales yet for this customer!
+                                            No purchases yet for this supplier!
                                         </TableCell>
                                     </TableRow>
                                 </TableBody>
@@ -238,7 +238,7 @@ const totalAmountDelivered = computed(() => {
                                     </TableRow>
                                     <TableRow v-if="deliveries == 0">
                                         <TableCell :colspan="6" class="text-center">
-                                            No sales yet for this customer!
+                                            No deliveries yet for this supplier!
                                         </TableCell>
                                     </TableRow>
                                 </TableBody>

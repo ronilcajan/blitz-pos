@@ -221,7 +221,7 @@ const productsDataLength = computed(() => {
                                     class="checkbox checkbox-sm">
                             </TableHead>
                             <TableHead>Name</TableHead>
-                            <TableHead>Price({{ $page.props.auth.user.currency }})</TableHead>
+                            <TableHead>Price</TableHead>
                             <TableHead>Stocks</TableHead>
                             <TableHead>Category</TableHead>
                             <TableHead>Size</TableHead>
@@ -252,7 +252,7 @@ const productsDataLength = computed(() => {
                                 </Link>
                                
                             </TableCell>
-                            <TableCell>{{ product.price }}</TableCell>
+                            <TableCell>{{ $page.props.auth.user.currency }} {{ product.price }}</TableCell>
                             <TableCell>{{ product.stocks }} {{ product.unit }}</TableCell>
                             <TableCell>{{ product.category }}</TableCell>
 

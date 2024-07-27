@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
@@ -36,11 +35,6 @@ class Supplier extends Model
     {
         return $this->hasMany(Delivery::class);
     }
-
-    public function products():BelongsToMany
-    {
-        return $this->belongsToMany(ProductSupplier::class);
-    } 
 
     public function scopeFilter($query, array $filter){
         if(!empty($filter['search'])){

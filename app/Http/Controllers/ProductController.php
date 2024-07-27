@@ -53,7 +53,7 @@ class ProductController extends Controller
                     'visible' => $product->visible === 'published',
                     'category' => $product->category?->name,
                     'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
-                    'price' =>  $product->price?->sale_price ? Number::currency($product->price?->sale_price, in: auth()->user()->store->currency) : $product->price?->sale_price,
+                    'price' =>  Number::format($product->price?->sale_price,2),
                 ];
         });
 
@@ -233,7 +233,7 @@ class ProductController extends Controller
         $priceActivity = Activity::query()
             ->where('subject_type', get_class($productPriceModel))
             ->where('event', 'updated')
-            ->where('subject_id', $product->price->id)
+            ->where('subject_id', $product->price?->id)
             ->latest()
             ->paginate(10); 
 
@@ -256,10 +256,8 @@ class ProductController extends Controller
 
         $request->validated();
 
-
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
-
             $productAttributes = [
                 'name' => $request->name,
                 'barcode' => $request->barcode,
@@ -312,8 +310,6 @@ class ProductController extends Controller
                     }
                 }
 
-             
-
                 // Insert new product images
                 ProductImage::insert($productImages);
             }
@@ -337,14 +333,18 @@ class ProductController extends Controller
                 'product_id' => $product->id
             ];
 
-           // Update or create price attributes
-            $product->price()->updateOrCreate([], $productPriceAttributes);
-            // Update or create stock attributes
-            $product->stock()->updateOrCreate([], $productStocksAttributes);
+            $product->price()->delete();
+            $product->stock()->delete();
+
+            $product->price()->create($productPriceAttributes);
+            $product->stock()->create($productStocksAttributes);
 
             DB::commit();
+
             return redirect()->back();
+
         } catch (\Throwable $th) {
+
             DB::rollBack();
             //throw $th;
             return redirect()->back()->with('error', $th->getMessage());

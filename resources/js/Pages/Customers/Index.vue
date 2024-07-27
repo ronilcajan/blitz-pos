@@ -154,7 +154,7 @@ const clearFilters = (filter) => {
                                 <input :value="customer.id" v-model="customerIds" type="checkbox" class="checkbox checkbox-sm">
                             </TableCell>
                             <TableCell>
-                                <Link :href=" `/customers/${customer.id}`" class="text-blue-800">
+                                <Link :href=" `/customers/${customer.id}`" class="text-blue-700">
                                     <div class="flex items-center gap-2">
                                         <Avatar :src="customer.logo" />
                                         <div class="flex flex-col font-semibold">

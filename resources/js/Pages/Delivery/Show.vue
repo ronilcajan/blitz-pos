@@ -18,24 +18,30 @@ const props = defineProps({
             <div class="card bg-base-100 shadow-sm">
                 <div class="card-body grow-0">
                     <div id="purchaseContainer" ref="purchaseContainer">
-                        <div>
-                            <h1 class="text-3xl font-bold mb-4 ">
-                                <span>Delivery Details #0{{ delivery.id }}</span>
-                            </h1>
-                        </div>
-                        <div class="flex justify-start sm:justify-end gap-2">
-                            <div class="flex flex-col mb-3 items-start sm:items-end">
-                                <h1 class="text-xl font-bold">
-                                    <span>{{ delivery.store.name }}</span>
-                                </h1>
-                                <p>{{ delivery.store.address }}</p>
-                                <p>Delivery Tx No: {{ delivery.tx_no }}</p>
+                        <div class="flex justify-between bg-blue-200 p-2 items-center">
+                            <div class="flex justify-start">
+                                <img v-if="$page.props.auth.user.store_logo" :src="$page.props.auth.user.store_logo" alt="" class="h-28">
+                                <div>
+                                    <h1 class="text-2xl font-bold">
+                                        <span>{{ $page.props.auth.user.store_name }}</span>
+                                    </h1>
+                                    <p class="font-semibold text-sm">Email: 
+                                        {{$page.props.auth.user.store_email }}</p>
+                                    <p class="text-gray-500 text-sm">Contact No:
+                                        {{ $page.props.auth.user.store_phone }}</p>
+                                    <p class="text-gray-500 text-sm">Address:
+                                        {{$page.props.auth.user.store_address }}</p>
+                                </div>
+                            </div>
+                            <div class="font-semibold text-sm text-right">
+                                <p>Delivery ID: {{ delivery.tx_no }}</p>
                                 <p v-if="delivery.purchase?.tx_no">Purchase Order: {{ delivery.purchase?.tx_no }}</p>
                                 <p>Date: {{ delivery.date }}</p>
                                 <p>Status: {{ delivery.status }}</p>
                             </div>
                         </div>
-                        <h2 class="font-bold text-xl">Supplier </h2>
+
+                        <h2 class="font-bold text-xl my-8">Delivery details </h2>
                         <div class="flex justify-start gap-2 flex-col sm:flex-row">
                             <div class="">
                                 <p class="font-semibold">{{ delivery.supplier.name }}</p>
@@ -93,7 +99,7 @@ const props = defineProps({
                                             <span class="pl-5 pt-2">{{ purchase.qty }}</span>
                                         </td>
                                         <td>
-                                            <span class="ml-1 pt-2">{{ purchase.price }}</span>
+                                            <span class="ml-1 pt-2"> {{ $page.props.auth.user.currency }} {{ purchase.price }}</span>
                                         </td>
                                         <td>
                                             <span class="mr-3">
@@ -106,9 +112,12 @@ const props = defineProps({
                         </div>
 
                         <div class="flex gap-4 page-break justify-between mt-5 flex-col-reverse sm:flex-row">
-                            <div class="w-full sm:w-1/2">
-                                <InputLabel class="label" value="Notes" />
-                                <textarea v-model="delivery.notes" class="textarea textarea-bordered w-full max-w-md" placeholder="Type here" ></textarea>
+                            <div class="w-full sm:w-1/2 font-semibold mt-5">
+                                <p class="text-sm">Notes: {{ delivery.notes }}</p>
+                                <p class="text-sm font-semibold mt-12">Receiver: 
+                                    <span class="underline">{{ delivery.receiver }}
+                                        </span>
+                                </p>
                             </div>
                             <div class="w-full sm:w-1/2 flex justify-end">
                                 <div class="bg-base-200 w-full rounded-lg p-4 px-5 shadow-sm border border-base-400">
@@ -118,7 +127,7 @@ const props = defineProps({
                                     </div>
                                     <div class="flex justify-between mb-2">
                                         <span>Subtotal:</span>
-                                        <span>{{ delivery.amount }}</span>
+                                        <span> {{ $page.props.auth.user.currency }} {{ delivery.amount }}</span>
                                     </div>
                                     <div class="flex justify-between mb-2">
                                         <button class="font-semibold" type="button" @click="addDiscountModal = true">
@@ -128,7 +137,7 @@ const props = defineProps({
                                     </div>
                                     <div class="flex justify-between text-lg font-semibold">
                                         <span>Total:</span>
-                                        <span>{{ delivery.total }}</span>
+                                        <span> {{ $page.props.auth.user.currency }} {{ delivery.total }}</span>
                                     </div>
                                 </div>
                             </div>

@@ -54,7 +54,7 @@ class Product extends Model
 
     public function stocks(): HasMany
     {
-        return $this->hasMany(ProductSupplier::class);
+        return $this->hasMany(ProductStock::class);
     }
 
     public function isTaxFree(){

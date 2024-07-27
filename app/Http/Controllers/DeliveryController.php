@@ -44,12 +44,11 @@ class DeliveryController extends Controller
                     'id' => $delivery->id,
                     'tx_no' => $delivery->tx_no,
                     'quantity' => Number::format($delivery->quantity),
-                    'amount' => Number::currency($delivery->amount - $delivery->discount, in: $delivery->store->currency),
+                    'amount' => Number::format($delivery->total,2),
                     'status' => $delivery->status,
                     'notes' => $delivery->notes,
                     'supplier' => $delivery->supplier?->name,
                     'purchase' => $delivery->purchase?->tx_no,
-                    'store' => $delivery->store->name,
                     'created_at' => $delivery->created_at->format('M d, Y h:i: A'),
                 ];
         });
@@ -157,7 +156,7 @@ class DeliveryController extends Controller
             'purchase_id' => $request->purchase_id,
             'supplier_id' => $request->supplier_id,
             'user_id' => $user->id,
-            'store_id' => $user->store_id ?? 1,
+            'receiver' => $request->receiver,
             'created_at' => $request->transaction_date,
         ];
 
@@ -220,24 +219,26 @@ class DeliveryController extends Controller
         auth()->user()->can('view', $delivery);
 
         $items = $delivery->delivery_items()->get()->map(function($item){
+
+            $product = $item->product()->withTrashed()->first();
             return [
                 'id' => $item->product_id,
-                'name' => $item->product->name,
-                'size' => $item->product->size,
-                'image' => $item->product->image,
-                'stocks' => Number::format($item->product->stock?->in_store + $item->product->stock?->in_warehouse),
-                'price' => Number::currency($item->price, in: $item->delivery->store->currency),
-                'qty' =>  Number::format($item->quantity).' '.$item->product->unit,
-                'total' =>  Number::currency($item->price * $item->quantity, in: $item->delivery->store->currency),
+                'name' => $product->name,
+                'size' => $product->size,
+                'image' => $product->image ?? asset('product.png'),
+                'stocks' => Number::format($product->stock?->in_store + $product->stock?->in_warehouse),
+                'price' => Number::format($item->price, 2),
+                'qty' =>  Number::format($item->quantity).' '.$product->unit,
+                'total' =>  Number::format($item->price * $item->quantity, 2),
             ];
         });
 
         $delivery = Delivery::with(['store', 'supplier', 'purchase'])->find($delivery->id);
 
         $delivery->quantity = Number::format($delivery->quantity);
-        $delivery->discount = Number::currency($delivery->discount, in: $delivery->store->currency);
-        $delivery->amount = Number::currency($delivery->amount, in: $delivery->store->currency);
-        $delivery->total = Number::currency($delivery->total, in: $delivery->store->currency);
+        $delivery->discount = Number::format($delivery->discount, 2);
+        $delivery->amount = Number::format($delivery->amount, 2);
+        $delivery->total = Number::format($delivery->total, 2);
         $delivery->date = $delivery->created_at->format('F d, Y');
 
         return inertia('Delivery/Show', [
@@ -281,13 +282,15 @@ class DeliveryController extends Controller
             ->get();
 
         $items =  $delivery->delivery_items()->get()->map(function($item){
+            $product = $item->product()->withTrashed()->first();
+
             return [
                 'id' => $item->product_id,
-                'name' => $item->product?->name,
-                'size' => $item->product?->size,
-                'unit' => $item->product?->unit,
-                'image' => $item->product?->image,
-                'stocks' => $item->product?->stock?->in_store + $item->product?->stock?->in_warehouse,
+                'name' => $product->name,
+                'size' => $product->size,
+                'unit' => $product->unit,
+                'image' => $product->image,
+                'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
                 'price' =>  $item->price,
                 'qty' =>  $item->quantity,
             ];
@@ -302,13 +305,15 @@ class DeliveryController extends Controller
                 ->find($request->order_id);
 
             $order =  $purchase->items()->get()->map(function($item){
+                $product = $item->product()->withTrashed()->first();
+
                 return [
                     'id' => $item->product_id,
-                    'name' => $item->product->name,
-                    'size' => $item->product->size,
-                    'unit' => $item->product->unit,
-                    'image' => $item->product->image,
-                    'stocks' => $item->product->stock?->in_store + $item->product->stock?->in_warehouse,
+                    'name' => $product->name,
+                    'size' => $product->size,
+                    'unit' => $product->unit,
+                    'image' => $product->image,
+                    'stocks' => $product->stock?->in_store + $product->stock?->in_warehouse,
                     'price' =>  $item->price,
                     'qty' =>  $item->quantity,
                 ];
@@ -359,7 +364,7 @@ class DeliveryController extends Controller
             'purchase_id' => $request->purchase_id,
             'supplier_id' => $request->supplier_id,
             'user_id' => $user->id,
-            'store_id' => $user->store_id ?? 1,
+            'receiver' => $request->receiver,
             'created_at' => $request->transaction_date,
         ];
 
@@ -421,14 +426,16 @@ class DeliveryController extends Controller
         auth()->user()->can('view', $delivery);
 
         $items = $delivery->delivery_items()->get()->map(function($item){
+            $product = $item->product()->withTrashed()->first();
+
             return [
                  'id' => $item->product_id,
-                'name' => $item->product->name,
-                'size' => $item->product->size,
-                'image' => $item->product->image,
-                'stocks' => Number::format($item->product->stock?->in_store + $item->product->stock?->in_warehouse, precision:2),
+                'name' => $product->name,
+                'size' => $product->size,
+                'image' => $product->image,
+                'stocks' => Number::format($product->stock?->in_store + $product->stock?->in_warehouse, precision:2),
                 'price' => $item->delivery->store->currency.' '.Number::format($item->price, precision:2),
-                'qty' =>  Number::format($item->quantity).' '.$item->product->unit,
+                'qty' =>  Number::format($item->quantity).' '.$product->unit,
                 'total' =>  $item->delivery->store->currency.' '.Number::format($item->price * $item->quantity, precision:2),
             ];
         });

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductFormRequest;
 use App\Models\Product;
 use App\Models\ProductCategory;
-use App\Models\ProductSupplier;
+use App\Models\ProductStock;
 use App\Models\ProductUnit;
 use App\Models\Store;
 use App\Models\Supplier;
@@ -48,7 +48,7 @@ class InventoryController extends Controller
                 'in_warehouse' => $product->stock?->in_warehouse ? Number::format($product->stock->in_warehouse, precision: 2) : null,
                 'image' => $product?->image ?? asset('product.png'),
                 'store' => $product->store->name,
-                'price' =>  $product->price?->sale_price ? Number::currency($product->price?->sale_price, in: auth()->user()->store->currency) : $product->price?->sale_price,
+                'price' =>  Number::format($product->price?->sale_price,2),
             ];
     });
 
@@ -62,106 +62,6 @@ class InventoryController extends Controller
             'filter' => $request->only(['search']),
             'per_page' => $request->only(['per_page'])
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ProductSupplier $inventory)
-    {
-        $product = Product::find($inventory->product_id);
-        Gate::authorize('update', $product);
-
-         $data = [
-            'id' => $inventory->id,
-            'name' => $inventory->product->name,
-            'barcode' => $inventory->product->barcode,
-            'sku' => $inventory->product->sku,
-            'size' => $inventory->product->size,
-            'dimension' => $inventory->product->dimension,
-            'unit' => $inventory->product->unit,
-            'product_type' => $inventory->product->product_type,
-            'brand' => $inventory->product->brand,
-            'manufacturer' => $inventory->product->manufacturer,
-            'description' => $inventory->product->description,
-            'product_category_id' => $inventory->product->product_category_id,
-            'store_id' => $inventory->product->store_id,
-            'image' => $inventory->product->image,
-
-            'product_id' =>  $inventory->product_id,
-            'unit_price' =>  $inventory->unit_price,
-            'mark_up_price' =>  $inventory->mark_up_price,
-            'retail_price' =>  $inventory->retail_price,
-            'min_quantity' =>  $inventory->min_quantity,
-            'manual_percentage' =>  $inventory->manual_percentage,
-            'in_store' =>  $inventory->in_store,
-            'in_warehouse' =>  $inventory->in_warehouse,
-            'supplier_id' =>  $inventory->supplier_id,
-        ];
-
-        return inertia('Inventory/Edit', [
-            'title' => "Edit Product",
-            'product' => $data,
-            'stores' => Store::select('id', 'name')->orderBy('id', 'DESC')->get(),
-            'units' => ProductUnit::select('id','name')->orderBy('id', 'DESC')
-            ->get(),
-            'categories' => ProductCategory::select('id','name')->orderBy('id', 'DESC')
-            ->get(),
-            'suppliers' => Supplier::select('id','name')->orderBy('id', 'DESC')
-            ->get(),
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(ProductFormRequest $request)
-    {
-        $product = Product::find($request->id);
-        Gate::authorize('update', $product);
-
-        $product_data = [
-            'name' => $request->name,
-            'barcode' => $request->barcode,
-            'sku' => $request->sku,
-            'size' => $request->size,
-            'dimension' => $request->dimension,
-            'unit' => $request->unit,
-            'product_type' => $request->product_type,
-            'brand' => $request->brand,
-            'manufacturer' => $request->manufacturer,
-            'description' => $request->description,
-            'product_category_id' => $request->product_category_id,
-            'store_id' => $request->store_id ?? auth()->id(),
-        ];
-
-        if($request->hasFile('image')){
-            $image = $request->file('image')->store('products','public');
-            $product_data['image'] = asset('storage/'. $image);
-        }
-
-        $product->update($product_data);
-
-        $product_supplier = ProductSupplier::find($request->product_supplier_id);
-
-        $product_supplier_data = [
-            'unit_price' => $request->unit_price,
-            'mark_up_price' => $request->mark_up_price,
-            'retail_price' => $request->retail_price,
-            'min_quantity' => $request->min_quantity,
-            'manual_percentage' => $request->manual_percentage,
-            'in_store' => $request->in_store,
-            'in_warehouse' => $request->in_warehouse,
-            'supplier_id' => $request->supplier_id,
-        ];
-
-        $product_supplier->update($product_supplier_data);
-
-        return redirect()->back();
-    }
-
-    public function show(Product $product){
-        
     }
 
     public function update_stocks(Product $product, Request $request)

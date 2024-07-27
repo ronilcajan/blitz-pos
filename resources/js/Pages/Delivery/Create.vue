@@ -7,6 +7,7 @@ import { router, useForm } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
 import { reactive, ref, watch,watchEffect, computed  } from 'vue';
 import debounce from "lodash/debounce";
+import TextArea from '@/Components/TextArea.vue';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -40,7 +41,6 @@ const supplierForm = useForm({
 	email: '',
 	phone : '',
 	address : '',
-    store_id : '',
 });
 const productForm = useForm({
     name: '',
@@ -50,7 +50,6 @@ const productForm = useForm({
     product_type: '',
 	base_price : '',
     in_store : '',
-    store_id : '',
 });
 
 const closeModal = () => {
@@ -89,34 +88,6 @@ watch(order_id, debounce(function (value) {
      }
    )
 }, 500)) ;
-
-watchEffect(async () => {
-    router.get('/deliveries/create',
-	{ barcode: barcode.value },
-	{ preserveState: true, replace:true,
-        onSuccess: () => {
-            if (!barcode.value) {
-                return;
-            }
-            if (!props.search_products) {
-                useToast().error('Product not found!', {
-                    position: 'top-right',
-                    duration: 3000,
-                    dismissible: true
-                });
-                return;
-            }
-            const foundProduct = findProductById(props.search_products.id, purchase)
-            if (foundProduct) {
-                updateOrderQuantity(foundProduct)
-            } else {
-                const newOrder = createOrderFromProduct(props.search_products);
-                addToDelivery(newOrder);
-            }
-
-            barcode.value = '';
-        }, })
-})
 
 const newPurchase = (product) => {
     const foundProduct = findProductById(product.id, deliveries)
@@ -228,7 +199,7 @@ const deliveryForm = useForm({
 	discount : calculateDiscount,
     total : calculateTotal,
     notes : '',
-    store_id : '',
+    receiver : '',
     items : [],
 });
 
@@ -341,7 +312,7 @@ const selectedOrder = (items) =>{
                             </h2>
                         </div>
                     </div>
-                    <div class="dropdown mb-5 p-3 bg-base-300 rounded">
+                    <div class="dropdown mb-5 rounded">
                         <div class="flex justify-between gap-2">
                             <div class="w-full">
                                 <label for="simple-search" class="sr-only">Search</label>
@@ -446,8 +417,25 @@ const selectedOrder = (items) =>{
 
                     <div class="flex gap-4 justify-between flex-col md:flex-row mt-5">
                         <div class="w-full md:w-1/2">
-                            <InputLabel class="label" value="Notes" />
-                            <textarea v-model="deliveryForm.notes" class="textarea textarea-bordered w-full max-w-xs" placeholder="Type here" ></textarea>
+                            <div>
+                                <InputLabel class="label" value="Notes" />
+                                <TextArea
+                                    class="block w-full"
+                                    v-model="deliveryForm.notes"
+                                    required
+                                    placeholder="Type here"
+                                />
+                            </div>
+                            <div class="mt-2">
+                                <InputLabel class="label" value="Receiver:" />
+                                <TextInput
+                                    class="block w-full"
+                                    v-model="deliveryForm.receiver"
+                                    required
+                                    placeholder="Enter receiver name"
+                                />
+                            </div>
+                           
                         </div>
                         <div class="flex w-full md:w-1/2 justify-end">
                             <div class="bg-base-200 w-full md:w-2/3 rounded-lg p-4 px-5 shadow-sm border border-base-400">
@@ -480,12 +468,12 @@ const selectedOrder = (items) =>{
                     </div>
                     <div class="w-full justify-center mb-10">
                         <InputLabel class="label" value="Status" />
-                        <div class="join flex-wrap">
-                            <input v-model="deliveryForm.status" value="pending" class="join-item btn btn-sm" type="radio" name="options" aria-label="Pending" ref="hideDropdownRef" checked/>
-                            <input v-model="deliveryForm.status" value="completed" class="join-item btn btn-sm" type="radio" name="options" aria-label="Completed" />
-                            <input v-model="deliveryForm.status" value="cancelled" class="join-item btn btn-sm" type="radio" name="options" aria-label="Cancelled" />
-                            <input v-model="deliveryForm.status" value="partial" class="join-item btn btn-sm" type="radio" name="options" aria-label="Partial" />
-                            <input v-model="deliveryForm.status" value="full" class="join-item btn btn-sm" type="radio" name="options" aria-label="Full" />
+                        <div class="join flex-wrap text-xs">
+                            <input v-model="deliveryForm.status" value="pending" class="join-item btn btn-xs" type="radio" name="options" aria-label="Pending" ref="hideDropdownRef" checked/>
+                            <input v-model="deliveryForm.status" value="completed" class="join-item btn btn-xs" type="radio" name="options" aria-label="Completed" />
+                            <input v-model="deliveryForm.status" value="cancelled" class="join-item btn btn-xs" type="radio" name="options" aria-label="Cancelled" />
+                            <input v-model="deliveryForm.status" value="partial" class="join-item btn btn-xs" type="radio" name="options" aria-label="Partial" />
+                            <input v-model="deliveryForm.status" value="full" class="join-item btn btn-xs" type="radio" name="options" aria-label="Full" />
                         </div>
                     </div>
                     <div class="flex justify-end gap-2 flex-col lg:flex-row">
@@ -570,19 +558,6 @@ const selectedOrder = (items) =>{
                                 <InputError class="mt-2" :message="supplierForm.errors.phone" />
                             </div>
                         </div>
-
-                        <div v-show="$page.props.auth.user.isSuperAdmin">
-                            <InputLabel for="phone" value="Store" />
-                            <select v-model="supplierForm.store_id" class="select select-bordered w-full">
-                                <option disabled selected value="">Select a store</option>
-                                <option v-for="store in stores" :value="store.id" :key="store.id">
-                                    {{ store.name }}
-                                </option>
-                            </select>
-                            <InputError class="mt-2" :message="supplierForm.errors.store_id" />
-                        </div>
-
-
                         <div >
                             <InputLabel value="Address" />
                             <textarea v-model="supplierForm.address" class="textarea w-full textarea-bordered" placeholder="Address"></textarea>
@@ -702,16 +677,6 @@ const selectedOrder = (items) =>{
                         />
                         <InputError class="mt-2" :message="productForm.errors.in_store" />
                     </div>
-                </div>
-                <div v-show="$page.props.auth.user.isSuperAdmin">
-                    <InputLabel for="phone" value="Store" />
-                    <select v-model="productForm.store_id" class="select select-bordered w-full">
-                        <option disabled selected value="">Select a store</option>
-                        <option v-for="store in stores" :value="store.id" :key="store.id">
-                            {{ store.name }}
-                        </option>
-                    </select>
-                    <InputError class="mt-2" :message="productForm.errors.store_id" />
                 </div>
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>

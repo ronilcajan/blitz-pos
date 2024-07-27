@@ -172,7 +172,7 @@ console.log(props.sales);
                                             {{ formatDateForDisplay(sale.created_at) }}
                                         </TableCell>
                                     </TableRow>
-                                    <TableRow v-if="sales == 0">
+                                    <TableRow v-if="sales.data == 0">
                                         <TableCell :colspan="6" class="text-center">
                                             No sales yet for this customer!
                                         </TableCell>
