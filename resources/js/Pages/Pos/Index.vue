@@ -16,7 +16,6 @@ defineOptions({ layout: POSLayout })
 const props = defineProps({
     title: String,
     store: Object,
-    stores: Object,
 	customers: Object,
     orders: Object,
     products: Object,
@@ -31,7 +30,6 @@ const purchases = reactive([]);
 const search = ref(props.filter.search);
 const datetime = ref('');
 const discount = ref(0);
-const tax = ref(0);
 const createProductModal = ref(false);
 const createCustomerModal = ref(false);
 const addDiscountModal = ref(false);
@@ -409,6 +407,10 @@ const submitPurchase = () => {
         only: ['sales_id']
 	})
 }
+
+const productsDropdown = computed(() => {
+    return props.products.data.slice(0, 5);
+}) 
 </script>
 
 <template>
@@ -424,7 +426,7 @@ const submitPurchase = () => {
                                 <SearchBar v-model="search" />
                                 <ul tabindex="0" class="dropdown-content md:hidden z-[1] bg-base-100 shadow mt-4 w-full">
                                     <ProductDropdownItems
-                                        v-for="product in products.data"
+                                        v-for="product in productsDropdown"
                                         :product="product"
                                         :key="product.id"
                                         @add-products="newPurchase(product)"
@@ -703,16 +705,6 @@ const submitPurchase = () => {
                         <InputError class="mt-2" :message="productForm.errors.in_store" />
                     </div>
                 </div>
-                <div v-show="$page.props.auth.user.isSuperAdmin">
-                    <InputLabel for="phone" value="Store" />
-                    <select v-model="productForm.store_id" class="select select-bordered w-full">
-                        <option disabled selected value="">Select a store</option>
-                        <option v-for="store in stores" :value="store.id" :key="store.id">
-                            {{ store.name }}
-                        </option>
-                    </select>
-                    <InputError class="mt-2" :message="productForm.errors.store_id" />
-                </div>
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <PrimaryButton
@@ -778,16 +770,6 @@ const submitPurchase = () => {
                     <InputLabel value="Address" />
                     <textarea v-model="customerForm.address" class="textarea w-full textarea-bordered" placeholder="Address"></textarea>
                     <InputError class="mt-2" :message="customerForm.errors.address" />
-                </div>
-                <div v-show="$page.props.auth.user.isSuperAdmin">
-                    <InputLabel for="phone" value="Store" />
-                    <select v-model="customerForm.store_id" class="select select-bordered w-full">
-                        <option disabled selected value="">Select a store</option>
-                        <option v-for="store in stores" :value="store.id" :key="store.id">
-                            {{ store.name }}
-                        </option>
-                    </select>
-                    <InputError class="mt-2" :message="customerForm.errors.store_id" />
                 </div>
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
