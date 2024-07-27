@@ -131,10 +131,11 @@ const selectAll = () => {
 }
 
 const unitDataLength = computed(() => {
-    if (!route().params.search) {
-        return props.units.data.length 
+     if (Object.keys(route().params).length > 0) {
+        return props.units.data.length + 1;
     }
-     return props.units.data.length  + 1;
+    
+    return props.units.data.length;
 });
 const appliedFilters = [
     { title: 'search', value: search },

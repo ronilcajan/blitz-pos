@@ -82,10 +82,11 @@ const selectAll = () => {
 }
 
 const customersDataLength = computed(() => {
-    if(route().params) {
-        return props.customers.data.length + 1
+    if (Object.keys(route().params).length > 0) {
+        return props.customers.data.length + 1;
     }
-    return props.customers.data.length
+    
+    return props.customers.data.length;
 })
 
 const appliedFilters = [

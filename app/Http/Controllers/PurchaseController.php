@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Classes\ConvertToNumber;
-use App\Classes\TransactionCodeGenerator;
 use App\Http\Requests\PurchaseFormRequest;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -30,16 +29,16 @@ class PurchaseController extends Controller
         $orders = Purchase::query()
             ->with(['store','supplier'])
             ->orderBy('id', 'DESC')
-            ->filter(request(['search','store','supplier','from_date','to_date']))
+            ->filter(request(['search','store','suppliers','from_date','to_date']))
             ->paginate($request->per_page ? ($request->per_page == 'All' ? Purchase::count(): $request->per_page) : 10)
             ->withQueryString()
             ->through(function ($order) {
                 return [
                     'id' => $order->id,
                     'order_no' => $order->tx_no,
-                    'quantity' => Number::format($order->quantity).'  Items',
-                    'discount' => Number::currency($order->discount, in: $order->store->currency),
-                    'amount' => Number::currency($order->amount - $order->discount, in: $order->store->currency),
+                    'quantity' => Number::format($order->quantity),
+                    'discount' => Number::format($order->discount, 2),
+                    'amount' => Number::format($order->total, 2),
                     'status' => $order->status,
                     'supplier' => $order->supplier?->name,
                     'store' => $order->store->name,
@@ -52,7 +51,7 @@ class PurchaseController extends Controller
             'orders' => $orders,
             'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
             'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
-            'filter' => $request->only(['search','store','per_page']),
+            'filter' => $request->only(['search','store','per_page', 'suppliers']),
         ]);
     }
 

@@ -8,7 +8,6 @@ const props = defineProps({
     url: String
 });
 
-console.log(props.dateRange.from_date);
 const clearDates = () => {
     props.dateRange.from_date = '';
     props.dateRange.to_date = '';

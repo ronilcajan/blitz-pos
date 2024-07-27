@@ -135,10 +135,11 @@ const selectAll = () => {
 }
 
 const productCategoriesDataLength = computed(() => {
-    if (!route().params.search) {
-        return props.product_categories.data.length 
+     if (Object.keys(route().params).length > 0) {
+        return props.product_categories.data.length + 1;
     }
-     return props.product_categories.data.length  + 1;
+    
+    return props.product_categories.data.length;
 });
 
 const appliedFilters = [

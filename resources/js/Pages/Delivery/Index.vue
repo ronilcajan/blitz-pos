@@ -64,7 +64,6 @@ const submitDeleteForm = () => {
 
 const submitBulkDeleteForm = () => {
     deleteSelectedForm.delivery_id =  deliveryIds.value
-
     deleteSelectedForm.post(route('delivery.bulkDelete'),{
         replace: true,
         preserveScroll: true,
@@ -91,23 +90,12 @@ const selectAll = () => {
       }
 }
 
-watch(supplier, value => {
-	router.get('/deliveries',
-	{ supplier: value },
-	{ preserveState: true, replace:true })
-})
-watch(type, value => {
-	router.get('/products',
-	{ type: value },
-	{ preserveState: true, replace:true })
-})
-
-
 const deliveryDataLength = computed(() => {
-    if(route().params) {
-        return props.deliveries.data.length + 1
+    if (Object.keys(route().params).length > 0) {
+        return props.deliveries.data.length + 1;
     }
-    return props.deliveries.data.length
+    
+    return props.deliveries.data.length;
 })
 
 const appliedFilters = [
@@ -141,7 +129,7 @@ const clearFilters = (filter) => {
     </TitleContainer>
 
     <EmptyContainer :title="title" v-if="deliveryDataLength === 0">
-        <CreateBtnLink href="deliveries/create">New supplier</CreateBtnLink>
+        <CreateBtnLink href="deliveries/create">New delivery</CreateBtnLink>
     </EmptyContainer> 
 
     <div v-if="deliveryDataLength > 0" class="flex-grow">
@@ -191,14 +179,14 @@ const clearFilters = (filter) => {
                                 <Link 
                                     :href="`/deliveries/${delivery.id}`" 
                                     class=" text-blue-700">
-                                    <div class="flex flex-col font-semibold gap-2">
+                                    <div class="flex flex-col font-semibold">
                                         {{ delivery.tx_no }}
                                         <p class="text-xs opacity-50">
                                             {{ delivery.created_at }}</p>
                                     </div>
                                 </Link>
                             </TableCell>
-                            <TableCell>{{ delivery.amount }}</TableCell>
+                            <TableCell>{{ $page.props.auth.user.currency }} {{ delivery.amount }}</TableCell>
                             <TableCell>{{ delivery.quantity }} Item/s</TableCell>
                             <TableCell>
                                 <div class="badge gap-2 badge-warning"
@@ -291,10 +279,10 @@ const clearFilters = (filter) => {
                     <SecondaryButton class="btn" @click="closeModal">Cancel</SecondaryButton>
                     <DangerButton
                         class="ms-3"
-                        :class="{ 'opacity-25': submitBulkDeleteForm.processing }"
-                        :disabled="submitBulkDeleteForm.processing"
+                        :class="{ 'opacity-25': deleteSelectedForm.processing }"
+                        :disabled="deleteSelectedForm.processing"
                     >
-                        <span v-if="submitBulkDeleteForm.processing" class="loading loading-spinner"></span>
+                        <span v-if="deleteSelectedForm.processing" class="loading loading-spinner"></span>
                         Delete
                     </DangerButton>
                 </div>

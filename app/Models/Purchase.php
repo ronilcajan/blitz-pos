@@ -63,10 +63,10 @@ class Purchase extends Model
             });
         }
 
-        if(!empty($filter['supplier'])){
-            $category = $filter['supplier'];
-            $query->whereHas('supplier', function($q) use ($category){
-                $q->where('name', $category);
+        if(!empty($filter['suppliers'])){
+            $supplier = $filter['suppliers'];
+            $query->whereHas('supplier', function($q) use ($supplier){
+                $q->where('name', $supplier);
             });
         }
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed} from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, router } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
@@ -14,7 +14,6 @@ const props = defineProps({
 
 const url = '/suppliers';
 let search = ref(props.filter.search);
-const supplierDataLength = props.suppliers.data.length;
 
 const deleteModal = ref(false);
 const deleteAllSelectedModal = ref(false);
@@ -103,6 +102,14 @@ const submitImportProducts = () => {
         }
     })
 }
+
+const supplierDataLength = computed(() => {
+     if (Object.keys(route().params).length > 0) {
+        return props.suppliers.data.length + 1;
+    }
+    
+    return props.suppliers.data.length;
+});
 
 </script>
 
