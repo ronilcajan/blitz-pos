@@ -108,7 +108,7 @@ const clearFilters = (filter) => {
 
     <TitleContainer :title="title">
         <div v-if="customersDataLength !== 0" class="flex items-center gap-2">
-            <CreateBtnLink href="customers/create" >New supplier</CreateBtnLink>
+            <CreateBtnLink href="customers/create" >New customer</CreateBtnLink>
             <ActionDropdown
                 :dataIds="customerIds"
                 :exportPDFRoute="false"
@@ -120,7 +120,7 @@ const clearFilters = (filter) => {
     </TitleContainer>
 
     <EmptyContainer :title="title" v-if="customersDataLength == 0">
-        <CreateBtnLink href="/customers/create">New product</CreateBtnLink>
+        <CreateBtnLink href="/customers/create">New customer</CreateBtnLink>
     </EmptyContainer>
 
     <div class="flex-grow" v-if="customersDataLength > 0">

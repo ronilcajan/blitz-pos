@@ -243,8 +243,6 @@ const clearFilters = (filter) => {
             <Pagination :links="orders.links" />
         </div>
     </div>
-
-   
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">
         <div class="p-6">

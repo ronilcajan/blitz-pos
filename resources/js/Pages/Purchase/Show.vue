@@ -12,23 +12,28 @@ const props = defineProps({
 
 <template>
     <Head :title="title" />
-    <div class="flex gap-3 flex-col md:flex-row">
+    <div class="flex flex-grow gap-3 flex-col md:flex-row">
         <div class="w-full">
             <div class="card bg-base-100 shadow-sm">
                 <div class="card-body grow-0">
                     <div id="purchaseContainer" ref="purchaseContainer">
-                        <div>
-                            <h1 class="text-3xl font-bold mb-4 ">
-                                <span>Purchase Order #0{{ purchase.id }}</span>
-                            </h1>
-                        </div>
-                        <div class="flex justify-start sm:justify-end gap-2">
-                            <div class="flex flex-col mb-3 items-start sm:items-end">
-                                <h1 class="text-xl font-bold">
-                                    <span>{{ purchase.store.name }}</span>
-                                </h1>
-                                <p>{{ purchase.store.address }}</p>
-                                <p>Purchase TX No: {{ purchase.tx_no }}</p>
+                        <div class="flex justify-between bg-blue-200 p-2 items-center">
+                            <div class="flex justify-start">
+                                <img v-if="$page.props.auth.user.store_logo" :src="$page.props.auth.user.store_logo" alt="" class="h-28">
+                                <div>
+                                    <h1 class="text-2xl font-bold">
+                                        <span>{{ $page.props.auth.user.store_name }}</span>
+                                    </h1>
+                                    <p class="font-semibold text-sm">Email: 
+                                        {{$page.props.auth.user.store_email }}</p>
+                                    <p class="text-gray-500 text-sm">Contact No:
+                                        {{ $page.props.auth.user.store_phone }}</p>
+                                    <p class="text-gray-500 text-sm">Address:
+                                        {{$page.props.auth.user.store_address }}</p>
+                                </div>
+                            </div>
+                            <div class="font-semibold text-sm text-right">
+                                <p>Purchase ID: {{ purchase.tx_no }}</p>
                                 <p>Date: {{ purchase.date }}</p>
                                 <p>Status: {{ purchase.status }}</p>
                             </div>

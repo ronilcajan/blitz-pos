@@ -241,7 +241,7 @@ const submitPurchaseForm = () => {
 
 <template>
     <Head :title="title" />
-    <form @submit.prevent="submitPurchaseForm">
+    <form @submit.prevent="submitPurchaseForm" class="flex-grow">
     <div class="flex gap-3 flex-col md:flex-row">
         <div class="w-full">
             <div class="card bg-base-100 shadow-sm">

@@ -176,7 +176,7 @@ class PurchaseController extends Controller
                 'id' => $item->product_id,
                 'name' => $item->product->name,
                 'size' => $item->product->size,
-                'image' => $item->product->image,
+                'image' => $item->product?->image ?? asset('product.png'),
                 'stocks' => Number::format($item->product->stock?->in_store + $item->product->stock?->in_warehouse),
                 'price' => Number::currency($item->price, in: $item->purchase->store->currency),
                 'qty' =>  Number::format($item->quantity).' '.$item->product->unit,

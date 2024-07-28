@@ -131,143 +131,161 @@ watch(customer, value => {
 	{ preserveState: true, replace:true })
 })
 
+const salesDataLength = computed(() => {
+     if (Object.keys(route().params).length > 0) {
+        return props.sales.data.length + 1;
+    }
+    
+    return props.sales.data.length;
+});
+
+const appliedFilters = [
+    { title: 'customer', value: customer },
+    { title: 'search', value: search },
+]
+
+const clearFilters = (filter) => {
+    if (filter.title == 'customer') {
+        customer.value = '';
+    } else if (filter.title == 'search') {
+        search.value = '';
+    } 
+}
+
 </script>
 
 <template>
     <Head :title="title" />
-    <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
-        <ActionGroupDropdown
-            :dataIds="salesId"
-            :exportExcelRoute="route('sales.export_excel', { from_date: date_range.from_date, to_date: date_range.to_date})"
-            :exportPDFRoute="route('sales.export_pdf', { from_date: date_range.from_date, to_date: date_range.to_date})"
-            @delete-all-selected="deleteAllSelectedModal = true"
-        />
-        <FilterDate :dateRange="date_range" :url="url"/>
-    </div>
-    <section class="stats stats-vertical col-span-12 mb-5 w-full shadow-sm xl:stats-horizontal">
-		<StatsCard title="Daily Sales" :sales="dailySalesTotal">
-            Track your daily sales performance
-        </StatsCard>
-		<StatsCard title="Weekly Sales" :sales="weeklySalesTotal">
-            Track your weekly sales performance
-        </StatsCard>
-		<StatsCard title="Monthly Sales" :sales="monthlySalesTotal">
-            Track your monthly sales performance
-        </StatsCard>
-		<StatsCard title="Yearly Sales" :sales="yearlySalesTotal">
-            Track your yearly sales performance
-        </StatsCard>
-	</section>
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
-        <div class="card-body grow-0">
-            <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
-                <div class="flex gap-2 flex-col sm:flex-row">
-                    <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
-                    <div class="w-full">
-                        <select v-model="customer" class="select select-bordered select-sm w-full">
-                            <option selected value="">Filter by suppliers</option>
-                            <option v-for="customer in customers" :value="customer.name" :key="customer.id">
-                                {{ customer.name }}
-                            </option>
-                        </select>
+    <TitleContainer :title="title">
+        <div v-if="salesDataLength !== 0" class="flex items-center gap-2">
+            <CreateBtnLink href="suppliers/create" >New supplier</CreateBtnLink>
+            <ActionDropdown
+                :dataIds="salesId"
+                :exportPDFRoute="route('sales.export_pdf', { from_date: date_range.from_date, to_date: date_range.to_date})"
+                :exportExcelRoute="route('sales.export_excel', { from_date: date_range.from_date, to_date: date_range.to_date})"
+                :withImportBtn="false"
+                @open-import-modal="importModal = false"
+                @delete-all-selected="deleteAllSelectedModal = true"/> 
+            
+            <FilterDate :dateRange="date_range" :url="url"/>
+
+        </div>
+    </TitleContainer>
+    <EmptyContainer :title="title" v-if="salesDataLength == 0">
+        <CreateBtnLink href="/pos">Go to POS</CreateBtnLink>
+    </EmptyContainer>
+
+    <div class="flex-grow" v-if="salesDataLength > 0">
+        <section class="stats stats-vertical col-span-12 mb-5 w-full shadow-sm xl:stats-horizontal">
+            <StatsCard title="Daily Sales" :sales="dailySalesTotal">
+            </StatsCard>
+            <StatsCard title="Weekly Sales" :sales="weeklySalesTotal">
+            </StatsCard>
+            <StatsCard title="Monthly Sales" :sales="monthlySalesTotal">
+            </StatsCard>
+            <StatsCard title="Yearly Sales" :sales="yearlySalesTotal">
+            </StatsCard>
+        </section>
+        <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
+            <div class="card-body grow-0">
+                <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
+                    <div class="flex gap-2 flex-col sm:flex-row">
+
+                        <SelectDropdownFilter v-if="customers.length" v-model="customer" :url="url" :title="`category`"
+                            :options="customers" />
+
+                    </div>
+                    <div class="flex gap-2 flex-col sm:flex-row">
+                        <div class="w-full">
+                            <SearchInput v-model="search" :url="url" />
+                        </div>
                     </div>
                 </div>
-                <div class="flex gap-2 flex-col sm:flex-row">
-                    <div class="w-full">
-                        <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
-                    </div>
-                </div>
+                <ClearFilters :filters="appliedFilters" @clear-filters="clearFilters" />
             </div>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="table table-zebra">
-                <thead class="uppercase">
-                    <tr>
-                        <th>
-                            <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
-                        </th>
-                        <th>
-                            <div class="font-bold">Transaction</div>
-                        </th>
-                        <th>
-                            <div class="font-bold">Payment Method</div>
-                        </th>
-                        <th>
-                            <div class="font-bold">Items</div>
-                        </th>
-                        <th>
-                            <div class="font-bold">Discount</div>
-                        </th>
-                        <th>
-                            <div class="font-bold">Amount</div>
-                        </th>
-                        <th>
-                            <div class="font-bold">Status</div>
-                        </th>
-                        <th>
-                            <div class="font-bold">Customer</div>
-                        </th>
-                        <th>
-                            <div class="font-bold">User</div>
-                        </th>
-                        <th class="sm:table-cell" v-if="isSuperAdmin">
-                            <div class="font-bold">Store</div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="sale in sales.data" :key="sale.id">
-                        <td class="w-0">
-                            <input :value="sale.id" v-model="salesId" type="checkbox" class="checkbox checkbox-sm">
-                        </td>
-                        <td>
-                            <div class="text-sm font-bold">
-                                {{ sale.tx_no }}
-                            </div>
-                            <div>
-                                <div class="text-xs opacity-50">
-                                    {{ sale.created_at }}
+
+            <Table>
+                <template #table-header>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead v-if="$page.props.auth.user.canDelete">
+                                <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox"
+                                    class="checkbox checkbox-sm">
+                            </TableHead>
+                            <TableHead>Transaction</TableHead>
+                            <TableHead>Payment Method</TableHead>
+                            <TableHead>Items</TableHead>
+                            <TableHead>Discount</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Customer</TableHead>
+                            <TableHead>By</TableHead>
+
+                        </TableRow>
+                    </TableHeader>
+                </template>
+                <template #table-body>
+                    <TableBody>
+                        <TableRow v-for="sale in sales.data" :key="sale.id">
+                            <TableCell v-if="$page.props.auth.user.canDelete">
+                                <input :value="sale.id" v-model="salesId" type="checkbox"
+                                    class="checkbox checkbox-sm">
+                            </TableCell>
+                            <TableCell>
+                                <a :href="route('sales.downloadSalesInvoice', sale.id)" 
+                                    class="text-blue-800 ">
+                                    <div class="flex flex-col font-semibold">
+                                        {{ sale.tx_no }}
+                                        <p class="text-xs opacity-50">
+                                            {{ sale.created_at }}
+                                        </p>
+                                    </div>
+                                </a>
+                               
+                            </TableCell>
+                            <TableCell>{{ sale.payment_method }}</TableCell>
+                            <TableCell>{{ sale.quantity }}</TableCell>
+                            <TableCell>{{ sale.discount }}</TableCell>
+
+                            <TableCell>{{ $page.props.auth.user.currency }} {{ sale.total }}</TableCell>
+                            <TableCell>
+                                <select @change="statusChange(sale.id, $event.target.value)" class="select select-xs"  :class="`text-${sale.statusColor}`">
+                                    <option :selected="sale.status === 'complete'">complete</option>
+                                    <option class="" :selected="sale.status === 'void'">void</option>
+                                </select>
+                            </TableCell>
+                            <TableCell>
+                               {{ sale.customer }}
+                            </TableCell>
+                            <TableCell>
+                               {{ sale.user }}
+                            </TableCell>
+                            <TableCell>
+                                <div class="flex items-center space-x-2">
+                                    <InvoiceButton :href="route('sales.downloadSalesInvoice', sale.id)" />
+                                    <ReceiptButton :href="`/sales/${sale.id}`" />
+                                    <DeleteIcon @modal-show="deleteSalesForm(sale.id)" />
                                 </div>
-                            </div>
-                        </td>
-                        <td class="sm:table-cell">{{ sale.payment_method }}</td>
-                        <td class="sm:table-cell">{{ sale.quantity }}</td>
-                        <td class="sm:table-cell">{{ sale.discount }}</td>
-                        <td class="sm:table-cell">{{ sale.total }}</td>
-                        <td class="sm:table-cell">
-                            <select @change="statusChange(sale.id, $event.target.value)" class="select select-xs"  :class="`text-${sale.statusColor}`">
-                                <option :selected="sale.status === 'complete'">complete</option>
-                                <option class="" :selected="sale.status === 'void'">void</option>
-                            </select>
-                        </td>
-                        <td class="sm:table-cell">{{ sale.customer }}</td>
-                        <td class="sm:table-cell">{{ sale.user }}</td>
-                        <td class="sm:table-cell">{{ sale.store }}</td>
-                        <td>
-                            <div class="flex items-center space-x-2">
-                                <InvoiceButton :href="route('sales.downloadSalesInvoice', sale.id)" />
-                                <ReceiptButton :href="`/sales/${sale.id}`" />
-                                <DeleteIcon @modal-show="deleteSalesForm(sale.id)" />
-                            </div>
-                        </td>
-
-                    </tr>
-                    <tr v-if="sales.data.length <= 0">
-                        <td colspan="8" class="text-center">
-                            No data found
-                        </td>
-
-                    </tr>
-                </tbody>
-            </table>
-
+                            </TableCell>
+                        </TableRow>
+                        <TableRow v-if="sales.data == 0">
+                            <TableCell :colspan="9" class="text-center">
+                                No {{ title.toLocaleLowerCase() }} found!
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </template>
+            </Table>
+        </section>
+        <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+            <PaginationResultRange :data="sales" />
+            <PaginationControlList :url="url" />
+            <Pagination :links="sales.links" />
         </div>
-    </section>
-    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <PaginationResultRange :data="sales" />
-        <PaginationControlList :url="url" />
-        <Pagination :links="sales.links" />
     </div>
+    
+
+    
     <Modal :show="editModal" @close="closeModal">
         <div class="p-6">
             <h1 class="text-xl mb-4 font-medium">
