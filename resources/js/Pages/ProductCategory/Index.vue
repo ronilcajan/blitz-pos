@@ -176,7 +176,7 @@ const clearFilters = (filter) => {
                         <ClearFilters :filters="appliedFilters" @clear-filters="clearFilters" />
                     </div>
                     <div class="flex gap-2 flex-col w-full justify-end sm:flex-row">
-                            <SearchInput v-model="search" :url="url" />
+                        <SearchInput v-model="search" :url="url" />
                     </div>
                 </div>
                

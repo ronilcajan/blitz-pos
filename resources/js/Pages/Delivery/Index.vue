@@ -100,6 +100,7 @@ const deliveryDataLength = computed(() => {
 
 const appliedFilters = [
     { title: 'suppliers', value: supplier },
+    { title: 'search', value: search },
 ]
 
 const clearFilters = (filter) => {
