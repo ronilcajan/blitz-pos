@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3'
+import debounce from "lodash/debounce";
 
 const model = defineModel({
     status: String,
@@ -8,11 +9,15 @@ const model = defineModel({
 
 const status = ref('');
 
-watch(status, value => {
-	router.get('/expenses',
-	{ status: value },
-	{ preserveState: true, replace:true, preserveScroll: true } )
-})
+watch(status, debounce(function (value) {
+    const newQuery = { ...route().params, status: value }; //maintain url params
+    router.visit('/expenses', {
+        method: 'get',
+        data: newQuery,
+        preserveState: true, replace:true, preserveScroll: true
+    })
+
+}, 500));
 
 </script>
 <template>

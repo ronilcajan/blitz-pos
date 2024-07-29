@@ -1,19 +1,21 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm, usePage } from '@inertiajs/vue3'
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { useToast } from 'vue-toast-notification';
 
 defineOptions({ layout: AuthenticatedLayout })
-
-const page = usePage()
-let createModal = ref(false);
 
 const props = defineProps({
     title: String,
     stores: Object,
     categories: Object,
 });
+
+const page = usePage()
+const createModal = ref(false);
+
+const items = ref([{ name: '' }]);
 
 const form = useForm({
 	expenses_date: new Date().toISOString().substring(0, 10),
@@ -22,6 +24,7 @@ const form = useForm({
 	notes : '',
 	attachments : '',
 	expenses_category_id : '',
+    items : [],
     store_id : page?.props?.auth?.user.store_id,
 });
 
@@ -35,6 +38,7 @@ const closeModal = () => {
 };
 
 const submitCreateForm = () => {
+    form.items = items.value
 	form.post('/expenses',{
 		replace: true,
 		preserveScroll: true,
@@ -65,11 +69,22 @@ const submitCategoryForm = () => {
 		},
 	})
 }
+
+const addItem = () => {
+    items.value.push({ name: '' });
+}
 </script>
 
 <template>
     <Head :title="title" />
-    <form @submit.prevent="submitCreateForm" class="w-full">
+    <form @submit.prevent="submitCreateForm" class="flex-grow">
+
+        <TitleContainer :title="title">
+            <CancelButton href="/expenses" >Cancel</CancelButton>
+            <CreateSubmitBtn v-model="form">Create expenses</CreateSubmitBtn>
+        </TitleContainer>
+
+
         <div class="flex gap-4 md:flex-row flex-col">
             <div class="w-full md:w-2/3">
                 <div class="card bg-base-100 shadow mt-5">
@@ -78,21 +93,6 @@ const submitCategoryForm = () => {
                             <h2 class="card-title grow text-sm mb-5">
                                 <span class="uppercase">General Information</span>
                             </h2>
-                            <div class="flex justify-end gap-3 flex-col md:flex-row">
-                                <NavLink href="/expenses" class="btn btn-sm">
-                                    <svg class="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
-                                    </svg>
-                                    Cancel</NavLink>
-                                <PrimaryButton type="submit"
-                                    class="btn btn-sm"
-                                    :class="{ 'opacity-25': form.processing }"
-                                    :disabled="form.processing"
-                                >
-                                    <span v-if="form.processing" class="loading loading-spinner"></span>
-                                    Create expenses
-                                </PrimaryButton>
-                            </div>
                         </div>
                         <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
                             <div class="form-control">
@@ -107,31 +107,21 @@ const submitCategoryForm = () => {
                                 <InputError class="mt-2" :message="form.errors.email" />
                             </div>
                             <div class="form-control">
-                                <div class="flex items-end gap-2">
-                                    <div class="w-full">
-                                        <InputLabel for="phone" value="Category" />
-                                        <select v-model="form.expenses_category_id" class="select select-bordered w-full">
-                                            <option disabled selected value="">Select a category</option>
-                                            <option v-for="category in categories" :value="category.id" :key="category.id">
-                                                {{ category.name }}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <button @click="createModal = true" type="button" class="btn btn-primary btn-square">
-                                            <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-
+                                <div class="flex flex-row items-center gap-2">
+                                    <span class="font-semibold text-sm">Category</span>
+                                    <button as="button" class="btn btn-xs btn-primary btn-link" type="button" @click="createModal = true">Add new category</button>
                                 </div>
-
-                                <InputError class="mt-2" :message="form.errors.expenses_category_id" />
+                                <select v-model="form.expenses_category_id" required class="w-full select select-bordered">
+                                    <option disabled selected value="">Select a product category</option>
+                                    <option v-for="category in categories" :value="category.id" :key="category.id">
+                                        {{ category.name }}
+                                    </option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.product_category_id" />
                             </div>
                         </div>
 
-                        <div>
+                        <div class="mt-2">
                             <InputLabel value="Vendor" />
                             <TextInput
                                     type="text"
@@ -143,21 +133,28 @@ const submitCategoryForm = () => {
                             <InputError class="mt-2" :message="form.errors.vendor" />
                         </div>
 
-                        <div class="grid grid-cols-1 gap-2 mb-3" :class="$page.props.auth.user.isSuperAdmin ? 'lg:grid-cols-2 grid-cols-1' : 'grid-cols-1'">
+                        <div class="form-control mt-2">
+                            <div class="flex flex-row items-center gap-2 justify-between">
+                                <span class="font-semibold text-sm">Items</span>
+                                <button as="button" class="btn btn-xs btn-primary btn-link" type="button" @click="addItem">Add item</button>
+                            </div>
+                            <template v-for="(item, index) in items" :key="index">
+                                <div class="flex flex-row gap-2 mt-2">
+                                    <TextInput v-model="item.name" placeholder="Enter item name" />
+                                    <TextInput v-model="item.name" placeholder="Enter item name"  />
+                                </div>
+                                
+                            </template>
+                           
+                            <InputError class="mt-2" :message="form.errors.product_category_id" />
+                        </div>
+
+
+                        <div class="grid grid-cols-1 gap-2 mb-3 mt-2" :class="$page.props.auth.user.isSuperAdmin ? 'lg:grid-cols-2 grid-cols-1' : 'grid-cols-1'">
                             <div class="form-control">
                                 <InputLabel for="name" value="Amount" />
                                 <input v-model="form.amount" type="number" placeholder="Enter amount" step="0.01" min="0" class="input input-bordered w-full" />
                                 <InputError class="mt-2" :message="form.errors.amount" />
-                            </div>
-                            <div class="form-control" v-show="$page.props.auth.user.isSuperAdmin">
-                                <InputLabel for="phone" value="Store" />
-                                <select v-model="form.store_id" class="select select-bordered w-full">
-                                    <option disabled selected value="">Select a store</option>
-                                    <option v-for="store in stores" :value="store.id" :key="store.id">
-                                        {{ store.name }}
-                                    </option>
-                                </select>
-                                <InputError class="mt-2" :message="form.errors.store_id" />
                             </div>
                         </div>
 

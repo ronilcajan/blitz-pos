@@ -66,6 +66,8 @@ const submitCategoryForm = () => {
 		},
 	})
 }
+
+
 </script>
 
 <template>
