@@ -87,7 +87,7 @@ const addItem = () => {
 
         <div class="flex gap-4 md:flex-row flex-col">
             <div class="w-full md:w-2/3">
-                <div class="card bg-base-100 shadow mt-5">
+                <div class="card bg-base-100 shadow">
                     <div class="card-body">
                         <div class="flex justify-between gap-2 flex-col lg:flex-row">
                             <h2 class="card-title grow text-sm mb-5">

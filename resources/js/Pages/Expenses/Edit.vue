@@ -73,30 +73,21 @@ const submitCategoryForm = () => {
 <template>
     <Head :title="title" />
 
-    <form @submit.prevent="submitUpdateForm" class="w-full">
+    <form @submit.prevent="submitUpdateForm"  class="flex-grow">
+
+        <TitleContainer :title="title">
+            <CancelButton href="/expenses" >Cancel</CancelButton>
+            <SaveSubmitBtn v-model="form">Save changes</SaveSubmitBtn>
+        </TitleContainer>
+
         <div class="flex gap-4 md:flex-row flex-col">
             <div class="w-full md:w-2/3">
                 <div class="card bg-base-100 shadow mt-5">
                     <div class="card-body">
                         <div class="flex justify-between gap-2 flex-col lg:flex-row">
-                            <h2 class="card-title grow text-sm mb-5">
+                            <h2 class="card-title grow text-sm">
                                 <span class="uppercase">General Information</span>
                             </h2>
-                            <div class="flex justify-end gap-3 flex-col md:flex-row">
-                                <NavLink href="/expenses" class="btn btn-sm">
-                                    <svg class="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4"/>
-                                    </svg>
-                                    Cancel</NavLink>
-                                <SuccessButton type="submit"
-                                    class="btn btn-sm"
-                                    :class="{ 'opacity-25': form.processing }"
-                                    :disabled="form.processing"
-                                >
-                                    <span v-if="form.processing" class="loading loading-spinner"></span>
-                                    Save changes
-                                </SuccessButton>
-                            </div>
                         </div>
                         <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
                             <div class="form-control">
