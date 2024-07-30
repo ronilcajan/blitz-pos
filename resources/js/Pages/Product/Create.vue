@@ -2,10 +2,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
-import { reactive, ref, watch } from 'vue';
+import { reactive, ref, watch, computed  } from 'vue';
 import axios from 'axios';
 import debounce from "lodash/debounce";
 import { StreamQrcodeBarcodeReader } from 'vue3-barcode-qrcode-reader'
+import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader'
 
 
 defineOptions({ layout: AuthenticatedLayout })
@@ -21,7 +22,6 @@ const createCategoryModal = ref(false);
 const barcodeScanModel = ref(false);
 const isHide = ref('published');
 const barcode = ref('');
-const barcodeScan = ref('');
 
 const form = useForm({
 	name: '',
@@ -193,22 +193,18 @@ const generateBarcode = () => {
     const max = 999999999999; // Maximum 12-digit number
     barcode.value = Math.floor(min + Math.random() * (max - min + 1)).toString();
 }
-const isLoading = ref(false)
-function onLoading(loading) {
-  isLoading.value = loading
-}
 
 watch(isHide, value => {
     form.visible = value ? 'hide' : 'published';
 })
 
-watch(barcodeScan, debounce(function (value) {
-    searchProductUsingBarcode(value);
-}, 500))
+// watch(barcodeScan, debounce(function (value) {
+//     searchProductUsingBarcode(value);
+// }, 500))
 
-watch(barcode, debounce(function (value) {
-    checkBarcodeUniqueness(value);
-}, 500))
+// watch(barcode, debounce(function (value) {
+//     checkBarcodeUniqueness(value);
+// }, 500))
 
 const products = reactive({
     barcode: '',
@@ -273,9 +269,161 @@ const checkBarcodeUniqueness = async (barcode) => {
         isChecking = false;
     }
 }
+
+const result = ref('')
+
+function onDetect(detectedCodes) {
+    console.log(detectedCodes)
+    result.value = JSON.stringify(detectedCodes[0].rawValue)
+                .replace(/^\"/, '')  // Remove [" from the start
+                .replace(/\"$/, '')  // Remove "] from the end
+
+    barcode.value = result.value
+    
+}
+
+/*** select camera ***/
+const selectedConstraints = ref({ facingMode: 'environment' })
+const defaultConstraintOptions = [
+  { label: 'rear camera', constraints: { facingMode: 'environment' } },
+  { label: 'front camera', constraints: { facingMode: 'user' } }
+]
+const constraintOptions = ref(defaultConstraintOptions)
+
+async function onCameraReady() {
+  // NOTE: on iOS we can't invoke `enumerateDevices` before the user has given
+  // camera access permission. `QrcodeStream` internally takes care of
+  // requesting the permissions. The `camera-on` event should guarantee that this
+  // has happened.
+  const devices = await navigator.mediaDevices.enumerateDevices()
+  const videoDevices = devices.filter(({ kind }) => kind === 'videoinput')
+
+  constraintOptions.value = [
+    ...defaultConstraintOptions,
+    ...videoDevices.map(({ deviceId, label }) => ({
+      label: `${label} (ID: ${deviceId})`,
+      constraints: { deviceId }
+    }))
+  ]
+
+  error.value = ''
+}
+
+function paintCenterText(detectedCodes, ctx) {
+  for (const detectedCode of detectedCodes) {
+    const { boundingBox, rawValue } = detectedCode
+
+    const centerX = boundingBox.x + boundingBox.width / 2
+    const centerY = boundingBox.y + boundingBox.height / 2
+
+    const fontSize = Math.max(12, (50 * boundingBox.width) / ctx.canvas.width)
+
+    ctx.font = `bold ${fontSize}px sans-serif`
+    ctx.textAlign = 'center'
+
+    ctx.lineWidth = 3
+    ctx.strokeStyle = '#35495e'
+    ctx.strokeText(detectedCode.rawValue, centerX, centerY)
+
+    ctx.fillStyle = '#5cb984'
+    ctx.fillText(rawValue, centerX, centerY)
+  }
+}
+
+function paintOutline(detectedCodes, ctx) {
+  for (const detectedCode of detectedCodes) {
+    const [firstPoint, ...otherPoints] = detectedCode.cornerPoints
+
+    ctx.strokeStyle = 'red'
+
+    ctx.beginPath()
+    ctx.moveTo(firstPoint.x, firstPoint.y)
+    for (const { x, y } of otherPoints) {
+      ctx.lineTo(x, y)
+    }
+    ctx.lineTo(firstPoint.x, firstPoint.y)
+    ctx.closePath()
+    ctx.stroke()
+  }
+}
+function paintBoundingBox(detectedCodes, ctx) {
+  for (const detectedCode of detectedCodes) {
+    const {
+      boundingBox: { x, y, width, height }
+    } = detectedCode
+
+    ctx.lineWidth = 2
+    ctx.strokeStyle = '#007bff'
+    ctx.strokeRect(x, y, width, height)
+  }
+}
+
+const trackFunctionOptions = [
+  { text: 'nothing (default)', value: undefined },
+  { text: 'outline', value: paintOutline },
+  { text: 'centered text', value: paintCenterText },
+  { text: 'bounding box', value: paintBoundingBox }
+]
+const trackFunctionSelected = ref(trackFunctionOptions[3])
+
+const barcodeFormats = ref({
+  aztec: false,
+  code_128: false,
+  code_39: false,
+  code_93: false,
+  codabar: false,
+  databar: false,
+  databar_expanded: false,
+  data_matrix: false,
+  dx_film_edge: false,
+  ean_13: true,
+  ean_8: true,
+  itf: false,
+  maxi_code: false,
+  micro_qr_code: false,
+  pdf417: false,
+  qr_code: true,
+  rm_qr_code: false,
+  upc_a: false,
+  upc_e: false,
+  linear_codes: false,
+  matrix_codes: false
+})
+const selectedBarcodeFormats = computed(() => {
+  return Object.keys(barcodeFormats.value).filter((format) => barcodeFormats.value[format])
+})
+
+/*** error handling ***/
+
+const error = ref('')
+
+function onError(err) {
+  error.value = `[${err.name}]: `
+
+  if (err.name === 'NotAllowedError') {
+    error.value += 'you need to grant camera access permission'
+  } else if (err.name === 'NotFoundError') {
+    error.value += 'no camera on this device'
+  } else if (err.name === 'NotSupportedError') {
+    error.value += 'secure context required (HTTPS, localhost)'
+  } else if (err.name === 'NotReadableError') {
+    error.value += 'is the camera already in use?'
+  } else if (err.name === 'OverconstrainedError') {
+    error.value += 'installed cameras are not suitable'
+  } else if (err.name === 'StreamApiNotSupportedError') {
+    error.value += 'Stream API is not supported in this browser'
+  } else if (err.name === 'InsecureContextError') {
+    error.value +=
+      'Camera access is only permitted in secure context. Use HTTPS or localhost rather than HTTP.'
+  } else {
+    error.value += err.message
+  }
+}
+
 </script>
 
 <template>
+
     <Head :title="title" />
     <form class="flex-grow" @submit.prevent="submitCreateForm">
         <TitleContainer :title="title">
@@ -290,11 +438,6 @@ const checkBarcodeUniqueness = async (barcode) => {
             <div class="w-full md:w-2/3">
                 <div class="shadow card bg-base-100">
                     <div class="card-body">
-                        <!-- <div class="flex justify-end">
-                            <button @click="barcodeScanModel = true" class="btn btn-xs btn-ghost btn-outline tooltip" data-tip="Scan Barcode" type="button">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
-                            </button>
-                        </div> -->
                         <div class="form-control">
                             <span class="text-lg font-bold">
                                 Product Title</span>
@@ -536,8 +679,12 @@ const checkBarcodeUniqueness = async (barcode) => {
                                 <span class="font-semibold text-sm">Barcode</span>
 
                                 <button @click="generateBarcode" class="btn btn-xs btn-ghost tooltip btn-outline" data-tip="Generate Barcode" type="button">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-tallymark-4"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 5l0 14" /><path d="M10 5l0 14" /><path d="M14 5l0 14" /><path d="M18 5l0 14" /></svg>
+                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-tallymark-4"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 5l0 14" /><path d="M10 5l0 14" /><path d="M14 5l0 14" /><path d="M18 5l0 14" /></svg>
                                 </button>
+
+                                <button @click="barcodeScanModel = true" class="btn btn-xs btn-ghost btn-outline tooltip tooltip-right" data-tip="Scan barcode using camera" type="button">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="22"  height="22"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-camera"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2" /><path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /></svg>
+                            </button>
 
 
                             </div>
@@ -813,31 +960,34 @@ const checkBarcodeUniqueness = async (barcode) => {
     <Modal :show="barcodeScanModel" @close="barcodeScanModel = false" maxWidth="md">
         <div class="p-6 text-center">
             <h1 class="mb-4 text-xl font-medium">
-                Search products using barcode
+                Scan barcode
             </h1>
-            <div class="flex justify-center border border-dashed border-primary px-4 py-4 rounded-lg">
-                <svg  xmlns="http://www.w3.org/2000/svg"  width="200"  height="200"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
+            <div class="flex justify-center flex-col border border-dashed border-primary p-2 rounded-lg">
+                <qrcode-stream v-if="!error"
+                    :constraints="selectedConstraints"
+                    :track="trackFunctionSelected.value"
+                    :formats="selectedBarcodeFormats"
+                    @error="onError"
+                    @detect="onDetect"
+                    @camera-on="onCameraReady"
+                />
+                <p class="error" v-if="error">{{ error }}</p>
             </div>
 
-            <TextInput class="w-full mt-6" v-model="barcodeScan" placeholder="Enter barcode"/>
-            <InputError class="mt-2" :message="product_exists" />
-            <div v-if="products.barcode" class="border border-gray-300 p-2 mt-3 cursor-pointer hover:bg-slate-50 rounded-md" >
-                <div class="flex justify-start gap-2">
-                    <div class="flex justify-start" v-if="products.image">
-                        <img width="40" class="rounded-md" :src="products.image ?? ''" alt="logo">
-                    </div>
-                    <div class="flex flex-col text-left">
-                        <p class="font-medium">
-                            {{ products.title }}
-                        </p>
-                        <span class="font-medium text-sm">
-                            {{ products.barcode }}
-                        </span>
-                    </div>
-                </div>
-            </div>
+            <select class="select select-sm mt-3 select-bordered w-full max-w-xs" v-model="selectedConstraints">
+                <option
+                v-for="option in constraintOptions"
+                :key="option.label"
+                :value="option.constraints"
+                >
+                {{ option.label }}
+                </option>
+            </select>
+            
 
-            <div class="mt-6 flex justify-end">
+            <TextInput class="w-full mt-6" v-model="result" placeholder="Scanned barcode" readonly/>
+
+            <div class="flex justify-end">
                 <div class="flex justify-end mt-6">
                     <SecondaryButton class="btn" @click="barcodeScanModel = false">Close</SecondaryButton>
                 </div>
@@ -845,3 +995,14 @@ const checkBarcodeUniqueness = async (barcode) => {
         </div>
     </Modal>
 </template>
+<style scoped>
+.error {
+  font-weight: bold;
+  color: red;
+}
+.barcode-format-checkbox {
+  margin-right: 10px;
+  white-space: nowrap;
+  display: inline-block;
+}
+</style>

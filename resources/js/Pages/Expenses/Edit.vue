@@ -111,27 +111,17 @@ const submitCategoryForm = () => {
                                 <InputError class="mt-2" :message="form.errors.email" />
                             </div>
                             <div class="form-control">
-                                <div class="flex items-end gap-2">
-                                    <div class="w-full">
-                                        <InputLabel for="phone" value="Category" />
-                                        <select v-model="form.expenses_category_id" class="select select-bordered w-full">
-                                            <option disabled selected value="">Select a category</option>
-                                            <option v-for="category in categories" :value="category.id" :key="category.id">
-                                                {{ category.name }}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <button @click="createModal = true" type="button" class="btn btn-primary btn-square">
-                                            <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-
+                                <div class="flex flex-row items-center gap-2">
+                                    <span class="font-semibold text-sm">Category</span>
+                                    <button as="button" class="btn btn-xs btn-primary btn-link" type="button" @click="createModal = true">Add new category</button>
                                 </div>
-
-                                <InputError class="mt-2" :message="form.errors.expenses_category_id" />
+                                <select v-model="form.expenses_category_id" required class="w-full select select-bordered">
+                                    <option disabled selected value="">Select a product category</option>
+                                    <option v-for="category in categories" :value="category.id" :key="category.id">
+                                        {{ category.name }}
+                                    </option>
+                                </select>
+                                <InputError class="mt-2" :message="form.errors.product_category_id" />
                             </div>
                         </div>
 

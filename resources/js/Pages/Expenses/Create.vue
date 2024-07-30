@@ -133,23 +133,6 @@ const addItem = () => {
                             <InputError class="mt-2" :message="form.errors.vendor" />
                         </div>
 
-                        <div class="form-control mt-2">
-                            <div class="flex flex-row items-center gap-2 justify-between">
-                                <span class="font-semibold text-sm">Items</span>
-                                <button as="button" class="btn btn-xs btn-primary btn-link" type="button" @click="addItem">Add item</button>
-                            </div>
-                            <template v-for="(item, index) in items" :key="index">
-                                <div class="flex flex-row gap-2 mt-2">
-                                    <TextInput v-model="item.name" placeholder="Enter item name" />
-                                    <TextInput v-model="item.name" placeholder="Enter item name"  />
-                                </div>
-                                
-                            </template>
-                           
-                            <InputError class="mt-2" :message="form.errors.product_category_id" />
-                        </div>
-
-
                         <div class="grid grid-cols-1 gap-2 mb-3 mt-2" :class="$page.props.auth.user.isSuperAdmin ? 'lg:grid-cols-2 grid-cols-1' : 'grid-cols-1'">
                             <div class="form-control">
                                 <InputLabel for="name" value="Amount" />
