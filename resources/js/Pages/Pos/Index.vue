@@ -3,14 +3,13 @@ import { reactive, ref, watch, computed } from 'vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
 import POSLayout from '@/Layouts/POSLayout.vue';
-import SearchBar from './partials/SearchBar.vue';
 import ProductDropdownItems from './partials/ProductDropdownItems.vue';
 import ProductCard from './partials/ProductCard.vue';
 import PurchaseCard from './partials/PurchaseCard.vue';
 import PaymentButtons from './partials/PaymentButtons.vue';
-import DraftOrdersDropdown from './partials/DraftOrdersDropdown.vue';
 import debounce from "lodash/debounce";
 import axios from 'axios';
+import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader'
 
 defineOptions({ layout: POSLayout })
 
@@ -37,6 +36,7 @@ const addDiscountModal = ref(false);
 const cancelPurchaseModal = ref(false);
 const reviewPurchaseModal = ref(false);
 const confirmPurchaseModal = ref(false);
+const barcodeScanModel = ref(false);
 
 const productForm = useForm({
     name: '',
@@ -67,13 +67,6 @@ const closeModal = () => {
     customerForm.clearErrors()
     customerForm.reset()
 };
-
-// watch(search, debounce(function (value) {
-// 	router.get('/pos',
-// 	{ search: value },
-// 	{ preserveState: true, replace:true, only: ['products'] }
-//    )
-// }, 500)) ;
 
 const newPurchase = (product) => {
     if(product.price === 0){
@@ -354,16 +347,6 @@ const submitPurchase = () => {
                     throw new Error('Network response was not ok');
                 }
 
-                const blob = await response1.blob();
-                const url = window.URL.createObjectURL(blob);
-                const newWindow = window.open(url, '_blank');
-
-                if (newWindow) {
-                    newWindow.onload = () => {
-                        newWindow.print();
-                    };
-                }
-
                 confirmPurchaseModal.value = false; // Close the modal
                 purchaseForm.clearErrors(); // Clear any validation errors
                 purchaseForm.reset(); // Reset the form fields to their initial values
@@ -376,6 +359,20 @@ const submitPurchase = () => {
                 });
 
                 router.reload({ only: ['users'] })
+
+                const blob = await response1.blob();
+                const url = window.URL.createObjectURL(blob);
+                const newWindow = window.open(url, '_blank');
+
+                if (newWindow) {
+                    setTimeout(() => {
+                        newWindow.onload = () => {
+                            newWindow.print();
+                        };
+                    }, 3000);
+                }
+
+              
 
             } catch (error) {
                     useToast().error(`Errors! ${error.message}`, {
@@ -397,10 +394,6 @@ const submitPurchase = () => {
 	})
 }
 
-const productsDropdown = computed(() => {
-    return props.products.data.slice(0, 5);
-}) 
-
 watch(purchases,  (newItems) => {
     purchaseForm.quantity = calculateQty.value;
     purchaseForm.sub_total = calculateSubTotal.value;
@@ -419,7 +412,8 @@ watch(search, debounce((value) => {
         .then(response => {
             console.log('Response:', response); // Log the full response object
 
-            if (response.status === 200) {
+
+            if (response.status === 200 && response.data) {
                 const item = response.data;
 
                 console.log('Fetched item:', item); // Log the fetched item
@@ -430,13 +424,16 @@ watch(search, debounce((value) => {
                     details: item.size || 'Not specified',
                     qty: 1,
                     unit: item.unit || 'unit',
-                    stocks: item.stock?.in_warehouse ?? 0,
+                    stocks: item.stock?.in_store ?? 0,
                     price: parseFloat(item.price?.sale_price ?? 0.00).toFixed(2),
                     tax: parseFloat(item.price?.tax_rate ?? 0.00),
                     image: item.images?.[0]?.image || '',
                 };
-
                 newPurchase(data);
+                
+                search.value = ''
+                barcodeScanModel.value = false
+
             } else {
                 console.error('Error response:', response);
 
@@ -448,15 +445,175 @@ watch(search, debounce((value) => {
             }
         })
         .catch(error => {
-            console.error('Error during fetch:', error);
-
-            useToast().error('No item found!', {
-                position: 'top-right',
-                duration: 3000,
-                dismissible: true
-            });
+            if (error.response && error.response.status === 404) {
+                console.error('Error 404: Item not found');
+                useToast().error('Item not found!', {
+                    position: 'top-right',
+                    duration: 3000,
+                    dismissible: true
+                });
+            } else {
+                console.error('Error during fetch:', error);
+                useToast().error('An error occurred while fetching the product.', {
+                    position: 'top-right',
+                    duration: 3000,
+                    dismissible: true
+                });
+            }
         });
 }), 500);
+
+
+const result = ref('')
+
+function onDetect(detectedCodes) {
+    console.log(detectedCodes)
+    result.value = JSON.stringify(detectedCodes[0].rawValue)
+                .replace(/^\"/, '')  // Remove [" from the start
+                .replace(/\"$/, '')  // Remove "] from the end
+
+    search.value = result.value
+    
+}
+
+/*** select camera ***/
+const selectedConstraints = ref({ facingMode: 'environment' })
+const defaultConstraintOptions = [
+    { label: 'rear camera', constraints: { facingMode: 'environment' } },
+    { label: 'front camera', constraints: { facingMode: 'user' } }
+]
+const constraintOptions = ref(defaultConstraintOptions)
+
+async function onCameraReady() {
+    // NOTE: on iOS we can't invoke `enumerateDevices` before the user has given
+    // camera access permission. `QrcodeStream` internally takes care of
+    // requesting the permissions. The `camera-on` event should guarantee that this
+    // has happened.
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    const videoDevices = devices.filter(({ kind }) => kind === 'videoinput')
+
+  constraintOptions.value = [
+        ...defaultConstraintOptions,
+        ...videoDevices.map(({ deviceId, label }) => ({
+        label: `${label} (ID: ${deviceId})`,
+        constraints: { deviceId }
+        }))
+    ]
+
+    error.value = ''
+}
+
+function paintCenterText(detectedCodes, ctx) {
+    for (const detectedCode of detectedCodes) {
+        const { boundingBox, rawValue } = detectedCode
+
+        const centerX = boundingBox.x + boundingBox.width / 2
+        const centerY = boundingBox.y + boundingBox.height / 2
+
+        const fontSize = Math.max(12, (50 * boundingBox.width) / ctx.canvas.width)
+
+        ctx.font = `bold ${fontSize}px sans-serif`
+        ctx.textAlign = 'center'
+
+        ctx.lineWidth = 3
+        ctx.strokeStyle = '#35495e'
+        ctx.strokeText(detectedCode.rawValue, centerX, centerY)
+
+        ctx.fillStyle = '#5cb984'
+        ctx.fillText(rawValue, centerX, centerY)
+    }
+}
+
+function paintOutline(detectedCodes, ctx) {
+    for (const detectedCode of detectedCodes) {
+        const [firstPoint, ...otherPoints] = detectedCode.cornerPoints
+
+        ctx.strokeStyle = 'red'
+
+        ctx.beginPath()
+        ctx.moveTo(firstPoint.x, firstPoint.y)
+        for (const { x, y } of otherPoints) {
+        ctx.lineTo(x, y)
+        }
+        ctx.lineTo(firstPoint.x, firstPoint.y)
+        ctx.closePath()
+        ctx.stroke()
+    }
+}
+function paintBoundingBox(detectedCodes, ctx) {
+    for (const detectedCode of detectedCodes) {
+        const {
+        boundingBox: { x, y, width, height }
+        } = detectedCode
+
+        ctx.lineWidth = 2
+        ctx.strokeStyle = '#007bff'
+        ctx.strokeRect(x, y, width, height)
+    }
+}
+
+const trackFunctionOptions = [
+    { text: 'nothing (default)', value: undefined },
+    { text: 'outline', value: paintOutline },
+    { text: 'centered text', value: paintCenterText },
+    { text: 'bounding box', value: paintBoundingBox }
+]
+const trackFunctionSelected = ref(trackFunctionOptions[3])
+
+const barcodeFormats = ref({
+    aztec: false,
+    code_128: false,
+    code_39: false,
+    code_93: false,
+    codabar: false,
+    databar: false,
+    databar_expanded: false,
+    data_matrix: false,
+    dx_film_edge: false,
+    ean_13: true,
+    ean_8: true,
+    itf: false,
+    maxi_code: false,
+    micro_qr_code: false,
+    pdf417: false,
+    qr_code: true,
+    rm_qr_code: false,
+    upc_a: false,
+    upc_e: false,
+    linear_codes: false,
+    matrix_codes: false
+})
+const selectedBarcodeFormats = computed(() => {
+  return Object.keys(barcodeFormats.value).filter((format) => barcodeFormats.value[format])
+})
+
+/*** error handling ***/
+
+const error = ref('')
+
+function onError(err) {
+    error.value = `[${err.name}]: `
+
+    if (err.name === 'NotAllowedError') {
+        error.value += 'you need to grant camera access permission'
+    } else if (err.name === 'NotFoundError') {
+        error.value += 'no camera on this device'
+    } else if (err.name === 'NotSupportedError') {
+        error.value += 'secure context required (HTTPS, localhost)'
+    } else if (err.name === 'NotReadableError') {
+        error.value += 'is the camera already in use?'
+    } else if (err.name === 'OverconstrainedError') {
+        error.value += 'installed cameras are not suitable'
+    } else if (err.name === 'StreamApiNotSupportedError') {
+        error.value += 'Stream API is not supported in this browser'
+    } else if (err.name === 'InsecureContextError') {
+        error.value +=
+        'Camera access is only permitted in secure context. Use HTTPS or localhost rather than HTTP.'
+    } else {
+        error.value += err.message
+    }
+}
+
 
 setInterval(updateDateTime, 1000);
 updateDateTime();
@@ -472,17 +629,8 @@ updateDateTime();
                         <div class="w-full dropdown">
                             <label for="simple-search" class="sr-only">Search</label>
                             <div class="relative w-full">
+                                <TextInput type="search" placeholder="Search product name or barcode" v-model="search" class="input input-bordered input-sm w-full" ref="input" />
 
-                                <TextInput type="search" placeholder="Search product name or barcode" v-model="search" class="input pl-8 input-bordered input-sm w-full" ref="input" />
-
-                                <ul tabindex="0" class="dropdown-content md:hidden z-[1] bg-base-100 shadow mt-4 w-full">
-                                    <ProductDropdownItems
-                                        v-for="product in productsDropdown"
-                                        :product="product"
-                                        :key="product.id"
-                                        @add-products="newPurchase(product)"
-                                    />
-                                </ul>
                             </div>
 
                         </div>
@@ -490,8 +638,8 @@ updateDateTime();
                             <PrimaryButton class="btn-circle btn-sm" @click="createProductModal = true" title="Add products">
                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="20" height="20" viewBox="0 0 24 24"  fill="none" stroke="currentColor"  stroke-width="2" stroke-linecap="round"  stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                             </PrimaryButton>
-                            <PrimaryButton class="btn-circle btn-sm" title="Barcode scan">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="20" height="20" viewBox="0 0 24 24"  fill="none" stroke="currentColor"  stroke-width="2" stroke-linecap="round"  stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
+                            <PrimaryButton class="btn-circle btn-sm" @click="barcodeScanModel = true"  title="Barcode scan">
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-camera"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2" /><path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /></svg>
                             </PrimaryButton>
                         </div>
                     </div>
@@ -571,13 +719,14 @@ updateDateTime();
                         </div>
                     </div>
                     <div class="border p-3 rounded border-gray-100 bg-base-200">
-                        <div class="flex justify-between  uppercase">
-                            <div>Items</div>
+                        <div class="flex justify-between text-sm uppercase">
+                            <span class="text-sm">Items</span>
                             <div>{{ formatNumberWithCommas(purchaseForm.quantity) }}</div>
                         </div>
                         
-                        <div class="flex justify-between  uppercase">
-                            <div>TAX
+                        <div class="flex justify-between text-sm uppercase">
+                            <div>
+                                <span class="">TAX</span>
                                     <div class="dropdown">
                                         <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-xs text-info">
                                             <svg tabindex="0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -595,13 +744,13 @@ updateDateTime();
                                 </span>
                             </div>
                         </div>
-                        <div class="flex justify-between  uppercase">
-                            <div>Sub-total</div>
+                        <div class="flex justify-between text-sm uppercase">
+                            <div class="text-sm">Sub-total</div>
                             <div>{{  $page.props.auth.user.currency + " " + formatNumberWithCommas(purchaseForm.sub_total) }}</div>
                         </div>
-                        <div class="flex justify-between uppercase">
+                        <div class="flex justify-between uppercase text-sm">
                             <div>
-                                <button class="font-semibold uppercase text-red-500" type="button" @click="addDiscountModal = true">
+                                <button class="font-semibold uppercase text-red-500 text-sm" type="button" @click="addDiscountModal = true">
                                     Discount(+/-):
                                 </button>
                             </div>
@@ -1035,6 +1184,43 @@ updateDateTime();
                     <span v-if="purchaseForm.processing" class="loading loading-spinner"></span>
                     Confirm
                 </PrimaryButton>
+            </div>
+        </div>
+    </Modal>
+    <Modal :show="barcodeScanModel" @close="barcodeScanModel = false" maxWidth="md">
+        <div class="p-6 text-center">
+            <h1 class="mb-4 text-xl font-medium">
+                Scan barcode
+            </h1>
+            <div class="flex justify-center flex-col border border-dashed border-primary p-2 rounded-lg">
+                <qrcode-stream v-if="!error"
+                    :constraints="selectedConstraints"
+                    :track="trackFunctionSelected.value"
+                    :formats="selectedBarcodeFormats"
+                    @error="onError"
+                    @detect="onDetect"
+                    @camera-on="onCameraReady"
+                />
+                <p class="error" v-if="error">{{ error }}</p>
+            </div>
+
+            <select class="select select-sm mt-3 select-bordered w-full max-w-xs" v-model="selectedConstraints">
+                <option
+                v-for="option in constraintOptions"
+                :key="option.label"
+                :value="option.constraints"
+                >
+                {{ option.label }}
+                </option>
+            </select>
+            
+
+            <TextInput class="w-full mt-6" v-model="result" placeholder="Scanned barcode" readonly/>
+
+            <div class="flex justify-end">
+                <div class="flex justify-end mt-6">
+                    <SecondaryButton class="btn" @click="barcodeScanModel = false">Close</SecondaryButton>
+                </div>
             </div>
         </div>
     </Modal>

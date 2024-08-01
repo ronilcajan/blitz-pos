@@ -152,16 +152,19 @@ class POSController extends Controller
     public function get_product(Request $request){
         $search = $request->search;
 
-        $item = Product::with(['price','stock','category','images'])
-            ->where('name', 'like', '%'.$search.'%')
-            ->orWhere('barcode', $search)
-            ->first();
+        $item = Product::with(['price','stock','category','images']);
+
+        if (is_numeric($search)) {
+            $item->where('barcode', $search);
+        } else {
+            $item->where('name', 'like', '%' . $search . '%');
+        }
         
-        if(!$item){
-            return response()->json('No products found!', 500);
+        if(!$item->first()){
+            return response()->json('No item found!', 404);
         }
 
-        return response()->json($item, 200);
+        return response()->json($item->first(), 200);
     }
 
 }
