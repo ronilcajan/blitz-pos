@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
+use function Pest\Laravel\json;
+
 class POSController extends Controller
 {
     public function index(Request $request)
@@ -145,6 +147,21 @@ class POSController extends Controller
 
             return redirect()->back()->withErrors(['error' => 'An error occurred while recording the sale. Please try again.']);
         }
+    }
+
+    public function get_product(Request $request){
+        $search = $request->search;
+
+        $item = Product::with(['price','stock','category','images'])
+            ->where('name', 'like', '%'.$search.'%')
+            ->orWhere('barcode', $search)
+            ->first();
+        
+        if(!$item){
+            return response()->json('No products found!', 500);
+        }
+
+        return response()->json($item, 200);
     }
 
 }

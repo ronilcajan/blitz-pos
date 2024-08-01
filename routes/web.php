@@ -69,6 +69,7 @@ Route::middleware(['auth', 'verified', 'timeZone'])->group(function () {
 
     Route::get('/pos', [POSController::class, 'index'])->name('pos');
     Route::post('/pos', [POSController::class, 'store'])->name('pos.store');
+    Route::post('/pos/get_product', [POSController::class, 'get_product'])->name('pos.get_product');
 
     Route::get('/profile/settings', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

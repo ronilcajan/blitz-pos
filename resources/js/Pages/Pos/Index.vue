@@ -10,6 +10,7 @@ import PurchaseCard from './partials/PurchaseCard.vue';
 import PaymentButtons from './partials/PaymentButtons.vue';
 import DraftOrdersDropdown from './partials/DraftOrdersDropdown.vue';
 import debounce from "lodash/debounce";
+import axios from 'axios';
 
 defineOptions({ layout: POSLayout })
 
@@ -27,17 +28,15 @@ const props = defineProps({
 
 const page = usePage();
 const purchases = reactive([]);
-const search = ref(props.filter.search);
+const search = ref('');
 const datetime = ref('');
 const discount = ref(0);
 const createProductModal = ref(false);
 const createCustomerModal = ref(false);
 const addDiscountModal = ref(false);
-const addTaxModal = ref(false);
 const cancelPurchaseModal = ref(false);
 const reviewPurchaseModal = ref(false);
 const confirmPurchaseModal = ref(false);
-const hideDropdownRef = ref('pending');
 
 const productForm = useForm({
     name: '',
@@ -69,12 +68,12 @@ const closeModal = () => {
     customerForm.reset()
 };
 
-watch(search, debounce(function (value) {
-	router.get('/pos',
-	{ search: value },
-	{ preserveState: true, replace:true, only: ['products'] }
-   )
-}, 500)) ;
+// watch(search, debounce(function (value) {
+// 	router.get('/pos',
+// 	{ search: value },
+// 	{ preserveState: true, replace:true, only: ['products'] }
+//    )
+// }, 500)) ;
 
 const newPurchase = (product) => {
     if(product.price === 0){
@@ -92,7 +91,6 @@ const newPurchase = (product) => {
         const newOrder = createOrderFromProduct(product);
         addPurchase(newOrder);
     }
-    hideDropdownRef.value.focus()
 }
 const findProductById = (product_id, search_products) => {
     return search_products.find(product => product.id === product_id);
@@ -145,8 +143,7 @@ const updateDateTime = () => {
     let formatted_date = date.toLocaleDateString('en-US', options).replace(',', '');
     datetime.value = formatted_date;
 }
-setInterval(updateDateTime, 1000);
-updateDateTime();
+
 
 const purchaseForm = useForm({
     customer_id: '',
@@ -212,7 +209,6 @@ const checkDiscount = () => {
     purchaseForm.total = calculateTotal
 }
 
-
 const formatNumberWithCommas = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -247,13 +243,6 @@ const submitCustomerForm = () => {
         only: ['customers']
 	})
 }
-
-watch(purchases,  (newItems) => {
-    purchaseForm.quantity = calculateQty.value;
-    purchaseForm.sub_total = calculateSubTotal.value;
-    purchaseForm.total = calculateTotal.value;
-    purchaseForm.tax = calculateTax.value;
-});
 
 const setPaymentAmount = (amount) => {
 
@@ -411,6 +400,66 @@ const submitPurchase = () => {
 const productsDropdown = computed(() => {
     return props.products.data.slice(0, 5);
 }) 
+
+watch(purchases,  (newItems) => {
+    purchaseForm.quantity = calculateQty.value;
+    purchaseForm.sub_total = calculateSubTotal.value;
+    purchaseForm.total = calculateTotal.value;
+    purchaseForm.tax = calculateTax.value;
+});
+
+watch(search, debounce((value) => {
+    if (!value.trim()) {
+        return; // Early exit if the search value is empty
+    }
+
+    console.log(`Search value: ${value}`);
+
+    axios.post(route('pos.get_product', { search: value }))
+        .then(response => {
+            console.log('Response:', response); // Log the full response object
+
+            if (response.status === 200) {
+                const item = response.data;
+
+                console.log('Fetched item:', item); // Log the fetched item
+
+                const data = {
+                    id: item.id || 'N/A',
+                    name: item.name || 'Unknown',
+                    details: item.size || 'Not specified',
+                    qty: 1,
+                    unit: item.unit || 'unit',
+                    stocks: item.stock?.in_warehouse ?? 0,
+                    price: parseFloat(item.price?.sale_price ?? 0.00).toFixed(2),
+                    tax: parseFloat(item.price?.tax_rate ?? 0.00),
+                    image: item.images?.[0]?.image || '',
+                };
+
+                newPurchase(data);
+            } else {
+                console.error('Error response:', response);
+
+                useToast().error('No item found!', {
+                    position: 'top-right',
+                    duration: 3000,
+                    dismissible: true
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error during fetch:', error);
+
+            useToast().error('No item found!', {
+                position: 'top-right',
+                duration: 3000,
+                dismissible: true
+            });
+        });
+}), 500);
+
+setInterval(updateDateTime, 1000);
+updateDateTime();
 </script>
 
 <template>
@@ -423,7 +472,9 @@ const productsDropdown = computed(() => {
                         <div class="w-full dropdown">
                             <label for="simple-search" class="sr-only">Search</label>
                             <div class="relative w-full">
-                                <SearchBar v-model="search" />
+
+                                <TextInput type="search" placeholder="Search product name or barcode" v-model="search" class="input pl-8 input-bordered input-sm w-full" ref="input" />
+
                                 <ul tabindex="0" class="dropdown-content md:hidden z-[1] bg-base-100 shadow mt-4 w-full">
                                     <ProductDropdownItems
                                         v-for="product in productsDropdown"
@@ -439,9 +490,9 @@ const productsDropdown = computed(() => {
                             <PrimaryButton class="btn-circle btn-sm" @click="createProductModal = true" title="Add products">
                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="20" height="20" viewBox="0 0 24 24"  fill="none" stroke="currentColor"  stroke-width="2" stroke-linecap="round"  stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                             </PrimaryButton>
-                            <!-- <PrimaryButton class="btn-circle btn-sm" title="Barcode scan">
+                            <PrimaryButton class="btn-circle btn-sm" title="Barcode scan">
                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="20" height="20" viewBox="0 0 24 24"  fill="none" stroke="currentColor"  stroke-width="2" stroke-linecap="round"  stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7v-1a2 2 0 0 1 2 -2h2" /><path d="M4 17v1a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v1" /><path d="M16 20h2a2 2 0 0 0 2 -2v-1" /><path d="M5 12l14 0" /></svg>
-                            </PrimaryButton> -->
+                            </PrimaryButton>
                         </div>
                     </div>
 
