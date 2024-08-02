@@ -39,14 +39,13 @@ import PaginationResultRange from '@/Components/PaginationResultRange.vue';
 import FilterByStoreDropdown from '@/Components/FilterByStoreDropdown.vue';
 import Modal from '@/Components/Modal.vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import ActionGroupDropdown from '@/Components/ActionGroupDropdown.vue';
 import FilterDate from '@/Components/FilterDate.vue';
 import TitleContainer from '@/Components/TitleContainer.vue';
 import Table from '@/Components/Table.vue';
 import TableHeader from '@/Components/TableHeader.vue';
 import TableBody from '@/Components/TableBody.vue';
 import TableHead from '@/Components/TableHead.vue';
-import TableRow from '@/Components/TableRow.vue';
+import TableRow from '@/Components/TableRow.vue'; 
 import TableCell from '@/Components/TableCell.vue';
 import Avatar from '@/Components/Avatar.vue';
 import EmptyContainer from '@/Components/EmptyContainer.vue';
@@ -59,7 +58,7 @@ import ActionDropdown from '@/Components/ActionDropdown.vue';
 import DateRangeFilter from '@/Components/DateRangeFilter.vue';
 import ClearFilters from '@/Components/ClearFilters.vue';
 import SelectDropdownFilter from '@/Components/SelectDropdownFilter.vue';
-import VueBarcode from '@chenfengyuan/vue-barcode';
+import Scanner from '@/Components/Scanner.vue';
 
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -86,7 +85,7 @@ createInertiaApp({
 
             .component('Head', Head)
             .component('Link', Link)
-            .component('Barcode', VueBarcode)
+            .component('Scanner', Scanner)
             .component('ApplicationLogo', ApplicationLogo)
             .component('Checkbox', Checkbox)
             .component('InputError', InputError)
@@ -118,7 +117,6 @@ createInertiaApp({
             .component('PaginationControlList', PaginationControlList)
             .component('PaginationResultRange', PaginationResultRange)
             .component('FilterByStoreDropdown', FilterByStoreDropdown)
-            .component('ActionGroupDropdown', ActionGroupDropdown)
             .component('Modal', Modal)
             .component('TitleContainer', TitleContainer)
             .component('Table', Table)

@@ -16,8 +16,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
-use function Pest\Laravel\json;
-
 class POSController extends Controller
 {
     public function index(Request $request)
