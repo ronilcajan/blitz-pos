@@ -44,7 +44,7 @@ class InhouseStockTransactionController extends Controller
                     'status' => $transaction->status,
                     'notes' => $transaction->notes,
                     'created_by' => $transaction->user->name,
-                    'created_at' => $transaction->created_at->format('M d, Y'),
+                    'created_at' => $transaction->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y'),
                 ];
         });
 

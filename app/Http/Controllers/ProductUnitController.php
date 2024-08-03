@@ -30,7 +30,7 @@ class ProductUnitController extends Controller
                     'id' => $unit->id,
                     'name' => $unit->name,
                     'store' => $unit->store->name,
-                    'created_at' => $unit->created_at->format('M d, Y h:i: A'),
+                    'created_at' => $unit->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i: A'),
                 ];
             });
 

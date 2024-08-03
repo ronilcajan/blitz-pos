@@ -43,7 +43,7 @@ class UserController extends Controller
                     'status' => $user->status->getLabelText(),
                     'statusColor' => $user->status->getLabelColor(),
                     'avatar' => $user->profile_photo_url,
-                    'created_at' => $user->created_at->format('M d, Y h:i: A'),
+                    'created_at' => $user->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i: A'),
                 ];
             });
 
@@ -110,13 +110,6 @@ class UserController extends Controller
         $user->addRole($request->role_id); // parameter can be a Role object, BackedEnum, array, id or the role string name
 
         return redirect()->back();
-    }
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**

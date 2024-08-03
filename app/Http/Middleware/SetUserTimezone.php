@@ -19,6 +19,8 @@ class SetUserTimezone
         if (Auth::check()) {
             $userTimezone = Auth::user()->store->timezone; // Retrieve user's timezone from the database
             config(['app.timezone' => $userTimezone]);// Set the application timezone to the user's timezone
+            session()->put('timezone', $userTimezone);
+
         }
 
         return $next($request);

@@ -26,7 +26,7 @@ class ProductStock extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('update_stocks')
+            ->useLogName('Product Stocks')
             ->logOnly(['id','in_store', 'in_warehouse'])
             ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
     }

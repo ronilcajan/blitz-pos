@@ -49,7 +49,7 @@ class DeliveryController extends Controller
                     'notes' => $delivery->notes,
                     'supplier' => $delivery->supplier?->name,
                     'purchase' => $delivery->purchase?->tx_no,
-                    'created_at' => $delivery->created_at->format('M d, Y h:i: A'),
+                    'created_at' => $delivery->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i: A'),
                 ];
         });
 
@@ -239,7 +239,7 @@ class DeliveryController extends Controller
         $delivery->discount = Number::format($delivery->discount, 2);
         $delivery->amount = Number::format($delivery->amount, 2);
         $delivery->total = Number::format($delivery->total, 2);
-        $delivery->date = $delivery->created_at->format('F d, Y');
+        $delivery->date = $delivery->created_at->tz(session('timezone') ?? 'UTC')->format('F d, Y');
 
         return inertia('Delivery/Show', [
             'title' => "View Delivery",

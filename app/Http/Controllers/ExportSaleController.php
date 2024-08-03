@@ -47,7 +47,7 @@ class ExportSaleController extends Controller
                 'status' => $sale->status->getLabelText(),
                 'customer' => $sale->customer?->name,
                 'cashier' => $sale->user?->name,
-                'created_at' => $sale->created_at->format('M d, Y h:i A'),
+                'created_at' => $sale->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i A'),
             ];
         });
 

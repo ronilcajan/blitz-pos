@@ -28,7 +28,7 @@ class ProductPrice extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('update_price')
+            ->useLogName('Product Price')
             ->logOnly(['id','sale_price'])
             ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
     }

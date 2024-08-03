@@ -32,7 +32,7 @@ class ProductCategoryController extends Controller
                     'name' => $category->name,
                     'description' => $category->description,
                     'store' => $category->store->name,
-                    'created_at' => $category->created_at->format('M d, Y h:i: A'),
+                    'created_at' => $category->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i: A'),
                 ];
         });
 

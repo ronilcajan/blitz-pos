@@ -46,7 +46,7 @@ class SaleController extends Controller
                     'store' => $sale->store?->name,
                     'status' => $sale->status->getLabelText(),
                     'statusColor' => $sale->status->getLabelColor(),
-                    'created_at' => $sale->created_at->format('M d, Y h:i: A'),
+                    'created_at' => $sale->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i: A'),
                 ];
         });
 

@@ -26,8 +26,8 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        $this->call(UserSeeder::class);
         Event::fakeFor(function () {
+            $this->call(UserSeeder::class);
             Store::factory(100)->create();
             Customer::factory(100)->create();
             Supplier::factory(100)->create();

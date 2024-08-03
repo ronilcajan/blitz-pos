@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductImage;
 use App\Models\ProductPrice;
+use App\Models\ProductStock;
 use App\Models\ProductUnit;
 use App\Models\SoldItems;
 use App\Models\Store;
@@ -336,8 +337,8 @@ class ProductController extends Controller
             $product->price()->delete();
             $product->stock()->delete();
 
-            $product->price()->create($productPriceAttributes);
-            $product->stock()->create($productStocksAttributes);
+            ProductPrice::create($productPriceAttributes);
+            ProductStock::create($productStocksAttributes);
 
             DB::commit();
 
@@ -346,7 +347,6 @@ class ProductController extends Controller
         } catch (\Throwable $th) {
 
             DB::rollBack();
-            //throw $th;
             return redirect()->back()->with('error', $th->getMessage());
         }
 
