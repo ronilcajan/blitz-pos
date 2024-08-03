@@ -21,12 +21,13 @@ class ProductStock extends Model
         return $this->belongsTo(Product::class);
     }
 
+    protected static $recordEvents = ['updated'];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('Product Stock')
-            ->logOnly(['name'])
-            ->logOnlyDirty()
+            ->useLogName('update_stocks')
+            ->logOnly(['id','in_store', 'in_warehouse'])
             ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
     }
 }

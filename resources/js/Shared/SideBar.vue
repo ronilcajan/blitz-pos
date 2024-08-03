@@ -147,7 +147,9 @@ const page = usePage();
                                     </NavLink>
                                 </li>
 								<li>
-									<a>Logs</a>
+									<NavLink :active="$page.component.startsWith('Logs')" :href="`/logs`">
+                                        Logs
+                                    </NavLink>
 								</li>
 							</ul>
 						</details>

@@ -20,6 +20,7 @@ use App\Http\Controllers\ImportProductController;
 use App\Http\Controllers\InhouseStockTransactionController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\LogsController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
@@ -32,7 +33,6 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
-
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -57,6 +57,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth','role:super-admin']],
 Route::middleware(['auth', 'verified', 'timeZone'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+
+    Route::resource('/logs', LogsController::class);
+    Route::post('/logs/bulk/delete', [LogsController::class, 'bulkDelete'])->name('logs.bulkDelete');
 
     Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscription');
 

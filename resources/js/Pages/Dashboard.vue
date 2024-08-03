@@ -247,7 +247,7 @@ watch(selected_month, () => {
                                     <td class="sm:table-cell">{{ sale.payment_method }}</td>
                                     <td class="sm:table-cell">{{ sale.quantity }}</td>
                                     <td class="sm:table-cell">
-                                        <div class="badge"
+                                        <div class="badge badge-sm"
                                             :class="sale.status == 'complete' ? 'bg-green-600 text-white' : 'bg-orange-600 text-white'">
                                             {{ sale.status }}</div>
                                     </td>

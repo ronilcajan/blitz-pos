@@ -180,7 +180,7 @@ const onScanDetected = () => {
     <div>
         <audio ref="scanSound" :src="`${base_url}/beep.mp3`"></audio>
         <div class="flex justify-center flex-col border border-dashed border-primary p-2 rounded-lg">
-            <QrcodeStream v-if="!error" height="300"
+            <QrcodeStream v-if="!error" height="300       "
                 :constraints="selectedConstraints"
                 :track="trackFunctionSelected.value"
                 :formats="selectedBarcodeFormats"
