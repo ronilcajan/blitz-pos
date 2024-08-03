@@ -32,7 +32,7 @@ class ExpensesController extends Controller
             ->through(function ($expense) {
                 return [
                     'id' => $expense->id,
-                    'expenses_date' => $expense->expenses_date->tz(session('timezone') ?? 'UTC')->format('M d, Y'),
+                    'expenses_date' => $expense->expenses_date->tz(session('timezone'))->format('M d, Y'),
                     'vendor' => $expense->vendor,
                     'amount' => $expense->amount,
                     'amount' => Number::currency($expense->amount, in: 'PHP'),
@@ -122,7 +122,7 @@ class ExpensesController extends Controller
 
         $data = [
             'id' => $expense->id,
-            'expenses_date' => $expense->expenses_date->tz(session('timezone') ?? 'UTC'),
+            'expenses_date' => $expense->expenses_date->tz(session('timezone')),
             'vendor' => $expense->vendor,
             'amount' => $expense->amount,
             'notes' => $expense->notes,

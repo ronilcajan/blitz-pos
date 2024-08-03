@@ -43,7 +43,7 @@ class LogsController extends Controller
                                 'log_name' => $log->log_name,
                                 'description' => $log->description,
                                 'event' => $log->event,
-                                'created_at' => $log->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i A'),
+                                'created_at' => $log->created_at->tz(session('timezone'))->format('M d, Y h:i A'),
                                 'created_by' => User::find($log->causer_id)->name,
                                 'data' => $nextColumnValue,
                             ];

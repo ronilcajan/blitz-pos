@@ -31,7 +31,7 @@ class ExpensesCategoryController extends Controller
                     'id' => $category->id,
                     'name' => $category->name,
                     'store' => $category->store->name,
-                    'created_at' => $category->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i: A'),
+                    'created_at' => $category->created_at->tz(session('timezone'))->format('M d, Y h:i: A'),
                 ];
         });
 

@@ -1,6 +1,7 @@
 <script setup>
-import { computed,ref, watch } from 'vue';
+import { computed,ref, onMounted  } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import axios from 'axios';
 
 const page = usePage();
 
@@ -8,11 +9,32 @@ const impersonating = computed(() =>
     page.props.auth.user.impersonate !== null ? true : false
 )
 
-const darkMode = ref(localStorage.getItem("theme"));
+const latestActivity = ref(null);
+const notificationCount = ref(0);
 
-watch(darkMode, () => {
-	localStorage.setItem('theme', darkMode.value ? 'dark' : 'light');
-	document.documentElement.setAttribute("data-theme", localStorage.getItem("theme"))
+const fetchUnreadtActivity = async () => {
+	try {
+        const response = await axios.get('/api/unread-activity'); // Adjust the URL as needed
+        latestActivity.value = response.data;
+        notificationCount.value = (response.data).length ; // Set the count based on your logic
+		console.log(notificationCount.value );
+    } catch (error) {
+        console.error('Error fetching unread activity:', error);
+	}
+}
+
+const markAsRead = async () => {
+	try {
+		const response = await axios.post(`/api/mark-as-read`);
+		console.log(response.data.message);
+		notificationCount.value = 0;
+	} catch (error) {
+		console.error('Error marking as read:', error);
+	}
+}
+
+onMounted(() => {
+	fetchUnreadtActivity()
 })
 
 </script>
@@ -52,73 +74,41 @@ watch(darkMode, () => {
                 </div>
                 <div class="gap-1 navbar-end">
                     <div class="z-10 dropdown dropdown-end">
-                        <div tabindex="0" class="btn btn-circle btn-ghost">
+                        <div tabindex="0" class="btn btn-circle btn-ghost" @click="markAsRead">
                             <div class="indicator">
-                                <span class="badge indicator-item badge-error badge-xs"></span>
-                                <svg data-src="https://unpkg.com/heroicons/20/solid/bell.svg" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon" data-id="svg-loader_2">
-                                <path fill-rule="evenodd" d="M10 2a6 6 0 0 0-6 6c0 1.887-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.91 32.91 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.903 32.903 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.448 11.448 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.54 33.54 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z" clip-rule="evenodd"></path>
+                                <span v-if="notificationCount" class="badge indicator-item badge-error badge-xs">{{ notificationCount }}</span>
+                                <svg data-src="https://unpkg.com/heroicons/20/solid/bell.svg" class="w-5 h-5"
+                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                    aria-hidden="true" data-slot="icon" data-id="svg-loader_2">
+                                    <path fill-rule="evenodd"
+                                        d="M10 2a6 6 0 0 0-6 6c0 1.887-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.91 32.91 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.903 32.903 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.448 11.448 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.54 33.54 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z"
+                                        clip-rule="evenodd"></path>
                                 </svg>
                             </div>
                         </div>
-                        <ul
-                            tabindex="0"
-                            class="p-2 mt-3 shadow-2xl menu dropdown-content w-80 rounded-box bg-base-100">
-                            <li>
-                                <a class="gap-4">
-                                    <div class="avatar">
-                                        <div class="w-8 rounded-full">
-                                            <img src="https://picsum.photos/80/80?1" />
+				
+                        <ul tabindex="0" class="p-2 mt-3 shadow-2xl menu dropdown-content w-80 rounded-box bg-base-100" v-if="latestActivity">
+                            <template v-for="activity in latestActivity" :key="activity.id">
+                                <li>
+                                    <a class="gap-4">
+                                        <div class="avatar">
+                                            <div class="w-8 rounded-full">
+                                                <img :src="activity.user_image" />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <span>
-                                        <b>New message</b>
-                                        <br />
-                                        Alice: Hi, did you get my files?
-                                    </span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="gap-4">
-                                    <div class="avatar">
-                                        <div class="w-8 rounded-full">
-                                            <img src="https://picsum.photos/80/80?2" />
-                                        </div>
-                                    </div>
-                                    <span>
-                                        <b>Reminder</b>
-                                        <br />
-                                        Your meeting is at 10am
-                                    </span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="gap-4">
-                                    <div class="avatar">
-                                        <div class="w-8 rounded-full">
-                                            <img src="https://picsum.photos/80/80?3" />
-                                        </div>
-                                    </div>
-                                    <span>
-                                        <b>New payment</b>
-                                        <br />
-                                        Received $2500 from John Doe
-                                    </span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="gap-4">
-                                    <div class="avatar">
-                                        <div class="w-8 rounded-full">
-                                            <img src="https://picsum.photos/80/80?4" />
-                                        </div>
-                                    </div>
-                                    <span>
-                                        <b>New payment</b>
-                                        <br />
-                                        Received $1900 from Alice
-                                    </span>
-                                </a>
-                            </li>
+                                        <span class="text-xs">
+                                            <b>{{ activity.user }}</b>
+                                            <br />
+                                            {{ activity.description }}: {{ activity.log_name }}
+                                        </span>
+                                    </a>
+                                </li>
+                            </template>
+                                <li v-if="!latestActivity.length">
+                                    <a class="gap-4">
+                                        No unread notification
+                                    </a>
+                                </li>
                         </ul>
                     </div>
                     <div class="z-10 dropdown-end dropdown">

@@ -83,21 +83,22 @@ onMounted(() => {
 
 <template>
     <Head :title="title" />
-    <form @submit.prevent="submitUpdateForm">
+    <form @submit.prevent="submitUpdateForm" class="flex-grow">
+        <TitleContainer :title="title">
+            <SaveSubmitBtn v-model="form" >Save changes</SaveSubmitBtn>
+        </TitleContainer>
+
         <div class="flex flex-col gap-5 md:flex-row">
             <div class="w-full sm:w-2/3">
                 <div class="shadow card bg-base-100">
                     <div class="card-body grow-0">
                         <div class="flex flex-col justify-between gap-2 lg:flex-row">
                             <h2 class="mb-5 text-sm card-title grow">
-                                <span class="uppercase">Store Information</span>
+                                <span class="uppercase">Business Information</span>
                             </h2>
-                            <div class="flex flex-col justify-end gap-3 md:flex-row">
-                                <SaveButton v-model="form" />
-                            </div>
                         </div>
                         <div>
-                            <InputLabel for="name" value="Store name" />
+                            <InputLabel for="name" value="Business name" />
                             <TextInput
                                 type="text"
                                 class="block w-full"
@@ -115,7 +116,7 @@ onMounted(() => {
                                     type="text"
                                     class="block w-full"
                                     v-model="form.tagline"
-                                    placeholder="Enter store tagline"
+                                    placeholder="Enter business tagline"
                                 />
                                 <InputError class="mt-2" :message="form.errors.tagline" />
                             </div>
@@ -125,7 +126,7 @@ onMounted(() => {
                                     type="text"
                                     class="block w-full"
                                     v-model="form.founder"
-                                    placeholder="Enter store founder"
+                                    placeholder="Enter business founder"
                                 />
                                 <InputError class="mt-2" :message="form.errors.founder" />
                             </div>
@@ -140,7 +141,7 @@ onMounted(() => {
                                     class="block w-full"
                                     v-model="form.email"
                                     required
-                                    placeholder="Enter email address"
+                                    placeholder="Enter business email address"
                                 />
                                 <InputError class="mt-2" :message="form.errors.email" />
                             </div>
@@ -150,7 +151,7 @@ onMounted(() => {
                                     type="text"
                                     class="block w-full"
                                     v-model="form.contact"
-                                    placeholder="Enter phone number"
+                                    placeholder="Enter business phone number"
                                 />
                                 <InputError class="mt-2" :message="form.errors.contact" />
                             </div>
@@ -163,7 +164,7 @@ onMounted(() => {
                                     type="url"
                                     class="block w-full"
                                     v-model="form.website"
-                                    placeholder="Enter store website"
+                                    placeholder="Enter business website"
                                 />
                                 <InputError class="mt-2" :message="form.errors.website" />
                             </div>
@@ -238,12 +239,12 @@ onMounted(() => {
                         </div>
                         <div>
                             <InputLabel value="Full address" />
-                            <TextArea placeholder="Address" v-model="form.address" />
+                            <TextArea placeholder="Business address" v-model="form.address" />
                             <InputError class="mt-2" :message="form.errors.address" />
                         </div>
                         <div class="mb-3">
                             <InputLabel value="Description" />
-                            <TextArea placeholder="Shop description" v-model="form.description" />
+                            <TextArea placeholder="Business description" v-model="form.description" />
                             <InputError class="mt-2" :message="form.errors.description" />
                         </div>
                     </div>
@@ -255,7 +256,7 @@ onMounted(() => {
                     <div class="shadow card bg-base-100">
                         <div class="card-body grow-0 ">
                             <h2 class="mb-5 text-sm card-title grow">
-                                <span class="uppercase">Store Logo</span>
+                                <span class="uppercase">Business Logo</span>
                             </h2>
                             <div class="flex relative mb-5.5 w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5 justify-center">
                                 <input type="file" @input="form.avatar = $event.target.files[0]" accept="image/*" class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer" @change="onFileChange">

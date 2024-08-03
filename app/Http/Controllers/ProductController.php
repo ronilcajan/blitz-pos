@@ -9,7 +9,6 @@ use App\Models\ProductImage;
 use App\Models\ProductPrice;
 use App\Models\ProductStock;
 use App\Models\ProductUnit;
-use App\Models\SoldItems;
 use App\Models\Store;
 use App\Models\Supplier;
 use Illuminate\Support\Number;
@@ -17,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Models\Activity;
 
 class ProductController extends Controller
@@ -237,6 +237,15 @@ class ProductController extends Controller
             ->where('subject_id', $product->price?->id)
             ->latest()
             ->paginate(10); 
+        
+        $productStockModel = new ProductStock();
+        $stockActivity = Activity::query()
+            ->where('subject_type', get_class($productStockModel))
+            ->where('event', 'updated')
+            ->where('subject_id', $product->stock?->id)
+            ->latest()
+            ->paginate(10);
+        
 
         return inertia('Product/Show', [
             'title' => "Product details",
@@ -323,7 +332,6 @@ class ProductController extends Controller
                 'tax_rate' => $request->tax_rate,
                 'tax_type' => $request->discount_type,
                 'sale_price' => $request->sale_price,
-                'product_id' => $product->id
             ];
 
             $productStocksAttributes = [
@@ -331,15 +339,11 @@ class ProductController extends Controller
                 'min_quantity' => $request->min_quantity,
                 'in_store' => $request->in_store,
                 'in_warehouse' => $request->in_warehouse,
-                'product_id' => $product->id
             ];
 
-            $product->price()->delete();
-            $product->stock()->delete();
-
-            ProductPrice::create($productPriceAttributes);
-            ProductStock::create($productStocksAttributes);
-
+            ProductPrice::where('product_id',$product->id)->update($productPriceAttributes);
+            ProductStock::where('product_id',$product->id)->update($productStocksAttributes);
+    
             DB::commit();
 
             return redirect()->back();

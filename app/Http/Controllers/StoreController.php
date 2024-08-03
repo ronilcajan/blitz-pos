@@ -34,7 +34,7 @@ class StoreController extends Controller
                     'contact' => $store->contact,
                     'email' => $store->email,
                     'avatar' => asset('storage/'.$store->avatar),
-                    'created_at' => $store->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i: A'),
+                    'created_at' => $store->created_at->tz(session('timezone'))->format('M d, Y h:i: A'),
                 ];
         });
 
@@ -91,7 +91,7 @@ class StoreController extends Controller
         ];
 
         return inertia('Store/Show', [
-            'title' => 'Store Details',
+            'title' => 'Business details',
             'store' => $store,
         ]);
     }

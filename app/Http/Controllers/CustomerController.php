@@ -36,7 +36,7 @@ class CustomerController extends Controller
                     'address' => $customer->address,
                     'logo' => $customer->logo,
                     'store' => $customer->store->name,
-                    'created_at' => $customer->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i: A'),
+                    'created_at' => $customer->created_at->tz(session('timezone'))->format('M d, Y h:i: A'),
                 ];
         });
 

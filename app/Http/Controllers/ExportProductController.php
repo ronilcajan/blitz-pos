@@ -38,7 +38,7 @@ class ExportProductController extends Controller
                     'usage_type' => $product->usage_type,
                     'brand' => $product->brand,
                     'expiration_date' => $product->expiration_date 
-                        ? $product->expiration_date->tz(session('timezone') ?? 'UTC')->format('M d, Y')
+                        ? $product->expiration_date->tz(session('timezone'))->format('M d, Y')
                         : '',
                     'description' => $product->description,
                     'category' => $product->category?->name,

@@ -21,6 +21,7 @@ use App\Http\Controllers\InhouseStockTransactionController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LogsController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
@@ -155,6 +156,9 @@ Route::middleware(['auth', 'verified', 'timeZone'])->group(function () {
     Route::get('/users/impersonate/{user}', [ImpersonateController::class, 'impersonate'])->name('user.impersonate');
     Route::get('/users/leave/impersonation', [ImpersonateController::class, 'leave'])->name('user.leave');
     Route::get('/users/export/data', [UserController::class, 'export'])->name('user.export');
+
+    Route::get('/api/unread-activity', [NotificationController::class, 'unread']);
+    Route::post('/api/mark-as-read', [NotificationController::class, 'mark_as_read']);
 
 });
 

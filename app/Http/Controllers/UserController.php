@@ -43,7 +43,7 @@ class UserController extends Controller
                     'status' => $user->status->getLabelText(),
                     'statusColor' => $user->status->getLabelColor(),
                     'avatar' => $user->profile_photo_url,
-                    'created_at' => $user->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i: A'),
+                    'created_at' => $user->created_at->tz(session('timezone'))->format('M d, Y h:i: A'),
                 ];
             });
 

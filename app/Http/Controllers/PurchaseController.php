@@ -42,7 +42,7 @@ class PurchaseController extends Controller
                     'status' => $order->status,
                     'supplier' => $order->supplier?->name,
                     'store' => $order->store->name,
-                    'created_at' => $order->created_at->tz(session('timezone') ?? 'UTC')->format('M d, Y h:i: A'),
+                    'created_at' => $order->created_at->tz(session('timezone'))->format('M d, Y'),
                 ];
         });
 
@@ -50,7 +50,6 @@ class PurchaseController extends Controller
             'title' => "Purchase Orders",
             'orders' => $orders,
             'suppliers' => Supplier::select('id', 'name')->orderBy('name','ASC')->get(),
-            'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
             'filter' => $request->only(['search','store','per_page', 'suppliers']),
         ]);
     }
@@ -190,7 +189,7 @@ class PurchaseController extends Controller
         $purchase->discount = Number::currency($purchase->discount, in: $purchase->store->currency);
         $purchase->amount = Number::currency($purchase->amount, in: $purchase->store->currency);
         $purchase->total = Number::currency($purchase->total, in: $purchase->store->currency);
-        $purchase->date = $purchase->created_at->tz(session('timezone') ?? 'UTC')->format('F d, Y');
+        $purchase->date = $purchase->created_at->tz(session('timezone'))->format('F d, Y');
 
         return inertia('Purchase/Show', [
             'title' => "View Purchase",

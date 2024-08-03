@@ -1,12 +1,35 @@
 <script setup>
-import { onMounted } from "vue";
-import { usePage } from '@inertiajs/vue3'
+import { onMounted, ref } from "vue";
 import { themeChange } from 'theme-change'
+import axios from 'axios';
 
-const page = usePage();
+const latestActivity = ref(null);
+const notificationCount = ref(0);
+
+const fetchUnreadtActivity = async () => {
+	try {
+        const response = await axios.get('/api/unread-activity'); // Adjust the URL as needed
+        latestActivity.value = response.data;
+        notificationCount.value = (response.data).length ; // Set the count based on your logic
+		console.log(notificationCount.value );
+    } catch (error) {
+        console.error('Error fetching unread activity:', error);
+	}
+}
+
+const markAsRead = async () => {
+	try {
+		const response = await axios.post(`/api/mark-as-read`);
+		console.log(response.data.message);
+		notificationCount.value = 0;
+	} catch (error) {
+		console.error('Error marking as read:', error);
+	}
+}
 
 onMounted(() => {
 	themeChange(false)
+	fetchUnreadtActivity()
 })
 </script>
 
@@ -61,7 +84,7 @@ onMounted(() => {
 				<option value="nord">Nord</option>
 				<option value="sunset">Sunset</option>
 			</select>
-			<div class="btn btn-circle btn-ghost" v-if="!$page.props.auth.user.isSuperAdmin">
+			<div class="btn btn-circle btn-ghost">
 				<Link :href="route('pos')" title="POS">
 				<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
 					stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -82,9 +105,9 @@ onMounted(() => {
 				</Link>
 			</div>
 			<div class="z-10 dropdown dropdown-end">
-				<div tabindex="0" class="btn btn-circle btn-ghost">
+				<div tabindex="0" class="btn btn-circle btn-ghost" @click="markAsRead">
 					<div class="indicator">
-						<span class="badge indicator-item badge-error badge-xs"></span>
+						<span v-if="notificationCount" class="badge indicator-item badge-error badge-xs">{{ notificationCount }}</span>
 						<svg data-src="https://unpkg.com/heroicons/20/solid/bell.svg" class="w-5 h-5"
 							xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
 							aria-hidden="true" data-slot="icon" data-id="svg-loader_2">
@@ -94,61 +117,27 @@ onMounted(() => {
 						</svg>
 					</div>
 				</div>
-				<ul tabindex="0" class="p-2 mt-3 shadow-2xl menu dropdown-content w-80 rounded-box bg-base-100">
-					<li>
-						<a class="gap-4">
-							<div class="avatar">
-								<div class="w-8 rounded-full">
-									<img src="https://picsum.photos/80/80?1" />
+				
+				<ul tabindex="0" class="p-2 mt-3 shadow-2xl menu dropdown-content w-80 rounded-box bg-base-100" v-if="latestActivity">
+					<template v-for="activity in latestActivity" :key="activity.id">
+						<li>
+							<a class="gap-4">
+								<div class="avatar">
+									<div class="w-8 rounded-full">
+										<img :src="activity.user_image" />
+									</div>
 								</div>
-							</div>
-							<span>
-								<b>New message</b>
-								<br />
-								Alice: Hi, did you get my files?
-							</span>
-						</a>
-					</li>
-					<li>
+								<span class="text-xs">
+									<b>{{ activity.user }}</b>
+									<br />
+									{{ activity.description }}: {{ activity.log_name }}
+								</span>
+							</a>
+						</li>
+					</template>
+					<li v-if="!latestActivity.length">
 						<a class="gap-4">
-							<div class="avatar">
-								<div class="w-8 rounded-full">
-									<img src="https://picsum.photos/80/80?2" />
-								</div>
-							</div>
-							<span>
-								<b>Reminder</b>
-								<br />
-								Your meeting is at 10am
-							</span>
-						</a>
-					</li>
-					<li>
-						<a class="gap-4">
-							<div class="avatar">
-								<div class="w-8 rounded-full">
-									<img src="https://picsum.photos/80/80?3" />
-								</div>
-							</div>
-							<span>
-								<b>New payment</b>
-								<br />
-								Received $2500 from John Doe
-							</span>
-						</a>
-					</li>
-					<li>
-						<a class="gap-4">
-							<div class="avatar">
-								<div class="w-8 rounded-full">
-									<img src="https://picsum.photos/80/80?4" />
-								</div>
-							</div>
-							<span>
-								<b>New payment</b>
-								<br />
-								Received $1900 from Alice
-							</span>
+							No unread notification
 						</a>
 					</li>
 				</ul>

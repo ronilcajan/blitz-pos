@@ -10,7 +10,6 @@ defineOptions({ layout: AuthenticatedLayout })
 const props = defineProps({
     title: String,
 	orders: Object,
-    stores: Object,
 	filter: Object,
     suppliers: Object
 });
@@ -197,13 +196,13 @@ const clearFilters = (filter) => {
                             <TableCell>{{ $page.props.auth.user.currency }}  {{ order.amount }}</TableCell>
                             <TableCell>{{ order.quantity }} Item/s</TableCell>
                             <TableCell>
-                                <div class="badge gap-2 badge-warning" v-if="order.status === 'pending'">
+                                <div class="badge gap-2 badge-warning badge-sm" v-if="order.status === 'pending'">
                                 {{ order.status }}
                                 </div>
-                                <div class="badge gap-2 badge-success" v-if="order.status === 'completed'">
+                                <div class="badge gap-2 badge-success badge-sm" v-if="order.status === 'completed'">
                                 {{ order.status }}
                                 </div>
-                                <div class="badge gap-2 badge-error" v-if="order.status === 'cancelled'">
+                                <div class="badge gap-2 badge-error badge-sm" v-if="order.status === 'cancelled'">
                                 {{ order.status }}
                                 </div>
                             </TableCell>

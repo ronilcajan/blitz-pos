@@ -293,7 +293,6 @@ const productsDataLength = computed(() => {
                                     </div>
                                 </div>
                                 </Link>
-                                {{ $page.props.auth.user.currency }}
                             </TableCell>
                             <TableCell>{{ product.size }}</TableCell>
                             <TableCell>{{ product.stocks }} {{ product.price }}
@@ -325,12 +324,13 @@ const productsDataLength = computed(() => {
                 </template>
             </Table>
         </section>
+        <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+            <PaginationResultRange :data="products" />
+            <PaginationControlList :url="url" />
+            <Pagination :links="products.links" />
+        </div>
     </div>
-    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <PaginationResultRange :data="products" />
-        <PaginationControlList :url="url" />
-        <Pagination :links="products.links" />
-    </div>
+    
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">
         <div class="p-6">
