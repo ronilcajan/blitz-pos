@@ -159,6 +159,6 @@ class Expenses extends Model
             ->useLogName('Expenses')
             ->logOnly(['description'])
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
+            ->setDescriptionForEvent(fn(string $eventName) => "The data has been {$eventName}");
     }
 }

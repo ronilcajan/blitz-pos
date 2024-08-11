@@ -48,7 +48,7 @@ class HandleInertiaRequests extends Middleware
                         'store_email' => $user->store->email ?? '',
                         'store_phone' => $user->store->phone ?? '',
                         'store_address' => $user->store->address ?? '',
-                        'store_logo' => asset('storage/'.$user->store->avatar) ?? '',
+                        'store_logo' => $user->store?->avatar ? asset('storage/'.$user->store->avatar) : '',
                         'currency' => $user->store->currency ?? '',
                         'isSuperAdmin' =>  $user_role === 'super-admin',
                         'isOwner' => $user_role === 'owner',

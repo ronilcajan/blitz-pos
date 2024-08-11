@@ -105,6 +105,6 @@ class Product extends Model
         return LogOptions::defaults()
             ->useLogName('Product')
             ->logOnly(['name'])
-            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
+            ->setDescriptionForEvent(fn(string $eventName) => "The data has been {$eventName}");
     }
 }

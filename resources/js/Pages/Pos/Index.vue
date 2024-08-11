@@ -399,68 +399,134 @@ watch(purchases,  (newItems) => {
     purchaseForm.tax = calculateTax.value;
 });
 
-watch(search, debounce((value) => {
+// watch(search, debounce((value) => {
+//     if (!value.trim()) {
+//         return; // Early exit if the search value is empty
+//     }
+
+//     console.log(`Search value: ${value}`);
+
+//     axios.post(route('pos.get_product', { search: value }))
+//         .then(response => {
+//             console.log('Response:', response); // Log the full response object
+
+
+//             if (response.status === 200 && response.data) {
+//                 const item = response.data;
+
+//                 console.log('Fetched item:', item); // Log the fetched item
+
+//                 const data = {
+//                     id: item.id || 'N/A',
+//                     name: item.name || 'Unknown',
+//                     details: item.size || 'Not specified',
+//                     qty: 1,
+//                     unit: item.unit || 'unit',
+//                     stocks: item.stock?.in_store ?? 0,
+//                     price: parseFloat(item.price?.sale_price ?? 0.00).toFixed(2),
+//                     tax: parseFloat(item.price?.tax_rate ?? 0.00),
+//                     image: item.images?.[0]?.image || '',
+//                 };
+//                 newPurchase(data);
+                
+//                 search.value = ''
+//                 barcodeScanModel.value = false
+
+//             } else {
+//                 console.error('Error response:', response);
+
+//                 useToast().error('No item found!', {
+//                     position: 'top-right',
+//                     duration: 3000,
+//                     dismissible: true
+//                 });
+//             }
+//         })
+//         .catch(error => {
+//             if (error.response && error.response.status === 404) {
+//                 console.error('Error 404: Item not found');
+//                 useToast().error('Item not found!', {
+//                     position: 'top-right',
+//                     duration: 3000,
+//                     dismissible: true
+//                 });
+//             } else {
+//                 console.error('Error during fetch:', error);
+//                 useToast().error('An error occurred while fetching the product.', {
+//                     position: 'top-right',
+//                     duration: 3000,
+//                     dismissible: true
+//                 });
+//             }
+//         });
+// }), 2000);
+
+const fetchProduct = async (value) => {
     if (!value.trim()) {
         return; // Early exit if the search value is empty
     }
 
     console.log(`Search value: ${value}`);
 
-    axios.post(route('pos.get_product', { search: value }))
-        .then(response => {
-            console.log('Response:', response); // Log the full response object
+    try {
+        const response = await axios.post(route('pos.get_product', { search: value }));
+        console.log('Response:', response);
 
+        if (response.status === 200 && response.data) {
+            const item = response.data;
 
-            if (response.status === 200 && response.data) {
-                const item = response.data;
+            console.log('Fetched item:', item);
 
-                console.log('Fetched item:', item); // Log the fetched item
+            const data = {
+                id: item.id || 'N/A',
+                name: item.name || 'Unknown',
+                details: item.size || 'Not specified',
+                qty: 1,
+                unit: item.unit || 'unit',
+                stocks: item.stock?.in_store ?? 0,
+                price: parseFloat(item.price?.sale_price ?? 0.00).toFixed(2),
+                tax: parseFloat(item.price?.tax_rate ?? 0.00),
+                image: item.images?.[0]?.image || '',
+            };
 
-                const data = {
-                    id: item.id || 'N/A',
-                    name: item.name || 'Unknown',
-                    details: item.size || 'Not specified',
-                    qty: 1,
-                    unit: item.unit || 'unit',
-                    stocks: item.stock?.in_store ?? 0,
-                    price: parseFloat(item.price?.sale_price ?? 0.00).toFixed(2),
-                    tax: parseFloat(item.price?.tax_rate ?? 0.00),
-                    image: item.images?.[0]?.image || '',
-                };
-                newPurchase(data);
-                
-                search.value = ''
-                barcodeScanModel.value = false
+            newPurchase(data);
 
-            } else {
-                console.error('Error response:', response);
-
-                useToast().error('No item found!', {
+            // Clear the search input and reset the model state
+            search.value = '';
+            barcodeScanModel.value = false;
+        } else {
+            console.error('Error response:', response);
+            useToast().error('No item found!', {
                     position: 'top-right',
                     duration: 3000,
                     dismissible: true
                 });
-            }
-        })
-        .catch(error => {
-            if (error.response && error.response.status === 404) {
-                console.error('Error 404: Item not found');
-                useToast().error('Item not found!', {
-                    position: 'top-right',
-                    duration: 3000,
-                    dismissible: true
-                });
-            } else {
-                console.error('Error during fetch:', error);
-                useToast().error('An error occurred while fetching the product.', {
-                    position: 'top-right',
-                    duration: 3000,
-                    dismissible: true
-                });
-            }
-        });
-}), 500);
 
+        }
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            console.error('Error 404: Item not found');
+            useToast().error('No item found!', {
+                    position: 'top-right',
+                    duration: 3000,
+                    dismissible: true
+                });
+        } else {
+            console.error('Error during fetch:', error);
+            useToast().error('An error occurred while fetching the product!', {
+                    position: 'top-right',
+                    duration: 3000,
+                    dismissible: true
+                });
+        }
+    }
+};
+
+const debouncedFetchProduct = debounce(fetchProduct, 500);
+
+watch(search, (newValue) => {
+    debouncedFetchProduct(newValue);
+});
 
 const handleScannedBarcode = (result) => {
     search.value = result
@@ -614,7 +680,7 @@ updateDateTime();
                         </div>
                         <div class="flex justify-between uppercase">
                             <div class="text-2xl font-bold">Grand Total</div>
-                            <div class="text-2xl font-bold">
+                            <div class="text-2xl font-bold text-right">
                                 {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(purchaseForm.total) }}
                             </div>
                         </div>
@@ -934,7 +1000,7 @@ updateDateTime();
                 </div>
                 <div class="flex justify-between uppercase">
                     <div class="text-2xl font-bold">Amount DUE</div>
-                    <div class="text-2xl font-bold">
+                    <div class="text-2xl font-bold text-right">
                         {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(purchaseForm.total) }}
                     </div>
                 </div>
@@ -970,7 +1036,7 @@ updateDateTime();
                 </div>
                 <div class="flex justify-between uppercase">
                     <div class="text-2xl font-bold">Amount DUE</div>
-                    <div class="text-2xl font-bold">
+                    <div class="text-2xl font-bold text-right">
                         {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(calculateTotal) }}
                     </div>
                 </div>

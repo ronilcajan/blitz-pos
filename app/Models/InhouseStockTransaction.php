@@ -87,6 +87,6 @@ class InhouseStockTransaction extends Model
         return LogOptions::defaults()
             ->useLogName('InhouseStockTransaction')
             ->logOnly(['tx_no'])
-            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
+            ->setDescriptionForEvent(fn(string $eventName) => "The data has been {$eventName}");
     }
 }

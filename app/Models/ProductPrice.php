@@ -30,6 +30,6 @@ class ProductPrice extends Model
         return LogOptions::defaults()
             ->useLogName('Product Price')
             ->logOnly(['id','sale_price'])
-            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");
+            ->setDescriptionForEvent(fn(string $eventName) => "The data has been {$eventName}");
     }
 }

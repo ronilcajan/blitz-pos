@@ -75,6 +75,6 @@ class Store extends Model
             ->useLogName('Store')
             ->logOnly(['name'])
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => "This data has been {$eventName}");    
+            ->setDescriptionForEvent(fn(string $eventName) => "The data has been {$eventName}");    
     }
 }

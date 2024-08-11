@@ -6,6 +6,7 @@ use App\Http\Requests\ExpensesRequestForm;
 use App\Models\Expenses;
 use App\Models\ExpensesCategory;
 use App\Models\Store;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Number;
@@ -30,9 +31,12 @@ class ExpensesController extends Controller
             ->paginate($perPage)
             ->withQueryString()
             ->through(function ($expense) {
+
+                $expenseDate = Carbon::parse($expense->expenses_date);
+
                 return [
                     'id' => $expense->id,
-                    'expenses_date' => $expense->expenses_date->tz(session('timezone'))->format('M d, Y'),
+                    'expenses_date' => $expenseDate->tz(session('timezone'))->format('M d, Y'),
                     'vendor' => $expense->vendor,
                     'amount' => $expense->amount,
                     'amount' => Number::currency($expense->amount, in: 'PHP'),

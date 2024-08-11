@@ -34,8 +34,8 @@ const formatNumberWithCommas = (number) => {
                 </div>
             </div>
         </div>
-        <div class="flex-1">
-            <div class="font-bold hidden lg:flex justify-center items-center gap-2">
+        <div class="flex-1 hidden lg:block">
+            <div class="font-bold flex justify-center items-center gap-2">
                 <CounterInput v-model="item.qty" @increase-by="(n) => item.qty += n" @decreased-by="(n) => item.qty > 1 ? item.qty -= n : 0"/>
             </div>
         </div>
