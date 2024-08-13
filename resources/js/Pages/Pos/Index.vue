@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, watch, computed } from 'vue';
+import { reactive, ref, watch, computed, readonly } from 'vue';
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
 import POSLayout from '@/Layouts/POSLayout.vue';
@@ -35,6 +35,8 @@ const cancelPurchaseModal = ref(false);
 const reviewPurchaseModal = ref(false);
 const confirmPurchaseModal = ref(false);
 const barcodeScanModel = ref(false);
+const currencyInputRef = ref(null)
+const changePayment = ref(null)
 
 const productForm = useForm({
     name: '',
@@ -711,7 +713,7 @@ updateDateTime();
                                 RESET
                             </DangerButton>
                             <PrimaryButton class="btn btn-lg"
-                            :disabled="purchases.length == 0" @click="reviewPurchaseModal=true">
+                            :disabled="purchases.length == 0" @click="confirmPurchaseModal=true">
                                 <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11.917 9.724 16.5 19 7.5"/>
                                 </svg>PAY NOW
@@ -1009,7 +1011,7 @@ updateDateTime();
                 <SecondaryButton class="btn"
                     @click="reviewPurchaseModal = false;">Cancel</SecondaryButton>
                 <PrimaryButton
-                    @click="reviewPurchaseModal=false;confirmPurchaseModal=true"
+                    @click="reviewPurchaseModal=false; confirmPurchaseModal=true"
                     :disabled="purchases.length == 0">
                     Proceed
                 </PrimaryButton>
@@ -1028,6 +1030,15 @@ updateDateTime();
                     {{ customer.name }}
                 </option>
             </select>
+            <div v-for="(item, index) in purchases"
+                :item="item"
+                :key="index" class="flex gap-3 justify-between text-sm border p-2 rounded items-end mt-1">
+                <p>
+                    <span class="font-bold">{{ item.product }} </span>
+                    - {{  $page.props.auth.user.currency + " "+ formatNumberWithCommas(item.price) }} X {{ item.qty }} {{ item.unit }}</p>
+                <p class="font-bold text-primary">{{  $page.props.auth.user.currency + " "+ formatNumberWithCommas(item.total) }}</p>
+
+            </div>
             <InputError class="mt-2" :message="purchaseForm.errors.customer_id" />
             <div class="border p-3 mt-2 rounded border-gray-100 bg-base-200">
                 <div class="flex justify-between  uppercase">
@@ -1043,13 +1054,23 @@ updateDateTime();
             </div>
             <div class="mt-2">
                 <InputLabel value="Payment Tender" />
-                <input type="number" value="0" class="border w-full border-gray-300 rounded text-4xl px-2 py-4 text-right"
-                v-model="purchaseForm.payment_tender" min="0" step="0.01" @input="setPaymentAmount2(purchaseForm.payment_tender)"/>
-                <PaymentButtons :currency="$page.props.auth.user.currency" @set-payment="setPaymentAmount" />
+                <CurrencyInput
+                    class="border w-full border-gray-300 rounded text-4xl px-2 py-4 text-right"
+                    v-model="purchaseForm.payment_tender"
+                    @change="setPaymentAmount2(purchaseForm.payment_tender)"
+                />
+
+                <PaymentButtons @set-payment="setPaymentAmount" />
 
                 <InputLabel value="Payment Changed" />
-                <input type="number" value="0" class="border w-full border-gray-300 rounded text-2xl px-2 py-2 text-right"
-                v-model="purchaseForm.payment_changed" readonly>
+
+                <CurrencyInput
+                    ref="changePayment"
+                    class="border w-full border-gray-300 rounded text-4xl px-2 py-4 text-right"
+                    readonly
+                    v-model="purchaseForm.payment_changed"
+                />
+
                 <InputError class="mt-2" :message="purchaseForm.errors.payment_changed" />
             </div>
             <div class="mt-2">
@@ -1072,7 +1093,7 @@ updateDateTime();
                 <div class="mt-3" v-if="purchaseForm.payment_method != 'cash'">
                     <InputLabel value="Reference No." />
                     <TextInput
-                        type="email"
+                        type="text"
                         class="block w-full"
                         v-model="purchaseForm.referrence"
                         required
@@ -1087,7 +1108,7 @@ updateDateTime();
                 </div>
                 <div class="">
                     <label class="cursor-pointer flex gap-1 items-center">
-                        <input v-model="purchaseForm.print" type="checkbox" checked="checked" class="checkbox checkbox-xs" />
+                        <input v-model="purchaseForm.print" type="checkbox" class="checkbox checkbox-xs" />
                         <span class="label-text">Auto-print sales acknowledgement</span>
                     </label>
                 </div>

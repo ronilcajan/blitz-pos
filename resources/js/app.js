@@ -59,6 +59,7 @@ import DateRangeFilter from '@/Components/DateRangeFilter.vue';
 import ClearFilters from '@/Components/ClearFilters.vue';
 import SelectDropdownFilter from '@/Components/SelectDropdownFilter.vue';
 import Scanner from '@/Components/Scanner.vue';
+import CurrencyInput from '@/Components/CurrencyInput.vue';
 
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -86,6 +87,7 @@ createInertiaApp({
             .component('Head', Head)
             .component('Link', Link)
             .component('Scanner', Scanner)
+            .component('CurrencyInput', CurrencyInput)
             .component('ApplicationLogo', ApplicationLogo)
             .component('Checkbox', Checkbox)
             .component('InputError', InputError)

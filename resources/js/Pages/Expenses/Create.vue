@@ -70,9 +70,9 @@ const submitCategoryForm = () => {
 	})
 }
 
-const addItem = () => {
-    items.value.push({ name: '' });
-}
+// const addItem = () => {
+//     items.value.push({ name: '' });
+// }
 </script>
 
 <template>
@@ -136,7 +136,10 @@ const addItem = () => {
                         <div class="grid grid-cols-1 gap-2 mb-3 mt-2" :class="$page.props.auth.user.isSuperAdmin ? 'lg:grid-cols-2 grid-cols-1' : 'grid-cols-1'">
                             <div class="form-control">
                                 <InputLabel for="name" value="Amount" />
-                                <input v-model="form.amount" type="number" placeholder="Enter amount" step="0.01" min="0" class="input input-bordered w-full" />
+                                <CurrencyInput
+                                    class="input input-bordered w-full"
+                                    v-model.lazy="form.amount"
+                                />
                                 <InputError class="mt-2" :message="form.errors.amount" />
                             </div>
                         </div>
@@ -150,7 +153,7 @@ const addItem = () => {
             </div>
             </div>
             <div class="w-full md:w-1/3">
-                <div class="card bg-base-100 shadow mt-5">
+                <div class="card bg-base-100 ">
                     <div class="card-body">
                         <h2 class="card-title grow text-sm mb-5">
                             <span class="uppercase">Upload Supporting Documents</span>

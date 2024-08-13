@@ -91,8 +91,6 @@ class ExpensesController extends Controller
      */
     public function store(ExpensesRequestForm $request)
     {
-        dd($request->all());
-        
         Gate::authorize('create', Expenses::class);
 
         $data = $request->validated();
