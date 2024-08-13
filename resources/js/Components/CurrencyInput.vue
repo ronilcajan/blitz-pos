@@ -3,13 +3,12 @@ import { usePage } from '@inertiajs/vue3';
 import { ref, watch, onMounted  } from 'vue'
 import { useCurrencyInput } from 'vue-currency-input'
 
-// Define props
 const props = defineProps({
-  modelValue: {
-    type: Number,
-    required: true
+        modelValue: {
+        type: Number,
+        required: true
   },
-})
+});
 const page = usePage();
 // Emit event for two-way binding and change event
 const emit = defineEmits(['update:modelValue', 'change'])
@@ -33,8 +32,7 @@ const { inputRef: currencyInputElement, setValue  } = useCurrencyInput(options)
 // Watch for changes in the modelValue prop
 watch(() => props.modelValue, (newValue) => {
     if (inputRef.value) {
-        inputRef.value = newValue
-        
+        inputRef.value.value = newValue
     }
     setValue(newValue)
     console.log(newValue);

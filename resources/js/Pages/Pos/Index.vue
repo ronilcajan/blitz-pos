@@ -270,7 +270,7 @@ const setPaymentAmount = (amount) => {
     }
 
     paymentChanged();
-
+    
     return purchaseForm.payment_tender.toFixed(2);
 
 };
@@ -288,6 +288,8 @@ const setPaymentAmount2 = (amount) => {
     }
 
     let parsedAmount = parseFloat(amount);
+
+    currencyInputRef.value.focus();
 
     if (isNaN(parsedAmount)) {
         throw new Error('Invalid amount');
@@ -713,7 +715,7 @@ updateDateTime();
                                 RESET
                             </DangerButton>
                             <PrimaryButton class="btn btn-lg"
-                            :disabled="purchases.length == 0" @click="confirmPurchaseModal=true">
+                            :disabled="purchases.length == 0" @click="confirmPurchaseModal=true;">
                                 <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11.917 9.724 16.5 19 7.5"/>
                                 </svg>PAY NOW
@@ -980,16 +982,6 @@ updateDateTime();
                     <div>Sub-total</div>
                     <div>{{  $page.props.auth.user.currency + " " + formatNumberWithCommas(purchaseForm.sub_total) }}</div>
                 </div>
-                <!-- <div class="flex justify-between  uppercase">
-                    <div>
-                        <div>TAX</div>
-                    </div>
-                    <div>
-                        <span class="text-red-500">
-                        {{  $page.props.auth.user.currency + " " + formatNumberWithCommas(purchaseForm.tax) }}
-                        </span>
-                        </div>
-                </div> -->
                 <div class="flex justify-between  uppercase">
                     <div>
                         <div>Discount</div>
@@ -1055,6 +1047,7 @@ updateDateTime();
             <div class="mt-2">
                 <InputLabel value="Payment Tender" />
                 <CurrencyInput
+                    ref="currencyInputRef"
                     class="border w-full border-gray-300 rounded text-4xl px-2 py-4 text-right"
                     v-model="purchaseForm.payment_tender"
                     @change="setPaymentAmount2(purchaseForm.payment_tender)"
