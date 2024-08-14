@@ -16,33 +16,6 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        /**
-     * Run the database seeds.
-     */
-        $superadmin = Role::create([
-            'name' => 'super-admin',
-            'display_name' => 'System owner', // optional
-            'description' => 'User is the superadmin of a the system', // optional
-        ]);
-
-        $owner = Role::create([
-            'name' => 'owner',
-            'display_name' => 'Store Owner', // optional
-            'description' => 'User is the owner of a given project', // optional
-        ]);
-        
-        $admin = Role::create([
-            'name' => 'admin',
-            'display_name' => 'Store Administrator', // optional
-            'description' => 'User is allowed to manage,edit and delete other users', // optional
-        ]);
-
-        $staff = Role::create([
-            'name' => 'staff',
-            'display_name' => 'Store Staff', // optional
-            'description' => 'User is allowed to manage and edit other users', // optional
-        ]);
-        
         $store = Store::create([
             'name' => 'Store',
         ]);
@@ -77,9 +50,9 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        $user->addRole($superadmin); // parameter can be a Role object, BackedEnum, array, id or the role string name
-        $user2->addRole($owner);
-        $user3->addRole($admin);
-        $user4->addRole($staff);
+        $user->addRole(1); // parameter can be a Role object, BackedEnum, array, id or the role string name
+        $user2->addRole(2);
+        $user3->addRole(3);
+        $user4->addRole(4);
     }
 }

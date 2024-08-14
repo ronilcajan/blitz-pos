@@ -55,12 +55,16 @@ class UserController extends Controller
                 ];
             });
 
+        $roles = Role::select('id','name')
+                ->orderBy('name','ASC')
+                ->get();
+
         return inertia('Users/Index', [
             'title' => 'Users',
             'users' => $users,
             'userSummary' => $userSummary,
             'stores' => Store::select('id', 'name')->orderBy('name','ASC')->get(),
-            'roles' => Role::select('id','name')->orderBy('name','ASC')->get(),
+            'roles' =>  $roles,
             'filter' => $request->only(['search','store','per_page']),
         ]);
     }

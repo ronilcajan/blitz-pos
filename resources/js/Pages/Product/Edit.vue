@@ -6,6 +6,7 @@ import { reactive, ref, watch, computed, onMounted } from 'vue';
 import axios from 'axios';
 import debounce from "lodash/debounce";
 import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader'
+import { method } from 'lodash';
 
 defineOptions({ layout: AuthenticatedLayout })
 
@@ -24,6 +25,7 @@ const barcode = ref(props.product.barcode);
 const barcodeScan = ref('');
 
 const form = useForm({
+    _method: 'PUT',
     id: props.product.id,
 	name: props.product.name,
 	barcode: barcode.value,
@@ -168,7 +170,7 @@ const submitCategoryForm = () => {
 }
 
 const submitUpdateForm = () => {
-	form.post(route('products.update'),{
+	form.put(route('products.update'),{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref,computed } from 'vue';
 import { useForm, router } from '@inertiajs/vue3'
 import { useToast } from 'vue-toast-notification';
 
@@ -105,141 +105,170 @@ const statusChange = (userId, selectedStatus) => {
 		},
         only: ['users','userSummary'] })
 }
+
+const appliedFilters = [
+    { title: 'search', value: search },
+]
+
+const clearFilters = (filter) => {
+if (filter.title == 'search') {
+        search.value = '';
+    }
+}
+
+const product_types = [
+    { id: '1', name: 'sellable', },
+    // { id: '2', name: 'internal_use', },
+
+]
+
+const usersDataLength = computed(() => {
+    if (Object.keys(route().params).length > 0) {
+        return props.users.data.length + 1;
+    }
+    
+    return props.users.data.length;
+})
+
 </script>
 
 <template>
     <Head :title="title" />
 
-    <div class="flex justify-end items-center mb-5 gap-3 flex-wrap">
-        <CreateButtonLink href="/users/create">New user</CreateButtonLink>
-        <DownloadButton :href="route('user.export')">Export</DownloadButton>
-        <StatusFilter v-model="status" />
-    </div>
-    <section class="stats stats-vertical col-span-12 mb-5 w-full shadow-sm xl:stats-horizontal">
-		<StatsCard title="Users" :users="userSummary" filter="all">
-          Total users who uses the system
-        </StatsCard>
-		<StatsCard title="Active User" :users="userSummary" filter="active">
-            Total users that are active in the system
-        </StatsCard>
-		<StatsCard title="Inactive User" :users="userSummary" filter="inactive" >
-            Total users that are inactive in the system
-        </StatsCard>
-		<StatsCard title="Blocked User" :users="userSummary" filter="blocked" >
-            Total users that are blocked in the system
-        </StatsCard>
-	</section>
-    <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
-        <div class="p-4 grow-0 ">
-            <div class="flex justify-between gap-5 flex-col-reverse sm:flex-row">
-                <div class="flex gap-3">
-                    <FilterByStoreDropdown v-model="store" :stores="stores" :url="url"/>
-                    <DeleteButton v-show="userIds.length > 0" @click="deleteAllSelectedModal = true">
-                        Delete
-                    </DeleteButton>
+    <TitleContainer :title="title">
+        <div class="flex items-center gap-2" v-if="usersDataLength > 0">
+            <CreateBtnLink href="/users/create">New user</CreateBtnLink>
+            <ActionDropdown :dataIds="productIds" :exportPDFRoute="route('user.export')"
+                :exportExcelRoute="false" :withImportBtn="true"
+                @open-import-modal="importModal = false" @delete-all-selected="deleteAllSelectedModal = true" />
+            <StatusFilter v-model="status" />
+        </div>
+
+    </TitleContainer>
+
+    <EmptyContainer :title="title" v-if="usersDataLength == 0">
+        <CreateBtnLink href="/users/create">New product</CreateBtnLink>
+    </EmptyContainer>
+
+    <div class="flex-grow" v-if="usersDataLength > 0">
+        <section class="stats stats-vertical col-span-12 mb-5 w-full shadow-sm xl:stats-horizontal">
+            <StatsCard title="Users" :users="userSummary" filter="all">
+            Total users who uses the system
+            </StatsCard>
+            <StatsCard title="Active User" :users="userSummary" filter="active">
+                Total users that are active in the system
+            </StatsCard>
+            <StatsCard title="Inactive User" :users="userSummary" filter="inactive" >
+                Total users that are inactive in the system
+            </StatsCard>
+            <StatsCard title="Blocked User" :users="userSummary" filter="blocked" >
+                Total users that are blocked in the system
+            </StatsCard>
+        </section>
+        <section class="col-span-12 overflow-hidden bg-base-100 shadow rounded-xl">
+            <div class="card-body grow-0">
+                <div class="flex justify-between gap-2 flex-col-reverse sm:flex-row">
+                    <div class="flex gap-2 flex-col sm:flex-row">
+
+                        <!-- <SelectDropdownFilter v-if="product_categories.length" v-model="category" :url="url" :title="`category`"
+                            :options="product_categories" />
+                        <SelectDropdownFilter v-model="type" :url="url" :title="`type`" :options="product_types" /> -->
+
+                    </div>
+                    <div class="flex gap-2 flex-col sm:flex-row">
+                        <div class="w-full">
+                            <SearchInput v-model="search" :url="url" />
+                        </div>
+                    </div>
                 </div>
-                <SearchInput v-model="search" @clear-search="search = ''" :url="url"/>
+                <ClearFilters :filters="appliedFilters" @clear-filters="clearFilters" />
             </div>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="table table-zebra">
-                <thead class="uppercase">
-                    <tr>
-                        <th>
-                            <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox" class="checkbox checkbox-sm">
-                        </th>
-                        <th class="w-1/6">
-                            <div class="font-bold">Name</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Phone</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Address</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Role</div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Status
-                            </div>
-                        </th>
-                        <th class="hidden sm:table-cell">
-                            <div class="font-bold">Registered Date</div>
-                        </th>
-                        <th class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">
-                            <div class="font-bold">Store</div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="user in users.data" :key="user.id">
-                        <td class="w-0">
-                            <input :value="user.id" v-model="userIds" type="checkbox" class="checkbox checkbox-sm">
-                        </td>
-                        <td class="w-10 table-cell">
-                            <div class="flex items-center gap-2">
-                                <div class="avatar btn btn-circle btn-ghost online" v-show="user.avatar">
-                                    <div class="w-10 rounded-full">
-                                        <img :src="user.avatar" />
+            <Table>
+                <template #table-header>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead v-if="$page.props.auth.user.canDelete">
+                                <input @change="selectAll" v-model="selectAllCheckbox" type="checkbox"
+                                    class="checkbox checkbox-sm">
+                            </TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Phone</TableHead>
+                            <TableHead>Address</TableHead>
+                            <TableHead>Role</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Registered Date</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                </template>
+                <template #table-body>
+                    <TableBody>
+                        <TableRow v-for="user in users.data" :key="user.id">
+                            <TableCell v-if="$page.props.auth.user.canDelete">
+                                <input :value="user.id" v-model="userIds" type="checkbox"
+                                    class="checkbox checkbox-sm">
+                            </TableCell>
+                            <TableCell>
+                                <div class="flex items-center gap-2">
+                                    <div class="avatar btn btn-circle btn-ghost online" v-show="user.avatar">
+                                        <div class="w-10 rounded-full">
+                                            <img :src="user.avatar" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex text-sm font-bold gap-2">{{ user.name }}
+                                            <Link :href="route('user.impersonate', user.id)" class="text-primary text-xs" v-show="$page.props.auth.user.isSuperAdmin">Impersonate</Link>
+                                        </div>
+
+                                        <div class="text-xs opacity-50">{{ user.email }}</div>
+                                        <div class="sm:hidden">
+                                            <div class="text-xs opacity-50">{{ user.phone }}</div>
+                                            <div class="text-xs opacity-50">{{ user.address }}</div>
+                                            <div class="text-xs opacity-50">{{ user.role }}</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <div class="flex text-sm font-bold gap-2">{{ user.name }}
-                                        <Link :href="route('user.impersonate', user.id)" class="text-primary text-xs" v-show="$page.props.auth.user.isSuperAdmin">Impersonate</Link>
-                                    </div>
-
-                                    <div class="text-xs opacity-50">{{ user.email }}</div>
-                                    <div class="sm:hidden">
-                                        <div class="text-xs opacity-50">{{ user.phone }}</div>
-                                        <div class="text-xs opacity-50">{{ user.address }}</div>
-                                        <div class="text-xs opacity-50">{{ user.role }}</div>
-                                    </div>
+                               
+                            </TableCell>
+                            <TableCell>{{ user.phone }}</TableCell>
+                            <TableCell>{{ user.address }}</TableCell>
+                            <TableCell>
+                                <div class="badge badge-primary gap-2">
+                                    {{ user.role }}
                                 </div>
-                            </div>
-                        </td>
-                        <!-- These columns will be hidden on small screens -->
-                        <td class="hidden sm:table-cell">{{ user.phone }}</td>
-                        <td class="hidden sm:table-cell">{{ user.address }}</td>
-                        <td class="hidden sm:table-cell">
-                            <div class="badge badge-primary gap-2">
-                            {{ user.role }}
-                            </div>
-                        </td>
-                        <td class="hidden sm:table-cell">
-                            <select @change="statusChange(user.id, $event.target.value)" class="select select-xs"  :class="`text-${user.statusColor}`">
-                                <option :selected="user.status === 'active'">active</option>
-                                <option :selected="user.status === 'inactive'">inactive</option>
-                                <option :selected="user.status === 'blocked'">blocked</option>
-                            </select>
-                        </td>
-                        <td class="hidden sm:table-cell">{{ user.created_at }}</td>
-                        <td class="hidden sm:table-cell" v-show="$page.props.auth.user.isSuperAdmin">{{ user.store }}</td>
-                        <td>
-                            <div class="flex items-center space-x-2 justify-center">
-                                <Link :href="`/users/${user.id}/edit`" class=" hover:text-green-500">
-                                    <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
-                                    </svg>
-                                </Link>
-                                <DeleteIcon @modal-show="deleteUserForm(user.id)"/>
-                            </div>
-                        </td>
+                            </TableCell>
 
-                    </tr>
-                    <tr v-if="users.data.length <= 0">
-                        <td colspan="7" class="text-center">
-                            No data found
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <TableCell>
+                                <select @change="statusChange(user.id, $event.target.value)" class="select select-xs"  :class="`text-${user.statusColor}`">
+                                    <option :selected="user.status === 'active'">active</option>
+                                    <option :selected="user.status === 'inactive'">inactive</option>
+                                    <option :selected="user.status === 'blocked'">blocked</option>
+                                </select>
+                            </TableCell>
+                            <TableCell>
+                                {{user.created_at}}
+                            </TableCell>
+                            <TableCell>
+                                <div class="flex items-center gap-2">
+                                    <EditIconBtnLink :href="`/users/${user.id}/edit`" />
+                                    <DeleteIcon @modal-show="deleteProductForm(user.id)" />
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow v-if="users.data == 0">
+                            <TableCell :colspan="10" class="text-center">
+                                No {{ title.toLocaleLowerCase() }} found!
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </template>
+            </Table>
+
+        </section>
+        <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
+            <PaginationResultRange :data="users" />
+            <PaginationControlList :url="url" />
+            <Pagination :links="users.links" />
         </div>
-    </section>
-    <div class="flex justify-between item-center flex-col sm:flex-row gap-3 mt-5">
-        <PaginationResultRange :data="users" />
-        <PaginationControlList :url="url" />
-        <Pagination :links="users.links" />
     </div>
     <!-- delete modal -->
     <Modal :show="deleteModal" @close="closeModal">

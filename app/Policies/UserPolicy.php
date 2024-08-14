@@ -12,7 +12,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('owner');
+        return $user->hasPermission('users-read');
     }
 
     /**
@@ -20,7 +20,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('owner');
+        return $user->hasPermission('users-create');
     }
 
     /**
@@ -28,13 +28,13 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->hasRole('owner|admin') 
+        return $user->hasPermission('users-update')
         && $user->store_id === $model->store_id;
     }
 
     public function reset(User $user, User $model): bool
     {
-        return $user->hasRole('owner|admin') 
+        return $user->hasPermission('users-update')
         && $user->store_id === $model->store_id;
     }
 
@@ -43,33 +43,17 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return $user->hasRole('owner|admin') 
-                && $user->store_id === $model->store_id;
+        return $user->hasPermission('users-delete')
+               && $user->store_id === $model->store_id;
     }
 
     public function bulk_delete(User $user): bool
     {
-        return $user->hasRole('owner|admin');
+        return $user->hasPermission('users-delete');
     }
 
     public function impersonate(User $user): bool
     {
-        return $user->hasRole('super-admin');
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, User $model): bool
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, User $model): bool
-    {
-        //
+        return $user->hasRole('superadministrator');
     }
 }

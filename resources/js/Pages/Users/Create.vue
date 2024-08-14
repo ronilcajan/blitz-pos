@@ -94,7 +94,7 @@ const onFileChange = (e) => {
                             <InputError class="mt-2" :message="form.errors.name" />
                         </div>
 
-                        <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-2 lg:grid-cols-2 mt-2">
                             <div class="form-control">
                                 <InputLabel for="name" value="Email address" />
                                 <TextInput
@@ -120,9 +120,9 @@ const onFileChange = (e) => {
                         </div>
 
                         <div class="grid gap-2 mb-3" :class="$page.props.auth.user.isSuperAdmin ? 'lg:grid-cols-2 grid-cols-1' : 'grid-cols-1'">
-                            <div class="form-control">
+                            <div class="form-control mt-2">
                                 <InputLabel for="name" value="Roles" />
-                                <select v-model="form.role_id" required class="select select-bordered w-full max-w-3xl">
+                                <select v-model="form.role_id" required class="select select-bordered w-full max-w-3xl mt-2">
                                     <option disabled selected value="">Assign role</option>
                                     <option v-for="role in roles" :value="role.id" :key="role.id">
                                             {{ role.name }}

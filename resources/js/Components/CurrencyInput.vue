@@ -14,7 +14,7 @@ const page = usePage();
 const emit = defineEmits(['update:modelValue', 'change'])
 const options = { 
   "currency": page.props.auth.user.currency,
-  "currencyDisplay": "symbol",
+  "currencyDisplay": "code",
   "precision": 2,
   "hideCurrencySymbolOnFocus": true,
   "hideGroupingSeparatorOnFocus": true,
@@ -57,6 +57,7 @@ defineExpose({ focus: () => currencyInputElement.value.focus() });
 
 <template>
   <input
+    class="input input-bordered w-full"
     ref="currencyInputElement"
     :value="modelValue"
     @input="onInput" @change="onInput"

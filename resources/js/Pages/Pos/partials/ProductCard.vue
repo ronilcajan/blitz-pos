@@ -12,7 +12,7 @@ const formatNumberWithCommas = (number) => {
 </script>
 
 <template>
-    <div @click="$emit('addProducts')" class="cursor-pointer hover:bg-slate-100 card w-40 bg-base-100 shadow" style="height:250px">
+    <div @click="$emit('addProducts')" class="cursor-pointer hover:bg-slate-100 card w-40 bg-base-100 shadow" style="height:260px">
         <!-- <figure class="h-24"> -->
         <div class="mt-1">
             <img class="object-scale-down h-24 w-96" v-if="product.image" :src="product.image" alt="Shoes" loading="lazy" />
@@ -30,8 +30,8 @@ const formatNumberWithCommas = (number) => {
                     {{ formatNumberWithCommas(product.stocks) }} {{ product.unit }}
                 </div>
             </div>
-            <div class="card-actions justify-end">
-            <button class="btn btn-sm btn-primary mt-2 text-xs">
+            <div class="card-actions">
+            <button class="btn btn-xs btn-primary mt-2 text-xs">
                 {{ $page.props.auth.user.currency }}
                 {{ formatNumberWithCommas(product.price) }}</button>
             </div>

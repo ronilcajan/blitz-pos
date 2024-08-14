@@ -276,8 +276,8 @@ const submitPurchaseForm = () => {
 
                         </div>
                         <div class="w-full md:w-1/2">
-                                <InputLabel for="date" class="label" value="Transaction Date" />
-                                <TextInput v-model="purchaseForm.transaction_date" type="date" class="input input-sm w-full" required/>
+                            <InputLabel for="date" class="label" value="Transaction Date" />
+                            <TextInput v-model="purchaseForm.transaction_date" type="date" class="input input-sm w-full" required/>
                         </div>
                     </div>
                     <div class="flex justify-between gap-2 flex-col sm:flex-row mb-2 mt-4">
@@ -287,7 +287,7 @@ const submitPurchaseForm = () => {
                             </h2>
                         </div>
                     </div>
-                    <div class="dropdown mb-5 p-3 bg-base-300 rounded">
+                    <div class="dropdown mb-5 rounded">
                         <div class="flex justify-between gap-2">
                             <div class="w-full">
                                 <label for="simple-search" class="sr-only">Search</label>

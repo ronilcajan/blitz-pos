@@ -151,7 +151,7 @@ const purchaseForm = useForm({
     payment_method : 'cash',
     referrence : '',
     notes : '',
-    print : true,
+    print : false,
     items : [],
 });
 

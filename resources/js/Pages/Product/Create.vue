@@ -6,7 +6,6 @@ import { reactive, ref, watch  } from 'vue';
 import axios from 'axios';
 import debounce from "lodash/debounce";
 
-
 defineOptions({ layout: AuthenticatedLayout })
 
 const props = defineProps({
@@ -385,13 +384,20 @@ const handleScannedBarcode = (result) => {
                                         </div>
                                     </div>
                                 </div>
-                                <NumberInput
+                                <!-- <NumberInput
                                     class="block w-full mt-2"
                                     v-model="form.base_price"
                                     required
                                     min="0"
                                     @change="calculateTotal"                     placeholder="Enter base price"
+                                /> -->
+
+                                <CurrencyInput
+                                    class="block w-full mt-2"
+                                    v-model.lazy="form.base_price"
+                                    @change="calculateTotal"      
                                 />
+                                
                                 <InputError class="mt-2" :message="form.errors.base_price" />
                             </div>
                             <div class="w-full md:w-1/2">
@@ -409,13 +415,18 @@ const handleScannedBarcode = (result) => {
                                         </div>
                                     </div>
                                 </div>
-                                <NumberInput
+                                <CurrencyInput
+                                    class="block w-full mt-2"
+                                    v-model.lazy="form.markup_price"
+                                    @change="calculateTotal"      
+                                />
+                                <!-- <NumberInput
                                     class="block w-full mt-2"
                                     v-model="form.markup_price"
                                     required
                                     min="0"
                                     @change="calculateTotal"               placeholder="Enter markup price"
-                                />
+                                /> -->
                                 <InputError class="mt-2" :message="form.errors.markup_price" />
 
                             </div>
@@ -501,7 +512,7 @@ const handleScannedBarcode = (result) => {
                                         </div>
                                     </div>
                                 </div>
-                                <NumberInput
+                                <!-- <NumberInput
                                     type="number"
                                     class="block w-full mt-2"
                                     v-model="form.sale_price"
@@ -510,6 +521,12 @@ const handleScannedBarcode = (result) => {
                                     readonly
                                     @change="calculateTotal"
                                     placeholder="Enter sale price"
+                                /> -->
+                                <CurrencyInput
+                                    class="block w-full"
+                                    v-model.lazy="form.sale_price"
+                                    @change="calculateTotal"  
+                                    readonly    
                                 />
                                 <InputError class="mt-2" :message="form.errors.sale_price" />
                             </div>
