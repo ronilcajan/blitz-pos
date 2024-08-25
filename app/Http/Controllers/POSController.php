@@ -155,7 +155,7 @@ class POSController extends Controller
         if (is_numeric($search)) {
             $item->where('barcode', $search);
         } else {
-            $item->where('name', 'like', '%' . $search . '%');
+            $item->where('name',$search);
         }
         
         if(!$item->first()){

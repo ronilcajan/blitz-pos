@@ -13,7 +13,7 @@ class CustomerPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('owner|admin|staff');
+        return $user->hasPermission('customers-read');
     }
 
     /**
@@ -21,8 +21,8 @@ class CustomerPolicy
      */
     public function view(User $user, Customer $customer): bool
     {
-        return $user->hasRole('owner|admin|staff') &&
-        $user->store_id === $customer->store_id;
+        return $user->hasPermission('customers-view');
+
     }
 
     /**
@@ -30,7 +30,7 @@ class CustomerPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('owner|admin|staff');
+        return $user->hasPermission('customers-create');
     }
 
     /**
@@ -38,8 +38,8 @@ class CustomerPolicy
      */
     public function update(User $user, Customer $customer): bool
     {
-        return $user->hasRole('owner|admin')
-        && $user->store_id === $customer->store_id;
+        return $user->hasPermission('customers-update');
+
     }
 
     /**
@@ -47,13 +47,14 @@ class CustomerPolicy
      */
     public function delete(User $user, Customer $customer): bool
     {
-        return $user->hasRole('owner|admin')
-        && $user->store_id === $customer->store_id;;
+        return $user->hasPermission('customers-delete');
+
     }
 
     public function bulk_delete(User $user): bool
     {
-        return $user->hasRole('owner|admin');
+        return $user->hasPermission('customers-bulk_delete');
+
     }
 
     /**

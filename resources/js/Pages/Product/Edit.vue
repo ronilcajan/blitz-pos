@@ -170,7 +170,7 @@ const submitCategoryForm = () => {
 }
 
 const submitUpdateForm = () => {
-	form.put(route('products.update'),{
+	form.post(route('products.update',props.product.id),{
 		replace: true,
 		preserveScroll: true,
   		onSuccess: () => {
